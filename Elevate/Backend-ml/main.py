@@ -69,7 +69,7 @@ app.add_middleware(
 # --- Pydantic Models (Request Bodies) ---
 class WorkoutRequest(BaseModel):
     goal: str  # e.g., "Strength", "Cardio"
-    experience: str  # e.g., "Beginner", "Intermediate", "Advanced"
+    experience: str  # e.g., "Beginner", "Intermediate", "Advanced")
 
 
 class MealRequest(BaseModel):
@@ -93,6 +93,12 @@ class MealItem(BaseModel):
 class CreativeMealRequest(BaseModel):
     goal: str
     meals: list[MealItem]
+
+
+# --- Pydantic Models for Computer Vision ---
+class ExerciseTrackingRequest(BaseModel):
+    exercise_name: str
+    camera_index: int = 0
 
 
 # --- Helper Functions ---
@@ -151,7 +157,7 @@ def recommend_meal(request: MealRequest):
         return {"error": "Nutrition data or model not loaded. Did you run train.py?"}
 
     try:
-        # ✅ Fixed column name ('carbohydrate' instead of 'carbohydrates')
+        
         X_all = df_nutrition[['calories', 'protein', 'fat', 'carbohydrate']]
 
         predictions_encoded = meal_model.predict(X_all)
@@ -254,3 +260,41 @@ async def generate_meal_plan_creative(request: CreativeMealRequest):
         return {"response": text_response}
     except Exception as e:
         return {"error": f"Error generating response from Gemini: {e}"}
+
+
+# --- Computer Vision Endpoints ---
+@app.post("/ml/start-exercise-tracking")
+async def start_exercise_tracking(request: ExerciseTrackingRequest):
+    """Start computer vision tracking for a specific exercise."""
+    try:
+        # Import the exercise_cv module
+        from exercise_cv import track_exercise_from_planner
+        
+        # This would start the exercise tracking in a separate thread/process
+        # For now, return a message indicating the tracking is starting
+        return {
+            "message": f"Starting tracking for exercise: {request.exercise_name}",
+            "exercise": request.exercise_name,
+            "camera_index": request.camera_index
+        }
+    except Exception as e:
+        return {"error": f"An error occurred during exercise tracking setup: {e}"}
+
+
+@app.get("/ml/get-supported-exercises")
+async def get_supported_exercises():
+    """Get list of exercises supported by the computer vision module."""
+    try:
+        from exercise_cv import ExerciseRepCounter
+        counter = ExerciseRepCounter()
+        
+        supported_exercises = list(counter.exercise_landmarks.keys())
+        return {
+            "supported_exercises": supported_exercises,
+            "message": f"Currently supporting {len(supported_exercises)} exercises for rep counting"
+        }
+    except Exception as e:
+        return {"error": f"An error occurred: {e}"}
+    
+
+    
