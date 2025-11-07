@@ -7,6 +7,13 @@ import os
 import random
 import google.generativeai as genai
 
+# Load environment variables from .env file
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # dotenv is optional
+
 # --- Constants ---
 MODELS_DIR = "models"
 DATA_DIR = "data"
@@ -199,7 +206,7 @@ async def chat(request: ChatRequest):
     if gemini_model is None:
         return {"error": "Gemini API is not configured. Please set GOOGLE_API_KEY."}
 
-    system_instruction = """
+    system_context = """
     You are 'Elevate', a friendly, encouraging, and knowledgeable AI health assistant
     for the 'Elevate' fitness platform. Your name is 'Elevate'.
     - Your responses must be concise, supportive, and focused ONLY on fitness,
@@ -209,11 +216,12 @@ async def chat(request: ChatRequest):
     - Keep answers to 2-3 short paragraphs maximum.
     """
 
+    prompt_with_context = f"{system_context}\n\nUser: {request.prompt}\n\nAssistant:"
+
     try:
         response = gemini_model.generate_content(
-            request.prompt,
-            generation_config={"temperature": 0.7},
-            system_instruction=system_instruction
+            prompt_with_context,
+            generation_config={"temperature": 0.7}
         )
         return {"response": response.text}
     except Exception as e:

@@ -511,3 +511,6 @@ if __name__ == "__main__":
     
     # For testing purposes, start with a specific exercise
     # counter.start_exercise_tracking("Bicep Curl")
+
+
+    
