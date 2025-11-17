@@ -67,6 +67,60 @@ def clean_nutrition_data(df):
 
     df['goal'] = df.apply(assign_goal, axis=1)
 
+    # --- Additional Feature Engineering: Add new meal attributes ---
+    # Add meal_type based on common breakfast/lunch/dinner/snak classifications
+    def assign_meal_type(row):
+        name = row['name'].lower()
+
+        # Breakfast indicators
+        if any(breakfast_term in name for breakfast_term in ['oat', 'cereal', 'eggs', 'yogurt', 'pancake', 'waffle', 'toast', 'milk']):
+            return 'Breakfast'
+        # Lunch/Dinner indicators
+        elif any(meal_term in name for meal_term in ['chicken', 'beef', 'pork', 'fish', 'rice', 'pasta', 'salad', 'soup', 'steak', 'sandwich']):
+            # Could be either lunch or dinner, default to lunch
+            return 'Lunch'
+        # Snack indicators
+        elif any(snack_term in name for snack_term in ['nuts', 'crackers', 'chips', 'fruit', 'juice', 'smoothie', 'bar', 'cookie']):
+            return 'Snack'
+        else:
+            return 'Dinner'  # Default to dinner if uncertain
+
+    df['meal_type'] = df.apply(assign_meal_type, axis=1)
+
+    # Add dietary restriction indicators (simplified approach - in a real scenario, this would come from detailed data)
+    def assign_dietary_restrictions(row):
+        name = row['name'].lower()
+        restrictions = []
+
+        # Dairy-free indicators
+        if 'milk' not in name and 'cheese' not in name and 'butter' not in name:
+            restrictions.append('Dairy-Free')
+
+        # Vegetarian indicators (basic, would need more detailed data in practice)
+        # Assuming most foods with 'chicken', 'beef', 'pork', 'fish', 'turkey', etc. are non-vegetarian
+        if not any(meat_term in name for meat_term in ['chicken', 'beef', 'pork', 'fish', 'turkey', 'ham', 'bacon', 'sausage', 'steak', 'lamb']):
+            restrictions.append('Vegetarian')
+
+        return restrictions
+
+    df['dietary_restrictions'] = df.apply(assign_dietary_restrictions, axis=1)
+
+    # Add allergen indicators (simplified approach)
+    def assign_allergens(row):
+        name = row['name'].lower()
+        allergens = []
+
+        if any(allergen in name for allergen in ['peanuts', 'almonds', 'walnuts', 'cashews', 'hazelnuts', 'pecans', 'pistachio', 'macadamia']):
+            allergens.append('Nuts')
+        if any(allergen in name for allergen in ['wheat', 'bread', 'flour', 'pasta']):
+            allergens.append('Wheat')
+        if 'soy' in name:
+            allergens.append('Soy')
+
+        return allergens
+
+    df['allergens'] = df.apply(assign_allergens, axis=1)
+
     # Keep only goal-specific foods
     df = df[df['goal'] != 'General'].reset_index(drop=True)
 
@@ -79,6 +133,7 @@ def train_meal_model(df):
     """Trains an XGBoost classifier for meal recommendations."""
     print("Training meal model...")
 
+    # Use the basic nutritional features for the goal prediction
     X = df[['calories', 'protein', 'fat', 'carbohydrate']]
     y = df['goal']
 
@@ -130,6 +185,28 @@ def clean_exercise_data(df):
             return "Advanced"  # e.g. kettlebell, sled, resistance band
 
     df['difficulty'] = df.apply(assign_difficulty, axis=1)
+
+    # Add intensity level based on exercise type
+    def assign_intensity(row):
+        name = row['name'].lower()
+        body_part = row['bodyPart'].lower()
+
+        if 'cardio' in body_part or any(cardio_term in name for cardio_term in ['run', 'cycle', 'jump', 'sprint', 'row']):
+            return 'High'
+        elif body_part in ['lower legs', 'upper legs'] or any(strength_term in name for strength_term in ['squat', 'deadlift', 'press']):
+            return 'Moderate'
+        else:
+            return 'Low'
+
+    df['intensity'] = df.apply(assign_intensity, axis=1)
+
+    # Add time category based on typical exercise duration
+    def assign_time_category(row):
+        # Most exercises in the dataset can be done quickly (under 30 mins)
+        return 15  # average time in minutes
+
+    df['time_minutes'] = df.apply(assign_time_category, axis=1)
+
     print(f"Exercise data cleaned. {len(df)} items found.")
     return df
 
