@@ -1,15 +1,24 @@
 import { useState, useRef, useEffect } from 'react';
-import { Play, Pause, RotateCcw, Check, AlertCircle, ChevronLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Play, Pause, RotateCcw, Check, AlertCircle, ChevronLeft, Video } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useUserData } from '@/context/UserDataContext';
+import { mlAPI, exerciseAPI } from '@/services/api';
+import { toast } from 'sonner';
 
 export function Workout() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentExercise, setCurrentExercise] = useState(0);
   const [reps, setReps] = useState(0);
   const [timer, setTimer] = useState(0);
+  const [exercises, setExercises] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const { userProfile } = useUserData();
+  const navigate = useNavigate();
 
-  const exercises = [
+  // Define fallback exercises
+  const staticExercises = [
     {
       name: 'Push-ups',
       sets: 3,
@@ -30,7 +39,51 @@ export function Workout() {
     }
   ];
 
-  const currentEx = exercises[currentExercise];
+  // Load workout from the API
+  useEffect(() => {
+    loadWorkoutPlan();
+  }, []);
+
+  const loadWorkoutPlan = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Try to fetch workout plan from API
+      const workoutData = {
+        goal: userProfile?.fitnessGoal || 'strength',
+        experience: userProfile?.fitnessLevel || 'intermediate',
+        equipment_available: userProfile?.equipment ? userProfile.equipment : [],
+        time_available: 60,
+        target_muscle_group: 'full body',
+        injury_history: userProfile?.injuries ? userProfile.injuries : []
+      };
+
+      const response = await mlAPI.recommendWorkout(workoutData);
+
+      // If successful, use API exercises, otherwise use static exercises as fallback
+      const apiExercises = response.data?.exercises || staticExercises;
+
+      // Format API exercises to match our component structure
+      const formattedExercises = apiExercises.map((exercise: any) => ({
+        name: exercise.name || exercise.title || exercise.exercise,
+        sets: exercise.sets || 3,
+        reps: exercise.reps || exercise.repetitions || 10,
+        hints: exercise.form_tips || exercise.hints || exercise.instructions || ['Good form is essential']
+      }));
+
+      setExercises(formattedExercises);
+    } catch (err: any) {
+      console.error('Error loading workout plan:', err);
+      setError(err.message || 'Error loading workout plan');
+      // Fallback to static exercises
+      setExercises(staticExercises);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const currentEx = exercises[currentExercise] || staticExercises[0];
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -61,6 +114,35 @@ export function Workout() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#22C55E] mx-auto"></div>
+          <p className="mt-4 text-gray-600">Generating your personalized workout plan...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center p-8 bg-white rounded-2xl shadow-lg max-w-md">
+          <AlertCircle className="w-12 h-12 text-[#F97316] mx-auto mb-4" />
+          <h2 className="text-xl mb-2">Error Loading Workout</h2>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <button
+            onClick={loadWorkoutPlan}
+            className="px-6 py-3 bg-[#22C55E] text-white rounded-xl hover:bg-[#16A34A] transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -70,11 +152,14 @@ export function Workout() {
             <ChevronLeft className="w-5 h-5" />
             Back to Dashboard
           </Link>
-          <div className="flex items-center gap-2">
-            <span className="px-4 py-2 bg-[#22C55E]/10 text-[#22C55E] rounded-full">
-              Exercise {currentExercise + 1} of {exercises.length}
-            </span>
-          </div>
+          <button
+            onClick={loadWorkoutPlan}
+            disabled={loading}
+            className="flex items-center gap-2 px-4 py-2 bg-[#22C55E] text-white rounded-xl hover:bg-[#16A34A] transition-colors disabled:opacity-50"
+          >
+            <RotateCcw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            Refresh Plan
+          </button>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
@@ -90,27 +175,27 @@ export function Workout() {
                 >
                   <source src="#" type="video/mp4" />
                 </video>
-                
+
                 {/* Skeleton Overlay */}
                 <svg className="absolute inset-0 w-full h-full" viewBox="0 0 640 480">
                   {/* Head */}
                   <circle cx="320" cy="100" r="30" fill="none" stroke="#22C55E" strokeWidth="3" />
-                  
+
                   {/* Body */}
                   <line x1="320" y1="130" x2="320" y2="280" stroke="#22C55E" strokeWidth="3" />
-                  
+
                   {/* Arms */}
                   <line x1="320" y1="160" x2="260" y2="220" stroke="#3B82F6" strokeWidth="3" />
                   <line x1="260" y1="220" x2="240" y2="280" stroke="#3B82F6" strokeWidth="3" />
                   <line x1="320" y1="160" x2="380" y2="220" stroke="#3B82F6" strokeWidth="3" />
                   <line x1="380" y1="220" x2="400" y2="280" stroke="#3B82F6" strokeWidth="3" />
-                  
+
                   {/* Legs */}
                   <line x1="320" y1="280" x2="280" y2="360" stroke="#F97316" strokeWidth="3" />
                   <line x1="280" y1="360" x2="270" y2="440" stroke="#F97316" strokeWidth="3" />
                   <line x1="320" y1="280" x2="360" y2="360" stroke="#F97316" strokeWidth="3" />
                   <line x1="360" y1="360" x2="370" y2="440" stroke="#F97316" strokeWidth="3" />
-                  
+
                   {/* Joints */}
                   <circle cx="320" cy="160" r="6" fill="#22C55E" />
                   <circle cx="260" cy="220" r="6" fill="#3B82F6" />
@@ -148,6 +233,12 @@ export function Workout() {
                     className="flex items-center justify-center w-14 h-14 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300 transition-colors"
                   >
                     <RotateCcw className="w-6 h-6" />
+                  </button>
+                  <button
+                    onClick={() => navigate('/pose-detection', { state: { exerciseName: currentEx.name } })}
+                    className="flex items-center justify-center w-14 h-14 bg-[#3B82F6] text-white rounded-full hover:bg-[#2563EB] transition-colors"
+                  >
+                    <Video className="w-6 h-6" />
                   </button>
                   {currentExercise < exercises.length - 1 && (
                     <button

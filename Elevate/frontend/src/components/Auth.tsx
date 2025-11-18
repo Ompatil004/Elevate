@@ -1,13 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
 import { Activity, Mail, Lock, User } from 'lucide-react';
-import { ImageWithFallback } from './figma/ImageWithFallback';
+import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
+import { toast } from 'sonner';
 
-interface AuthProps {
-  onAuth: () => void;
-}
-
-export function Auth({ onAuth }: AuthProps) {
+export function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
@@ -15,12 +13,37 @@ export function Auth({ onAuth }: AuthProps) {
     password: '',
     fitnessGoal: 'weight-loss'
   });
+  const [loading, setLoading] = useState(false);
+  const { login, register } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onAuth();
-    navigate('/profile-setup');
+    setLoading(true);
+
+    try {
+      if (isLogin) {
+        // Login
+        await login(formData.email, formData.password);
+        toast.success('Login successful!');
+        navigate('/profile-setup');
+      } else {
+        // Register
+        await register({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          fitnessGoal: formData.fitnessGoal
+        });
+        toast.success('Registration successful!');
+        navigate('/profile-setup');
+      }
+    } catch (error: any) {
+      console.error('Authentication error:', error);
+      toast.error(error || (isLogin ? 'Login failed' : 'Registration failed'));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -104,9 +127,14 @@ export function Auth({ onAuth }: AuthProps) {
 
             <button
               type="submit"
-              className="w-full py-3 bg-[#F97316] text-white rounded-xl hover:bg-[#EA580C] transition-colors"
+              disabled={loading}
+              className={`w-full py-3 rounded-xl transition-colors ${
+                loading
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-[#F97316] hover:bg-[#EA580C] text-white'
+              }`}
             >
-              {isLogin ? 'Sign In' : 'Create Account'}
+              {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Create Account')}
             </button>
           </form>
 

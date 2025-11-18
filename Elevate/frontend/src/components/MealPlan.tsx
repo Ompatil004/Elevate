@@ -1,10 +1,19 @@
-import { useState } from 'react';
-import { RefreshCw, Flame, ChevronLeft } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { RefreshCw, Flame, ChevronLeft, RotateCcw } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { ImageWithFallback } from './figma/ImageWithFallback';
+import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
+import { useUserData } from '@/context/UserDataContext';
+import { mlAPI } from '@/services/api';
+import { toast } from 'sonner';
 
 export function MealPlan() {
-  const [meals, setMeals] = useState([
+  const [meals, setMeals] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { userProfile } = useUserData();
+
+  // Define initial static meals as fallback
+  const staticMeals = [
     {
       id: 1,
       type: 'Breakfast',
@@ -65,17 +74,78 @@ export function MealPlan() {
       carbs: 20,
       fats: 18
     }
-  ]);
+  ];
 
-  const totalCalories = meals.reduce((sum, meal) => sum + meal.calories, 0);
-  const totalProtein = meals.reduce((sum, meal) => sum + meal.protein, 0);
-  const totalCarbs = meals.reduce((sum, meal) => sum + meal.carbs, 0);
-  const totalFats = meals.reduce((sum, meal) => sum + meal.fats, 0);
+  // Load meals from the API
+  useEffect(() => {
+    loadMealPlan();
+  }, []);
 
-  const handleSwap = (mealId: number) => {
-    // In a real app, this would fetch a new meal from the API
-    alert(`Swapping meal ${mealId} with an alternative...`);
+  const loadMealPlan = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Try to fetch meal plan from API
+      const mealData = {
+        goal: userProfile?.fitnessGoal || 'muscle-gain',
+        calorie_target: 2000, // This could be calculated based on user profile
+        meal_type: 'any',
+        dietary_restrictions: userProfile?.dietPreference ? [userProfile.dietPreference] : []
+      };
+
+      const response = await mlAPI.recommendMeal(mealData);
+
+      // If successful, use API meals, otherwise use static meals as fallback
+      const apiMeals = response.data?.meals || staticMeals;
+
+      // Format API meals to match our component structure
+      const formattedMeals = apiMeals.map((meal: any, index: number) => ({
+        id: meal.id || index + 1,
+        type: meal.meal_type || staticMeals[index]?.type || `Meal ${index + 1}`,
+        name: meal.name || meal.food_name || staticMeals[index]?.name,
+        image: meal.image || staticMeals[index]?.image,
+        calories: meal.calories || staticMeals[index]?.calories,
+        protein: meal.protein || staticMeals[index]?.protein,
+        carbs: meal.carbohydrate || meal.carbs || staticMeals[index]?.carbs,
+        fats: meal.fat || staticMeals[index]?.fats
+      }));
+
+      setMeals(formattedMeals);
+    } catch (err: any) {
+      console.error('Error loading meal plan:', err);
+      setError(err.message || 'Error loading meal plan');
+      // Fallback to static meals
+      setMeals(staticMeals);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const totalCalories = meals.reduce((sum, meal) => sum + (meal.calories || 0), 0);
+  const totalProtein = meals.reduce((sum, meal) => sum + (meal.protein || 0), 0);
+  const totalCarbs = meals.reduce((sum, meal) => sum + (meal.carbs || 0), 0);
+  const totalFats = meals.reduce((sum, meal) => sum + (meal.fats || 0), 0);
+
+  const handleSwap = async (mealId: number) => {
+    try {
+      toast.info('Swapping meal with alternatives...');
+      await loadMealPlan(); // Reload meal plan with new options
+    } catch (err: any) {
+      toast.error(err.message || 'Error swapping meal');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#22C55E] mx-auto"></div>
+          <p className="mt-4 text-gray-600">Generating your personalized meal plan...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -86,6 +156,14 @@ export function MealPlan() {
             <ChevronLeft className="w-5 h-5" />
             Back to Dashboard
           </Link>
+          <button
+            onClick={loadMealPlan}
+            disabled={loading}
+            className="flex items-center gap-2 px-4 py-2 bg-[#22C55E] text-white rounded-xl hover:bg-[#16A34A] transition-colors disabled:opacity-50"
+          >
+            <RotateCcw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            Refresh Plan
+          </button>
         </div>
 
         <h1 className="text-3xl mb-2" style={{ fontFamily: 'var(--font-poppins)' }}>
@@ -136,7 +214,7 @@ export function MealPlan() {
           {meals.map((meal) => (
             <div key={meal.id} className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
               <div className="relative h-48">
-                <ImageWithFallback 
+                <ImageWithFallback
                   src={meal.image}
                   alt={meal.name}
                   className="w-full h-full object-cover"
@@ -149,7 +227,7 @@ export function MealPlan() {
                 <h3 className="text-xl mb-3" style={{ fontFamily: 'var(--font-poppins)' }}>
                   {meal.name}
                 </h3>
-                
+
                 {/* Macros */}
                 <div className="grid grid-cols-4 gap-2 mb-4">
                   <div className="text-center">

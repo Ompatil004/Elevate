@@ -1,14 +1,15 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Activity, Home, Utensils, TrendingUp, Dumbbell } from 'lucide-react';
+import { Activity, Home, Utensils, TrendingUp, Dumbbell, Bot } from 'lucide-react';
 
 export function Navbar() {
   const location = useLocation();
-  
+
   const navItems = [
     { path: '/dashboard', icon: Home, label: 'Dashboard' },
     { path: '/workout', icon: Dumbbell, label: 'Workout' },
     { path: '/meal-plan', icon: Utensils, label: 'Meals' },
     { path: '/analytics', icon: TrendingUp, label: 'Progress' },
+    { path: '/chatbot', icon: Bot, label: 'AI Assistant' },
   ];
 
   return (

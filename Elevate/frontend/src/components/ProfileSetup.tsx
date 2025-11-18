@@ -1,25 +1,47 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
 import { Ruler, Weight, Calendar, Activity, Utensils, ChevronRight } from 'lucide-react';
+import { toast } from 'sonner';
 
-interface ProfileSetupProps {
-  onComplete: () => void;
-}
-
-export function ProfileSetup({ onComplete }: ProfileSetupProps) {
+export function ProfileSetup() {
   const [formData, setFormData] = useState({
     height: '',
     weight: '',
     age: '',
     activityLevel: 'moderate',
-    dietPreference: 'balanced'
+    dietPreference: 'balanced',
+    fitnessGoal: 'maintenance' // We'll get this from context or previous step
   });
+  const [loading, setLoading] = useState(false);
+  const { user, updateUser } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onComplete();
-    navigate('/dashboard');
+    setLoading(true);
+
+    try {
+      // Update user profile with additional information
+      const profileData = {
+        ...user,
+        height: parseFloat(formData.height),
+        weight: parseFloat(formData.weight),
+        age: parseInt(formData.age),
+        activityLevel: formData.activityLevel,
+        dietPreference: formData.dietPreference,
+        profileSetupComplete: true
+      };
+
+      await updateUser(profileData);
+      toast.success('Profile updated successfully!');
+      navigate('/dashboard');
+    } catch (error: any) {
+      console.error('Profile setup error:', error);
+      toast.error(error.message || 'Failed to update profile');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const activityLevels = [
@@ -167,10 +189,15 @@ export function ProfileSetup({ onComplete }: ProfileSetupProps) {
 
             <button
               type="submit"
-              className="w-full py-4 bg-[#F97316] text-white rounded-xl hover:bg-[#EA580C] transition-colors flex items-center justify-center gap-2"
+              disabled={loading}
+              className={`w-full py-4 rounded-xl transition-colors flex items-center justify-center gap-2 ${
+                loading
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-[#F97316] hover:bg-[#EA580C] text-white'
+              }`}
             >
-              Continue to Dashboard
-              <ChevronRight className="w-5 h-5" />
+              {loading ? 'Saving...' : 'Continue to Dashboard'}
+              {!loading && <ChevronRight className="w-5 h-5" />}
             </button>
           </form>
         </div>

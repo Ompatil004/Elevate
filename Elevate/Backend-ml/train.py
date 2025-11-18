@@ -158,7 +158,7 @@ def train_meal_model(df):
 
     model.fit(X_train, y_train)
     acc = model.score(X_test, y_test)
-    print(f"✅ Meal model accuracy: {acc:.2f}")
+    print(f"Meal model accuracy: {acc:.2f}")
 
     # Save model and encoder
     joblib.dump(model, MEAL_MODEL_FILE)
@@ -237,7 +237,7 @@ def train_workout_model(df):
     model = DecisionTreeClassifier(random_state=42)
     model.fit(X_train, y_train)
     acc = model.score(X_test, y_test)
-    print(f"✅ Workout model accuracy: {acc:.2f}")
+    print(f"Workout model accuracy: {acc:.2f}")
 
     joblib.dump(model, WORKOUT_MODEL_FILE)
     joblib.dump(encoders, WORKOUT_ENCODER_FILE)
@@ -257,9 +257,9 @@ def main():
         df_nutrition_clean.to_csv(NUTRITION_OUT_FILE, index=False)
         print(f"Processed nutrition data saved to {NUTRITION_OUT_FILE}")
     except FileNotFoundError:
-        print(f"❌ ERROR: {NUTRITION_IN_FILE} not found.")
+        print(f"ERROR: {NUTRITION_IN_FILE} not found.")
     except Exception as e:
-        print(f"❌ An error occurred during nutrition processing: {e}")
+        print(f"An error occurred during nutrition processing: {e}")
 
     print("-" * 30)
 
@@ -271,12 +271,12 @@ def main():
         df_exercise_clean.to_csv(EXERCISE_OUT_FILE, index=False)
         print(f"Processed exercise data saved to {EXERCISE_OUT_FILE}")
     except FileNotFoundError:
-        print(f"❌ ERROR: {EXERCISE_IN_FILE} not found.")
+        print(f"ERROR: {EXERCISE_IN_FILE} not found.")
     except Exception as e:
-        print(f"❌ An error occurred during exercise processing: {e}")
+        print(f"An error occurred during exercise processing: {e}")
 
-    print("\n🎉 Training complete! You can now run the FastAPI server with:")
-    print("👉 uvicorn main:app --reload")
+    print("\nTraining complete! You can now run the FastAPI server with:")
+    print("uvicorn main:app --reload")
 
 
 if __name__ == "__main__":
