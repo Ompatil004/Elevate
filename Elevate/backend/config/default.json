@@ -1,0 +1,3 @@
+{
+  "jwtSecret": "your-jwt-secret-key-here"
+}

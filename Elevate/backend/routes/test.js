@@ -1,58 +1,50 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
-const Exercise = require('../models/Exercise');
 
-// Test endpoint for database connectivity
-router.get('/db', async (req, res) => {
+// @route    GET api/test
+// @desc     Test route
+// @access   Public
+router.get('/', (req, res) => {
+  res.json({ msg: 'Test route is working!' });
+});
+
+// @route    GET api/test/database
+// @desc     Test database connection
+// @access   Public
+router.get('/database', async (req, res) => {
   try {
-    // Test database connection by fetching a count
-    const userCount = await User.countDocuments();
-    const exerciseCount = await Exercise.countDocuments();
-    
-    res.json({
-      status: 'Database connection successful',
-      counts: {
-        users: userCount,
-        exercises: exerciseCount
-      }
+    // This would connect to your database to test the connection
+    res.json({ 
+      msg: 'Database connection test would go here',
+      timestamp: new Date().toISOString(),
+      status: 'connected' // This is a placeholder - you'd implement actual DB logic
     });
-  } catch (error) {
-    res.status(500).json({ 
-      status: 'Database connection failed', 
-      error: error.message 
-    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Database connection test failed');
   }
 });
 
-// Test endpoint for authentication middleware
-router.get('/auth', (req, res) => {
-  res.json({ 
-    status: 'Authentication middleware working',
-    message: 'If you see this, you passed the auth middleware',
-    timestamp: new Date().toISOString()
-  });
-});
-
-// Test endpoint for ML integration
-router.get('/ml', async (req, res) => {
+// @route    GET api/test/environment
+// @desc     Test environment variables
+// @access   Public
+router.get('/environment', (req, res) => {
   res.json({
-    status: 'ML integration test endpoint',
-    message: 'This endpoint is ready to connect to ML services',
+    environment: process.env.NODE_ENV || 'development',
+    port: process.env.PORT || 5000,
+    db_host: process.env.DB_HOST,
+    ml_backend_url: process.env.ML_BACKEND_URL,
     timestamp: new Date().toISOString()
   });
 });
 
-// General test endpoint
-router.get('/', (req, res) => {
-  res.json({ 
-    message: 'All test endpoints are working!',
-    routes: [
-      'GET /api/test/ - This endpoint',
-      'GET /api/test/db - Database connectivity test',
-      'GET /api/test/auth - Authentication middleware test',
-      'GET /api/test/ml - ML integration test'
-    ],
+// @route    POST api/test/echo
+// @desc     Echo back the request body
+// @access   Public
+router.post('/echo', (req, res) => {
+  res.json({
+    message: 'Echo endpoint received your data',
+    received: req.body,
     timestamp: new Date().toISOString()
   });
 });

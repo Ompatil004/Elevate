@@ -8,32 +8,55 @@ Elevate is a comprehensive fitness platform with AI-powered recommendations, pos
 
 ```
 Elevate/
+├── README.md
+├── .env.example
+├── validate-project.js
 ├── backend/                 # Node.js/Express API server
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── server.js
+│   ├── app.js
+│   ├── .env
+│   ├── jest.config.js
+│   ├── API_DOCUMENTATION.md
+│   ├── config/              # Database configuration
+│   ├── middleware/          # Authentication middleware
 │   ├── models/              # MongoDB schemas (User, Exercise)
 │   ├── routes/              # API endpoints (users, exercises, ml, test)
-│   ├── middleware/          # Authentication middleware
-│   ├── config/              # Database configuration
-│   ├── services/            # Backend services
-│   ├── .env                 # Environment variables
-│   └── server.js            # Main server file
-├── Backend-ml/              # Python ML backend
-│   ├── main.py              # FastAPI server
-│   ├── train.py             # Model training script
-│   ├── exercise_cv.py       # Pose detection module
-│   ├── requirements.txt     # Python dependencies
-│   ├── data/                # Training data
-│   └── models/              # Trained ML models
-└── frontend/                # React/Vite frontend
-    ├── src/
-    │   ├── components/      # React UI components
-    │   ├── context/         # React Context providers (Auth, UserData)
-    │   ├── services/        # API service layer (axios)
-    │   ├── utils/           # Utility functions
-    │   ├── App.tsx          # Main application component
-    │   └── main.tsx         # Application entry point
-    ├── public/
-    ├── package.json
-    └── vite.config.ts
+│   ├── ml/                  # Python ML backend (integrated)
+│   │   ├── main.py          # FastAPI server
+│   │   ├── train.py         # Model training script
+│   │   ├── exercise_cv.py   # Pose detection module
+│   │   ├── requirements.txt # Python dependencies
+│   │   ├── data/            # Training data
+│   │   └── models/          # Trained ML models
+│   └── tests/               # Backend tests
+├── frontend/                # React/Vite frontend
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── vite.config.ts
+│   ├── index.html
+│   ├── .env
+│   ├── public/
+│   ├── src/
+│   │   ├── App.tsx          # Main application component
+│   │   ├── main.tsx         # Application entry point
+│   │   ├── __tests__/       # Frontend tests
+│   │   ├── components/      # React UI components
+│   │   ├── features/        # Feature-specific components
+│   │   │   ├── auth/
+│   │   │   ├── user/
+│   │   │   ├── workout/
+│   │   │   ├── mealPlanner/
+│   │   │   ├── chatbot/
+│   │   │   └── poseDetection/
+│   │   ├── context/         # React Context providers (Auth, UserData)
+│   │   ├── services/        # API service layer (axios)
+│   │   ├── styles/          # CSS styles
+│   │   └── utils/           # Utility functions
+│   └── build/
+└── docs/                    # Documentation files
+    └── Attributions.md
 ```
 
 ## Module Integration
@@ -90,10 +113,10 @@ npm run dev
 
 ### ML Backend
 ```bash
-cd Backend-ml
+cd backend/ml
 pip install -r requirements.txt
 python train.py  # To train models
-uvicorn main:app --reload  # To start server
+uvicorn ml.main:app --reload  # To start server
 ```
 
 ## API Endpoints
@@ -117,7 +140,7 @@ uvicorn main:app --reload  # To start server
 
 ## Running the Full Application
 
-1. Start the ML backend: `cd Backend-ml && uvicorn main:app --reload`
+1. Start the ML backend: `cd backend/ml && uvicorn ml.main:app --reload`
 2. Start the Node.js backend: `cd backend && npm run dev`
 3. Start the frontend: `cd frontend && npm run dev`
 
@@ -137,10 +160,10 @@ uvicorn main:app --reload  # To start server
 ## Troubleshooting
 
 ### Common Issues
-- ML backend not responding: Ensure `uvicorn main:app --reload` is running on port 8000
+- ML backend not responding: Ensure `uvicorn ml.main:app --reload` is running on port 8000
 - Authentication failing: Check JWT_SECRET is properly set in backend .env
 - Camera access blocked: Ensure HTTPS or localhost for camera access
-- ML recommendations not working: Verify Google API key in Backend-ml/.env
+- ML recommendations not working: Verify Google API key in backend/ml/.env
 
 ### Port Configuration
 - Frontend: 3000

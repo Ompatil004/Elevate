@@ -108,7 +108,7 @@ app.get('/api/test', (req, res) => {
   });
 });
 
-// ML backend proxy endpoint to connect with Backend-ml
+// ML backend proxy endpoint to connect with ML service in backend/ml directory
 app.get('/api/ml-health', async (req, res) => {
   try {
     const response = await axios.get(`${process.env.ML_BACKEND_URL || 'http://localhost:8000'}/health`);

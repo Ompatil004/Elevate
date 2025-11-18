@@ -13,27 +13,20 @@ const ExerciseSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  muscleGroup: {
+    type: String,
+    required: true
+  },
   difficulty: {
     type: String,
-    enum: ['beginner', 'intermediate', 'advanced'],
-    default: 'beginner'
+    required: true
   },
-  duration: {
-    type: Number, // in minutes
-    default: 30
-  },
-  createdBy: {
+  userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'User',
+    required: true
   },
-  equipment: [{
-    type: String
-  }],
-  steps: [{
-    step: Number,
-    description: String
-  }],
-  createdAt: {
+  date: {
     type: Date,
     default: Date.now
   }

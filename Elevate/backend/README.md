@@ -14,7 +14,7 @@ The backend for the Elevate fitness platform built with Express.js, Node.js and 
 
 - Node.js (v14 or higher)
 - MongoDB Atlas account
-- Python environment for ML backend (Backend-ml)
+- Python environment for ML backend (backend/ml)
 
 ## Setup
 
@@ -53,7 +53,7 @@ The backend for the Elevate fitness platform built with Express.js, Node.js and 
 
 1. First, ensure the ML backend is running:
    ```bash
-   cd ../Backend-ml
+   cd ml
    pip install -r requirements.txt
    python train.py
    uvicorn main:app --reload --port 8000

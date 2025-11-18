@@ -1,16 +1,38 @@
 const express = require('express');
-const router = express.Router();
+const User = require('../models/User');
+const Exercise = require('../models/Exercise');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const config = require('config');
 const auth = require('../middleware/auth');
+const {
+  register,
+  login,
+  getProfile,
+  updateProfile,
+  completeProfile
+} = require('../controllers/UserController');
 
-// @route   POST api/users/register
-// @desc    Register user
-// @access  Public
+const router = express.Router();
+
+// @route    GET api/users/test
+// @desc     Test users route
+// @access   Public
+router.get('/test', (req, res) => {
+  res.json({ msg: 'Users route is working!' });
+});
+
+// @route    POST api/users/register
+// @desc     Register user
+// @access   Public
 router.post('/register', async (req, res) => {
   try {
     const { name, email, password } = req.body;
+
+    // Simple validation
+    if (!name || !email || !password) {
+      return res.status(400).json({ msg: 'Please enter all fields' });
+    }
 
     // Check if user already exists
     let user = await User.findOne({ email });
@@ -31,153 +53,161 @@ router.post('/register', async (req, res) => {
 
     await user.save();
 
-    // Generate JWT token
+    // Create JWT token
     const payload = {
       user: {
         id: user.id
       }
     };
 
-    const token = jwt.sign(
+    jwt.sign(
       payload,
-      process.env.JWT_SECRET || 'default_jwt_secret',
-      { expiresIn: '7 days' }
+      config.get('jwtSecret'),
+      { expiresIn: '7 days' },
+      (err, token) => {
+        if (err) throw err;
+        res.json({
+          token,
+          user: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            profileCompleted: user.profileCompleted
+          }
+        });
+      }
     );
 
-    res.json({
-      token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        fitnessGoal: user.fitnessGoal,
-        profileSetupComplete: user.profileSetupComplete
-      }
-    });
-  } catch (error) {
-    console.error(error.message);
+  } catch (err) {
+    console.error(err.message);
     res.status(500).send('Server error');
   }
 });
 
-// @route   POST api/users/login
-// @desc    Authenticate user & get token
-// @access  Public
+// @route    POST api/users/login
+// @desc     Login user
+// @access   Public
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Check for user
+    // Simple validation
+    if (!email || !password) {
+      return res.status(400).json({ msg: 'Please enter all fields' });
+    }
+
+    // Check if user exists
     let user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ msg: 'Invalid Credentials' });
+      return res.status(400).json({ msg: 'Invalid credentials' });
     }
 
+    // Check password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ msg: 'Invalid Credentials' });
+      return res.status(400).json({ msg: 'Invalid credentials' });
     }
 
-    // Generate JWT token
+    // Create JWT token
     const payload = {
       user: {
         id: user.id
       }
     };
 
-    const token = jwt.sign(
+    jwt.sign(
       payload,
-      process.env.JWT_SECRET || 'default_jwt_secret',
-      { expiresIn: '7 days' }
+      config.get('jwtSecret'),
+      { expiresIn: '7 days' },
+      (err, token) => {
+        if (err) throw err;
+        res.json({
+          token,
+          user: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            profileCompleted: user.profileCompleted
+          }
+        });
+      }
     );
 
-    res.json({
-      token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        fitnessGoal: user.fitnessGoal,
-        profileSetupComplete: user.profileSetupComplete
-      }
-    });
-  } catch (error) {
-    console.error(error.message);
+  } catch (err) {
+    console.error(err.message);
     res.status(500).send('Server error');
   }
 });
 
-// @route   GET api/users/profile
-// @desc    Get user profile
-// @access  Private
+// @route    GET api/users/profile
+// @desc     Get user profile
+// @access   Private
 router.get('/profile', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
-    res.json(user);
-  } catch (error) {
-    console.error(error.message);
+    res.json({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      profileCompleted: user.profileCompleted,
+      age: user.age,
+      gender: user.gender,
+      weight: user.weight,
+      height: user.height,
+      fitnessGoals: user.fitnessGoals,
+      activityLevel: user.activityLevel,
+      dietaryPreferences: user.dietaryPreferences,
+      healthConditions: user.healthConditions,
+      date: user.date
+    });
+  } catch (err) {
+    console.error(err.message);
     res.status(500).send('Server error');
   }
 });
 
-// @route   PUT api/users/profile
-// @desc    Update user profile
-// @access  Private
-router.put('/profile', auth, async (req, res) => {
+// @route    PUT api/users/complete-profile
+// @desc     Complete user profile with additional information
+// @access   Private
+router.put('/complete-profile', auth, async (req, res) => {
   try {
     const {
-      name,
-      email,
-      fitnessGoal,
-      height,
-      weight,
       age,
+      gender,
+      weight,
+      height,
+      fitnessGoals,
       activityLevel,
-      dietPreference,
-      profileSetupComplete
+      dietaryPreferences,
+      healthConditions
     } = req.body;
 
-    // Build profile object
-    const profileFields = {};
-
-    // Only update fields that are provided
-    if (name) profileFields.name = name;
-    if (height !== undefined) profileFields.height = height;
-    if (weight !== undefined) profileFields.weight = weight;
-    if (age !== undefined) profileFields.age = age;
-    if (fitnessGoal) profileFields.fitnessGoal = fitnessGoal;
-    if (activityLevel) profileFields.activityLevel = activityLevel;
-    if (dietPreference) profileFields.dietPreference = dietPreference;
-    if (profileSetupComplete !== undefined) profileFields.profileSetupComplete = profileSetupComplete;
-
-    // Only check for email if it's being updated
-    if (email && email !== req.user.email) {
-      // Check if email already exists (excluding current user)
-      const existingUser = await User.findOne({
-        email,
-        _id: { $ne: req.user.id }
-      });
-      if (existingUser) {
-        return res.status(400).json({ msg: 'Email already exists' });
-      }
-      profileFields.email = email;
+    // Validation - check required fields
+    if (!age || !gender || !weight || !height || !fitnessGoals || !activityLevel) {
+      return res.status(400).json({ msg: 'Please provide all required profile information' });
     }
 
-    // Update profile
+    // Update user profile
     const user = await User.findByIdAndUpdate(
       req.user.id,
-      { $set: profileFields },
-      { new: true } // Return updated document
+      {
+        age,
+        gender,
+        weight,
+        height,
+        fitnessGoals,
+        activityLevel,
+        dietaryPreferences: dietaryPreferences || [],
+        healthConditions: healthConditions || [],
+        profileCompleted: true
+      },
+      { new: true }
     ).select('-password');
 
-    if (!user) {
-      return res.status(404).json({ msg: 'User not found' });
-    }
-
     res.json(user);
-  } catch (error) {
-    console.error('Update profile error:', error.message);
-    res.status(500).json({ msg: 'Server error', error: error.message });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
   }
 });
 
