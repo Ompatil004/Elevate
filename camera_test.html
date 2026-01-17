@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Camera Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .video-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        img {
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            max-width: 100%;
+            height: auto;
+        }
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .status {
+            text-align: center;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Camera Feed Test</h1>
+        
+        <div class="status success" id="statusDiv">
+            Attempting to connect to camera feed...
+        </div>
+        
+        <div class="video-container">
+            <img id="videoFeed" src="" alt="Camera Feed Will Appear Here" />
+        </div>
+        
+        <div class="controls">
+            <button onclick="loadFeed()">Refresh Feed</button>
+            <button onclick="testExercise('bicep_curl')">Bicep Curls</button>
+            <button onclick="testExercise('squat')">Squats</button>
+            <button onclick="testExercise('pushup')">Pushups</button>
+        </div>
+        
+        <div class="info">
+            <h3>How to Test:</h3>
+            <ol>
+                <li>Make sure your camera is not being used by another application</li>
+                <li>Click "Refresh Feed" to reload the camera stream</li>
+                <li>Try different exercises using the buttons above</li>
+                <li>If you see a black screen or error, check the Python pose detection service</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const videoFeed = document.getElementById('videoFeed');
+        const statusDiv = document.getElementById('statusDiv');
+        
+        function updateStatus(message, isError = false) {
+            statusDiv.textContent = message;
+            statusDiv.className = isError ? 'status error' : 'status success';
+        }
+        
+        function loadFeed() {
+            // Add timestamp to bypass cache
+            const timestamp = new Date().getTime();
+            videoFeed.src = `http://localhost:8001/video_feed?t=${timestamp}`;
+            
+            videoFeed.onload = function() {
+                updateStatus('Camera feed loaded successfully!');
+            };
+            
+            videoFeed.onerror = function() {
+                updateStatus('Error loading camera feed. Make sure the Python pose detection service is running on port 8001.', true);
+            };
+        }
+        
+        async function testExercise(exercise) {
+            try {
+                const response = await fetch('http://localhost:5000/api/ml/set-exercise', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-auth-token': localStorage.getItem('token') || 'dummy-token-for-test'
+                    },
+                    body: JSON.stringify({ exercise_name: exercise })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    updateStatus(`Exercise set to: ${exercise}. Rep count reset.`);
+                    loadFeed(); // Refresh the feed
+                } else {
+                    updateStatus(`Error setting exercise: ${response.statusText}`, true);
+                }
+            } catch (error) {
+                updateStatus(`Network error setting exercise: ${error.message}`, true);
+            }
+        }
+        
+        // Load the feed when page loads
+        window.onload = loadFeed;
+    </script>
+</body>
+</html>

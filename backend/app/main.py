@@ -8,7 +8,13 @@ import pandas as pd
 from app.ml_utils import ml_service
 from app.pose_tracker import PoseTracker
 
-app = FastAPI(title="Elevate AI API", version="1.0")
+app = FastAPI(
+    title="Elevate AI API",
+    version="1.0",
+    description="AI-powered fitness and nutrition platform API",
+    docs_url="/docs",
+    redoc_url="/redoc"
+)
 
 class ExerciseSelectRequest(BaseModel):
     exercise_name: str
@@ -41,8 +47,16 @@ camera = None
 def home():
     return {"status": "Elevate AI System Operational"}
 
-@app.post("/ml/recommend-workout")
+@app.post("/ml/recommend-workout", summary="Get Workout Recommendations", description="Get personalized workout recommendations based on experience level")
 def recommend_workout(request: WorkoutRequest):
+    """
+    Generate personalized workout recommendations.
+
+    - **goal**: Fitness goal (Weight Loss, Muscle Gain, Maintain, Endurance, Strength)
+    - **experience**: Experience level (Beginner, Intermediate, Advanced)
+
+    Returns workout exercises tailored to the user's experience level.
+    """
     print(f"Generating workout for: {request.experience}")
     exercises = ml_service.recommend_workout(request.experience)
     if not exercises:
