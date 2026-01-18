@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Futuristic Fitness Theme CSS Variables */
 :root {
   --primary-color: #00BFFF; /* Electric Blue */
@@ -28,6 +29,14 @@
 body {
   margin: 0;
   min-width: 320px;
+=======
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(212, 175, 55, 0.4);
+>>>>>>> 09ad0f416e64dcd001fe0eda2ba74a1ade4d507b
   min-height: 100vh;
   background: inherit;
   color: var(--text-color);
@@ -63,6 +72,7 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 1rem;
 }
 
+<<<<<<< HEAD
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
@@ -179,3 +189,8 @@ input:focus, textarea:focus, select:focus {
     color: var(--dark-bg);
   }
 }
+=======
+html {
+  scroll-behavior: smooth;
+}
+>>>>>>> 09ad0f416e64dcd001fe0eda2ba74a1ade4d507b
