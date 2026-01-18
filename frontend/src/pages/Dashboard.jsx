@@ -42,10 +42,7 @@ function Dashboard() {
 
   return (
     <div style={styles.page}>
-      {/* FLUID CONTAINER FILLS WIDTH */}
       <Container fluid className="d-flex flex-column flex-grow-1">
-        
-        {/* HEADER */}
         <div className="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h1 className="display-4 fw-bold">DASHBOARD</h1>
@@ -54,10 +51,7 @@ function Dashboard() {
             <Button variant="outline-light" size="lg" onClick={() => navigate('/login')}>LOGOUT</Button>
         </div>
 
-        {/* MAIN CONTENT - 3 COLUMNS FILLING SCREEN */}
         <Row className="flex-grow-1 g-4">
-            
-            {/* WORKOUT */}
             <Col md={4}>
                 <div style={styles.glassCard} onClick={() => navigate('/workout')}
                      onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-10px)'}
@@ -71,7 +65,6 @@ function Dashboard() {
                 </div>
             </Col>
 
-            {/* STATUS / STATS (Middle Filler) */}
             <Col md={4}>
                 <div style={{...styles.glassCard, cursor: 'default', background: 'rgba(255,255,255,0.05)'}}>
                     <h3 className="text-white-50 mb-5">WEEKLY GOALS</h3>
@@ -89,7 +82,6 @@ function Dashboard() {
                 </div>
             </Col>
 
-            {/* NUTRITION */}
             <Col md={4}>
                 <div style={styles.glassCard} onClick={() => navigate('/nutrition')}
                      onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-10px)'}

@@ -39,7 +39,7 @@ function Workout() {
   const stopCam = async () => { setActiveIdx(null); try{ await axios.post(`${API_URL}/stop_camera`); }catch(e){} };
 
   const startEx = async (ex, i) => {
-    if(activeIdx !== null && activeIdx !== i) return; // Locked
+    if(activeIdx !== null && activeIdx !== i) return; 
     setActiveIdx(i);
     let mode = "bicep_curl"; 
     if(ex.name.toLowerCase().includes("squat")) mode = "squat";
@@ -50,7 +50,6 @@ function Workout() {
   const finishEx = async (i) => {
     await stopCam();
     setCompleted([...completed, i]);
-    // Save to DB here if needed
     alert("Set Complete!");
   };
 
@@ -58,7 +57,6 @@ function Workout() {
     <div style={styles.page}>
       <Container fluid className="p-0">
         <Row className="g-0">
-            {/* SIDEBAR LIST */}
             <Col lg={3} style={styles.sidebar}>
                 <div className="p-3 bg-dark border-bottom border-secondary d-flex justify-content-between align-items-center">
                     <h4 className="m-0 fw-bold">SESSION PLAN</h4>
@@ -76,11 +74,9 @@ function Workout() {
                 ))}
             </Col>
 
-            {/* CAMERA FEED */}
             <Col lg={9} style={styles.main} className="bg-black">
                 {activeIdx !== null ? (
                     <>
-                        {/* OVERLAY HEADER */}
                         <div className="position-absolute top-0 start-0 w-100 p-4 d-flex justify-content-between align-items-start" 
                              style={{background: 'linear-gradient(to bottom, rgba(0,0,0,0.9), transparent)', zIndex: 10}}>
                             <div>
@@ -93,10 +89,8 @@ function Workout() {
                             </div>
                         </div>
 
-                        {/* VIDEO */}
                         <img src={`${API_URL}/video_feed?t=${Date.now()}`} style={{width: '100%', height: '100%', objectFit: 'contain'}} alt="Feed"/>
                         
-                        {/* OVERLAY FOOTER */}
                         <div className="position-absolute bottom-0 w-100 p-4 d-flex justify-content-center gap-3" 
                              style={{background: 'linear-gradient(to top, rgba(0,0,0,0.9), transparent)'}}>
                             <Button variant="success" size="lg" className="px-5 py-3 fw-bold rounded-pill" onClick={() => finishEx(activeIdx)}>✅ COMPLETE SET</Button>
