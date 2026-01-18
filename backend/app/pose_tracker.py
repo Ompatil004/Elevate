@@ -22,6 +22,87 @@ class PoseTracker:
         else:
             self.pose = None
 
+# ... (imports and init remain the same)
+
+    def process_frame(self, frame):
+        image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        image.flags.writeable = False
+        results = self.pose.process(image)
+        image.flags.writeable = True
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+
+        try:
+            landmarks = results.pose_landmarks.landmark
+            
+            # --- 1. BICEP CURL (Arms) ---
+            if self.current_exercise == "bicep_curl":
+                shoulder = [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x, landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
+                elbow = [landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].x, landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].y]
+                wrist = [landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].x, landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].y]
+                
+                angle = self.calculate_angle(shoulder, elbow, wrist)
+                
+                if angle > 160:
+                    self.stage = "down"
+                    self.feedback = "Up!"
+                if angle < 30 and self.stage == 'down':
+                    self.stage = "up"
+                    self.counter += 1
+                    self.feedback = "Good!"
+
+            # --- 2. SQUAT (Legs) ---
+            elif self.current_exercise == "squat":
+                hip = [landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].x, landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].y]
+                knee = [landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].x, landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].y]
+                ankle = [landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].x, landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].y]
+                
+                angle = self.calculate_angle(hip, knee, ankle)
+                
+                if angle > 170:
+                    self.stage = "up"
+                    self.feedback = "Sit Back!"
+                if angle < 90 and self.stage == 'up':
+                    self.stage = "down"
+                    self.counter += 1
+                    self.feedback = "Rise!"
+
+            # --- 3. PUSH-UP (Chest) ---
+            elif self.current_exercise == "pushup":
+                # Calculate Elbow Angle
+                shoulder = [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x, landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
+                elbow = [landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].x, landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].y]
+                wrist = [landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].x, landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].y]
+                
+                angle = self.calculate_angle(shoulder, elbow, wrist)
+                
+                # Push-up Logic (Check if body is horizontal roughly)
+                if angle > 160:
+                    self.stage = "up"
+                    self.feedback = "Go Down!"
+                if angle < 90 and self.stage == 'up':
+                    self.stage = "down"
+                    self.counter += 1
+                    self.feedback = "Push Up!"
+
+            # --- CHECK COMPLETION ---
+            if self.counter >= self.target_reps:
+                self.is_completed = True
+                self.feedback = "✅ SET COMPLETE!"
+
+        except Exception as e:
+            pass
+        
+        # ... (Drawing code remains the same)
+        mp_drawing = mp.solutions.drawing_utils # type: ignore
+        
+        # Draw Scoreboard
+        cv2.rectangle(image, (0,0), (225,73), (245,117,16), -1)
+        cv2.putText(image, 'REPS', (15,12), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,0), 1, cv2.LINE_AA)
+        cv2.putText(image, str(self.counter), (10,60), cv2.FONT_HERSHEY_SIMPLEX, 2, (255,255,255), 2, cv2.LINE_AA)
+        cv2.putText(image, self.stage if self.stage else "-", (60,60), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 1, cv2.LINE_AA)
+
+        return image, self.counter
+
     def set_exercise(self, exercise_name):
         """Switch the tracking logic based on user selection"""
         self.current_exercise = exercise_name
