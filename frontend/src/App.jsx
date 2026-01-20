@@ -6,6 +6,7 @@ import ProfileSetup from './pages/ProfileSetup';
 import Dashboard from './pages/Dashboard';
 import Workout from './pages/Workout';     // NEW
 import Nutrition from './pages/Nutrition'; // NEW
+import Chatbot from './pages/Chatbot';     // NEW
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/workout" element={<Workout />} />
         <Route path="/nutrition" element={<Nutrition />} />
+        <Route path="/chatbot" element={<Chatbot />} />
       </Routes>
     </Router>
   );

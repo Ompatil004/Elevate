@@ -1,12 +1,20 @@
+/* 1. Reset sizing so borders don't increase width */
+* {
+  box-sizing: border-box;
+}
+
+/* 2. Force scrollbar to prevent page width jumping */
+html {
+  scroll-behavior: smooth;
+  overflow-y: scroll; 
+}
+
 body {
   margin: 0;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   background: rgba(15, 23, 42, 0.9);
   backdrop-filter: blur(20px);
-  border: 2px solid rgba(212, 175, 55, 0.4);
+  /* This border on the body might look weird, consider removing it if you don't need it */
+  border: 2px solid rgba(212, 175, 55, 0.4); 
   min-height: 100vh;
-}
-
-html {
-  scroll-behavior: smooth;
 }
