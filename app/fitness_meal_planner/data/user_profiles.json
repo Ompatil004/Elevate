@@ -1,0 +1,31 @@
+[
+  {
+    "user_id": "ab92ce5b-7ff6-4846-aff0-9e0c1f7db171",
+    "timestamp": "2026-02-03T12:29:02.392027",
+    "age": 30,
+    "weight": 70,
+    "height": 170,
+    "gender": "male",
+    "fitness_goal": "general_fitness",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none"
+    ],
+    "dietary_preference": "balanced",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": 5,
+    "created_at": "2026-02-03T16:19:12.821560",
+    "equipment_available": [
+      "dumbbells",
+      "yoga_mat"
+    ],
+    "fitness_level": "intermediate",
+    "goal": "strength",
+    "name": "Updated Test User",
+    "updated_at": "2026-02-03T16:19:12.821566"
+  }
+]

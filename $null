@@ -1,0 +1,7 @@
+Invoke-RestMethod : A parameter cannot be found that matches parameter name 'SkipCertificateCheck'.
+At line:1 char:204
++ ... "user_id":"test_user_123", "name":"Test User"}' -SkipCertificateCheck
++                                                     ~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidArgument: (:) [Invoke-RestMethod], ParameterBindingException
+    + FullyQualifiedErrorId : NamedParameterNotFound,Microsoft.PowerShell.Commands.InvokeRestMethodCommand
+ 

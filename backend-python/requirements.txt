@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+motor
+python-multipart
+python-jose[cryptography]
+passlib
+bcrypt==3.2.0
+opencv-python
+mediapipe
+numpy
+pandas
+scikit-learn
+xgboost
+joblib
+pyjwt
+cryptography

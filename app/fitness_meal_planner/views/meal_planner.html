@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meal Planner - Elevate</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4cc9f0;
+            --light-bg: #f8f9fa;
+            --dark-text: #212529;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+        }
+        
+        .sidebar {
+            min-height: 100vh;
+            background-color: white;
+            box-shadow: 0 0 15px rgba(0,0,0,0.05);
+        }
+        
+        .main-content {
+            background-color: var(--light-bg);
+        }
+        
+        .meal-card {
+            border-radius: 10px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .meal-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .nutrition-badge {
+            font-size: 0.8em;
+        }
+        
+        .card {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+        
+        .macro-progress {
+            height: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar p-3">
+                <div class="d-flex align-items-center mb-4">
+                    <i class="fas fa-dumbbell fa-2x text-primary me-2"></i>
+                    <h4 class="mb-0">Elevate</h4>
+                </div>
+                
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">
+                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/workout-planner">
+                            <i class="fas fa-dumbbell me-2"></i>Workout Planner
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/meal-planner">
+                            <i class="fas fa-utensils me-2"></i>Meal Planner
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-chart-line me-2"></i>Progress
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-user-cog me-2"></i>Profile
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-cog me-2"></i>Settings
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 main-content p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>Meal Planner</h2>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#generateMealModal">
+                        <i class="fas fa-plus me-2"></i>Generate Plan
+                    </button>
+                </div>
+                
+                <!-- Daily Nutrition Summary -->
+                <div class="row mb-4">
+                    <div class="col-md-3 mb-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="text-primary">Calories</h5>
+                                <h3>2,150 <small class="text-muted">/ 2,400</small></h3>
+                                <div class="progress macro-progress mt-2">
+                                    <div class="progress-bar bg-primary" style="width: 89%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="text-success">Protein</h5>
+                                <h3>112g <small class="text-muted">/ 120g</small></h3>
+                                <div class="progress macro-progress mt-2">
+                                    <div class="progress-bar bg-success" style="width: 93%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="text-warning">Carbs</h5>
+                                <h3>245g <small class="text-muted">/ 260g</small></h3>
+                                <div class="progress macro-progress mt-2">
+                                    <div class="progress-bar bg-warning" style="width: 94%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="text-info">Fats</h5>
+                                <h3>85g <small class="text-muted">/ 90g</small></h3>
+                                <div class="progress macro-progress mt-2">
+                                    <div class="progress-bar bg-info" style="width: 94%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Today's Meals -->
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Today's Meal Plan</h5>
+                        <div>
+                            <span class="badge bg-primary">Weight Loss</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="row">
+                                    <div class="col-md-4 mb-4">
+                                        <div class="meal-card card h-100 p-3">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <h6 class="mb-0">Breakfast</h6>
+                                                <span class="badge bg-success nutrition-badge">320 cal</span>
+                                            </div>
+                                            <h6>Oatmeal with Berries</h6>
+                                            <ul class="list-unstyled small">
+                                                <li><i class="fas fa-apple-alt text-success me-1"></i> 10g Protein</li>
+                                                <li><i class="fas fa-bread-slice text-warning me-1"></i> 55g Carbs</li>
+                                                <li><i class="fas fa-cheese text-info me-1"></i> 8g Fat</li>
+                                            </ul>
+                                            <div class="mt-auto">
+                                                <button class="btn btn-sm btn-outline-primary">View Recipe</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-4 mb-4">
+                                        <div class="meal-card card h-100 p-3">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <h6 class="mb-0">Lunch</h6>
+                                                <span class="badge bg-success nutrition-badge">420 cal</span>
+                                            </div>
+                                            <h6>Vegan Buddha Bowl</h6>
+                                            <ul class="list-unstyled small">
+                                                <li><i class="fas fa-apple-alt text-success me-1"></i> 15g Protein</li>
+                                                <li><i class="fas fa-bread-slice text-warning me-1"></i> 50g Carbs</li>
+                                                <li><i class="fas fa-cheese text-info me-1"></i> 15g Fat</li>
+                                            </ul>
+                                            <div class="mt-auto">
+                                                <button class="btn btn-sm btn-outline-primary">View Recipe</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-4 mb-4">
+                                        <div class="meal-card card h-100 p-3">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <h6 class="mb-0">Dinner</h6>
+                                                <span class="badge bg-danger nutrition-badge">480 cal</span>
+                                            </div>
+                                            <h6>Salmon with Vegetables</h6>
+                                            <ul class="list-unstyled small">
+                                                <li><i class="fas fa-apple-alt text-success me-1"></i> 35g Protein</li>
+                                                <li><i class="fas fa-bread-slice text-warning me-1"></i> 20g Carbs</li>
+                                                <li><i class="fas fa-cheese text-info me-1"></i> 28g Fat</li>
+                                            </ul>
+                                            <div class="mt-auto">
+                                                <button class="btn btn-sm btn-outline-primary">View Recipe</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="meal-card card h-100 p-3">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <h6 class="mb-0">Snack</h6>
+                                                <span class="badge bg-warning nutrition-badge">180 cal</span>
+                                            </div>
+                                            <h6>Protein Shake</h6>
+                                            <ul class="list-unstyled small">
+                                                <li><i class="fas fa-apple-alt text-success me-1"></i> 25g Protein</li>
+                                                <li><i class="fas fa-bread-slice text-warning me-1"></i> 15g Carbs</li>
+                                                <li><i class="fas fa-cheese text-info me-1"></i> 3g Fat</li>
+                                            </ul>
+                                            <div class="mt-auto">
+                                                <button class="btn btn-sm btn-outline-primary">View Recipe</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-8">
+                                        <div class="card bg-light p-3 h-100">
+                                            <h6>Nutrition Notes</h6>
+                                            <ul class="list-unstyled">
+                                                <li><i class="fas fa-check-circle text-success me-2"></i> High protein content supports muscle maintenance</li>
+                                                <li><i class="fas fa-check-circle text-success me-2"></i> Balanced macros for sustained energy</li>
+                                                <li><i class="fas fa-check-circle text-success me-2"></i> Adequate fiber intake from vegetables</li>
+                                                <li><i class="fas fa-check-circle text-success me-2"></i> Omega-3 fatty acids from salmon</li>
+                                            </ul>
+                                            
+                                            <button class="btn btn-outline-primary mt-2" data-bs-toggle="modal" data-bs-target="#explainMealModal">
+                                                <i class="fas fa-lightbulb me-2"></i>Why These Meals?
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="card bg-light p-3 h-100">
+                                    <h6>Dietary Compliance</h6>
+                                    <ul class="list-unstyled">
+                                        <li><i class="fas fa-check-circle text-success me-2"></i> Gluten-free options included</li>
+                                        <li><i class="fas fa-check-circle text-success me-2"></i> No dairy products (as requested)</li>
+                                        <li><i class="fas fa-check-circle text-success me-2"></i> Low sodium preparation</li>
+                                        <li><i class="fas fa-times-circle text-danger me-2"></i> Peanut-free (for allergy)</li>
+                                    </ul>
+                                    
+                                    <h6 class="mt-3">Today's Goals</h6>
+                                    <ul class="list-unstyled">
+                                        <li><i class="fas fa-bullseye text-primary me-2"></i> Stay within calorie range</li>
+                                        <li><i class="fas fa-bullseye text-primary me-2"></i> Meet protein target</li>
+                                        <li><i class="fas fa-bullseye text-primary me-2"></i> Include 5 servings of vegetables</li>
+                                    </ul>
+                                    
+                                    <button class="btn btn-success mt-3">
+                                        <i class="fas fa-clipboard-check me-2"></i>Mark All Eaten
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Weekly Overview -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Weekly Meal Overview</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-borderless">
+                                <thead>
+                                    <tr>
+                                        <th>Day</th>
+                                        <th>Breakfast</th>
+                                        <th>Lunch</th>
+                                        <th>Dinner</th>
+                                        <th>Snacks</th>
+                                        <th>Calories</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Mon</strong></td>
+                                        <td>Oatmeal & Berries</td>
+                                        <td>Chicken Salad</td>
+                                        <td>Quinoa Bowl</td>
+                                        <td>Yogurt & Nuts</td>
+                                        <td>2,350</td>
+                                    </tr>
+                                    <tr class="table-primary">
+                                        <td><strong>Tue</strong></td>
+                                        <td>Protein Shake</td>
+                                        <td>Buddha Bowl</td>
+                                        <td>Salmon & Veggies</td>
+                                        <td>Fruit & Seeds</td>
+                                        <td>2,150</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Wed</strong></td>
+                                        <td>Greek Yogurt</td>
+                                        <td>Tuna Wrap</td>
+                                        <td>Stir Fry</td>
+                                        <td>Protein Bar</td>
+                                        <td>2,280</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Thu</strong></td>
+                                        <td>Oatmeal & Berries</td>
+                                        <td>Chickpea Salad</td>
+                                        <td>Grilled Fish</td>
+                                        <td>Nut Mix</td>
+                                        <td>2,100</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Fri</strong></td>
+                                        <td>Avocado Toast</td>
+                                        <td>Vegetable Soup</td>
+                                        <td>Lean Beef</td>
+                                        <td>Hummus & Veggies</td>
+                                        <td>2,400</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generate Meal Modal -->
+    <div class="modal fade" id="generateMealModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Generate New Meal Plan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="mealForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Dietary Goal</label>
+                                    <select class="form-select" name="goal">
+                                        <option value="weight_loss">Weight Loss</option>
+                                        <option value="muscle_gain">Muscle Gain</option>
+                                        <option value="maintenance" selected>Maintenance</option>
+                                        <option value="endurance">Endurance Training</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Daily Calorie Target</label>
+                                    <input type="number" class="form-control" name="calories" value="2400" min="1200" max="4000">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Dietary Restrictions</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="restrictions" value="vegan">
+                                        <label class="form-check-label">Vegan</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="restrictions" value="vegetarian">
+                                        <label class="form-check-label">Vegetarian</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="restrictions" value="gluten_free" checked>
+                                        <label class="form-check-label">Gluten Free</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="restrictions" value="dairy_free" checked>
+                                        <label class="form-check-label">Dairy Free</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Food Preferences</label>
+                                    <textarea class="form-control" rows="3" name="preferences" placeholder="e.g., prefer Asian cuisine, dislike mushrooms"></textarea>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Allergies</label>
+                                    <textarea class="form-control" rows="2" name="allergies" placeholder="e.g., peanuts, shellfish"></textarea>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Health Conditions</label>
+                                    <textarea class="form-control" rows="2" name="conditions" placeholder="e.g., diabetes, high blood pressure"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="generateMealPlan()">Generate Plan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Explain Meal Modal -->
+    <div class="modal fade" id="explainMealModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Why These Meals?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-shield-alt me-2"></i>Dietary Compliance</h6>
+                        <ul>
+                            <li>All meals are gluten-free as requested</li>
+                            <li>No dairy products included due to intolerance</li>
+                            <li>Meals are peanut-free due to allergy</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="alert alert-primary">
+                        <h6><i class="fas fa-brain me-2"></i>Personalization Factors</h6>
+                        <ul>
+                            <li>Based on your preference for Mediterranean-style foods</li>
+                            <li>Includes meals you've rated highly in the past</li>
+                            <li>Adjusts portion sizes based on your activity level</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="alert alert-success">
+                        <h6><i class="fas fa-bolt me-2"></i>Nutritional Principles</h6>
+                        <ul>
+                            <li>Meets your target of 120g protein per day</li>
+                            <li>Balanced macronutrient distribution</li>
+                            <li>Includes anti-inflammatory foods</li>
+                            <li>Rich in micronutrients and fiber</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function generateMealPlan() {
+            // In a real app, this would call the backend API
+            // For demo purposes, we'll just close the modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('generateMealModal'));
+            modal.hide();
+            
+            // Show a success message
+            alert('New meal plan generated successfully!');
+        }
+    </script>
+</body>
+</html>
