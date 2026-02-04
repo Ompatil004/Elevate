@@ -1,0 +1,2963 @@
+[
+  {
+    "user_id": "94c30ebe-912f-4e73-ab4e-c8f168e9c5ab",
+    "timestamp": "2025-03-16T12:31:14.638046",
+    "age": 39,
+    "weight": 99.0,
+    "height": 186.6,
+    "gender": "other",
+    "fitness_goal": "maintenance",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "kettlebell",
+      "pullup_bar"
+    ],
+    "dietary_preference": "mediterranean",
+    "allergies_or_constraints": [
+      "nuts",
+      "gluten"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "e60e5fa9-90d1-453c-ba28-218bbb7af8ba",
+    "timestamp": "2025-07-20T12:31:14.638088",
+    "age": 22,
+    "weight": 60.2,
+    "height": 188.1,
+    "gender": "female",
+    "fitness_goal": "general_fitness",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "yoga_mat",
+      "kettlebell"
+    ],
+    "dietary_preference": "gluten_free",
+    "allergies_or_constraints": [
+      "shellfish"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "a0217925-c758-4852-bebc-62288a8cf962",
+    "timestamp": "2025-06-12T12:31:14.638103",
+    "age": 35,
+    "weight": 73.2,
+    "height": 160.6,
+    "gender": "other",
+    "fitness_goal": "endurance",
+    "experience_level": "beginner",
+    "equipment_available": [],
+    "dietary_preference": "keto",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "1c171c08-a1d0-44c3-864e-b25bd39a3210",
+    "timestamp": "2026-01-19T12:31:14.638114",
+    "age": 22,
+    "weight": 74.8,
+    "height": 183.6,
+    "gender": "non-binary",
+    "fitness_goal": "general_fitness",
+    "experience_level": "advanced",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "kettlebell",
+      "pullup_bar"
+    ],
+    "dietary_preference": "vegan",
+    "allergies_or_constraints": [
+      "dairy"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "27c23af9-9158-4859-8479-9435e497d73a",
+    "timestamp": "2025-05-22T12:31:14.638126",
+    "age": 30,
+    "weight": 66.2,
+    "height": 169.3,
+    "gender": "male",
+    "fitness_goal": "strength",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells"
+    ],
+    "dietary_preference": "vegetarian",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "fc052531-bd16-4c61-b06f-92f22ce120ad",
+    "timestamp": "2025-03-12T12:31:14.638136",
+    "age": 59,
+    "weight": 67.6,
+    "height": 164.5,
+    "gender": "male",
+    "fitness_goal": "muscle_gain",
+    "experience_level": "advanced",
+    "equipment_available": [
+      "dumbbells",
+      "kettlebell",
+      "pullup_bar",
+      "exercise_bike"
+    ],
+    "dietary_preference": "mediterranean",
+    "allergies_or_constraints": [
+      "dairy"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "506f32d2-5f2a-49bc-ad9b-bd1644f4b65e",
+    "timestamp": "2025-12-25T12:31:14.638147",
+    "age": 23,
+    "weight": 54.8,
+    "height": 156.9,
+    "gender": "female",
+    "fitness_goal": "maintenance",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells"
+    ],
+    "dietary_preference": "balanced",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "200767c0-c24c-40c4-8bfe-200d17466821",
+    "timestamp": "2025-12-20T12:31:14.638158",
+    "age": 34,
+    "weight": 103.5,
+    "height": 192.5,
+    "gender": "other",
+    "fitness_goal": "general_fitness",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "none",
+      "yoga_mat",
+      "dumbbells",
+      "pullup_bar"
+    ],
+    "dietary_preference": "vegan",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "1364cfd7-1056-40a3-82d1-657981579783",
+    "timestamp": "2025-05-07T12:31:14.638168",
+    "age": 37,
+    "weight": 58.8,
+    "height": 181.5,
+    "gender": "male",
+    "fitness_goal": "endurance",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none",
+      "yoga_mat"
+    ],
+    "dietary_preference": "pescatarian",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "0dfe0b1a-4432-4c20-ac02-0195b2f81d2d",
+    "timestamp": "2025-06-28T12:31:14.638179",
+    "age": 42,
+    "weight": 74.0,
+    "height": 156.7,
+    "gender": "other",
+    "fitness_goal": "endurance",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "dumbbells",
+      "kettlebell"
+    ],
+    "dietary_preference": "vegan",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "73439493-52b8-4792-bacf-f045f256a829",
+    "timestamp": "2025-12-04T12:31:14.638190",
+    "age": 36,
+    "weight": 96.3,
+    "height": 193.3,
+    "gender": "non-binary",
+    "fitness_goal": "general_fitness",
+    "experience_level": "advanced",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "kettlebell",
+      "pullup_bar",
+      "exercise_bike"
+    ],
+    "dietary_preference": "vegan",
+    "allergies_or_constraints": [
+      "dairy"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "c79b7cc8-02b5-4330-9650-e51cf7d3db0e",
+    "timestamp": "2025-04-12T12:31:14.638201",
+    "age": 25,
+    "weight": 71.4,
+    "height": 155.8,
+    "gender": "non-binary",
+    "fitness_goal": "muscle_gain",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "dumbbells"
+    ],
+    "dietary_preference": "dairy_free",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "8f35a1a5-4ef4-4353-8218-550f22735ce0",
+    "timestamp": "2025-11-11T12:31:14.638211",
+    "age": 35,
+    "weight": 89.2,
+    "height": 177.4,
+    "gender": "non-binary",
+    "fitness_goal": "maintenance",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "none",
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "kettlebell"
+    ],
+    "dietary_preference": "balanced",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "d9822c1e-857e-4f56-a5d7-417f30f659e1",
+    "timestamp": "2025-03-06T12:31:14.638221",
+    "age": 18,
+    "weight": 115.1,
+    "height": 186.4,
+    "gender": "male",
+    "fitness_goal": "endurance",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none",
+      "yoga_mat"
+    ],
+    "dietary_preference": "gluten_free",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "4d8bb495-aec7-48ea-ba01-08ceae506497",
+    "timestamp": "2025-03-26T12:31:14.638231",
+    "age": 38,
+    "weight": 96.7,
+    "height": 155.9,
+    "gender": "other",
+    "fitness_goal": "strength",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands"
+    ],
+    "dietary_preference": "keto",
+    "allergies_or_constraints": [
+      "dairy"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "68949441-9fb0-4062-82e9-cfff848c15b1",
+    "timestamp": "2025-11-01T12:31:14.638242",
+    "age": 39,
+    "weight": 77.5,
+    "height": 166.1,
+    "gender": "other",
+    "fitness_goal": "fat_loss",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "resistance_bands",
+      "dumbbells"
+    ],
+    "dietary_preference": "gluten_free",
+    "allergies_or_constraints": [
+      "gluten"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "b56ca63a-d5be-4c1e-901e-d445998da283",
+    "timestamp": "2025-09-04T12:31:14.638252",
+    "age": 35,
+    "weight": 91.1,
+    "height": 191.5,
+    "gender": "other",
+    "fitness_goal": "endurance",
+    "experience_level": "advanced",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "kettlebell",
+      "pullup_bar"
+    ],
+    "dietary_preference": "mediterranean",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "1314b824-5d53-46e6-aa8e-f1c375c5f6fd",
+    "timestamp": "2025-06-16T12:31:14.638263",
+    "age": 31,
+    "weight": 54.5,
+    "height": 187.1,
+    "gender": "other",
+    "fitness_goal": "maintenance",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "dumbbells",
+      "kettlebell"
+    ],
+    "dietary_preference": "vegetarian",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "632d6211-8b51-467d-82a6-c02e7f4bd06f",
+    "timestamp": "2025-04-10T12:31:14.638274",
+    "age": 36,
+    "weight": 87.8,
+    "height": 158.2,
+    "gender": "other",
+    "fitness_goal": "strength",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "resistance_bands"
+    ],
+    "dietary_preference": "vegan",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "58bd6e9d-29aa-43c1-ba2c-aba4fed04cbe",
+    "timestamp": "2025-07-06T12:31:14.638284",
+    "age": 26,
+    "weight": 118.4,
+    "height": 160.3,
+    "gender": "female",
+    "fitness_goal": "muscle_gain",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none",
+      "yoga_mat"
+    ],
+    "dietary_preference": "vegan",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "b0b94f2e-0fb2-4d4f-bcf1-b17e63c6c46d",
+    "timestamp": "2025-09-14T12:31:14.638294",
+    "age": 47,
+    "weight": 52.9,
+    "height": 161.2,
+    "gender": "non-binary",
+    "fitness_goal": "endurance",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells"
+    ],
+    "dietary_preference": "vegetarian",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "47e06fe3-10ac-40b6-b0a0-2093d6054030",
+    "timestamp": "2025-08-28T12:31:14.638305",
+    "age": 33,
+    "weight": 96.0,
+    "height": 186.4,
+    "gender": "other",
+    "fitness_goal": "strength",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "dumbbells"
+    ],
+    "dietary_preference": "dairy_free",
+    "allergies_or_constraints": [
+      "nuts"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "094fbe57-a2c3-422d-834a-b6ed6f6e045d",
+    "timestamp": "2025-11-11T12:31:14.638316",
+    "age": 26,
+    "weight": 63.6,
+    "height": 168.3,
+    "gender": "female",
+    "fitness_goal": "maintenance",
+    "experience_level": "advanced",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "kettlebell",
+      "pullup_bar",
+      "treadmill"
+    ],
+    "dietary_preference": "pescatarian",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "026c7c1d-af36-4f28-a6e5-9e679eec4e16",
+    "timestamp": "2025-12-01T12:31:14.638326",
+    "age": 35,
+    "weight": 58.7,
+    "height": 167.4,
+    "gender": "female",
+    "fitness_goal": "muscle_gain",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none"
+    ],
+    "dietary_preference": "pescatarian",
+    "allergies_or_constraints": [
+      "wheat"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "bbf33be0-3d1c-4220-94f4-614bd93f4ce6",
+    "timestamp": "2025-04-29T12:31:14.638336",
+    "age": 30,
+    "weight": 107.4,
+    "height": 161.4,
+    "gender": "male",
+    "fitness_goal": "maintenance",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells"
+    ],
+    "dietary_preference": "gluten_free",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "2270567d-267c-49fc-b7e1-792f2ef5c8bc",
+    "timestamp": "2025-10-08T12:31:14.638347",
+    "age": 41,
+    "weight": 102.6,
+    "height": 185.4,
+    "gender": "male",
+    "fitness_goal": "strength",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "dumbbells"
+    ],
+    "dietary_preference": "vegetarian",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "a851bed3-bcdb-4434-81d6-f0ef7f1ba0d9",
+    "timestamp": "2026-01-26T12:31:14.638356",
+    "age": 43,
+    "weight": 61.2,
+    "height": 182.3,
+    "gender": "male",
+    "fitness_goal": "endurance",
+    "experience_level": "beginner",
+    "equipment_available": [],
+    "dietary_preference": "vegan",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "a2b78cd8-84eb-465e-87e1-1791ef0b5979",
+    "timestamp": "2026-01-05T12:31:14.638366",
+    "age": 51,
+    "weight": 90.3,
+    "height": 162.8,
+    "gender": "other",
+    "fitness_goal": "muscle_gain",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "none",
+      "yoga_mat",
+      "resistance_bands"
+    ],
+    "dietary_preference": "keto",
+    "allergies_or_constraints": [
+      "dairy"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "7f343e97-3f50-41d5-9bb1-df9d1c708569",
+    "timestamp": "2025-11-29T12:31:14.638376",
+    "age": 33,
+    "weight": 94.0,
+    "height": 163.3,
+    "gender": "male",
+    "fitness_goal": "endurance",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none",
+      "yoga_mat",
+      "resistance_bands"
+    ],
+    "dietary_preference": "vegan",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "53e5716a-abf6-4672-8c39-fc1b62e8efac",
+    "timestamp": "2025-03-18T12:31:14.638386",
+    "age": 34,
+    "weight": 101.0,
+    "height": 167.1,
+    "gender": "female",
+    "fitness_goal": "fat_loss",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "none",
+      "yoga_mat",
+      "dumbbells",
+      "kettlebell",
+      "pullup_bar"
+    ],
+    "dietary_preference": "dairy_free",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "359dec28-a25b-4455-b8dc-e7e90b3ef9e7",
+    "timestamp": "2025-03-18T12:31:14.638397",
+    "age": 26,
+    "weight": 75.2,
+    "height": 186.0,
+    "gender": "non-binary",
+    "fitness_goal": "general_fitness",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "kettlebell"
+    ],
+    "dietary_preference": "mediterranean",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "e93175e3-2f9a-4fd4-96a6-1b8b7538f6dd",
+    "timestamp": "2025-05-23T12:31:14.638407",
+    "age": 26,
+    "weight": 82.5,
+    "height": 160.1,
+    "gender": "non-binary",
+    "fitness_goal": "strength",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "kettlebell"
+    ],
+    "dietary_preference": "mediterranean",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "e84214df-b0f4-454e-84a7-c84045448929",
+    "timestamp": "2025-07-18T12:31:14.638417",
+    "age": 35,
+    "weight": 116.1,
+    "height": 165.2,
+    "gender": "male",
+    "fitness_goal": "fat_loss",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none",
+      "dumbbells"
+    ],
+    "dietary_preference": "pescatarian",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "e4fa7b04-1ce4-4818-aab6-41eb38cdf1a4",
+    "timestamp": "2025-03-15T12:31:14.638427",
+    "age": 27,
+    "weight": 114.9,
+    "height": 184.8,
+    "gender": "non-binary",
+    "fitness_goal": "strength",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none",
+      "yoga_mat",
+      "resistance_bands"
+    ],
+    "dietary_preference": "vegetarian",
+    "allergies_or_constraints": [
+      "eggs"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "6c084299-524e-410b-85e7-543ae92a8481",
+    "timestamp": "2026-01-22T12:31:14.638437",
+    "age": 33,
+    "weight": 98.3,
+    "height": 174.7,
+    "gender": "male",
+    "fitness_goal": "muscle_gain",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "dumbbells",
+      "pullup_bar"
+    ],
+    "dietary_preference": "mediterranean",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "e830bddf-51fb-4273-810e-fdc193bd8c77",
+    "timestamp": "2025-07-16T12:31:14.638447",
+    "age": 54,
+    "weight": 102.2,
+    "height": 172.2,
+    "gender": "other",
+    "fitness_goal": "muscle_gain",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "pullup_bar"
+    ],
+    "dietary_preference": "keto",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "adb8e34c-7060-44b5-b03a-5df6b4518907",
+    "timestamp": "2025-09-21T12:31:14.638457",
+    "age": 51,
+    "weight": 66.2,
+    "height": 191.1,
+    "gender": "other",
+    "fitness_goal": "muscle_gain",
+    "experience_level": "advanced",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "pullup_bar"
+    ],
+    "dietary_preference": "balanced",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "1eb91c25-04c0-4c19-b2c4-5677a418e788",
+    "timestamp": "2026-01-24T12:31:14.638467",
+    "age": 47,
+    "weight": 60.5,
+    "height": 161.4,
+    "gender": "non-binary",
+    "fitness_goal": "maintenance",
+    "experience_level": "advanced",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "kettlebell",
+      "exercise_bike"
+    ],
+    "dietary_preference": "vegetarian",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "e51ac173-31d1-4c10-9f6c-69d5446631c6",
+    "timestamp": "2026-01-09T12:31:14.638477",
+    "age": 24,
+    "weight": 70.0,
+    "height": 170.3,
+    "gender": "other",
+    "fitness_goal": "maintenance",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "resistance_bands",
+      "dumbbells"
+    ],
+    "dietary_preference": "gluten_free",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "66f5ef92-005c-468a-bfa9-c74ee94d63c4",
+    "timestamp": "2026-01-19T12:31:14.638487",
+    "age": 22,
+    "weight": 65.2,
+    "height": 169.1,
+    "gender": "other",
+    "fitness_goal": "strength",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "dumbbells",
+      "pullup_bar"
+    ],
+    "dietary_preference": "mediterranean",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "c28ebd1c-553c-4622-b9c3-a0e9022cbf9c",
+    "timestamp": "2025-09-18T12:31:14.638497",
+    "age": 26,
+    "weight": 84.2,
+    "height": 162.4,
+    "gender": "other",
+    "fitness_goal": "strength",
+    "experience_level": "beginner",
+    "equipment_available": [],
+    "dietary_preference": "pescatarian",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "7f80ce13-57cc-4f61-9187-619117214f01",
+    "timestamp": "2025-09-10T12:31:14.638507",
+    "age": 37,
+    "weight": 104.3,
+    "height": 165.8,
+    "gender": "female",
+    "fitness_goal": "muscle_gain",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "none",
+      "yoga_mat",
+      "dumbbells",
+      "pullup_bar"
+    ],
+    "dietary_preference": "mediterranean",
+    "allergies_or_constraints": [
+      "dairy"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "98565c08-3e5e-4023-aea3-fa44d2e41af5",
+    "timestamp": "2025-04-27T12:31:14.638517",
+    "age": 27,
+    "weight": 62.9,
+    "height": 166.1,
+    "gender": "male",
+    "fitness_goal": "fat_loss",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none",
+      "yoga_mat"
+    ],
+    "dietary_preference": "balanced",
+    "allergies_or_constraints": [
+      "soy",
+      "dairy"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "7b27162a-7bf0-49b6-b240-2204bce0afa0",
+    "timestamp": "2025-06-18T12:31:14.638527",
+    "age": 23,
+    "weight": 116.1,
+    "height": 186.5,
+    "gender": "non-binary",
+    "fitness_goal": "strength",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none",
+      "yoga_mat",
+      "resistance_bands"
+    ],
+    "dietary_preference": "gluten_free",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "2faf90d0-540f-4953-ab19-5db8c2ce2ed5",
+    "timestamp": "2026-01-23T12:31:14.638538",
+    "age": 32,
+    "weight": 102.6,
+    "height": 158.5,
+    "gender": "female",
+    "fitness_goal": "muscle_gain",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "none",
+      "pullup_bar"
+    ],
+    "dietary_preference": "gluten_free",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "27c3cce7-5714-488a-966f-809f2c1f2506",
+    "timestamp": "2025-12-25T12:31:14.638548",
+    "age": 48,
+    "weight": 91.8,
+    "height": 168.9,
+    "gender": "non-binary",
+    "fitness_goal": "fat_loss",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "none",
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "kettlebell"
+    ],
+    "dietary_preference": "vegan",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "96240aee-4e29-4e4c-8b06-f8b3e2dee9b9",
+    "timestamp": "2025-05-13T12:31:14.638558",
+    "age": 28,
+    "weight": 107.0,
+    "height": 194.6,
+    "gender": "female",
+    "fitness_goal": "maintenance",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "none",
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "pullup_bar"
+    ],
+    "dietary_preference": "dairy_free",
+    "allergies_or_constraints": [
+      "shellfish"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "79eba8da-9044-4496-aaa6-6237424379e0",
+    "timestamp": "2025-09-25T12:31:14.638569",
+    "age": 37,
+    "weight": 75.5,
+    "height": 184.6,
+    "gender": "non-binary",
+    "fitness_goal": "strength",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none",
+      "yoga_mat",
+      "dumbbells"
+    ],
+    "dietary_preference": "mediterranean",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "91e7e588-3c16-4d70-8c9b-de294fac3b58",
+    "timestamp": "2025-04-20T12:31:14.638579",
+    "age": 56,
+    "weight": 76.5,
+    "height": 166.2,
+    "gender": "other",
+    "fitness_goal": "strength",
+    "experience_level": "advanced",
+    "equipment_available": [
+      "yoga_mat",
+      "dumbbells",
+      "kettlebell",
+      "exercise_bike"
+    ],
+    "dietary_preference": "vegan",
+    "allergies_or_constraints": [
+      "shellfish"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "aef74317-efa5-45bc-8583-25b7595425d9",
+    "timestamp": "2025-03-27T12:31:14.638589",
+    "age": 43,
+    "weight": 89.6,
+    "height": 159.9,
+    "gender": "female",
+    "fitness_goal": "fat_loss",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "yoga_mat"
+    ],
+    "dietary_preference": "pescatarian",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "db4c4e9e-5abb-4be1-a28c-cc8dafefd1b3",
+    "timestamp": "2025-02-05T12:31:14.638599",
+    "age": 34,
+    "weight": 103.1,
+    "height": 165.3,
+    "gender": "male",
+    "fitness_goal": "muscle_gain",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "kettlebell"
+    ],
+    "dietary_preference": "gluten_free",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "6c70ea03-d31d-44b1-8047-13ae67f0deef",
+    "timestamp": "2025-08-21T12:31:14.638609",
+    "age": 43,
+    "weight": 88.7,
+    "height": 167.4,
+    "gender": "female",
+    "fitness_goal": "muscle_gain",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "dumbbells",
+      "kettlebell",
+      "pullup_bar"
+    ],
+    "dietary_preference": "balanced",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "33e6be2d-033a-4197-bc81-ae782846c2d2",
+    "timestamp": "2025-02-24T12:31:14.638620",
+    "age": 25,
+    "weight": 61.7,
+    "height": 160.8,
+    "gender": "non-binary",
+    "fitness_goal": "endurance",
+    "experience_level": "advanced",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "kettlebell"
+    ],
+    "dietary_preference": "vegetarian",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "febf2cfe-355b-473a-8f94-c9c26cb49744",
+    "timestamp": "2025-07-12T12:31:14.638630",
+    "age": 33,
+    "weight": 81.6,
+    "height": 172.3,
+    "gender": "non-binary",
+    "fitness_goal": "strength",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "none",
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "pullup_bar"
+    ],
+    "dietary_preference": "gluten_free",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "50155848-c066-42ed-a83a-5f606bfc2490",
+    "timestamp": "2025-03-03T12:31:14.638640",
+    "age": 26,
+    "weight": 80.3,
+    "height": 178.4,
+    "gender": "other",
+    "fitness_goal": "muscle_gain",
+    "experience_level": "advanced",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "kettlebell"
+    ],
+    "dietary_preference": "dairy_free",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "6484f3f2-d009-45a7-bac3-b75bbfeafa4e",
+    "timestamp": "2025-05-15T12:31:14.638650",
+    "age": 35,
+    "weight": 117.5,
+    "height": 169.8,
+    "gender": "non-binary",
+    "fitness_goal": "strength",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells"
+    ],
+    "dietary_preference": "pescatarian",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "e5fbe212-1736-49e4-8f3d-428ee5c9ddc2",
+    "timestamp": "2025-08-09T12:31:14.638660",
+    "age": 22,
+    "weight": 64.0,
+    "height": 166.2,
+    "gender": "female",
+    "fitness_goal": "strength",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells"
+    ],
+    "dietary_preference": "vegetarian",
+    "allergies_or_constraints": [
+      "wheat"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "85da1bf9-bd26-4b12-b5fa-a115a921d4b6",
+    "timestamp": "2025-04-04T12:31:14.638671",
+    "age": 60,
+    "weight": 67.1,
+    "height": 180.2,
+    "gender": "female",
+    "fitness_goal": "strength",
+    "experience_level": "advanced",
+    "equipment_available": [
+      "yoga_mat",
+      "kettlebell",
+      "treadmill"
+    ],
+    "dietary_preference": "balanced",
+    "allergies_or_constraints": [
+      "soy"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "0f282d81-a816-436d-8025-9685e3de52f3",
+    "timestamp": "2025-06-21T12:31:14.638682",
+    "age": 24,
+    "weight": 54.7,
+    "height": 156.6,
+    "gender": "non-binary",
+    "fitness_goal": "maintenance",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none",
+      "dumbbells"
+    ],
+    "dietary_preference": "vegetarian",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "e827a6ce-6c33-46b0-99fb-c9d2a1e7db88",
+    "timestamp": "2025-06-08T12:31:14.638692",
+    "age": 40,
+    "weight": 90.8,
+    "height": 156.7,
+    "gender": "other",
+    "fitness_goal": "endurance",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "kettlebell"
+    ],
+    "dietary_preference": "vegetarian",
+    "allergies_or_constraints": [
+      "wheat"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "dd5db3fa-3075-4242-bcf0-6bffa25cc910",
+    "timestamp": "2025-03-09T12:31:14.638702",
+    "age": 20,
+    "weight": 99.1,
+    "height": 172.7,
+    "gender": "non-binary",
+    "fitness_goal": "general_fitness",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none",
+      "yoga_mat"
+    ],
+    "dietary_preference": "pescatarian",
+    "allergies_or_constraints": [
+      "nuts"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "3e293a67-b72b-4d9a-a3dd-8db0ad3b8226",
+    "timestamp": "2025-05-13T12:31:14.638712",
+    "age": 31,
+    "weight": 78.7,
+    "height": 178.1,
+    "gender": "other",
+    "fitness_goal": "fat_loss",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none",
+      "yoga_mat"
+    ],
+    "dietary_preference": "vegetarian",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "86e4af6e-6ec9-4077-a608-e682d4770fbc",
+    "timestamp": "2025-04-10T12:31:14.638722",
+    "age": 28,
+    "weight": 92.8,
+    "height": 165.6,
+    "gender": "male",
+    "fitness_goal": "muscle_gain",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands"
+    ],
+    "dietary_preference": "dairy_free",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "1d19435a-89b4-4fbf-aaef-905c03fb5187",
+    "timestamp": "2025-12-31T12:31:14.638732",
+    "age": 44,
+    "weight": 53.4,
+    "height": 180.2,
+    "gender": "male",
+    "fitness_goal": "muscle_gain",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none",
+      "yoga_mat",
+      "resistance_bands"
+    ],
+    "dietary_preference": "pescatarian",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "43d57f4e-b9d2-46ce-9dad-8242bebb2ed2",
+    "timestamp": "2025-03-11T12:31:14.638742",
+    "age": 55,
+    "weight": 56.0,
+    "height": 173.0,
+    "gender": "female",
+    "fitness_goal": "maintenance",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells"
+    ],
+    "dietary_preference": "vegetarian",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "8d9af1f5-d071-4103-a74a-1af226bdefe2",
+    "timestamp": "2025-08-15T12:31:14.638753",
+    "age": 19,
+    "weight": 96.8,
+    "height": 153.0,
+    "gender": "other",
+    "fitness_goal": "strength",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none",
+      "yoga_mat"
+    ],
+    "dietary_preference": "vegetarian",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "ac776bbc-e216-4d5f-91a7-f8ebafc74360",
+    "timestamp": "2025-12-11T12:31:14.638764",
+    "age": 39,
+    "weight": 79.4,
+    "height": 161.4,
+    "gender": "non-binary",
+    "fitness_goal": "strength",
+    "experience_level": "advanced",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "kettlebell"
+    ],
+    "dietary_preference": "mediterranean",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "60420834-1a5c-4619-bebd-b982c1a39039",
+    "timestamp": "2025-02-05T12:31:14.638774",
+    "age": 37,
+    "weight": 69.9,
+    "height": 170.2,
+    "gender": "non-binary",
+    "fitness_goal": "fat_loss",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none"
+    ],
+    "dietary_preference": "dairy_free",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "81579e52-66de-4af0-8fa8-299cec24f387",
+    "timestamp": "2026-01-15T12:31:14.638784",
+    "age": 20,
+    "weight": 64.4,
+    "height": 151.8,
+    "gender": "other",
+    "fitness_goal": "endurance",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none",
+      "yoga_mat",
+      "dumbbells",
+      "kettlebell"
+    ],
+    "dietary_preference": "vegetarian",
+    "allergies_or_constraints": [
+      "dairy"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "d16b7db1-d824-436e-836a-c5d716e9f572",
+    "timestamp": "2026-02-03T12:31:14.638794",
+    "age": 47,
+    "weight": 62.3,
+    "height": 181.7,
+    "gender": "female",
+    "fitness_goal": "maintenance",
+    "experience_level": "advanced",
+    "equipment_available": [
+      "yoga_mat",
+      "dumbbells",
+      "kettlebell",
+      "pullup_bar",
+      "exercise_bike"
+    ],
+    "dietary_preference": "gluten_free",
+    "allergies_or_constraints": [
+      "gluten"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "64675f88-8cec-44b1-8def-6baa17e48ca2",
+    "timestamp": "2025-02-13T12:31:14.638805",
+    "age": 54,
+    "weight": 99.0,
+    "height": 172.8,
+    "gender": "non-binary",
+    "fitness_goal": "general_fitness",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "kettlebell"
+    ],
+    "dietary_preference": "gluten_free",
+    "allergies_or_constraints": [
+      "shellfish"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "2146033b-bd04-449a-b09e-ca1168fe9e46",
+    "timestamp": "2025-12-17T12:31:14.638817",
+    "age": 33,
+    "weight": 65.8,
+    "height": 155.1,
+    "gender": "other",
+    "fitness_goal": "general_fitness",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none",
+      "dumbbells"
+    ],
+    "dietary_preference": "keto",
+    "allergies_or_constraints": [
+      "shellfish",
+      "dairy"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "122a504f-8ac4-42eb-b5ef-9214a2d1204e",
+    "timestamp": "2025-10-25T12:31:14.638827",
+    "age": 33,
+    "weight": 85.4,
+    "height": 154.4,
+    "gender": "female",
+    "fitness_goal": "muscle_gain",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "yoga_mat"
+    ],
+    "dietary_preference": "mediterranean",
+    "allergies_or_constraints": [
+      "gluten"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "a9e4f853-4d87-4d8f-b2a5-798b6034057c",
+    "timestamp": "2025-03-30T12:31:14.638838",
+    "age": 21,
+    "weight": 99.3,
+    "height": 157.1,
+    "gender": "male",
+    "fitness_goal": "muscle_gain",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "resistance_bands"
+    ],
+    "dietary_preference": "balanced",
+    "allergies_or_constraints": [
+      "gluten"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "48131b97-38ae-45ac-bce3-b96184b11e1e",
+    "timestamp": "2025-11-06T12:31:14.638848",
+    "age": 33,
+    "weight": 116.1,
+    "height": 171.7,
+    "gender": "female",
+    "fitness_goal": "strength",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none",
+      "resistance_bands"
+    ],
+    "dietary_preference": "gluten_free",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "31ef34ad-5e9d-4a03-9d2f-42a08007b07a",
+    "timestamp": "2025-08-22T12:31:14.638858",
+    "age": 31,
+    "weight": 62.0,
+    "height": 168.8,
+    "gender": "non-binary",
+    "fitness_goal": "endurance",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "none",
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "pullup_bar"
+    ],
+    "dietary_preference": "dairy_free",
+    "allergies_or_constraints": [
+      "soy",
+      "wheat"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "d97907e8-cd71-4346-9663-0ddb15529e3b",
+    "timestamp": "2025-02-16T12:31:14.638868",
+    "age": 30,
+    "weight": 91.3,
+    "height": 181.5,
+    "gender": "male",
+    "fitness_goal": "muscle_gain",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands"
+    ],
+    "dietary_preference": "gluten_free",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "2233855c-1b8c-431c-9f47-9ec1b32e9814",
+    "timestamp": "2025-10-19T12:31:14.638879",
+    "age": 32,
+    "weight": 97.9,
+    "height": 154.0,
+    "gender": "female",
+    "fitness_goal": "maintenance",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none",
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells"
+    ],
+    "dietary_preference": "vegetarian",
+    "allergies_or_constraints": [
+      "nuts"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "f3e4c38b-739e-4dc7-abd4-ef4d7f10a38c",
+    "timestamp": "2025-04-12T12:31:14.638890",
+    "age": 26,
+    "weight": 66.5,
+    "height": 157.8,
+    "gender": "male",
+    "fitness_goal": "general_fitness",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells"
+    ],
+    "dietary_preference": "vegetarian",
+    "allergies_or_constraints": [
+      "wheat"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "c0cd5390-c768-481e-9f55-7b00b06c7762",
+    "timestamp": "2025-09-04T12:31:14.638900",
+    "age": 45,
+    "weight": 71.9,
+    "height": 189.3,
+    "gender": "male",
+    "fitness_goal": "fat_loss",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells"
+    ],
+    "dietary_preference": "gluten_free",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "fa0c5a2f-6c8a-440f-b843-b88f8be80d38",
+    "timestamp": "2025-12-20T12:31:14.638910",
+    "age": 23,
+    "weight": 62.7,
+    "height": 177.8,
+    "gender": "other",
+    "fitness_goal": "general_fitness",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "dumbbells",
+      "kettlebell"
+    ],
+    "dietary_preference": "vegetarian",
+    "allergies_or_constraints": [
+      "shellfish"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "8fdac666-4e2e-4268-9a30-1d6fb53c05ee",
+    "timestamp": "2025-12-21T12:31:14.638921",
+    "age": 46,
+    "weight": 106.0,
+    "height": 171.1,
+    "gender": "other",
+    "fitness_goal": "maintenance",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "dumbbells",
+      "pullup_bar"
+    ],
+    "dietary_preference": "vegetarian",
+    "allergies_or_constraints": [
+      "shellfish"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "942516b0-2d3e-4314-b62c-8fe2f629b7b6",
+    "timestamp": "2025-03-29T12:31:14.638931",
+    "age": 40,
+    "weight": 109.3,
+    "height": 187.9,
+    "gender": "non-binary",
+    "fitness_goal": "muscle_gain",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none",
+      "yoga_mat",
+      "resistance_bands"
+    ],
+    "dietary_preference": "pescatarian",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "c7e2c328-ff28-44b1-ad3f-f8bbed8e548e",
+    "timestamp": "2025-10-06T12:31:14.638941",
+    "age": 22,
+    "weight": 67.4,
+    "height": 188.2,
+    "gender": "male",
+    "fitness_goal": "general_fitness",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none",
+      "dumbbells"
+    ],
+    "dietary_preference": "vegetarian",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "affd88eb-c15c-49a9-9aed-1f01c7a9cbfd",
+    "timestamp": "2026-01-24T12:31:14.638951",
+    "age": 40,
+    "weight": 73.2,
+    "height": 189.1,
+    "gender": "non-binary",
+    "fitness_goal": "general_fitness",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "dumbbells"
+    ],
+    "dietary_preference": "mediterranean",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "5e82d3e1-61cb-4851-9882-68ee5b9d9cbf",
+    "timestamp": "2025-08-10T12:31:14.638961",
+    "age": 54,
+    "weight": 90.1,
+    "height": 162.6,
+    "gender": "female",
+    "fitness_goal": "maintenance",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "kettlebell",
+      "pullup_bar"
+    ],
+    "dietary_preference": "pescatarian",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "d925a94b-eb0b-4800-9eaa-f039ca91e691",
+    "timestamp": "2026-01-09T12:31:14.638971",
+    "age": 29,
+    "weight": 89.9,
+    "height": 155.1,
+    "gender": "other",
+    "fitness_goal": "general_fitness",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "yoga_mat"
+    ],
+    "dietary_preference": "pescatarian",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "ff98d725-adf4-4250-811b-8cca1a3a9410",
+    "timestamp": "2025-02-06T12:31:14.638982",
+    "age": 31,
+    "weight": 90.3,
+    "height": 184.8,
+    "gender": "male",
+    "fitness_goal": "endurance",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "resistance_bands",
+      "dumbbells",
+      "pullup_bar"
+    ],
+    "dietary_preference": "mediterranean",
+    "allergies_or_constraints": [
+      "soy"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "1d017fd2-79d2-43e0-a99a-00908effff5f",
+    "timestamp": "2025-08-22T12:31:14.638992",
+    "age": 37,
+    "weight": 86.3,
+    "height": 171.2,
+    "gender": "female",
+    "fitness_goal": "maintenance",
+    "experience_level": "advanced",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "kettlebell",
+      "pullup_bar",
+      "exercise_bike"
+    ],
+    "dietary_preference": "gluten_free",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "01e0c961-7384-4e88-bf00-121bc10e8bfd",
+    "timestamp": "2025-04-20T12:31:14.639005",
+    "age": 34,
+    "weight": 81.8,
+    "height": 179.3,
+    "gender": "female",
+    "fitness_goal": "endurance",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "resistance_bands",
+      "dumbbells",
+      "kettlebell"
+    ],
+    "dietary_preference": "vegetarian",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "5391a99d-8395-44b3-a66f-a0bf4a472c3e",
+    "timestamp": "2025-08-30T12:31:14.639015",
+    "age": 35,
+    "weight": 92.5,
+    "height": 165.3,
+    "gender": "other",
+    "fitness_goal": "maintenance",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "kettlebell",
+      "pullup_bar"
+    ],
+    "dietary_preference": "keto",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "17eb4024-fef9-4935-b007-b291f4fff43a",
+    "timestamp": "2025-07-09T12:31:14.639025",
+    "age": 22,
+    "weight": 79.8,
+    "height": 173.0,
+    "gender": "non-binary",
+    "fitness_goal": "strength",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "none",
+      "yoga_mat",
+      "pullup_bar"
+    ],
+    "dietary_preference": "dairy_free",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "629e12b3-feff-43e7-a19f-0d33090f43dd",
+    "timestamp": "2025-09-30T12:31:14.639036",
+    "age": 40,
+    "weight": 80.1,
+    "height": 170.6,
+    "gender": "other",
+    "fitness_goal": "fat_loss",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none",
+      "yoga_mat",
+      "dumbbells"
+    ],
+    "dietary_preference": "vegan",
+    "allergies_or_constraints": [
+      "dairy"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "4fd78ddd-be34-426c-8c40-671a129a305a",
+    "timestamp": "2025-04-03T12:31:14.639046",
+    "age": 31,
+    "weight": 51.9,
+    "height": 161.7,
+    "gender": "non-binary",
+    "fitness_goal": "general_fitness",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none",
+      "yoga_mat"
+    ],
+    "dietary_preference": "dairy_free",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "73e6e3d7-bfd3-40a8-a86c-4131210ffbae",
+    "timestamp": "2025-07-10T12:31:14.639056",
+    "age": 27,
+    "weight": 86.8,
+    "height": 174.1,
+    "gender": "non-binary",
+    "fitness_goal": "general_fitness",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "dumbbells",
+      "pullup_bar"
+    ],
+    "dietary_preference": "dairy_free",
+    "allergies_or_constraints": [
+      "gluten"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "0e0d7054-8cdd-4e4d-a5a3-dc682ee838af",
+    "timestamp": "2025-09-07T12:31:14.639066",
+    "age": 23,
+    "weight": 79.2,
+    "height": 182.8,
+    "gender": "female",
+    "fitness_goal": "endurance",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "none",
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "kettlebell"
+    ],
+    "dietary_preference": "keto",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "b22bb7e8-9cad-4bed-a4f2-82e443774c5c",
+    "timestamp": "2025-04-18T12:31:14.639087",
+    "age": 42,
+    "weight": 89.9,
+    "height": 194.9,
+    "gender": "male",
+    "fitness_goal": "strength",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "none",
+      "yoga_mat",
+      "dumbbells",
+      "kettlebell"
+    ],
+    "dietary_preference": "pescatarian",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "c39675c0-b699-47d5-85dc-c082efa4b0b5",
+    "timestamp": "2025-08-03T12:31:14.639098",
+    "age": 38,
+    "weight": 67.8,
+    "height": 179.3,
+    "gender": "female",
+    "fitness_goal": "endurance",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "dumbbells",
+      "pullup_bar"
+    ],
+    "dietary_preference": "gluten_free",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "d9b94e9c-8a0c-46e9-ad60-0436a75a2cff",
+    "timestamp": "2025-12-21T12:31:14.639110",
+    "age": 19,
+    "weight": 86.6,
+    "height": 168.7,
+    "gender": "male",
+    "fitness_goal": "strength",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none"
+    ],
+    "dietary_preference": "balanced",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "793aee1f-cbdd-4865-90e9-b523b23d1821",
+    "timestamp": "2025-07-13T12:31:14.639119",
+    "age": 44,
+    "weight": 58.9,
+    "height": 165.7,
+    "gender": "female",
+    "fitness_goal": "muscle_gain",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none",
+      "resistance_bands",
+      "kettlebell"
+    ],
+    "dietary_preference": "keto",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "0759e730-21ad-4679-8ca7-a17b0abede46",
+    "timestamp": "2025-04-19T12:31:14.639130",
+    "age": 25,
+    "weight": 92.6,
+    "height": 194.4,
+    "gender": "male",
+    "fitness_goal": "general_fitness",
+    "experience_level": "advanced",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "kettlebell",
+      "pullup_bar"
+    ],
+    "dietary_preference": "keto",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "aef310ac-7bb9-4d01-bc5c-7c6a43ee1f4f",
+    "timestamp": "2025-03-23T12:31:14.639140",
+    "age": 42,
+    "weight": 111.8,
+    "height": 158.2,
+    "gender": "female",
+    "fitness_goal": "fat_loss",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "dumbbells"
+    ],
+    "dietary_preference": "pescatarian",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "f6f7360e-81cb-4d46-b16e-1078b9f4dfc5",
+    "timestamp": "2025-05-08T12:31:14.639150",
+    "age": 38,
+    "weight": 76.8,
+    "height": 184.6,
+    "gender": "other",
+    "fitness_goal": "general_fitness",
+    "experience_level": "advanced",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "kettlebell",
+      "treadmill"
+    ],
+    "dietary_preference": "gluten_free",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "50230fb2-933b-4315-9c13-f194e103e48d",
+    "timestamp": "2025-10-20T12:31:14.639161",
+    "age": 22,
+    "weight": 68.3,
+    "height": 175.4,
+    "gender": "other",
+    "fitness_goal": "strength",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "kettlebell"
+    ],
+    "dietary_preference": "mediterranean",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "89b00fc7-386f-48c4-8096-a9736f37c204",
+    "timestamp": "2025-06-16T12:31:14.639170",
+    "age": 21,
+    "weight": 91.8,
+    "height": 183.6,
+    "gender": "other",
+    "fitness_goal": "general_fitness",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "dumbbells"
+    ],
+    "dietary_preference": "keto",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "1cf86594-5729-4e54-85b9-dafcfe489e6b",
+    "timestamp": "2025-11-08T12:31:14.639181",
+    "age": 50,
+    "weight": 50.2,
+    "height": 176.9,
+    "gender": "male",
+    "fitness_goal": "general_fitness",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "none",
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells"
+    ],
+    "dietary_preference": "mediterranean",
+    "allergies_or_constraints": [
+      "soy"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "d2051cf4-9b40-4e80-9935-1a3d259cb7a1",
+    "timestamp": "2025-05-25T12:31:14.639192",
+    "age": 30,
+    "weight": 65.8,
+    "height": 166.2,
+    "gender": "other",
+    "fitness_goal": "muscle_gain",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "none",
+      "yoga_mat",
+      "dumbbells",
+      "kettlebell"
+    ],
+    "dietary_preference": "balanced",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "287e6afe-1b61-4dc6-98eb-474708a9ddd8",
+    "timestamp": "2025-09-01T12:31:14.639202",
+    "age": 28,
+    "weight": 90.9,
+    "height": 188.2,
+    "gender": "other",
+    "fitness_goal": "strength",
+    "experience_level": "advanced",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "kettlebell",
+      "pullup_bar",
+      "treadmill"
+    ],
+    "dietary_preference": "vegan",
+    "allergies_or_constraints": [
+      "dairy"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "9adbd427-a502-4e2e-ab5f-ade8fc0f11fb",
+    "timestamp": "2025-07-31T12:31:14.639212",
+    "age": 35,
+    "weight": 82.1,
+    "height": 184.4,
+    "gender": "female",
+    "fitness_goal": "fat_loss",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "kettlebell"
+    ],
+    "dietary_preference": "pescatarian",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "28dcd92c-cecc-4ed6-af70-4c9defcb8ed6",
+    "timestamp": "2025-09-19T12:31:14.639223",
+    "age": 24,
+    "weight": 104.8,
+    "height": 176.0,
+    "gender": "other",
+    "fitness_goal": "general_fitness",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none",
+      "yoga_mat"
+    ],
+    "dietary_preference": "balanced",
+    "allergies_or_constraints": [
+      "shellfish"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "8647aa5d-0c8c-4aa5-b317-a9bc4a8cc567",
+    "timestamp": "2025-07-02T12:31:14.639233",
+    "age": 30,
+    "weight": 69.6,
+    "height": 155.8,
+    "gender": "female",
+    "fitness_goal": "general_fitness",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "resistance_bands",
+      "dumbbells"
+    ],
+    "dietary_preference": "keto",
+    "allergies_or_constraints": [
+      "wheat"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "f5bd4915-d688-4739-8e24-a3f2844520a8",
+    "timestamp": "2025-09-02T12:31:14.639243",
+    "age": 42,
+    "weight": 84.6,
+    "height": 178.6,
+    "gender": "female",
+    "fitness_goal": "endurance",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "pullup_bar"
+    ],
+    "dietary_preference": "mediterranean",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "e7da3aa9-e625-4f47-a4a8-0b9685696e73",
+    "timestamp": "2025-02-25T12:31:14.639254",
+    "age": 23,
+    "weight": 107.5,
+    "height": 158.6,
+    "gender": "male",
+    "fitness_goal": "maintenance",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "dumbbells"
+    ],
+    "dietary_preference": "vegan",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "c7151890-53fc-4440-a68d-f1b146a49ab9",
+    "timestamp": "2025-08-01T12:31:14.639264",
+    "age": 21,
+    "weight": 50.7,
+    "height": 186.4,
+    "gender": "non-binary",
+    "fitness_goal": "strength",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "dumbbells"
+    ],
+    "dietary_preference": "pescatarian",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "6f1304fc-fd1a-4cb5-bb5d-e5a4d2058975",
+    "timestamp": "2025-02-18T12:31:14.639274",
+    "age": 28,
+    "weight": 56.3,
+    "height": 194.9,
+    "gender": "male",
+    "fitness_goal": "general_fitness",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "none",
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "kettlebell"
+    ],
+    "dietary_preference": "keto",
+    "allergies_or_constraints": [
+      "gluten"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "ab71a327-5c2d-4fad-b038-9f7ca9dfba52",
+    "timestamp": "2025-03-02T12:31:14.639284",
+    "age": 59,
+    "weight": 73.8,
+    "height": 185.3,
+    "gender": "female",
+    "fitness_goal": "fat_loss",
+    "experience_level": "advanced",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "kettlebell",
+      "pullup_bar",
+      "treadmill"
+    ],
+    "dietary_preference": "vegetarian",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "a191e466-e2d2-4bd6-a0ea-c582692c4278",
+    "timestamp": "2025-06-30T12:31:14.639294",
+    "age": 38,
+    "weight": 118.3,
+    "height": 166.0,
+    "gender": "other",
+    "fitness_goal": "strength",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none",
+      "yoga_mat",
+      "resistance_bands"
+    ],
+    "dietary_preference": "vegan",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "74c4cdcf-606b-4dba-9abd-9ab8aa1bec8f",
+    "timestamp": "2025-10-02T12:31:14.639304",
+    "age": 24,
+    "weight": 83.7,
+    "height": 161.6,
+    "gender": "male",
+    "fitness_goal": "maintenance",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "dumbbells",
+      "kettlebell"
+    ],
+    "dietary_preference": "gluten_free",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "670b4780-8b12-4287-92e2-77f29e730b03",
+    "timestamp": "2026-01-02T12:31:14.639314",
+    "age": 25,
+    "weight": 108.7,
+    "height": 173.8,
+    "gender": "non-binary",
+    "fitness_goal": "strength",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "yoga_mat"
+    ],
+    "dietary_preference": "vegan",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "1c0ada65-318e-4670-928d-fc3d1901af9a",
+    "timestamp": "2025-03-05T12:31:14.639324",
+    "age": 19,
+    "weight": 56.3,
+    "height": 153.5,
+    "gender": "other",
+    "fitness_goal": "muscle_gain",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none",
+      "resistance_bands"
+    ],
+    "dietary_preference": "dairy_free",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "3ca6fdba-66fa-46b8-9459-317f6a8178a7",
+    "timestamp": "2025-03-28T12:31:14.639334",
+    "age": 28,
+    "weight": 107.0,
+    "height": 192.8,
+    "gender": "female",
+    "fitness_goal": "strength",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells"
+    ],
+    "dietary_preference": "vegetarian",
+    "allergies_or_constraints": [
+      "dairy",
+      "shellfish"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "8993c1b7-3d59-47c5-b03e-21f7f28e0316",
+    "timestamp": "2025-07-26T12:31:14.639345",
+    "age": 27,
+    "weight": 62.7,
+    "height": 155.7,
+    "gender": "other",
+    "fitness_goal": "muscle_gain",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "none",
+      "yoga_mat",
+      "kettlebell",
+      "pullup_bar"
+    ],
+    "dietary_preference": "gluten_free",
+    "allergies_or_constraints": [
+      "shellfish",
+      "eggs"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "43947716-24b2-4121-a0f1-aadcee6ee25c",
+    "timestamp": "2025-10-20T12:31:14.639356",
+    "age": 28,
+    "weight": 73.3,
+    "height": 176.3,
+    "gender": "non-binary",
+    "fitness_goal": "endurance",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none",
+      "dumbbells",
+      "kettlebell"
+    ],
+    "dietary_preference": "pescatarian",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "121c67b2-4a00-40e0-abb7-9f2942309937",
+    "timestamp": "2025-10-23T12:31:14.639366",
+    "age": 21,
+    "weight": 93.0,
+    "height": 157.8,
+    "gender": "other",
+    "fitness_goal": "strength",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "dumbbells",
+      "kettlebell"
+    ],
+    "dietary_preference": "balanced",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "ae8d53dc-8f94-4cf4-a549-9490fd81885f",
+    "timestamp": "2025-08-03T12:31:14.639376",
+    "age": 49,
+    "weight": 55.6,
+    "height": 169.3,
+    "gender": "non-binary",
+    "fitness_goal": "endurance",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "none",
+      "yoga_mat",
+      "dumbbells",
+      "kettlebell"
+    ],
+    "dietary_preference": "vegan",
+    "allergies_or_constraints": [
+      "soy"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "f5c85359-3d48-4933-9799-9bc55bd2e10b",
+    "timestamp": "2025-03-16T12:31:14.639386",
+    "age": 38,
+    "weight": 53.1,
+    "height": 171.6,
+    "gender": "other",
+    "fitness_goal": "endurance",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none",
+      "yoga_mat",
+      "resistance_bands",
+      "kettlebell"
+    ],
+    "dietary_preference": "pescatarian",
+    "allergies_or_constraints": [
+      "nuts"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "4d0d6ce1-eb8c-45e5-8741-4077e9da3416",
+    "timestamp": "2025-08-02T12:31:14.639396",
+    "age": 32,
+    "weight": 106.5,
+    "height": 184.1,
+    "gender": "male",
+    "fitness_goal": "muscle_gain",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none"
+    ],
+    "dietary_preference": "balanced",
+    "allergies_or_constraints": [
+      "gluten"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "73c84b31-8d24-431d-a51e-683eae87aafa",
+    "timestamp": "2025-03-06T12:31:14.639406",
+    "age": 32,
+    "weight": 84.4,
+    "height": 156.8,
+    "gender": "other",
+    "fitness_goal": "maintenance",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none"
+    ],
+    "dietary_preference": "pescatarian",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "63cbca5f-68ec-4338-b6a4-a34011054514",
+    "timestamp": "2025-07-14T12:31:14.639416",
+    "age": 25,
+    "weight": 62.5,
+    "height": 163.5,
+    "gender": "other",
+    "fitness_goal": "endurance",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "pullup_bar"
+    ],
+    "dietary_preference": "gluten_free",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "a91e4935-c270-473c-8637-70ef542b37e8",
+    "timestamp": "2025-03-01T12:31:14.639427",
+    "age": 26,
+    "weight": 110.9,
+    "height": 162.2,
+    "gender": "female",
+    "fitness_goal": "strength",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "kettlebell"
+    ],
+    "dietary_preference": "mediterranean",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "fbeaee48-1c03-4d4f-b808-7c311ba12caf",
+    "timestamp": "2025-12-25T12:31:14.639437",
+    "age": 28,
+    "weight": 114.3,
+    "height": 164.1,
+    "gender": "non-binary",
+    "fitness_goal": "endurance",
+    "experience_level": "beginner",
+    "equipment_available": [],
+    "dietary_preference": "dairy_free",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "fd75e104-4bfd-45c8-b13e-dc9b1db374b0",
+    "timestamp": "2025-03-31T12:31:14.639447",
+    "age": 30,
+    "weight": 79.4,
+    "height": 187.9,
+    "gender": "female",
+    "fitness_goal": "muscle_gain",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "none",
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "kettlebell"
+    ],
+    "dietary_preference": "vegan",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "b591ee1e-e834-4bd8-a591-e9ab8085f8ca",
+    "timestamp": "2025-02-17T12:31:14.639457",
+    "age": 60,
+    "weight": 71.2,
+    "height": 174.6,
+    "gender": "other",
+    "fitness_goal": "maintenance",
+    "experience_level": "advanced",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "kettlebell"
+    ],
+    "dietary_preference": "pescatarian",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "3d0d55a6-3f00-47dd-bb86-3709fb83bc34",
+    "timestamp": "2025-05-13T12:31:14.639467",
+    "age": 38,
+    "weight": 102.1,
+    "height": 167.7,
+    "gender": "male",
+    "fitness_goal": "general_fitness",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "dumbbells",
+      "kettlebell"
+    ],
+    "dietary_preference": "keto",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "60ee2222-b8f1-44cb-b8ca-90a7c45e2696",
+    "timestamp": "2025-05-02T12:31:14.639478",
+    "age": 23,
+    "weight": 77.7,
+    "height": 183.2,
+    "gender": "non-binary",
+    "fitness_goal": "strength",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "none",
+      "yoga_mat",
+      "dumbbells",
+      "pullup_bar"
+    ],
+    "dietary_preference": "dairy_free",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "28d239c3-902f-4f9b-aea9-bccbf4641035",
+    "timestamp": "2025-07-11T12:31:14.639488",
+    "age": 31,
+    "weight": 53.7,
+    "height": 165.1,
+    "gender": "non-binary",
+    "fitness_goal": "general_fitness",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "pullup_bar"
+    ],
+    "dietary_preference": "vegan",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "9083a1b0-ca4b-4063-8f48-2a24bf0fb5d7",
+    "timestamp": "2025-12-09T12:31:14.639498",
+    "age": 20,
+    "weight": 62.5,
+    "height": 190.8,
+    "gender": "other",
+    "fitness_goal": "endurance",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "kettlebell",
+      "pullup_bar"
+    ],
+    "dietary_preference": "gluten_free",
+    "allergies_or_constraints": [
+      "soy",
+      "gluten"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "3715da1d-2264-40c6-8625-7315f4e21669",
+    "timestamp": "2025-08-19T12:31:14.639509",
+    "age": 46,
+    "weight": 93.2,
+    "height": 175.6,
+    "gender": "male",
+    "fitness_goal": "endurance",
+    "experience_level": "advanced",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "kettlebell",
+      "pullup_bar"
+    ],
+    "dietary_preference": "dairy_free",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "d058ace4-8c99-43ef-bf01-52c74c2e4262",
+    "timestamp": "2025-04-26T12:31:14.639520",
+    "age": 38,
+    "weight": 74.5,
+    "height": 159.9,
+    "gender": "non-binary",
+    "fitness_goal": "general_fitness",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "kettlebell"
+    ],
+    "dietary_preference": "keto",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "4e2f1d47-6fc1-496a-acb7-5aeda61dca82",
+    "timestamp": "2025-11-07T12:31:14.639530",
+    "age": 42,
+    "weight": 107.2,
+    "height": 161.7,
+    "gender": "non-binary",
+    "fitness_goal": "endurance",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "yoga_mat",
+      "dumbbells"
+    ],
+    "dietary_preference": "vegan",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "c01c0c97-a9d7-4968-8b5c-828004a7a2ee",
+    "timestamp": "2025-02-07T12:31:14.639540",
+    "age": 35,
+    "weight": 92.4,
+    "height": 178.6,
+    "gender": "other",
+    "fitness_goal": "muscle_gain",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "kettlebell"
+    ],
+    "dietary_preference": "gluten_free",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "a5810cea-e1fa-4019-9124-3ad1080d988e",
+    "timestamp": "2025-06-29T12:31:14.639551",
+    "age": 24,
+    "weight": 84.3,
+    "height": 163.9,
+    "gender": "non-binary",
+    "fitness_goal": "strength",
+    "experience_level": "advanced",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells",
+      "kettlebell",
+      "pullup_bar",
+      "exercise_bike"
+    ],
+    "dietary_preference": "pescatarian",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "f44abae7-d879-4766-8144-89a892acd4e6",
+    "timestamp": "2025-10-06T12:31:14.639561",
+    "age": 30,
+    "weight": 92.0,
+    "height": 161.8,
+    "gender": "other",
+    "fitness_goal": "general_fitness",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "pullup_bar"
+    ],
+    "dietary_preference": "mediterranean",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "e1e5b128-a8f7-40ec-b94e-686f1cd1d421",
+    "timestamp": "2025-02-20T12:31:14.639571",
+    "age": 19,
+    "weight": 59.3,
+    "height": 189.6,
+    "gender": "female",
+    "fitness_goal": "strength",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands"
+    ],
+    "dietary_preference": "vegetarian",
+    "allergies_or_constraints": [
+      "soy"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "f5cb6d94-752f-48cc-a8e3-b0bd4c05eedd",
+    "timestamp": "2025-11-06T12:31:14.639582",
+    "age": 47,
+    "weight": 96.2,
+    "height": 160.7,
+    "gender": "female",
+    "fitness_goal": "strength",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "none",
+      "resistance_bands",
+      "dumbbells",
+      "kettlebell"
+    ],
+    "dietary_preference": "vegetarian",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "7fd637f9-5c23-43a5-8f8e-6b52fb8d7a04",
+    "timestamp": "2025-02-06T12:31:14.639592",
+    "age": 38,
+    "weight": 104.3,
+    "height": 178.2,
+    "gender": "non-binary",
+    "fitness_goal": "fat_loss",
+    "experience_level": "intermediate",
+    "equipment_available": [
+      "yoga_mat",
+      "resistance_bands",
+      "dumbbells"
+    ],
+    "dietary_preference": "mediterranean",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "40b5daf7-57c1-4286-80d3-dc2af716a6a7",
+    "timestamp": "2025-11-27T12:31:14.639602",
+    "age": 28,
+    "weight": 86.3,
+    "height": 168.4,
+    "gender": "female",
+    "fitness_goal": "muscle_gain",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none",
+      "yoga_mat",
+      "resistance_bands",
+      "kettlebell"
+    ],
+    "dietary_preference": "mediterranean",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "7ab4d564-666d-4b88-9f72-63e887fb7f33",
+    "timestamp": "2025-04-11T12:31:14.639613",
+    "age": 40,
+    "weight": 72.6,
+    "height": 184.4,
+    "gender": "male",
+    "fitness_goal": "endurance",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none",
+      "yoga_mat",
+      "dumbbells"
+    ],
+    "dietary_preference": "balanced",
+    "allergies_or_constraints": [],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "31fece30-2ae0-41ae-82b2-916bbf9035a1",
+    "timestamp": "2025-03-13T12:31:14.639622",
+    "age": 29,
+    "weight": 65.9,
+    "height": 183.9,
+    "gender": "male",
+    "fitness_goal": "muscle_gain",
+    "experience_level": "advanced",
+    "equipment_available": [
+      "yoga_mat",
+      "dumbbells",
+      "kettlebell",
+      "pullup_bar",
+      "exercise_bike"
+    ],
+    "dietary_preference": "mediterranean",
+    "allergies_or_constraints": [
+      "soy"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  },
+  {
+    "user_id": "fdd4bb72-eef4-4af6-b91e-28a749e8cd64",
+    "timestamp": "2025-11-12T12:31:14.639633",
+    "age": 31,
+    "weight": 98.8,
+    "height": 167.9,
+    "gender": "non-binary",
+    "fitness_goal": "fat_loss",
+    "experience_level": "beginner",
+    "equipment_available": [
+      "none"
+    ],
+    "dietary_preference": "pescatarian",
+    "allergies_or_constraints": [
+      "nuts"
+    ],
+    "disclaimer_acknowledged": true,
+    "consent_given": true
+  }
+]
