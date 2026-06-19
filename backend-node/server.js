@@ -174,7 +174,7 @@ const { generateToken: csrfGenerateToken, doubleCsrfProtection } = doubleCsrf({
     // __Host- cookies require HTTPS + Secure and are invalid on local HTTP dev.
     cookieName: csrfCookieName,
     cookieOptions: {
-        sameSite: isProd ? 'strict' : 'lax',
+        sameSite: isProd ? 'none' : 'lax',
         secure: isProd,
         httpOnly: true,
         path: '/',

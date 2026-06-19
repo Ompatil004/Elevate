@@ -40,10 +40,11 @@ const generateToken = (userId, isSuspended = false) => {
  * clients are updated to rely on the cookie, the body field will be removed.
  */
 const setAuthCookie = (res, token) => {
+  const isProd = process.env.NODE_ENV === 'production';
   res.cookie('elevate_token', token, {
     httpOnly: true,                                              // not readable by JS
-    secure: process.env.NODE_ENV === 'production',              // HTTPS-only in prod
-    sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+    secure: isProd,                                             // HTTPS-only in prod
+    sameSite: isProd ? 'none' : 'lax',
     maxAge: 7 * 24 * 60 * 60 * 1000,                           // 7 days, mirrors JWT
     path: '/',
   });
@@ -333,7 +334,8 @@ router.post('/google', authLoginLimiter, async (req, res) => {
 // ==========================================
 router.post('/logout', (req, res) => {
   // SEC-1: Clear the HttpOnly auth cookie on logout
-  res.clearCookie('elevate_token', { path: '/', sameSite: 'strict', secure: process.env.NODE_ENV === 'production' });
+  const isProd = process.env.NODE_ENV === 'production';
+  res.clearCookie('elevate_token', { path: '/', sameSite: isProd ? 'none' : 'lax', secure: isProd });
   res.json({ message: 'Logged out successfully' });
 });
 
