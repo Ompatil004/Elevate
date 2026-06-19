@@ -3,12 +3,12 @@ import { pythonBackendCB } from './utils/circuitBreaker';
 
 // ===== API CONFIGURATION =====
 // Auth endpoints (login/register) are on Node.js backend (port 5000)
-// Workout/Nutrition endpoints are on Python backend (port 8000)
+// Protected Python endpoints are reached through the Node backend proxy.
 const VITE_API_URL = import.meta.env.VITE_API_URL || '/api';
-const VITE_PYTHON_API_URL = import.meta.env.VITE_PYTHON_API_URL || '/api/python';
+const PYTHON_PROXY_API_URL = `${VITE_API_URL.replace(/\/+$/, "")}/python`;
 // Export base URLs for use in components
 export const API_BASE_URL = VITE_API_URL;
-export const PYTHON_API_URL = VITE_PYTHON_API_URL;
+export const PYTHON_API_URL = PYTHON_PROXY_API_URL;
 // Bug #53 fixed: POSE_TRACKING_BASE_URL export removed — no consumer in the codebase
 
 // SEC-12: Cache the CSRF token after first fetch.
@@ -40,11 +40,11 @@ const AuthAPI = axios.create({
     withCredentials: true,  // SEC-1: send HttpOnly cookie on every request
 });
 
-// Create axios instance for WORKOUT/NUTRITION endpoints (Python backend)
+// Create axios instance for protected WORKOUT/NUTRITION endpoints via Node proxy.
 // Timeout set to 60s: workout engine calls Gemini AI + XGBoost models which can
 // take 30-50s on first generation (cold start) or for complex profiles.
 const FitnessAPI = axios.create({
-    baseURL: VITE_PYTHON_API_URL,  // /api/python
+    baseURL: PYTHON_PROXY_API_URL,  // /api/python on the Node backend
     headers: {
         'Content-Type': 'application/json'
     },
@@ -95,7 +95,11 @@ FitnessAPI.interceptors.request.use(
     async (config) => {
         // ARCH-7: Use circuit-breaker preflight so OPEN can transition to HALF_OPEN probe.
         pythonBackendCB.beforeRequest();
-        // SEC-1 (complete): auth is via HttpOnly cookie (withCredentials: true on instance).
+        // Auth cookie is sent to Node; Node forwards the JWT to Python as x-auth-token.
+        if (!CSRF_SAFE_METHODS.has((config.method || 'get').toLowerCase())) {
+            const csrf = await getCsrfToken();
+            if (csrf) config.headers['x-csrf-token'] = csrf;
+        }
         if (import.meta.env.DEV) {
             console.log('[FitnessAPI] Request:', config.method?.toUpperCase(), config.baseURL + config.url);
         }

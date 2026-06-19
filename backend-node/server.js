@@ -227,6 +227,7 @@ app.use((req, _res, next) => {
 // Routes
 const authRoutes = require('./routes/auth');
 const profileRoutes = require('./routes/profile');
+const pythonProxyRoutes = require('./routes/pythonProxy');
 const usersRoutes = require('./routes/users');
 const adminAuthRoutes = require('./routes/adminAuth');
 const adminUserRoutes = require('./routes/adminUsers');
@@ -281,6 +282,7 @@ app.use(async (req, res, next) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/python', pythonProxyRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/admin', checkAdminIP);
 // BUG-N4 fix: skip the blanket adminApiLimiter for /login — that route applies
@@ -300,6 +302,7 @@ app.use('/api/admin/content', adminContentRoutes);
 // once the frontend has been fully migrated.
 app.use('/api/v1/auth',           authRoutes);
 app.use('/api/v1/profile',        profileRoutes);
+app.use('/api/v1/python',         pythonProxyRoutes);
 app.use('/api/v1/users',          usersRoutes);
 app.use('/api/v1/admin',          checkAdminIP);
 app.use('/api/v1/admin', (req, res, next) => {

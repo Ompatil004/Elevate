@@ -1,14 +1,29 @@
 import axios from 'axios';
 
-// API service for profile updates with plan regeneration
-// Points to Python backend (port 8000) where regeneration logic exists
-// Bug fix: Consolidated to /profile/update (profile.py router) instead of legacy /profile/update-safe
-const API_BASE_URL = import.meta.env.VITE_PYTHON_API_URL || '/api/python';
+// API service for profile updates with plan regeneration.
+// Authenticated Python calls go through the Node proxy so the HttpOnly auth cookie
+// is read by elevate-11 and forwarded to Python as x-auth-token server-side.
+const NODE_API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+const PYTHON_PROXY_BASE_URL = `${NODE_API_BASE_URL.replace(/\/+$/, "")}/python`;
+const PUBLIC_PYTHON_API_URL = import.meta.env.VITE_PYTHON_API_URL || '';
 const PROFILE_UPDATE_ENDPOINT = '/profile/update';
 
 // Request timeout in milliseconds
 const REQUEST_TIMEOUT = 15000;
 const IS_DEV = import.meta.env.DEV;
+const CSRF_SAFE_METHODS = new Set(['get', 'head', 'options']);
+let _csrfToken = null;
+
+const getCsrfToken = async () => {
+  if (_csrfToken) return _csrfToken;
+  try {
+    const response = await axios.get(`${NODE_API_BASE_URL}/csrf-token`, { withCredentials: true });
+    _csrfToken = response.data?.csrfToken || null;
+  } catch {
+    _csrfToken = null;
+  }
+  return _csrfToken;
+};
 
 const summarizeProfileForLog = (profileData) => {
   const payload = profileData && typeof profileData === 'object' ? profileData : {};
@@ -22,7 +37,7 @@ const summarizeProfileForLog = (profileData) => {
  * Create axios instance with custom configuration
  */
 const apiClient = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: PYTHON_PROXY_BASE_URL,
   timeout: REQUEST_TIMEOUT,
   withCredentials: true,
   headers: {
@@ -34,7 +49,13 @@ const apiClient = axios.create({
  * Request interceptor
  */
 apiClient.interceptors.request.use(
-  (config) => config,
+  async (config) => {
+    if (!CSRF_SAFE_METHODS.has((config.method || 'get').toLowerCase())) {
+      const csrf = await getCsrfToken();
+      if (csrf) config.headers['x-csrf-token'] = csrf;
+    }
+    return config;
+  },
   (error) => Promise.reject(error)
 );
 
@@ -161,13 +182,13 @@ export const updateProfileWithRegeneration = async (profileData, options = {}) =
       if (IS_DEV) {
         console.log('🔄 [Profile API] Updating profile with regeneration:', summarizeProfileForLog(profileData));
         console.log('🔑 [Profile API] Auth mode: HttpOnly cookie (withCredentials)');
-        console.log('🌐 [Profile API] Request URL:', `${API_BASE_URL}${PROFILE_UPDATE_ENDPOINT}`);
+        console.log('🌐 [Profile API] Request URL:', `${PYTHON_PROXY_BASE_URL}${PROFILE_UPDATE_ENDPOINT}`);
       }
 
       // Health check before making the request (optional, can be disabled)
-      if (attempt === 0) {
+      if (attempt === 0 && PUBLIC_PYTHON_API_URL) {
         try {
-          await axios.get(`${API_BASE_URL}/health`, { timeout: 3000 });
+          await axios.get(`${PUBLIC_PYTHON_API_URL}/health`, { timeout: 3000 });
           if (IS_DEV) {
             console.log('✅ [Profile API] Backend health check passed');
           }
@@ -299,7 +320,10 @@ export const getProfileEndpoints = async () => {
   }
 
   try {
-    const response = await axios.get(`${API_BASE_URL}/openapi.json`, { timeout: 5000 });
+    if (!PUBLIC_PYTHON_API_URL) {
+      throw new Error('Direct Python API URL is not configured');
+    }
+    const response = await axios.get(`${PUBLIC_PYTHON_API_URL}/openapi.json`, { timeout: 5000 });
     return response.data;
   } catch (error) {
     if (IS_DEV) {
@@ -314,7 +338,7 @@ export const getProfileEndpoints = async () => {
  */
 export const checkBackendHealth = async () => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/health`, { timeout: 3000 });
+    const response = await axios.get(`${PUBLIC_PYTHON_API_URL}/health`, { timeout: 3000 });
     return {
       healthy: true,
       data: response.data,
