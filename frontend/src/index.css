@@ -1,0 +1,31 @@
+/* 1. Reset sizing so borders don't increase width */
+* {
+  box-sizing: border-box;
+}
+
+/* 2. Force scrollbar to prevent page width jumping */
+html {
+  scroll-behavior: smooth;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* 3. Dark background applied immediately at the HTML level so there
+      is no white flash before React mounts. The border has been
+      removed — it caused a 2px layout shift visible on every page load. */
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: #09090b;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100dvh;
+}
+
+/* Spinner used by PageLoader in App.jsx */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

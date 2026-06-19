@@ -1,0 +1,24 @@
+{
+  "total_exercises": 1318,
+  "trackable": 989,
+  "untrackable": 329,
+  "movement_patterns": {
+    "crunch": 136,
+    "squat": 177,
+    "vertical_pull": 11,
+    "horizontal_pull": 97,
+    "horizontal_push": 143,
+    "dip": 30,
+    "lateral_raise": 147,
+    "row": 99,
+    "tricep_extension": 42,
+    "jump": 9,
+    "lunge": 27,
+    "hinge": 35,
+    "curl": 185,
+    "generic": 85,
+    "vertical_push": 73,
+    "plank": 8,
+    "carry": 14
+  }
+}

@@ -1,0 +1,1901 @@
+Name,Type,Calories,Protein,Carbs,Fats,Tags,Allergens,Swap_Group
+Hot tea (Garam Chai),Snack,48,1.2,7.7,1.6,Veg,None,Veg_Snack
+Instant coffee,Snack,69,1.9,11.0,2.2,Veg,None,Veg_Snack
+Espreso coffee,Snack,77,2.6,9.9,3.2,Veg,None,Veg_Snack
+Iced tea,Snack,31,0.1,8.1,0.0,Veg,None,Veg_Snack
+Raw mango drink (Aam panna),Breakfast,107,0.5,27.2,0.1,Veg,None,Veg_Breakfast
+Raw mango drink (Aam panna),Snack,107,0.5,27.2,0.1,Veg,None,Veg_Snack
+Fruit Punch (with fresh juices),Breakfast,108,0.4,28.1,0.1,Veg,None,Veg_Breakfast
+Fruit Punch (with fresh juices),Snack,108,0.4,28.1,0.1,Veg,None,Veg_Snack
+Fruit Punch (with squashes),Breakfast,69,0.2,18.0,0.1,Veg,None,Veg_Breakfast
+Fruit Punch (with squashes),Snack,69,0.2,18.0,0.1,Veg,None,Veg_Snack
+Lemonade,Breakfast,62,0.1,16.4,0.0,Veg,None,Veg_Breakfast
+Lemonade,Snack,62,0.1,16.4,0.0,Veg,None,Veg_Snack
+Lem-o-gin,Breakfast,64,0.2,16.6,0.1,Veg,None,Veg_Breakfast
+Lem-o-gin,Snack,64,0.2,16.6,0.1,Veg,None,Veg_Snack
+Cumin infused water (Jeere/Zeere ka pani),Breakfast,27,0.5,5.6,0.3,Veg,None,Veg_Breakfast
+Cumin infused water (Jeere/Zeere ka pani),Snack,27,0.5,5.6,0.3,Veg,None,Veg_Snack
+Coco pine cooler,Breakfast,98,1.7,17.2,3.0,Veg,None,Veg_Breakfast
+Coco pine cooler,Snack,98,1.7,17.2,3.0,Veg,None,Veg_Snack
+Summer cooler,Breakfast,67,1.1,16.3,0.1,Veg,None,Veg_Breakfast
+Summer cooler,Snack,67,1.1,16.3,0.1,Veg,None,Veg_Snack
+Hot cocoa,Breakfast,135,5.0,13.8,6.8,Veg,None,Veg_Breakfast
+Hot cocoa,Snack,135,5.0,13.8,6.8,Veg,None,Veg_Snack
+Cold coffee with ice cream,Snack,101,2.4,16.9,3.2,Veg,Dairy,Veg_Snack
+Banana milkshake (Kele milkshake),Snack,97,2.8,13.7,3.6,Veg,Dairy,Veg_Snack
+Mango milkshake (Aam milkshake),Snack,85,2.6,10.8,3.5,Veg,Dairy,Veg_Snack
+Pineapple milkshake (Ananas milkshake),Snack,83,2.5,11.4,3.3,Veg,Dairy,Veg_Snack
+Orange milkshake (Narangi milkshake),Snack,86,2.8,10.7,3.8,Veg,Dairy,Veg_Snack
+Egg nog,Breakfast,145,7.2,12.2,7.7,Non-Veg,Eggs,Non-Veg_Breakfast
+Sweet Lassi (Meethi lassi),Breakfast,106,3.9,19.5,2.0,Veg,None,Veg_Breakfast
+Sweet Lassi (Meethi lassi),Snack,106,3.9,19.5,2.0,Veg,None,Veg_Snack
+Lassi (salted),Breakfast,56,4.1,5.6,2.2,Veg,None,Veg_Breakfast
+Lassi (salted),Snack,56,4.1,5.6,2.2,Veg,None,Veg_Snack
+Cheese and chilli sandwich ,Lunch,545,17.0,68.5,24.4,Veg,None,Veg_Lunch
+Cheese and chilli sandwich ,Dinner,545,17.0,68.5,24.4,Veg,None,Veg_Dinner
+Egg sandwich (Ande ka sandwich),Breakfast,714,21.7,72.9,39.5,Non-Veg,Eggs,Non-Veg_Breakfast
+Cucumber sandwich (Kheere ka sandwich),Lunch,471,12.0,64.4,20.0,Veg,None,Veg_Lunch
+Cucumber sandwich (Kheere ka sandwich),Dinner,471,12.0,64.4,20.0,Veg,None,Veg_Dinner
+Cheese and pineapple sandwich (Cheese aur ananas ka sandwich),Lunch,644,20.5,72.8,32.0,Veg,None,Veg_Lunch
+Cheese and pineapple sandwich (Cheese aur ananas ka sandwich),Dinner,644,20.5,72.8,32.0,Veg,None,Veg_Dinner
+Cheese and tomato sandwich (Cheese aur tamatar ke sandwich),Lunch,608,19.8,67.3,30.7,Veg,None,Veg_Lunch
+Cheese and tomato sandwich (Cheese aur tamatar ke sandwich),Dinner,608,19.8,67.3,30.7,Veg,None,Veg_Dinner
+Chicken sandwich,Lunch,633,32.8,63.4,29.4,Non-Veg,None,Non-Veg_Lunch
+Chicken sandwich,Dinner,633,32.8,63.4,29.4,Non-Veg,None,Non-Veg_Dinner
+Peanut and tomato sandwich (Moongfali aur tamatar ka sandwich),Lunch,728,23.8,71.4,40.4,Veg,Nuts,Veg_Lunch
+Peanut and tomato sandwich (Moongfali aur tamatar ka sandwich),Dinner,728,23.8,71.4,40.4,Veg,Nuts,Veg_Dinner
+Rainbow sandwich,Lunch,681,19.4,85.6,31.4,Veg,None,Veg_Lunch
+Rainbow sandwich,Dinner,681,19.4,85.6,31.4,Veg,None,Veg_Dinner
+Club sandwich ,Lunch,588,18.3,46.3,37.8,Veg,None,Veg_Lunch
+Club sandwich ,Dinner,588,18.3,46.3,37.8,Veg,None,Veg_Dinner
+Vegetarian club sandwich,Lunch,495,13.6,49.2,28.3,Veg,None,Veg_Lunch
+Vegetarian club sandwich,Dinner,495,13.6,49.2,28.3,Veg,None,Veg_Dinner
+Pin wheel sandwich,Lunch,778,21.9,35.0,62.3,Veg,None,Veg_Lunch
+Pin wheel sandwich,Dinner,778,21.9,35.0,62.3,Veg,None,Veg_Dinner
+Carrot apple sandwich (Gajar aur seb ka sandwich),Lunch,535,13.2,72.6,22.8,Veg,None,Veg_Lunch
+Carrot apple sandwich (Gajar aur seb ka sandwich),Dinner,535,13.2,72.6,22.8,Veg,None,Veg_Dinner
+Salami sandwich,Lunch,638,21.8,53.8,38.8,Veg,None,Veg_Lunch
+Salami sandwich,Dinner,638,21.8,53.8,38.8,Veg,None,Veg_Dinner
+Vegetable and mayonnaise sandwich,Lunch,610,11.2,58.0,38.5,Veg,None,Veg_Lunch
+Vegetable and mayonnaise sandwich,Dinner,610,11.2,58.0,38.5,Veg,None,Veg_Dinner
+Egg and tomato sandwich (Ande aur tamatar ka sandwich),Breakfast,555,19.2,64.8,26.3,Non-Veg,Eggs,Non-Veg_Breakfast
+Sweet open sandwich,Lunch,610,12.5,98.1,20.4,Veg,None,Veg_Lunch
+Sweet open sandwich,Dinner,610,12.5,98.1,20.4,Veg,None,Veg_Dinner
+Mushroom and cheese sandwich (toasted),Breakfast,568,19.5,52.5,32.5,Veg,None,Veg_Breakfast
+Cheese and tomato sandwich (toasted) (Cheese aur tamatar ke sandwich (toasted)),Breakfast,561,17.0,53.6,32.4,Veg,None,Veg_Breakfast
+Pea potato sandwich (toasted) (Matar aloo ka sandwich),Breakfast,412,11.5,62.9,13.6,Veg,None,Veg_Breakfast
+Paneer pea sandwich (toasted) (Paneer matar ka sandwich),Breakfast,623,31.0,60.1,30.0,Veg,Dairy,Veg_Breakfast
+Chicken sandwich (toasted),Breakfast,418,30.2,47.0,13.3,Non-Veg,None,Non-Veg_Breakfast
+Pea keema sandwich (toasted) (Matar aur keema ka sandwich),Breakfast,429,27.6,50.7,14.0,Veg,None,Veg_Breakfast
+Classic club sandwich,Lunch,502,16.8,46.2,28.9,Veg,None,Veg_Lunch
+Classic club sandwich,Dinner,502,16.8,46.2,28.9,Veg,None,Veg_Dinner
+Sesame toast,Breakfast,1237,4.8,27.9,123.4,Veg,None,Veg_Breakfast
+Cracked wheat porridge (Meetha daliya),Breakfast,122,4.0,13.3,6.1,Veg,Gluten,Veg_Breakfast
+Cracked wheat porridge (Meetha daliya),Snack,122,4.0,13.3,6.1,Veg,Gluten,Veg_Snack
+Semolina porridge (Suji/Rava daliya),Breakfast,151,5.6,18.6,6.1,Veg,None,Veg_Breakfast
+Semolina porridge (Suji/Rava daliya),Snack,151,5.6,18.6,6.1,Veg,None,Veg_Snack
+Oatmeal Porridge,Breakfast,109,3.9,13.2,4.8,Veg,None,Veg_Breakfast
+Oatmeal Porridge,Snack,109,3.9,13.2,4.8,Veg,None,Veg_Snack
+Cornflakes with milk,Breakfast,175,5.4,22.4,7.7,Veg,Dairy,Veg_Breakfast
+Cornflakes with milk,Snack,175,5.4,22.4,7.7,Veg,Dairy,Veg_Snack
+Rice flakes (Chiwda/Aval),Breakfast,168,5.4,23.4,6.0,Veg,None,Veg_Breakfast
+Rice flakes (Chiwda/Aval),Snack,168,5.4,23.4,6.0,Veg,None,Veg_Snack
+Wheat flakes,Breakfast,168,5.4,23.4,6.0,Veg,Gluten,Veg_Breakfast
+Wheat flakes,Snack,168,5.4,23.4,6.0,Veg,Gluten,Veg_Snack
+Murmura (Puffed rice),Breakfast,169,5.4,23.5,6.1,Veg,None,Veg_Breakfast
+Murmura (Puffed rice),Snack,169,5.4,23.5,6.1,Veg,None,Veg_Snack
+Puffed wheat (Murmure/Moori),Breakfast,169,5.4,23.5,6.1,Veg,Gluten,Veg_Breakfast
+Puffed wheat (Murmure/Moori),Snack,169,5.4,23.5,6.1,Veg,Gluten,Veg_Snack
+Boiled egg (Ubla anda),Breakfast,136,13.3,0.4,9.1,Non-Veg,Eggs,Non-Veg_Breakfast
+Fried Egg ,Breakfast,559,29.0,0.8,49.1,Non-Veg,Eggs,Non-Veg_Breakfast
+Poached egg,Breakfast,185,18.0,0.6,12.3,Non-Veg,Eggs,Non-Veg_Breakfast
+Scrambled egg (Ande ki bhurji),Breakfast,389,25.7,3.4,30.5,Non-Veg,Eggs,Non-Veg_Breakfast
+Baked egg ,Breakfast,547,29.7,38.6,31.6,Non-Veg,Eggs,Non-Veg_Breakfast
+Plain omelette/omlet,Lunch,681,24.2,1.6,64.4,Veg,None,Veg_Lunch
+Plain omelette/omlet,Dinner,681,24.2,1.6,64.4,Veg,None,Veg_Dinner
+Stuffed egg omelette/omlet,Breakfast,508,21.5,5.8,44.4,Non-Veg,Eggs,Non-Veg_Breakfast
+Pancake,Lunch,508,14.2,51.2,27.0,Veg,None,Veg_Lunch
+Pancake,Dinner,508,14.2,51.2,27.0,Veg,None,Veg_Dinner
+Keema pancake,Lunch,440,22.5,23.9,28.1,Veg,None,Veg_Lunch
+Keema pancake,Dinner,440,22.5,23.9,28.1,Veg,None,Veg_Dinner
+Vegetable pancake,Breakfast,187,5.8,18.4,9.9,Veg,None,Veg_Breakfast
+Vegetable pancake,Snack,187,5.8,18.4,9.9,Veg,None,Veg_Snack
+Jam and fruit pancake,Lunch,405,9.5,51.8,17.5,Veg,None,Veg_Lunch
+Jam and fruit pancake,Dinner,405,9.5,51.8,17.5,Veg,None,Veg_Dinner
+Khoa and coconut pancake,Lunch,679,17.5,68.3,38.2,Veg,Nuts,Veg_Lunch
+Khoa and coconut pancake,Dinner,679,17.5,68.3,38.2,Veg,Nuts,Veg_Dinner
+Brown stock,Breakfast,63,5.8,0.8,4.1,Veg,None,Veg_Breakfast
+Brown stock,Snack,63,5.8,0.8,4.1,Veg,None,Veg_Snack
+Vegetable stock,Breakfast,52,0.9,2.9,4.1,Veg,None,Veg_Breakfast
+Vegetable stock,Snack,52,0.9,2.9,4.1,Veg,None,Veg_Snack
+Chicken stock,Breakfast,89,11.1,1.1,4.5,Non-Veg,None,Non-Veg_Breakfast
+Chicken stock,Snack,89,11.1,1.1,4.5,Non-Veg,None,Non-Veg_Snack
+Clear tomato soup (Tamatar ka soup),Breakfast,120,7.2,5.2,18.3,Veg,None,Veg_Breakfast
+Clear tomato soup (Tamatar ka soup),Snack,120,7.2,5.2,18.3,Veg,None,Veg_Snack
+Lentil soup,Breakfast,93,29.0,11.8,35.0,Veg,None,Veg_Breakfast
+Lentil soup,Snack,93,29.0,11.8,35.0,Veg,None,Veg_Snack
+Chicken consomme (Clear chicken soup),Breakfast,143,34.4,3.6,36.1,Non-Veg,None,Non-Veg_Breakfast
+Chicken consomme (Clear chicken soup),Snack,143,34.4,3.6,36.1,Non-Veg,None,Non-Veg_Snack
+Cream of tomato soup,Breakfast,146,6.9,5.9,19.7,Veg,Dairy,Veg_Breakfast
+Cream of tomato soup,Snack,146,6.9,5.9,19.7,Veg,Dairy,Veg_Snack
+Cream of green peas soup,Breakfast,191,10.7,10.1,22.2,Veg,Dairy,Veg_Breakfast
+Cream of green peas soup,Snack,191,10.7,10.1,22.2,Veg,Dairy,Veg_Snack
+Cream of spinach soup,Breakfast,150,7.8,5.2,20.0,Veg,Dairy,Veg_Breakfast
+Cream of spinach soup,Snack,150,7.8,5.2,20.0,Veg,Dairy,Veg_Snack
+Cream of mixed vegetable soup,Breakfast,89,10.3,7.4,13.6,Veg,Dairy,Veg_Breakfast
+Cream of mixed vegetable soup,Snack,89,10.3,7.4,13.6,Veg,Dairy,Veg_Snack
+Cream of mushroom soup,Breakfast,175,10.0,5.6,23.2,Veg,Dairy,Veg_Breakfast
+Cream of mushroom soup,Snack,175,10.0,5.6,23.2,Veg,Dairy,Veg_Snack
+Chicken sweet corn soup,Breakfast,84,43.4,4.9,37.8,Non-Veg,None,Non-Veg_Breakfast
+Chicken sweet corn soup,Snack,84,43.4,4.9,37.8,Non-Veg,None,Non-Veg_Snack
+Minestrone soup,Breakfast,127,27.9,11.1,33.3,Veg,None,Veg_Breakfast
+Minestrone soup,Snack,127,27.9,11.1,33.3,Veg,None,Veg_Snack
+Egg drop soup,Breakfast,79,38.8,3.3,40.6,Non-Veg,Eggs,Non-Veg_Breakfast
+Chinese cabbage and meat ball soup,Lunch,1210,13.0,3.6,141.4,Non-Veg,None,Non-Veg_Lunch
+Chinese cabbage and meat ball soup,Dinner,1210,13.0,3.6,141.4,Non-Veg,None,Non-Veg_Dinner
+French onion soup,Breakfast,83,17.1,6.4,21.6,Veg,None,Veg_Breakfast
+French onion soup,Snack,83,17.1,6.4,21.6,Veg,None,Veg_Snack
+Hot and sour soup,Breakfast,94,9.4,5.3,3.9,Veg,None,Veg_Breakfast
+Hot and sour soup,Snack,94,9.4,5.3,3.9,Veg,None,Veg_Snack
+Talaumein soup,Breakfast,106,30.4,12.5,38.3,Veg,None,Veg_Breakfast
+Talaumein soup,Snack,106,30.4,12.5,38.3,Veg,None,Veg_Snack
+Cold cucumber soup (Thanda kheere ka soup),Breakfast,144,9.0,13.7,6.0,Veg,None,Veg_Breakfast
+Cold cucumber soup (Thanda kheere ka soup),Snack,144,9.0,13.7,6.0,Veg,None,Veg_Snack
+Cold summer garden soup,Breakfast,147,25.7,8.0,42.2,Veg,None,Veg_Breakfast
+Cold summer garden soup,Snack,147,25.7,8.0,42.2,Veg,None,Veg_Snack
+Chapati/Roti,Lunch,505,14.7,89.1,8.9,Veg,Gluten,Veg_Lunch
+Chapati/Roti,Dinner,505,14.7,89.1,8.9,Veg,Gluten,Veg_Dinner
+Plain parantha/paratha,Breakfast,745,12.6,76.7,42.2,Veg,Gluten,Veg_Breakfast
+Potato parantha/paratha (Aloo ka parantha/paratha),Breakfast,512,9.2,59.8,25.6,Veg,Gluten,Veg_Breakfast
+Radish parantha/paratha (Mooli ka parantha/paratha),Breakfast,458,8.2,51.4,23.8,Veg,Gluten,Veg_Breakfast
+Cauliflower parantha/paratha (Phoolgobhi ka parantha/paratha),Breakfast,445,9.3,47.1,23.7,Veg,Gluten,Veg_Breakfast
+Dal parantha/paratha,Breakfast,670,17.0,75.1,32.6,Veg,Gluten,Veg_Breakfast
+Sprouted moong parantha/paratha,Breakfast,571,10.7,60.8,31.1,Veg,Gluten,Veg_Breakfast
+Pea parantha/paratha (Matar ka parantha/paratha),Breakfast,476,14.0,53.8,22.0,Veg,Gluten,Veg_Breakfast
+Keema parantha/paratha,Breakfast,595,23.5,45.9,34.8,Veg,Gluten,Veg_Breakfast
+Paneer parantha/paratha,Breakfast,657,20.0,60.8,36.6,Veg,"Dairy, Gluten",Veg_Breakfast
+Besan and spinach parantha/paratha (Besan aur palak ka parantha/paratha),Breakfast,541,13.8,53.5,30.2,Veg,Gluten,Veg_Breakfast
+Poori,Lunch,1844,3.4,20.6,194.0,Veg,None,Veg_Lunch
+Poori,Dinner,1844,3.4,20.6,194.0,Veg,None,Veg_Dinner
+Spinach poori (Palak poori),Lunch,1710,3.6,19.4,179.6,Veg,None,Veg_Lunch
+Spinach poori (Palak poori),Dinner,1710,3.6,19.4,179.6,Veg,None,Veg_Dinner
+Methi poori,Lunch,1775,3.6,20.0,186.5,Veg,None,Veg_Lunch
+Methi poori,Dinner,1775,3.6,20.0,186.5,Veg,None,Veg_Dinner
+Dal stuffed poori,Lunch,1962,5.2,25.4,204.2,Veg,None,Veg_Lunch
+Dal stuffed poori,Dinner,1962,5.2,25.4,204.2,Veg,None,Veg_Dinner
+Potato stuffed poori (Aloo ki poori),Lunch,1941,3.8,23.5,203.4,Veg,None,Veg_Lunch
+Potato stuffed poori (Aloo ki poori),Dinner,1941,3.8,23.5,203.4,Veg,None,Veg_Dinner
+Tandoori parantha/paratha,Breakfast,738,12.7,76.8,41.3,Veg,Gluten,Veg_Breakfast
+Boiled rice (Uble chawal),Breakfast,175,3.9,38.6,0.3,Veg,None,Veg_Breakfast
+Boiled rice (Uble chawal),Snack,175,3.9,38.6,0.3,Veg,None,Veg_Snack
+Plain pulao,Breakfast,210,3.5,32.7,6.9,Veg,None,Veg_Breakfast
+Plain pulao,Snack,210,3.5,32.7,6.9,Veg,None,Veg_Snack
+Mixed vegetable pulao,Breakfast,169,4.1,26.2,5.0,Veg,None,Veg_Breakfast
+Mixed vegetable pulao,Snack,169,4.1,26.2,5.0,Veg,None,Veg_Snack
+Mushroom pulao,Breakfast,186,3.8,28.5,6.0,Veg,None,Veg_Breakfast
+Mushroom pulao,Snack,186,3.8,28.5,6.0,Veg,None,Veg_Snack
+Sprouted moong pulao,Breakfast,169,3.3,26.2,5.4,Veg,None,Veg_Breakfast
+Sprouted moong pulao,Snack,169,3.3,26.2,5.4,Veg,None,Veg_Snack
+Paneer pulao,Lunch,1454,5.0,21.9,149.5,Veg,Dairy,Veg_Lunch
+Paneer pulao,Dinner,1454,5.0,21.9,149.5,Veg,Dairy,Veg_Dinner
+Peanut pulao ,Lunch,483,13.3,53.0,23.8,Veg,Nuts,Veg_Lunch
+Peanut pulao ,Dinner,483,13.3,53.0,23.8,Veg,Nuts,Veg_Dinner
+Navratan pulao,Lunch,654,15.5,92.4,23.6,Veg,None,Veg_Lunch
+Navratan pulao,Dinner,654,15.5,92.4,23.6,Veg,None,Veg_Dinner
+Green chickpeas pulao (Choliya pulao/Hare chane ka pulao),Lunch,433,12.2,68.9,12.0,Veg,None,Veg_Lunch
+Green chickpeas pulao (Choliya pulao/Hare chane ka pulao),Dinner,433,12.2,68.9,12.0,Veg,None,Veg_Dinner
+Mutton biryani/biriyani,Lunch,476,18.4,56.2,19.3,Non-Veg,None,Non-Veg_Lunch
+Mutton biryani/biriyani,Dinner,476,18.4,56.2,19.3,Non-Veg,None,Non-Veg_Dinner
+Vegetable biryani/biriyani,Lunch,436,7.9,46.4,23.8,Veg,None,Veg_Lunch
+Vegetable biryani/biriyani,Dinner,436,7.9,46.4,23.8,Veg,None,Veg_Dinner
+"Lemon rice (Pulihora, Elumichai sadam, Chitranna)",Lunch,440,10.6,54.0,19.7,Veg,None,Veg_Lunch
+"Lemon rice (Pulihora, Elumichai sadam, Chitranna)",Dinner,440,10.6,54.0,19.7,Veg,None,Veg_Dinner
+Sweet rice (Meethe chawal),Lunch,538,5.2,106.5,11.4,Veg,None,Veg_Lunch
+Sweet rice (Meethe chawal),Dinner,538,5.2,106.5,11.4,Veg,None,Veg_Dinner
+Curd rice (Dahi bhaat/Dahi chawal/ Perugu annam/Daddojanam/Thayir saadam),Lunch,489,14.4,82.3,10.8,Veg,Dairy,Veg_Lunch
+Curd rice (Dahi bhaat/Dahi chawal/ Perugu annam/Daddojanam/Thayir saadam),Dinner,489,14.4,82.3,10.8,Veg,Dairy,Veg_Dinner
+Tamarind rice (Chintapandu pulihora/Puliyodharai/Puli sadam/Huli anna),Lunch,932,18.6,162.7,21.3,Veg,None,Veg_Lunch
+Tamarind rice (Chintapandu pulihora/Puliyodharai/Puli sadam/Huli anna),Dinner,932,18.6,162.7,21.3,Veg,None,Veg_Dinner
+Spanish rice,Lunch,410,10.5,77.8,5.6,Veg,None,Veg_Lunch
+Spanish rice,Dinner,410,10.5,77.8,5.6,Veg,None,Veg_Dinner
+Chinese fried rice,Breakfast,180,6.1,20.1,8.1,Veg,None,Veg_Breakfast
+Chinese fried rice,Snack,180,6.1,20.1,8.1,Veg,None,Veg_Snack
+Macroni cheese pie,Lunch,426,14.6,52.8,18.7,Veg,None,Veg_Lunch
+Macroni cheese pie,Dinner,426,14.6,52.8,18.7,Veg,None,Veg_Dinner
+Vegetable chowmein,Breakfast,194,4.6,23.2,9.5,Veg,None,Veg_Breakfast
+Vegetable chowmein,Snack,194,4.6,23.2,9.5,Veg,None,Veg_Snack
+Chicken chowmein,Lunch,378,15.8,33.2,20.6,Non-Veg,None,Non-Veg_Lunch
+Chicken chowmein,Dinner,378,15.8,33.2,20.6,Non-Veg,None,Non-Veg_Dinner
+Cheese noodle ring,Breakfast,200,9.3,20.9,9.2,Veg,None,Veg_Breakfast
+Cheese noodle ring,Snack,200,9.3,20.9,9.2,Veg,None,Veg_Snack
+Spaghetti and cheese balls in tomato sauce,Lunch,1270,6.0,19.6,130.2,Veg,None,Veg_Lunch
+Spaghetti and cheese balls in tomato sauce,Dinner,1270,6.0,19.6,130.2,Veg,None,Veg_Dinner
+Penne platter,Lunch,443,12.6,52.2,21.8,Veg,None,Veg_Lunch
+Penne platter,Dinner,443,12.6,52.2,21.8,Veg,None,Veg_Dinner
+Pasta hot pot,Breakfast,187,8.8,17.4,9.7,Veg,None,Veg_Breakfast
+Pasta hot pot,Snack,187,8.8,17.4,9.7,Veg,None,Veg_Snack
+Chicken lasagne,Lunch,468,26.1,34.8,25.9,Non-Veg,None,Non-Veg_Lunch
+Chicken lasagne,Dinner,468,26.1,34.8,25.9,Non-Veg,None,Non-Veg_Dinner
+Fettuccine with spinach sauce,Breakfast,193,4.6,18.3,11.7,Veg,None,Veg_Breakfast
+Fettuccine with spinach sauce,Snack,193,4.6,18.3,11.7,Veg,None,Veg_Snack
+Naan,Lunch,716,20.1,129.4,12.5,Veg,Gluten,Veg_Lunch
+Naan,Dinner,716,20.1,129.4,12.5,Veg,Gluten,Veg_Dinner
+Bhatura,Lunch,1983,4.1,26.8,206.4,Veg,None,Veg_Lunch
+Bhatura,Dinner,1983,4.1,26.8,206.4,Veg,None,Veg_Dinner
+Idli,Breakfast,206,7.0,42.3,0.5,Veg,None,Veg_Breakfast
+Masala dosa,Breakfast,411,8.2,48.9,19.6,Veg,None,Veg_Breakfast
+Semolina dosa (Suji/Rava dosa),Breakfast,567,18.2,82.1,17.8,Veg,None,Veg_Breakfast
+Onion tomato uttapam,Lunch,1155,4.8,28.3,113.2,Veg,None,Veg_Lunch
+Onion tomato uttapam,Dinner,1155,4.8,28.3,113.2,Veg,None,Veg_Dinner
+Paneer kaathi roll,Lunch,714,17.3,50.2,48.9,Veg,Dairy,Veg_Lunch
+Paneer kaathi roll,Dinner,714,17.3,50.2,48.9,Veg,Dairy,Veg_Dinner
+Makki ki roti,Lunch,659,8.7,60.5,42.1,Veg,Gluten,Veg_Lunch
+Makki ki roti,Dinner,659,8.7,60.5,42.1,Veg,Gluten,Veg_Dinner
+Washed moong dal (Dhuli moong ki dal),Breakfast,75,4.0,8.9,2.5,Veg,None,Veg_Breakfast
+Washed moong dal (Dhuli moong ki dal),Snack,75,4.0,8.9,2.5,Veg,None,Veg_Snack
+Washed urad dal (Dhuli urad ki dal),Breakfast,91,3.8,8.8,4.5,Veg,None,Veg_Breakfast
+Washed urad dal (Dhuli urad ki dal),Snack,91,3.8,8.8,4.5,Veg,None,Veg_Snack
+Split bengal gram with bottle gourd (Channa dal with ghiya/lauki),Breakfast,109,4.2,10.6,5.4,Veg,None,Veg_Breakfast
+Split bengal gram with bottle gourd (Channa dal with ghiya/lauki),Snack,109,4.2,10.6,5.4,Veg,None,Veg_Snack
+Dry washed urad,Breakfast,187,10.3,23.5,5.2,Veg,None,Veg_Breakfast
+Dry washed urad,Snack,187,10.3,23.5,5.2,Veg,None,Veg_Snack
+Mixed dal,Breakfast,92,3.8,8.7,4.6,Veg,None,Veg_Breakfast
+Mixed dal,Snack,92,3.8,8.7,4.6,Veg,None,Veg_Snack
+Whole moong (Moong ki dal),Breakfast,80,3.4,7.8,3.8,Veg,None,Veg_Breakfast
+Whole moong (Moong ki dal),Snack,80,3.4,7.8,3.8,Veg,None,Veg_Snack
+Whole masoor (Masoor ki dal),Breakfast,81,3.4,8.1,3.8,Veg,None,Veg_Breakfast
+Whole masoor (Masoor ki dal),Snack,81,3.4,8.1,3.8,Veg,None,Veg_Snack
+Whole moth (Moth ki dal),Breakfast,82,3.0,8.6,3.9,Veg,None,Veg_Breakfast
+Whole moth (Moth ki dal),Snack,82,3.0,8.6,3.9,Veg,None,Veg_Snack
+Whole urad (Urad ki dal),Breakfast,80,3.3,7.6,3.9,Veg,None,Veg_Breakfast
+Whole urad (Urad ki dal),Snack,80,3.3,7.6,3.9,Veg,None,Veg_Snack
+Moti mahal dal (Urad rajmah mix dal),Breakfast,154,5.9,13.1,8.5,Veg,None,Veg_Breakfast
+Moti mahal dal (Urad rajmah mix dal),Snack,154,5.9,13.1,8.5,Veg,None,Veg_Snack
+Black channa curry/Bengal gram curry (Kale chane ki curry),Breakfast,211,8.5,21.2,9.9,Veg,None,Veg_Breakfast
+Black channa curry/Bengal gram curry (Kale chane ki curry),Snack,211,8.5,21.2,9.9,Veg,None,Veg_Snack
+Chickpeas curry (Safed channa curry),Lunch,408,15.2,50.0,17.1,Veg,None,Veg_Lunch
+Chickpeas curry (Safed channa curry),Dinner,408,15.2,50.0,17.1,Veg,None,Veg_Dinner
+Lobia curry,Breakfast,223,9.1,26.8,8.4,Veg,None,Veg_Breakfast
+Lobia curry,Snack,223,9.1,26.8,8.4,Veg,None,Veg_Snack
+Soyabean curry,Lunch,408,26.1,16.9,25.5,Veg,Soy,Veg_Lunch
+Soyabean curry,Dinner,408,26.1,16.9,25.5,Veg,Soy,Veg_Dinner
+Kidney bean curry (Rajmah curry),Breakfast,215,8.9,24.6,8.7,Veg,None,Veg_Breakfast
+Kidney bean curry (Rajmah curry),Snack,215,8.9,24.6,8.7,Veg,None,Veg_Snack
+Sambar,Breakfast,145,5.0,15.9,6.6,Veg,None,Veg_Breakfast
+Sambar,Snack,145,5.0,15.9,6.6,Veg,None,Veg_Snack
+Besan kadhi with pakodies,Lunch,1008,4.1,8.9,106.5,Veg,None,Veg_Lunch
+Besan kadhi with pakodies,Dinner,1008,4.1,8.9,106.5,Veg,None,Veg_Dinner
+Khatta channa,Lunch,506,15.8,52.8,26.4,Veg,None,Veg_Lunch
+Khatta channa,Dinner,506,15.8,52.8,26.4,Veg,None,Veg_Dinner
+Sprouted moong dal chat,Breakfast,97,4.1,18.0,1.0,Veg,None,Veg_Breakfast
+Sprouted moong dal chat,Snack,97,4.1,18.0,1.0,Veg,None,Veg_Snack
+Potato cauliflower (Aloo gobhi),Breakfast,159,2.8,9.0,12.2,Veg,None,Veg_Breakfast
+Potato cauliflower (Aloo gobhi),Snack,159,2.8,9.0,12.2,Veg,None,Veg_Snack
+Potato capsicum (Shimla mirch aloo),Breakfast,188,2.1,13.1,14.0,Veg,None,Veg_Breakfast
+Potato capsicum (Shimla mirch aloo),Snack,188,2.1,13.1,14.0,Veg,None,Veg_Snack
+Cabbage and peas (Pattagobhi aur matar),Breakfast,95,4.9,9.4,4.0,Veg,None,Veg_Breakfast
+Cabbage and peas (Pattagobhi aur matar),Snack,95,4.9,9.4,4.0,Veg,None,Veg_Snack
+Carrot and fenugreek leaves (Gajar methi),Breakfast,92,3.2,6.3,5.7,Veg,None,Veg_Breakfast
+Carrot and fenugreek leaves (Gajar methi),Snack,92,3.2,6.3,5.7,Veg,None,Veg_Snack
+Potato fenugreek (Aloo methi),Breakfast,202,3.4,12.7,15.1,Veg,None,Veg_Breakfast
+Potato fenugreek (Aloo methi),Snack,202,3.4,12.7,15.1,Veg,None,Veg_Snack
+Brinjal bhartha (Baingan ka bhartha),Breakfast,97,2.1,6.6,6.7,Veg,None,Veg_Breakfast
+Brinjal bhartha (Baingan ka bhartha),Snack,97,2.1,6.6,6.7,Veg,None,Veg_Snack
+Dry potato (Sookhe aloo),Breakfast,154,2.4,21.6,6.3,Veg,None,Veg_Breakfast
+Dry potato (Sookhe aloo),Snack,154,2.4,21.6,6.3,Veg,None,Veg_Snack
+Beans with coconut (Nariyal aur sem/phali; Beans thoran),Breakfast,197,3.9,6.6,17.1,Veg,Nuts,Veg_Breakfast
+Beans with coconut (Nariyal aur sem/phali; Beans thoran),Snack,197,3.9,6.6,17.1,Veg,Nuts,Veg_Snack
+Cauliflower with coconut (Nariyal ke saath phoolgobhi),Breakfast,198,4.0,6.0,17.3,Veg,Nuts,Veg_Breakfast
+Cauliflower with coconut (Nariyal ke saath phoolgobhi),Snack,198,4.0,6.0,17.3,Veg,Nuts,Veg_Snack
+Carrot and cabbage with coconut (Nariyal ke saath pattagobhi aur gajar),Breakfast,159,2.7,7.5,12.9,Veg,Nuts,Veg_Breakfast
+Carrot and cabbage with coconut (Nariyal ke saath pattagobhi aur gajar),Snack,159,2.7,7.5,12.9,Veg,Nuts,Veg_Snack
+Raw turnip with coconut ,Breakfast,198,2.7,8.7,17.2,Veg,Nuts,Veg_Breakfast
+Raw turnip with coconut ,Snack,198,2.7,8.7,17.2,Veg,Nuts,Veg_Snack
+Raw papaya with coconut (Papaya thoran),Breakfast,199,2.3,8.4,17.1,Veg,Nuts,Veg_Breakfast
+Raw papaya with coconut (Papaya thoran),Snack,199,2.3,8.4,17.1,Veg,Nuts,Veg_Snack
+Stuffed okra (Bharwa bhindi),Breakfast,141,3.1,5.8,11.5,Veg,None,Veg_Breakfast
+Stuffed okra (Bharwa bhindi),Snack,141,3.1,5.8,11.5,Veg,None,Veg_Snack
+Stuffed round gourd (Bharwa tinde),Breakfast,109,1.6,6.0,8.6,Veg,None,Veg_Breakfast
+Stuffed round gourd (Bharwa tinde),Snack,109,1.6,6.0,8.6,Veg,None,Veg_Snack
+Stuffed capsicum (Bharwa shimla mirch),Breakfast,136,2.0,12.4,8.6,Veg,None,Veg_Breakfast
+Stuffed capsicum (Bharwa shimla mirch),Snack,136,2.0,12.4,8.6,Veg,None,Veg_Snack
+Stuffed brinjal (Bharwa baingan),Breakfast,139,2.3,5.9,11.6,Veg,None,Veg_Breakfast
+Stuffed brinjal (Bharwa baingan),Snack,139,2.3,5.9,11.6,Veg,None,Veg_Snack
+Stuffed tomatoes (Bharwa tamatar),Breakfast,140,4.9,9.3,9.1,Veg,None,Veg_Breakfast
+Stuffed tomatoes (Bharwa tamatar),Snack,140,4.9,9.3,9.1,Veg,None,Veg_Snack
+Pea potato curry (Aloo matar),Breakfast,151,5.2,14.6,7.7,Veg,None,Veg_Breakfast
+Pea potato curry (Aloo matar),Snack,151,5.2,14.6,7.7,Veg,None,Veg_Snack
+Pea paneer curry (Matar paneer),Breakfast,202,9.9,13.9,11.6,Veg,Dairy,Veg_Breakfast
+Pea paneer curry (Matar paneer),Snack,202,9.9,13.9,11.6,Veg,Dairy,Veg_Snack
+Pea mushroom curry (Matar mushroom),Breakfast,139,5.8,11.1,7.7,Veg,None,Veg_Breakfast
+Pea mushroom curry (Matar mushroom),Snack,139,5.8,11.1,7.7,Veg,None,Veg_Snack
+Pea curry (Matar ki sabzi),Breakfast,154,6.8,13.8,7.7,Veg,None,Veg_Breakfast
+Pea curry (Matar ki sabzi),Snack,154,6.8,13.8,7.7,Veg,None,Veg_Snack
+Pea vadi curry,Breakfast,152,7.0,13.4,7.6,Veg,None,Veg_Breakfast
+Pea vadi curry,Snack,152,7.0,13.4,7.6,Veg,None,Veg_Snack
+Paneer curry,Lunch,441,19.5,21.0,31.0,Veg,Dairy,Veg_Lunch
+Paneer curry,Dinner,441,19.5,21.0,31.0,Veg,Dairy,Veg_Dinner
+Lotus stem curry (Kamal kakdi curry),Breakfast,165,2.3,13.9,10.9,Veg,None,Veg_Breakfast
+Lotus stem curry (Kamal kakdi curry),Snack,165,2.3,13.9,10.9,Veg,None,Veg_Snack
+Gravy for kofta,Breakfast,188,2.6,9.5,15.5,Veg,None,Veg_Breakfast
+Gravy for kofta,Snack,188,2.6,9.5,15.5,Veg,None,Veg_Snack
+Pea kofta curry (Matar kofta curry),Lunch,1489,5.0,10.4,158.5,Veg,None,Veg_Lunch
+Pea kofta curry (Matar kofta curry),Dinner,1489,5.0,10.4,158.5,Veg,None,Veg_Dinner
+Spinach kofta curry (Palak kofta curry),Lunch,1429,2.7,8.9,153.7,Veg,None,Veg_Lunch
+Spinach kofta curry (Palak kofta curry),Dinner,1429,2.7,8.9,153.7,Veg,None,Veg_Dinner
+Paneer kofta curry,Lunch,1677,6.0,8.2,180.2,Veg,Dairy,Veg_Lunch
+Paneer kofta curry,Dinner,1677,6.0,8.2,180.2,Veg,Dairy,Veg_Dinner
+Lotus stem kofta curry (Kamal kakdi kofta curry),Lunch,1583,2.4,12.5,169.4,Veg,None,Veg_Lunch
+Lotus stem kofta curry (Kamal kakdi kofta curry),Dinner,1583,2.4,12.5,169.4,Veg,None,Veg_Dinner
+Raw banana kofta curry (Kela kofta curry),Lunch,1568,1.6,8.5,170.0,Veg,None,Veg_Lunch
+Raw banana kofta curry (Kela kofta curry),Dinner,1568,1.6,8.5,170.0,Veg,None,Veg_Dinner
+Cauliflower kofta curry (Phoolgobhi kofta curry),Lunch,1602,2.6,6.6,174.0,Veg,None,Veg_Lunch
+Cauliflower kofta curry (Phoolgobhi kofta curry),Dinner,1602,2.6,6.6,174.0,Veg,None,Veg_Dinner
+Cabbage kofta curry (Pattagobhi kofta curry),Lunch,1599,2.4,7.2,173.5,Veg,None,Veg_Lunch
+Cabbage kofta curry (Pattagobhi kofta curry),Dinner,1599,2.4,7.2,173.5,Veg,None,Veg_Dinner
+Ghiya/Lauki Kofta Curry,Lunch,1596,2.2,6.8,173.5,Veg,None,Veg_Lunch
+Ghiya/Lauki Kofta Curry,Dinner,1596,2.2,6.8,173.5,Veg,None,Veg_Dinner
+Spinach paneer kofta curry (Palak paneer kofta curry),Lunch,1515,3.6,7.4,163.5,Veg,Dairy,Veg_Lunch
+Spinach paneer kofta curry (Palak paneer kofta curry),Dinner,1515,3.6,7.4,163.5,Veg,Dairy,Veg_Dinner
+Vegetarian egg kofta curry,Breakfast,1568,3.3,10.6,168.1,Non-Veg,Eggs,Non-Veg_Breakfast
+Baked vegetables,Breakfast,133,5.5,12.7,6.7,Veg,None,Veg_Breakfast
+Baked vegetables,Snack,133,5.5,12.7,6.7,Veg,None,Veg_Snack
+Cauliflower musallam (Phoolgobhi musallam),Breakfast,88,2.8,6.7,5.3,Veg,None,Veg_Breakfast
+Cauliflower musallam (Phoolgobhi musallam),Snack,88,2.8,6.7,5.3,Veg,None,Veg_Snack
+Baked vegetables with spinach ,Breakfast,116,4.8,10.4,6.0,Veg,None,Veg_Breakfast
+Baked vegetables with spinach ,Snack,116,4.8,10.4,6.0,Veg,None,Veg_Snack
+Baked potato with skin ,Breakfast,203,5.1,16.7,12.8,Veg,None,Veg_Breakfast
+Baked potato with skin ,Snack,203,5.1,16.7,12.8,Veg,None,Veg_Snack
+Shepherd's pie (vegetarian),Breakfast,203,7.6,18.0,11.0,Veg,None,Veg_Breakfast
+Shepherd's pie (vegetarian),Snack,203,7.6,18.0,11.0,Veg,None,Veg_Snack
+Baked brinjal in tomato sauce,Breakfast,115,4.7,12.4,4.9,Veg,None,Veg_Breakfast
+Baked brinjal in tomato sauce,Snack,115,4.7,12.4,4.9,Veg,None,Veg_Snack
+Dum aloo,Lunch,1705,1.8,8.3,185.0,Veg,None,Veg_Lunch
+Dum aloo,Dinner,1705,1.8,8.3,185.0,Veg,None,Veg_Dinner
+Spinach paneer (Palak paneer),Breakfast,116,6.0,6.6,7.1,Veg,Dairy,Veg_Breakfast
+Spinach paneer (Palak paneer),Snack,116,6.0,6.6,7.1,Veg,Dairy,Veg_Snack
+Methi chaman,Lunch,1189,3.8,7.0,127.3,Veg,None,Veg_Lunch
+Methi chaman,Dinner,1189,3.8,7.0,127.3,Veg,None,Veg_Dinner
+Sarson ka saag,Breakfast,131,4.5,8.0,8.8,Veg,None,Veg_Breakfast
+Sarson ka saag,Snack,131,4.5,8.0,8.8,Veg,None,Veg_Snack
+Jackfruit sabzi (Kathal ki sabzi),Lunch,1563,1.7,8.5,169.0,Veg,None,Veg_Lunch
+Jackfruit sabzi (Kathal ki sabzi),Dinner,1563,1.7,8.5,169.0,Veg,None,Veg_Dinner
+Avial,Breakfast,186,3.7,12.7,13.4,Veg,None,Veg_Breakfast
+Avial,Snack,186,3.7,12.7,13.4,Veg,None,Veg_Snack
+Al yakhani,Breakfast,221,4.3,7.0,19.7,Veg,None,Veg_Breakfast
+Al yakhani,Snack,221,4.3,7.0,19.7,Veg,None,Veg_Snack
+Shahi paneer,Lunch,391,12.6,16.6,30.8,Veg,Dairy,Veg_Lunch
+Shahi paneer,Dinner,391,12.6,16.6,30.8,Veg,Dairy,Veg_Dinner
+Paneer in butter sauce,Breakfast,218,10.5,14.6,13.2,Veg,Dairy,Veg_Breakfast
+Paneer in butter sauce,Snack,218,10.5,14.6,13.2,Veg,Dairy,Veg_Snack
+Methi malai paneer,Lunch,487,18.4,20.4,36.9,Veg,Dairy,Veg_Lunch
+Methi malai paneer,Dinner,487,18.4,20.4,36.9,Veg,Dairy,Veg_Dinner
+Chilli paneer,Lunch,1943,5.2,8.3,210.0,Veg,Dairy,Veg_Lunch
+Chilli paneer,Dinner,1943,5.2,8.3,210.0,Veg,Dairy,Veg_Dinner
+Paneer makhana korma,Lunch,1939,8.1,11.6,206.9,Veg,Dairy,Veg_Lunch
+Paneer makhana korma,Dinner,1939,8.1,11.6,206.9,Veg,Dairy,Veg_Dinner
+Kadhai Paneer,Breakfast,161,6.5,11.0,10.2,Veg,Dairy,Veg_Breakfast
+Kadhai Paneer,Snack,161,6.5,11.0,10.2,Veg,Dairy,Veg_Snack
+Roghan josh,Breakfast,209,14.3,7.4,13.5,Veg,None,Veg_Breakfast
+Roghan josh,Snack,209,14.3,7.4,13.5,Veg,None,Veg_Snack
+Spinach mutton (Palak mutton),Breakfast,120,8.6,5.2,7.1,Non-Veg,None,Non-Veg_Breakfast
+Spinach mutton (Palak mutton),Snack,120,8.6,5.2,7.1,Non-Veg,None,Non-Veg_Snack
+Pea keema curry (Matar keema ki sabzi),Breakfast,199,12.6,9.4,12.2,Veg,None,Veg_Breakfast
+Pea keema curry (Matar keema ki sabzi),Snack,199,12.6,9.4,12.2,Veg,None,Veg_Snack
+Keema kofta curry,Lunch,386,24.4,14.1,26.0,Veg,None,Veg_Lunch
+Keema kofta curry,Dinner,386,24.4,14.1,26.0,Veg,None,Veg_Dinner
+Kashmiri mutton koftas (Gushtaba),Breakfast,146,9.5,4.6,10.2,Non-Veg,None,Non-Veg_Breakfast
+Kashmiri mutton koftas (Gushtaba),Snack,146,9.5,4.6,10.2,Non-Veg,None,Non-Veg_Snack
+Mutton yakhni,Breakfast,156,12.4,1.3,11.6,Non-Veg,None,Non-Veg_Breakfast
+Mutton yakhni,Snack,156,12.4,1.3,11.6,Non-Veg,None,Non-Veg_Snack
+Chicken yakhni,Breakfast,148,16.0,1.2,9.1,Non-Veg,None,Non-Veg_Breakfast
+Chicken yakhni,Snack,148,16.0,1.2,9.1,Non-Veg,None,Non-Veg_Snack
+Mutton do piaza,Lunch,458,23.5,10.4,36.0,Non-Veg,None,Non-Veg_Lunch
+Mutton do piaza,Dinner,458,23.5,10.4,36.0,Non-Veg,None,Non-Veg_Dinner
+Mutton chops,Lunch,1659,10.1,3.7,178.3,Non-Veg,None,Non-Veg_Lunch
+Mutton chops,Dinner,1659,10.1,3.7,178.3,Non-Veg,None,Non-Veg_Dinner
+Shammi kebab,Lunch,1714,11.3,8.8,181.5,Veg,None,Veg_Lunch
+Shammi kebab,Dinner,1714,11.3,8.8,181.5,Veg,None,Veg_Dinner
+Scotch egg,Breakfast,1692,10.1,4.8,181.6,Non-Veg,Eggs,Non-Veg_Breakfast
+Shepherd's pie (with minced meat),Breakfast,214,11.2,12.1,13.3,Non-Veg,None,Non-Veg_Breakfast
+Shepherd's pie (with minced meat),Snack,214,11.2,12.1,13.3,Non-Veg,None,Non-Veg_Snack
+Chicken curry,Breakfast,193,17.7,5.1,11.4,Non-Veg,None,Non-Veg_Breakfast
+Chicken curry,Snack,193,17.7,5.1,11.4,Non-Veg,None,Non-Veg_Snack
+Tandoori chicken,Breakfast,217,24.4,3.5,11.9,Non-Veg,None,Non-Veg_Breakfast
+Tandoori chicken,Snack,217,24.4,3.5,11.9,Non-Veg,None,Non-Veg_Snack
+Butter chicken,Breakfast,205,16.4,5.6,13.0,Non-Veg,None,Non-Veg_Breakfast
+Butter chicken,Snack,205,16.4,5.6,13.0,Non-Veg,None,Non-Veg_Snack
+Chicken kebab,Lunch,1823,9.3,2.8,197.2,Non-Veg,None,Non-Veg_Lunch
+Chicken kebab,Dinner,1823,9.3,2.8,197.2,Non-Veg,None,Non-Veg_Dinner
+Chilli chicken,Lunch,497,23.9,7.2,41.4,Non-Veg,None,Non-Veg_Lunch
+Chilli chicken,Dinner,497,23.9,7.2,41.4,Non-Veg,None,Non-Veg_Dinner
+Fried chicken with tomato sauce (Fried chicken tamatar ki chutney kay saath),Breakfast,187,17.2,3.8,11.4,Non-Veg,None,Non-Veg_Breakfast
+Fried chicken with tomato sauce (Fried chicken tamatar ki chutney kay saath),Snack,187,17.2,3.8,11.4,Non-Veg,None,Non-Veg_Snack
+Fish curry (Machli curry),Breakfast,166,13.1,5.7,10.0,Non-Veg,Fish,Non-Veg_Breakfast
+Fish curry (Machli curry),Snack,166,13.1,5.7,10.0,Non-Veg,Fish,Non-Veg_Snack
+Fried fish (Indian style) (Tali hui machli),Lunch,1646,10.9,13.5,172.2,Non-Veg,Fish,Non-Veg_Lunch
+Fried fish (Indian style) (Tali hui machli),Dinner,1646,10.9,13.5,172.2,Non-Veg,Fish,Non-Veg_Dinner
+Fried fish and Chips (English Style) (Tali hui machli aur chips),Lunch,1629,8.4,6.9,174.2,Non-Veg,Fish,Non-Veg_Lunch
+Fried fish and Chips (English Style) (Tali hui machli aur chips),Dinner,1629,8.4,6.9,174.2,Non-Veg,Fish,Non-Veg_Dinner
+Tomato fish,Lunch,1224,6.0,8.0,129.8,Non-Veg,Fish,Non-Veg_Lunch
+Tomato fish,Dinner,1224,6.0,8.0,129.8,Non-Veg,Fish,Non-Veg_Dinner
+Baked fish with cheese sauce,Breakfast,170,13.0,6.1,10.5,Non-Veg,Fish,Non-Veg_Breakfast
+Baked fish with cheese sauce,Snack,170,13.0,6.1,10.5,Non-Veg,Fish,Non-Veg_Snack
+Fish tikka,Breakfast,175,24.0,5.9,6.2,Non-Veg,Fish,Non-Veg_Breakfast
+Fish tikka,Snack,175,24.0,5.9,6.2,Non-Veg,Fish,Non-Veg_Snack
+Tandoori fish,Breakfast,143,16.8,3.6,7.0,Non-Veg,Fish,Non-Veg_Breakfast
+Tandoori fish,Snack,143,16.8,3.6,7.0,Non-Veg,Fish,Non-Veg_Snack
+"Paneer, apple and pineapple salad",Breakfast,142,5.8,12.5,7.6,Veg,Dairy,Veg_Breakfast
+"Paneer, apple and pineapple salad",Snack,142,5.8,12.5,7.6,Veg,Dairy,Veg_Snack
+Russian salad,Breakfast,172,6.4,9.8,11.8,Veg,None,Veg_Breakfast
+Russian salad,Snack,172,6.4,9.8,11.8,Veg,None,Veg_Snack
+Pasta salad,Lunch,475,10.4,31.8,34.8,Veg,None,Veg_Lunch
+Pasta salad,Dinner,475,10.4,31.8,34.8,Veg,None,Veg_Dinner
+Deviled egg,Breakfast,147,7.5,3.3,11.6,Non-Veg,Eggs,Non-Veg_Breakfast
+Hawain salad,Lunch,438,10.7,35.9,28.4,Veg,None,Veg_Lunch
+Hawain salad,Dinner,438,10.7,35.9,28.4,Veg,None,Veg_Dinner
+Mixed pulse and vegetable salad,Breakfast,124,7.1,20.9,1.3,Veg,None,Veg_Breakfast
+Mixed pulse and vegetable salad,Snack,124,7.1,20.9,1.3,Veg,None,Veg_Snack
+Sprouted moong salad ,Breakfast,113,6.9,16.4,2.2,Veg,None,Veg_Breakfast
+Sprouted moong salad ,Snack,113,6.9,16.4,2.2,Veg,None,Veg_Snack
+Tossed salad,Breakfast,94,1.5,7.4,6.3,Veg,None,Veg_Breakfast
+Tossed salad,Snack,94,1.5,7.4,6.3,Veg,None,Veg_Snack
+Mixed vegetable salad with curd sauce,Breakfast,90,6.3,10.5,2.2,Veg,Dairy,Veg_Breakfast
+Mixed vegetable salad with curd sauce,Snack,90,6.3,10.5,2.2,Veg,Dairy,Veg_Snack
+Potato salad (Aloo ka salaad),Breakfast,134,2.1,16.8,6.6,Veg,None,Veg_Breakfast
+Potato salad (Aloo ka salaad),Snack,134,2.1,16.8,6.6,Veg,None,Veg_Snack
+Waldroff salad,Breakfast,212,2.2,16.5,15.1,Veg,None,Veg_Breakfast
+Waldroff salad,Snack,212,2.2,16.5,15.1,Veg,None,Veg_Snack
+Coleslaw,Breakfast,115,1.9,8.4,8.0,Veg,None,Veg_Breakfast
+Coleslaw,Snack,115,1.9,8.4,8.0,Veg,None,Veg_Snack
+Fruit salad (Phalon ka salaad),Breakfast,117,1.4,23.9,1.8,Veg,None,Veg_Breakfast
+Fruit salad (Phalon ka salaad),Snack,117,1.4,23.9,1.8,Veg,None,Veg_Snack
+Tomato onion raita (Tamatar aur pyaaz ka raita),Breakfast,88,5.6,10.6,2.8,Veg,None,Veg_Breakfast
+Tomato onion raita (Tamatar aur pyaaz ka raita),Snack,88,5.6,10.6,2.8,Veg,None,Veg_Snack
+Peanut raita (Mungfali ka raita),Lunch,375,21.5,23.2,22.5,Veg,Nuts,Veg_Lunch
+Peanut raita (Mungfali ka raita),Dinner,375,21.5,23.2,22.5,Veg,Nuts,Veg_Dinner
+Sprouted moong raita ,Breakfast,91,6.9,9.2,3.3,Veg,None,Veg_Breakfast
+Sprouted moong raita ,Snack,91,6.9,9.2,3.3,Veg,None,Veg_Snack
+Bottle gourd raita (Ghiya/Lauki ka raita),Breakfast,84,6.0,8.6,3.1,Veg,None,Veg_Breakfast
+Bottle gourd raita (Ghiya/Lauki ka raita),Snack,84,6.0,8.6,3.1,Veg,None,Veg_Snack
+Cucumber raita (Kheere ka raita),Breakfast,88,6.1,9.5,3.1,Veg,None,Veg_Breakfast
+Cucumber raita (Kheere ka raita),Snack,88,6.1,9.5,3.1,Veg,None,Veg_Snack
+Carrot and spinach raita (Gajar aur palak ka raita),Breakfast,85,6.0,8.7,3.0,Veg,None,Veg_Breakfast
+Carrot and spinach raita (Gajar aur palak ka raita),Snack,85,6.0,8.7,3.0,Veg,None,Veg_Snack
+Mint raita (Pudinay ka raita),Breakfast,116,8.5,11.5,4.4,Veg,None,Veg_Breakfast
+Mint raita (Pudinay ka raita),Snack,116,8.5,11.5,4.4,Veg,None,Veg_Snack
+Potato raita (Aloo ka raita),Breakfast,113,6.3,15.4,3.1,Veg,None,Veg_Breakfast
+Potato raita (Aloo ka raita),Snack,113,6.3,15.4,3.1,Veg,None,Veg_Snack
+Boondi raita,Lunch,1719,5.5,9.9,184.6,Veg,None,Veg_Lunch
+Boondi raita,Dinner,1719,5.5,9.9,184.6,Veg,None,Veg_Dinner
+Sweet raita (Meetha raita),Breakfast,148,4.9,26.9,2.7,Veg,None,Veg_Breakfast
+Sweet raita (Meetha raita),Snack,148,4.9,26.9,2.7,Veg,None,Veg_Snack
+Dahi vadas/Dahi bhalla,Lunch,1669,7.4,13.7,176.0,Veg,None,Veg_Lunch
+Dahi vadas/Dahi bhalla,Dinner,1669,7.4,13.7,176.0,Veg,None,Veg_Dinner
+Gunjia,Lunch,1668,7.4,14.2,175.7,Veg,None,Veg_Lunch
+Gunjia,Dinner,1668,7.4,14.2,175.7,Veg,None,Veg_Dinner
+Saunth/Sonth chutney with tamarind/imli,Breakfast,212,1.5,50.3,0.2,Veg,None,Veg_Breakfast
+Saunth/Sonth chutney with tamarind/imli,Snack,212,1.5,50.3,0.2,Veg,None,Veg_Snack
+Rice kheer (Chawal ki kheer),Breakfast,112,3.4,15.1,4.5,Veg,None,Veg_Breakfast
+Rice kheer (Chawal ki kheer),Snack,112,3.4,15.1,4.5,Veg,None,Veg_Snack
+Makhana kheer,Breakfast,161,5.0,19.3,7.5,Veg,None,Veg_Breakfast
+Makhana kheer,Snack,161,5.0,19.3,7.5,Veg,None,Veg_Snack
+Vermicelli kheer (Semiya/Seviyan ki kheer),Breakfast,180,5.0,23.8,7.5,Veg,None,Veg_Breakfast
+Vermicelli kheer (Semiya/Seviyan ki kheer),Snack,180,5.0,23.8,7.5,Veg,None,Veg_Snack
+Semolina kheer (Suji/Rava kheer),Breakfast,169,5.1,23.8,6.3,Veg,None,Veg_Breakfast
+Semolina kheer (Suji/Rava kheer),Snack,169,5.1,23.8,6.3,Veg,None,Veg_Snack
+Paneer kheer,Breakfast,157,6.8,15.0,8.1,Veg,Dairy,Veg_Breakfast
+Paneer kheer,Snack,157,6.8,15.0,8.1,Veg,Dairy,Veg_Snack
+Cabbage kheer (Pattagobhi ki kheer),Breakfast,125,4.3,14.6,5.7,Veg,None,Veg_Breakfast
+Cabbage kheer (Pattagobhi ki kheer),Snack,125,4.3,14.6,5.7,Veg,None,Veg_Snack
+Carrot kheer (Gajar ki kheer),Breakfast,128,4.2,15.1,5.8,Veg,None,Veg_Breakfast
+Carrot kheer (Gajar ki kheer),Snack,128,4.2,15.1,5.8,Veg,None,Veg_Snack
+Cauliflower kheer (Phoolgobhi ki kheer),Breakfast,122,4.6,13.2,5.9,Veg,None,Veg_Breakfast
+Cauliflower kheer (Phoolgobhi ki kheer),Snack,122,4.6,13.2,5.9,Veg,None,Veg_Snack
+Moong dal kheer,Breakfast,115,4.4,14.8,4.5,Veg,None,Veg_Breakfast
+Moong dal kheer,Snack,115,4.4,14.8,4.5,Veg,None,Veg_Snack
+Phirni,Breakfast,174,5.2,24.2,6.5,Veg,None,Veg_Breakfast
+Phirni,Snack,174,5.2,24.2,6.5,Veg,None,Veg_Snack
+Semolina halwa (Suji ka halwa),Lunch,564,5.4,61.7,33.4,Veg,None,Veg_Lunch
+Semolina halwa (Suji ka halwa),Dinner,564,5.4,61.7,33.4,Veg,None,Veg_Dinner
+Shahi suji halwa,Lunch,955,8.7,111.1,54.3,Veg,None,Veg_Lunch
+Shahi suji halwa,Dinner,955,8.7,111.1,54.3,Veg,None,Veg_Dinner
+Carrot halwa (Gajar ka halwa),Lunch,431,7.8,46.3,24.3,Veg,None,Veg_Lunch
+Carrot halwa (Gajar ka halwa),Dinner,431,7.8,46.3,24.3,Veg,None,Veg_Dinner
+Egg halwa (Ande ka halwa),Breakfast,749,19.6,99.0,33.5,Non-Veg,Eggs,Non-Veg_Breakfast
+Potato halwa (Aloo ka halwa),Lunch,379,3.8,73.0,8.7,Veg,None,Veg_Lunch
+Potato halwa (Aloo ka halwa),Dinner,379,3.8,73.0,8.7,Veg,None,Veg_Dinner
+Pumpkin halwa (Kaddu ka halwa),Lunch,475,3.3,69.0,22.0,Veg,None,Veg_Lunch
+Pumpkin halwa (Kaddu ka halwa),Dinner,475,3.3,69.0,22.0,Veg,None,Veg_Dinner
+Moong dal halwa,Lunch,874,20.9,100.6,44.2,Veg,None,Veg_Lunch
+Moong dal halwa,Dinner,874,20.9,100.6,44.2,Veg,None,Veg_Dinner
+Caramel custard (steamed),Snack,182,7.5,22.5,7.3,Veg,None,Veg_Snack
+Baked custard,Breakfast,159,8.1,14.2,8.0,Veg,None,Veg_Breakfast
+Baked custard,Snack,159,8.1,14.2,8.0,Veg,None,Veg_Snack
+Soft Custard (stirred),Breakfast,163,7.5,16.8,7.6,Veg,None,Veg_Breakfast
+Soft Custard (stirred),Snack,163,7.5,16.8,7.6,Veg,None,Veg_Snack
+Chocolate ice cream,Lunch,444,11.2,38.5,28.1,Veg,Dairy,Veg_Lunch
+Chocolate ice cream,Dinner,444,11.2,38.5,28.1,Veg,Dairy,Veg_Dinner
+Mango ice cream,Breakfast,188,5.1,16.7,11.4,Veg,Dairy,Veg_Breakfast
+Mango ice cream,Snack,188,5.1,16.7,11.4,Veg,Dairy,Veg_Snack
+Fruit Ice cream (Phalon ka Ice cream),Lunch,428,10.9,40.1,26.0,Veg,Dairy,Veg_Lunch
+Fruit Ice cream (Phalon ka Ice cream),Dinner,428,10.9,40.1,26.0,Veg,Dairy,Veg_Dinner
+Caramel ice cream,Lunch,433,10.8,37.0,27.9,Veg,Dairy,Veg_Lunch
+Caramel ice cream,Dinner,433,10.8,37.0,27.9,Veg,Dairy,Veg_Dinner
+Lemon souffle,Lunch,421,17.4,33.6,25.0,Veg,None,Veg_Lunch
+Lemon souffle,Dinner,421,17.4,33.6,25.0,Veg,None,Veg_Dinner
+Orange souffle,Lunch,420,17.0,35.5,24.3,Veg,None,Veg_Lunch
+Orange souffle,Dinner,420,17.0,35.5,24.3,Veg,None,Veg_Dinner
+Vanilla souffle,Lunch,469,19.3,36.9,28.0,Veg,None,Veg_Lunch
+Vanilla souffle,Dinner,469,19.3,36.9,28.0,Veg,None,Veg_Dinner
+Chocolate souffle,Lunch,473,19.7,36.8,28.4,Veg,None,Veg_Lunch
+Chocolate souffle,Dinner,473,19.7,36.8,28.4,Veg,None,Veg_Dinner
+Pineapple souffle ,Lunch,490,20.2,38.8,29.3,Veg,None,Veg_Lunch
+Pineapple souffle ,Dinner,490,20.2,38.8,29.3,Veg,None,Veg_Dinner
+Apple mousse,Breakfast,160,6.3,19.2,6.4,Veg,None,Veg_Breakfast
+Apple mousse,Snack,160,6.3,19.2,6.4,Veg,None,Veg_Snack
+Rich chocolate mousse,Lunch,470,19.9,27.1,30.5,Veg,None,Veg_Lunch
+Rich chocolate mousse,Dinner,470,19.9,27.1,30.5,Veg,None,Veg_Dinner
+Mango mousse,Breakfast,187,4.8,13.7,12.7,Veg,None,Veg_Breakfast
+Mango mousse,Snack,187,4.8,13.7,12.7,Veg,None,Veg_Snack
+Orange and pineapple cream,Breakfast,151,2.2,17.9,8.1,Veg,Dairy,Veg_Breakfast
+Orange and pineapple cream,Snack,151,2.2,17.9,8.1,Veg,Dairy,Veg_Snack
+Charlotte rousse,Lunch,470,9.9,85.2,12.0,Veg,None,Veg_Lunch
+Charlotte rousse,Dinner,470,9.9,85.2,12.0,Veg,None,Veg_Dinner
+Triffle pudding,Breakfast,175,4.4,27.4,5.9,Veg,None,Veg_Breakfast
+Triffle pudding,Snack,175,4.4,27.4,5.9,Veg,None,Veg_Snack
+Snow flakes pudding,Breakfast,142,7.0,12.1,7.5,Veg,None,Veg_Breakfast
+Snow flakes pudding,Snack,142,7.0,12.1,7.5,Veg,None,Veg_Snack
+Kulfi,Breakfast,147,4.8,17.0,7.0,Veg,None,Veg_Breakfast
+Kulfi,Snack,147,4.8,17.0,7.0,Veg,None,Veg_Snack
+Steamed orange pudding,Snack,695,5.8,103.8,30.1,Veg,None,Veg_Snack
+Meringue and rice pudding,Breakfast,169,7.3,21.9,6.1,Veg,None,Veg_Breakfast
+Meringue and rice pudding,Snack,169,7.3,21.9,6.1,Veg,None,Veg_Snack
+Cheese pudding,Lunch,712,28.2,48.2,45.9,Veg,None,Veg_Lunch
+Cheese pudding,Dinner,712,28.2,48.2,45.9,Veg,None,Veg_Dinner
+Chocolate pudding,Lunch,529,8.9,74.0,23.7,Veg,None,Veg_Lunch
+Chocolate pudding,Dinner,529,8.9,74.0,23.7,Veg,None,Veg_Dinner
+Bread and butter pudding ,Lunch,419,14.0,49.1,19.7,Veg,Gluten,Veg_Lunch
+Bread and butter pudding ,Dinner,419,14.0,49.1,19.7,Veg,Gluten,Veg_Dinner
+Queen of pudding,Breakfast,199,8.3,24.5,8.1,Veg,None,Veg_Breakfast
+Queen of pudding,Snack,199,8.3,24.5,8.1,Veg,None,Veg_Snack
+Pineapple upside down pudding,Lunch,644,7.9,89.3,29.8,Veg,None,Veg_Lunch
+Pineapple upside down pudding,Dinner,644,7.9,89.3,29.8,Veg,None,Veg_Dinner
+Date and nut pie,Lunch,806,9.8,117.2,33.3,Veg,Nuts,Veg_Lunch
+Date and nut pie,Dinner,806,9.8,117.2,33.3,Veg,Nuts,Veg_Dinner
+Stewed apple with custard,Breakfast,139,1.9,27.5,2.7,Veg,None,Veg_Breakfast
+Stewed apple with custard,Snack,139,1.9,27.5,2.7,Veg,None,Veg_Snack
+Apple snowballs,Breakfast,152,1.3,36.9,0.5,Veg,None,Veg_Breakfast
+Apple snowballs,Snack,152,1.3,36.9,0.5,Veg,None,Veg_Snack
+Hot orange souffle,Lunch,449,17.2,46.9,22.4,Veg,None,Veg_Lunch
+Hot orange souffle,Dinner,449,17.2,46.9,22.4,Veg,None,Veg_Dinner
+Hot chocolate souffle,Lunch,565,16.8,65.5,27.8,Veg,None,Veg_Lunch
+Hot chocolate souffle,Dinner,565,16.8,65.5,27.8,Veg,None,Veg_Dinner
+Hot vanilla souffle,Lunch,482,17.2,54.4,22.7,Veg,None,Veg_Lunch
+Hot vanilla souffle,Dinner,482,17.2,54.4,22.7,Veg,None,Veg_Dinner
+Plain burfi (Burfi),Lunch,1020,24.6,77.2,69.9,Veg,None,Veg_Lunch
+Plain burfi (Burfi),Dinner,1020,24.6,77.2,69.9,Veg,None,Veg_Dinner
+Coconut burfi (Nariyal ki burfi),Lunch,1169,22.0,80.4,86.6,Veg,Nuts,Veg_Lunch
+Coconut burfi (Nariyal ki burfi),Dinner,1169,22.0,80.4,86.6,Veg,Nuts,Veg_Dinner
+Bottle gourd burfi (Ghiya/Lauki burfi),Lunch,689,14.6,61.3,44.2,Veg,None,Veg_Lunch
+Bottle gourd burfi (Ghiya/Lauki burfi),Dinner,689,14.6,61.3,44.2,Veg,None,Veg_Dinner
+Chocolate burfi,Lunch,848,32.5,82.9,44.6,Veg,None,Veg_Lunch
+Chocolate burfi,Dinner,848,32.5,82.9,44.6,Veg,None,Veg_Dinner
+Cashewnut burfi (Kaju burfi/Kaju katli),Lunch,1054,13.7,94.8,71.2,Veg,Nuts,Veg_Lunch
+Cashewnut burfi (Kaju burfi/Kaju katli),Dinner,1054,13.7,94.8,71.2,Veg,Nuts,Veg_Dinner
+Gram flour burfi (Besan burfi),Lunch,1054,28.0,116.5,56.0,Veg,None,Veg_Lunch
+Gram flour burfi (Besan burfi),Dinner,1054,28.0,116.5,56.0,Veg,None,Veg_Dinner
+Semolina ladoo with khoya (Suji/Rava aur khoye ke ladoo ),Lunch,1071,16.8,132.2,54.6,Veg,None,Veg_Lunch
+Semolina ladoo with khoya (Suji/Rava aur khoye ke ladoo ),Dinner,1071,16.8,132.2,54.6,Veg,None,Veg_Dinner
+Semolina ladoo with coconut (Suji/Rava aur nariyal ke ladoo ),Lunch,1161,14.2,127.2,67.6,Veg,Nuts,Veg_Lunch
+Semolina ladoo with coconut (Suji/Rava aur nariyal ke ladoo ),Dinner,1161,14.2,127.2,67.6,Veg,Nuts,Veg_Dinner
+Gram flour ladoo (Besan ladoo),Lunch,1192,22.3,156.5,56.9,Veg,None,Veg_Lunch
+Gram flour ladoo (Besan ladoo),Dinner,1192,22.3,156.5,56.9,Veg,None,Veg_Dinner
+Sesame ladoo (Til ke ladoo),Lunch,992,26.8,108.8,49.1,Veg,None,Veg_Lunch
+Sesame ladoo (Til ke ladoo),Dinner,992,26.8,108.8,49.1,Veg,None,Veg_Dinner
+Chenna murki,Lunch,631,26.2,90.0,20.5,Veg,None,Veg_Lunch
+Chenna murki,Dinner,631,26.2,90.0,20.5,Veg,None,Veg_Dinner
+Milk cake,Breakfast,191,4.5,13.7,13.4,Veg,Dairy,Veg_Breakfast
+Milk cake,Snack,191,4.5,13.7,13.4,Veg,Dairy,Veg_Snack
+Ghujia/Lavang latika,Lunch,1922,4.6,32.5,197.3,Veg,None,Veg_Lunch
+Ghujia/Lavang latika,Dinner,1922,4.6,32.5,197.3,Veg,None,Veg_Dinner
+Gulab Jamun with khoya,Lunch,1465,5.1,65.2,133.1,Veg,None,Veg_Lunch
+Gulab Jamun with khoya,Dinner,1465,5.1,65.2,133.1,Veg,None,Veg_Dinner
+Mal pua,Lunch,1416,4.3,43.9,136.6,Veg,None,Veg_Lunch
+Mal pua,Dinner,1416,4.3,43.9,136.6,Veg,None,Veg_Dinner
+Shahi tukre,Lunch,474,6.9,103.6,6.4,Veg,None,Veg_Lunch
+Shahi tukre,Dinner,474,6.9,103.6,6.4,Veg,None,Veg_Dinner
+Potato pakora/pakoda (Aloo pakoda),Lunch,1692,4.8,15.1,179.6,Veg,None,Veg_Lunch
+Potato pakora/pakoda (Aloo pakoda),Dinner,1692,4.8,15.1,179.6,Veg,None,Veg_Dinner
+Onion pakora/pakoda (Pyaaz ke pakode),Lunch,1686,4.8,13.5,179.6,Veg,None,Veg_Lunch
+Onion pakora/pakoda (Pyaaz ke pakode),Dinner,1686,4.8,13.5,179.6,Veg,None,Veg_Dinner
+Cauliflower pakora/pakoda (Phoolgobhi ke pakode),Lunch,1679,5.0,11.3,179.6,Veg,None,Veg_Lunch
+Cauliflower pakora/pakoda (Phoolgobhi ke pakode),Dinner,1679,5.0,11.3,179.6,Veg,None,Veg_Dinner
+Mixed vegetable pakora/pakoda,Lunch,1684,4.8,12.8,179.6,Veg,None,Veg_Lunch
+Mixed vegetable pakora/pakoda,Dinner,1684,4.8,12.8,179.6,Veg,None,Veg_Dinner
+Spinach pakora/pakoda (Palak pakoda),Lunch,1781,4.9,11.7,191.0,Veg,None,Veg_Lunch
+Spinach pakora/pakoda (Palak pakoda),Dinner,1781,4.9,11.7,191.0,Veg,None,Veg_Dinner
+Methi pakora/pakoda (Methi ke pakode),Lunch,1783,5.2,11.7,191.0,Veg,None,Veg_Lunch
+Methi pakora/pakoda (Methi ke pakode),Dinner,1783,5.2,11.7,191.0,Veg,None,Veg_Dinner
+Egg pakora/pakoda (Ande ke pakode),Breakfast,1776,7.1,11.2,189.6,Non-Veg,Eggs,Non-Veg_Breakfast
+Bread pakora/pakoda,Lunch,1777,6.4,22.2,185.5,Veg,Gluten,Veg_Lunch
+Bread pakora/pakoda,Dinner,1777,6.4,22.2,185.5,Veg,Gluten,Veg_Dinner
+Paneer pakora/pakoda,Lunch,1795,8.2,13.8,190.1,Veg,Dairy,Veg_Lunch
+Paneer pakora/pakoda,Dinner,1795,8.2,13.8,190.1,Veg,Dairy,Veg_Dinner
+Potato bonda (Aloo bonda),Lunch,1582,2.7,11.3,169.5,Veg,None,Veg_Lunch
+Potato bonda (Aloo bonda),Dinner,1582,2.7,11.3,169.5,Veg,None,Veg_Dinner
+Potato samosa (Aloo ka samosa),Lunch,1443,4.3,23.0,148.0,Veg,None,Veg_Lunch
+Potato samosa (Aloo ka samosa),Dinner,1443,4.3,23.0,148.0,Veg,None,Veg_Dinner
+Minced meat samosa (Keema ka samosa),Lunch,1552,11.1,15.4,160.6,Non-Veg,None,Non-Veg_Lunch
+Minced meat samosa (Keema ka samosa),Dinner,1552,11.1,15.4,160.6,Non-Veg,None,Non-Veg_Dinner
+Paneer and pea samosa (Paneer matar ka samosa),Lunch,1559,10.0,21.4,159.1,Veg,Dairy,Veg_Lunch
+Paneer and pea samosa (Paneer matar ka samosa),Dinner,1559,10.0,21.4,159.1,Veg,Dairy,Veg_Dinner
+Mathri,Lunch,2012,4.4,30.8,207.8,Veg,None,Veg_Lunch
+Mathri,Dinner,2012,4.4,30.8,207.8,Veg,None,Veg_Dinner
+Khasta kachori,Lunch,1781,6.3,32.0,180.7,Veg,None,Veg_Lunch
+Khasta kachori,Dinner,1781,6.3,32.0,180.7,Veg,None,Veg_Dinner
+Vegetable cutlet,Lunch,1663,3.1,11.7,178.3,Veg,None,Veg_Lunch
+Vegetable cutlet,Dinner,1663,3.1,11.7,178.3,Veg,None,Veg_Dinner
+Flattened rice cutlet (Chirwa cutlet/Chivda cutlet/Poha cutlet),Breakfast,1754,4.4,18.5,184.7,Veg,None,Veg_Breakfast
+Peanut cutlet (Mungfali ke cutlet),Lunch,1746,6.6,14.2,185.0,Veg,Nuts,Veg_Lunch
+Peanut cutlet (Mungfali ke cutlet),Dinner,1746,6.6,14.2,185.0,Veg,Nuts,Veg_Dinner
+Fish cutlet (Machli ka cutlet),Lunch,1636,6.9,7.8,175.3,Non-Veg,Fish,Non-Veg_Lunch
+Fish cutlet (Machli ka cutlet),Dinner,1636,6.9,7.8,175.3,Non-Veg,Fish,Non-Veg_Dinner
+Paneer potato cutlet (Paneer aloo cutlet),Lunch,1682,6.2,13.1,178.5,Veg,Dairy,Veg_Lunch
+Paneer potato cutlet (Paneer aloo cutlet),Dinner,1682,6.2,13.1,178.5,Veg,Dairy,Veg_Dinner
+Spinach chickpeas cutlet (Palak channa dal cutlet),Lunch,1720,3.6,12.3,184.0,Veg,None,Veg_Lunch
+Spinach chickpeas cutlet (Palak channa dal cutlet),Dinner,1720,3.6,12.3,184.0,Veg,None,Veg_Dinner
+Cheese toast,Breakfast,1963,5.0,13.7,210.3,Veg,None,Veg_Breakfast
+Vegetable burger,Lunch,1299,8.1,34.2,126.6,Veg,None,Veg_Lunch
+Vegetable burger,Dinner,1299,8.1,34.2,126.6,Veg,None,Veg_Dinner
+Cheese pizza,Lunch,623,14.5,76.6,31.1,Veg,None,Veg_Lunch
+Cheese pizza,Dinner,623,14.5,76.6,31.1,Veg,None,Veg_Dinner
+Vegetable seekh kebab,Lunch,1726,3.9,13.3,184.3,Veg,None,Veg_Lunch
+Vegetable seekh kebab,Dinner,1726,3.9,13.3,184.3,Veg,None,Veg_Dinner
+Masala vada,Lunch,2065,4.2,10.1,222.9,Veg,None,Veg_Lunch
+Masala vada,Dinner,2065,4.2,10.1,222.9,Veg,None,Veg_Dinner
+Peanut sago vada (Sabudana mungfali vada),Lunch,1874,2.5,17.8,199.5,Veg,Nuts,Veg_Lunch
+Peanut sago vada (Sabudana mungfali vada),Dinner,1874,2.5,17.8,199.5,Veg,Nuts,Veg_Dinner
+Vegeterian scotch egg,Breakfast,1704,5.4,11.6,181.9,Non-Veg,Eggs,Non-Veg_Breakfast
+Paneer shaslik/tikka,Breakfast,140,7.7,12.0,6.7,Veg,Dairy,Veg_Breakfast
+Paneer shaslik/tikka,Snack,140,7.7,12.0,6.7,Veg,Dairy,Veg_Snack
+Peanut brittle (Moongfali ki chikki),Lunch,801,17.4,118.6,27.8,Veg,Nuts,Veg_Lunch
+Peanut brittle (Moongfali ki chikki),Dinner,801,17.4,118.6,27.8,Veg,Nuts,Veg_Dinner
+Spring roll,Lunch,1559,4.5,21.4,161.6,Veg,None,Veg_Lunch
+Spring roll,Dinner,1559,4.5,21.4,161.6,Veg,None,Veg_Dinner
+Dry mango chutney (Sookhe aam ki chutney),Lunch,745,6.1,172.9,1.8,Veg,None,Veg_Lunch
+Dry mango chutney (Sookhe aam ki chutney),Dinner,745,6.1,172.9,1.8,Veg,None,Veg_Dinner
+Peanut chutney (Mungfali ki chutney),Lunch,645,29.5,24.7,47.6,Veg,Nuts,Veg_Lunch
+Peanut chutney (Mungfali ki chutney),Dinner,645,29.5,24.7,47.6,Veg,Nuts,Veg_Dinner
+Coconut chutney (Nariyal ki chutney),Lunch,664,9.0,20.7,62.5,Veg,Nuts,Veg_Lunch
+Coconut chutney (Nariyal ki chutney),Dinner,664,9.0,20.7,62.5,Veg,Nuts,Veg_Dinner
+Mint and coriander chutney (Pudinay aur dhaniye ki chutney),Breakfast,153,4.2,31.8,0.8,Veg,None,Veg_Breakfast
+Mint and coriander chutney (Pudinay aur dhaniye ki chutney),Snack,153,4.2,31.8,0.8,Veg,None,Veg_Snack
+Custard tart,Lunch,564,9.3,71.6,26.8,Veg,None,Veg_Lunch
+Custard tart,Dinner,564,9.3,71.6,26.8,Veg,None,Veg_Dinner
+Lemon tart,Lunch,758,15.3,76.7,43.6,Veg,None,Veg_Lunch
+Lemon tart,Dinner,758,15.3,76.7,43.6,Veg,None,Veg_Dinner
+Jam tart,Lunch,901,11.0,115.4,43.4,Veg,None,Veg_Lunch
+Jam tart,Dinner,901,11.0,115.4,43.4,Veg,None,Veg_Dinner
+Orange cream tart,Lunch,492,6.4,68.6,21.8,Veg,Dairy,Veg_Lunch
+Orange cream tart,Dinner,492,6.4,68.6,21.8,Veg,Dairy,Veg_Dinner
+Pineapple tart,Lunch,488,5.7,71.6,20.5,Veg,None,Veg_Lunch
+Pineapple tart,Dinner,488,5.7,71.6,20.5,Veg,None,Veg_Dinner
+Cheese and mushroom tart,Lunch,615,13.8,53.6,38.2,Veg,None,Veg_Lunch
+Cheese and mushroom tart,Dinner,615,13.8,53.6,38.2,Veg,None,Veg_Dinner
+Cottage cheese pie,Lunch,597,18.6,51.6,34.6,Veg,None,Veg_Lunch
+Cottage cheese pie,Dinner,597,18.6,51.6,34.6,Veg,None,Veg_Dinner
+Minced meat pie,Lunch,553,18.4,45.3,32.6,Non-Veg,None,Non-Veg_Lunch
+Minced meat pie,Dinner,553,18.4,45.3,32.6,Non-Veg,None,Non-Veg_Dinner
+Apple cinnamon pie,Lunch,646,8.4,84.2,30.5,Veg,None,Veg_Lunch
+Apple cinnamon pie,Dinner,646,8.4,84.2,30.5,Veg,None,Veg_Dinner
+Lemon meringue pie,Lunch,561,9.7,87.8,20.4,Veg,None,Veg_Lunch
+Lemon meringue pie,Dinner,561,9.7,87.8,20.4,Veg,None,Veg_Dinner
+Chocolate meringue pie,Lunch,536,12.5,72.0,22.9,Veg,None,Veg_Lunch
+Chocolate meringue pie,Dinner,536,12.5,72.0,22.9,Veg,None,Veg_Dinner
+Cream puffs,Lunch,553,11.8,40.0,38.7,Veg,Dairy,Veg_Lunch
+Cream puffs,Dinner,553,11.8,40.0,38.7,Veg,Dairy,Veg_Dinner
+Chocolate eclairs,Lunch,598,10.6,65.6,33.8,Veg,None,Veg_Lunch
+Chocolate eclairs,Dinner,598,10.6,65.6,33.8,Veg,None,Veg_Dinner
+Cheese balls,Lunch,1703,5.5,12.0,181.4,Veg,None,Veg_Lunch
+Cheese balls,Dinner,1703,5.5,12.0,181.4,Veg,None,Veg_Dinner
+Minced meat patties,Lunch,664,17.2,38.1,48.9,Non-Veg,None,Non-Veg_Lunch
+Minced meat patties,Dinner,664,17.2,38.1,48.9,Non-Veg,None,Non-Veg_Dinner
+Cheese patties,Lunch,810,18.4,55.6,56.7,Veg,None,Veg_Lunch
+Cheese patties,Dinner,810,18.4,55.6,56.7,Veg,None,Veg_Dinner
+Hot cheese souffle,Lunch,442,23.0,13.5,33.1,Veg,None,Veg_Lunch
+Hot cheese souffle,Dinner,442,23.0,13.5,33.1,Veg,None,Veg_Dinner
+Hot potato souffle,Breakfast,188,8.3,12.8,11.5,Veg,None,Veg_Breakfast
+Hot potato souffle,Snack,188,8.3,12.8,11.5,Veg,None,Veg_Snack
+Hot fish souffle,Breakfast,214,16.8,5.5,13.9,Non-Veg,Fish,Non-Veg_Breakfast
+Hot fish souffle,Snack,214,16.8,5.5,13.9,Non-Veg,Fish,Non-Veg_Snack
+Hot spinach souffle,Breakfast,156,8.1,6.3,10.9,Veg,None,Veg_Breakfast
+Hot spinach souffle,Snack,156,8.1,6.3,10.9,Veg,None,Veg_Snack
+Plain cream cake,Lunch,884,15.4,118.0,40.4,Veg,Dairy,Veg_Lunch
+Plain cream cake,Dinner,884,15.4,118.0,40.4,Veg,Dairy,Veg_Dinner
+Apple cake (Seb ka cake),Lunch,725,12.4,98.7,32.2,Veg,None,Veg_Lunch
+Apple cake (Seb ka cake),Dinner,725,12.4,98.7,32.2,Veg,None,Veg_Dinner
+Marble cake,Lunch,885,15.8,117.2,40.7,Veg,None,Veg_Lunch
+Marble cake,Dinner,885,15.8,117.2,40.7,Veg,None,Veg_Dinner
+Chocolate cake,Lunch,839,15.0,112.8,38.0,Veg,None,Veg_Lunch
+Chocolate cake,Dinner,839,15.0,112.8,38.0,Veg,None,Veg_Dinner
+Orange cake,Lunch,894,15.2,120.7,40.5,Veg,None,Veg_Lunch
+Orange cake,Dinner,894,15.2,120.7,40.5,Veg,None,Veg_Dinner
+Fruit Loaf ,Lunch,810,13.4,116.2,33.3,Veg,None,Veg_Lunch
+Fruit Loaf ,Dinner,810,13.4,116.2,33.3,Veg,None,Veg_Dinner
+Banana cake (Kele ka cake),Lunch,973,14.4,100.0,58.3,Veg,None,Veg_Lunch
+Banana cake (Kele ka cake),Dinner,973,14.4,100.0,58.3,Veg,None,Veg_Dinner
+Chocolate chiffon cake,Lunch,779,14.4,94.7,39.5,Veg,None,Veg_Lunch
+Chocolate chiffon cake,Dinner,779,14.4,94.7,39.5,Veg,None,Veg_Dinner
+Christmas cake,Lunch,932,13.7,120.7,42.2,Veg,None,Veg_Lunch
+Christmas cake,Dinner,932,13.7,120.7,42.2,Veg,None,Veg_Dinner
+Strawberry and vanilla cake with butter icing,Lunch,926,9.7,110.6,51.0,Veg,None,Veg_Lunch
+Strawberry and vanilla cake with butter icing,Dinner,926,9.7,110.6,51.0,Veg,None,Veg_Dinner
+Eggless cake,Breakfast,795,20.3,115.4,29.4,Non-Veg,Eggs,Non-Veg_Breakfast
+Swiss roll,Lunch,629,18.2,120.8,9.4,Veg,None,Veg_Lunch
+Swiss roll,Dinner,629,18.2,120.8,9.4,Veg,None,Veg_Dinner
+Pineapple pastry ,Lunch,520,15.2,72.6,19.7,Veg,None,Veg_Lunch
+Pineapple pastry ,Dinner,520,15.2,72.6,19.7,Veg,None,Veg_Dinner
+Black forest pastry,Lunch,583,15.2,86.2,21.2,Veg,None,Veg_Lunch
+Black forest pastry,Dinner,583,15.2,86.2,21.2,Veg,None,Veg_Dinner
+Coconut finger,Lunch,687,17.7,106.4,22.2,Veg,Nuts,Veg_Lunch
+Coconut finger,Dinner,687,17.7,106.4,22.2,Veg,Nuts,Veg_Dinner
+Pineapple cake ,Lunch,488,12.5,58.8,23.4,Veg,None,Veg_Lunch
+Pineapple cake ,Dinner,488,12.5,58.8,23.4,Veg,None,Veg_Dinner
+Chocolate walnut cookies (Chocolate aur akhrot ke cookies),Lunch,1062,16.4,117.8,59.0,Veg,Nuts,Veg_Lunch
+Chocolate walnut cookies (Chocolate aur akhrot ke cookies),Dinner,1062,16.4,117.8,59.0,Veg,Nuts,Veg_Dinner
+Chocolate chip cookies,Lunch,1063,14.5,145.0,48.4,Veg,None,Veg_Lunch
+Chocolate chip cookies,Dinner,1063,14.5,145.0,48.4,Veg,None,Veg_Dinner
+Sweet plain biscuit,Snack,951,14.6,125.7,44.2,Veg,None,Veg_Snack
+Chocolate biscuit,Snack,949,14.7,128.9,42.7,Veg,None,Veg_Snack
+Coconut biscuit (Nariyal ke biscuit),Snack,1087,14.4,107.2,67.9,Veg,Nuts,Veg_Snack
+Sweet and salty biscuit (Meethay aur namkeen biscuit),Snack,1019,15.4,112.7,56.0,Veg,None,Veg_Snack
+Peanut biscuit,Snack,1002,21.1,116.8,51.0,Veg,Nuts,Veg_Snack
+Pin wheel biscuit,Snack,1011,13.5,136.4,46.6,Veg,None,Veg_Snack
+Saffron biscuit (Kesar biscuit),Snack,1146,15.1,149.2,55.0,Veg,None,Veg_Snack
+Masala biscuit,Snack,984,15.2,113.0,51.9,Veg,None,Veg_Snack
+Ice box cookies,Lunch,935,14.2,140.2,36.1,Veg,None,Veg_Lunch
+Ice box cookies,Dinner,935,14.2,140.2,36.1,Veg,None,Veg_Dinner
+Ginger bread man,Lunch,912,16.5,150.6,27.5,Veg,Gluten,Veg_Lunch
+Ginger bread man,Dinner,912,16.5,150.6,27.5,Veg,Gluten,Veg_Dinner
+Danish cookies,Lunch,1188,13.3,145.0,62.3,Veg,None,Veg_Lunch
+Danish cookies,Dinner,1188,13.3,145.0,62.3,Veg,None,Veg_Dinner
+Short bread cookies,Lunch,1107,15.1,162.0,45.0,Veg,Gluten,Veg_Lunch
+Short bread cookies,Dinner,1107,15.1,162.0,45.0,Veg,Gluten,Veg_Dinner
+Coffee biscuit,Snack,1041,17.2,116.4,57.5,Veg,None,Veg_Snack
+Melting moments,Lunch,1094,14.3,139.6,54.4,Veg,None,Veg_Lunch
+Melting moments,Dinner,1094,14.3,139.6,54.4,Veg,None,Veg_Dinner
+Ginger biscuit (Adarak ke biscuit),Snack,1044,15.0,146.1,45.8,Veg,None,Veg_Snack
+Soyabean muthias,Lunch,2098,6.2,9.2,226.1,Veg,Soy,Veg_Lunch
+Soyabean muthias,Dinner,2098,6.2,9.2,226.1,Veg,Soy,Veg_Dinner
+Soyabean tikki,Lunch,1745,8.8,11.0,185.0,Veg,Soy,Veg_Lunch
+Soyabean tikki,Dinner,1745,8.8,11.0,185.0,Veg,Soy,Veg_Dinner
+Soyabean namak paras,Lunch,2096,6.6,11.6,224.6,Veg,Soy,Veg_Lunch
+Soyabean namak paras,Dinner,2096,6.6,11.6,224.6,Veg,Soy,Veg_Dinner
+Peanut burfi (Moongfali ki burfi),Lunch,1377,23.3,120.4,92.1,Veg,Nuts,Veg_Lunch
+Peanut burfi (Moongfali ki burfi),Dinner,1377,23.3,120.4,92.1,Veg,Nuts,Veg_Dinner
+Spinach peanut namak paras (Palak moongfali namak paras),Lunch,1850,4.1,16.6,196.3,Veg,Nuts,Veg_Lunch
+Spinach peanut namak paras (Palak moongfali namak paras),Dinner,1850,4.1,16.6,196.3,Veg,Nuts,Veg_Dinner
+Gram flour and semolina chilla/cheela/savory pancake (Besan suji chilla/cheela),Lunch,1897,5.2,19.1,200.1,Veg,None,Veg_Lunch
+Gram flour and semolina chilla/cheela/savory pancake (Besan suji chilla/cheela),Dinner,1897,5.2,19.1,200.1,Veg,None,Veg_Dinner
+Rice moong dal cheela (Chawal aur moong dal ka cheela),Lunch,1995,6.8,27.8,206.1,Veg,None,Veg_Lunch
+Rice moong dal cheela (Chawal aur moong dal ka cheela),Dinner,1995,6.8,27.8,206.1,Veg,None,Veg_Dinner
+Split bengal gram sweet rice (Channa dal sweet rice),Lunch,475,10.4,102.7,1.6,Veg,None,Veg_Lunch
+Split bengal gram sweet rice (Channa dal sweet rice),Dinner,475,10.4,102.7,1.6,Veg,None,Veg_Dinner
+Sweet poori (Meethi poori),Lunch,1956,5.3,35.6,199.1,Veg,None,Veg_Lunch
+Sweet poori (Meethi poori),Dinner,1956,5.3,35.6,199.1,Veg,None,Veg_Dinner
+Wheat flour and moong dal burfi (Atta aur moong dal ki burfi),Lunch,1102,24.6,150.0,46.0,Veg,Gluten,Veg_Lunch
+Wheat flour and moong dal burfi (Atta aur moong dal ki burfi),Dinner,1102,24.6,150.0,46.0,Veg,Gluten,Veg_Dinner
+Spinach burfi (Palak burfi),Breakfast,181,4.1,19.1,10.2,Veg,None,Veg_Breakfast
+Spinach burfi (Palak burfi),Snack,181,4.1,19.1,10.2,Veg,None,Veg_Snack
+Sweet split chickpea roti (Sweet channa dal roti/Puranpoli),Lunch,916,23.8,156.6,19.8,Veg,Gluten,Veg_Lunch
+Sweet split chickpea roti (Sweet channa dal roti/Puranpoli),Dinner,916,23.8,156.6,19.8,Veg,Gluten,Veg_Dinner
+Sprouted moong daliya ,Breakfast,167,4.2,22.2,7.1,Veg,None,Veg_Breakfast
+Sprouted moong daliya ,Snack,167,4.2,22.2,7.1,Veg,None,Veg_Snack
+Sprouted moong poha ,Breakfast,481,14.0,66.5,17.2,Veg,None,Veg_Breakfast
+Pearl millet ladoo (Bajra ladoo),Lunch,799,24.0,127.4,20.2,Veg,None,Veg_Lunch
+Pearl millet ladoo (Bajra ladoo),Dinner,799,24.0,127.4,20.2,Veg,None,Veg_Dinner
+Paushtik ladoo,Lunch,1214,19.1,150.9,62.4,Veg,None,Veg_Lunch
+Paushtik ladoo,Dinner,1214,19.1,150.9,62.4,Veg,None,Veg_Dinner
+Paushtik roti,Breakfast,223,10.8,39.9,2.3,Veg,Gluten,Veg_Breakfast
+Paushtik roti,Snack,223,10.8,39.9,2.3,Veg,Gluten,Veg_Snack
+Semolina carrot vada (Suji gajar vada),Lunch,1748,3.9,16.3,185.2,Veg,None,Veg_Lunch
+Semolina carrot vada (Suji gajar vada),Dinner,1748,3.9,16.3,185.2,Veg,None,Veg_Dinner
+Dhokla,Lunch,541,33.6,76.7,13.2,Veg,None,Veg_Lunch
+Dhokla,Dinner,541,33.6,76.7,13.2,Veg,None,Veg_Dinner
+Kashmiri tea (Kehwa),Snack,74,0.5,15.7,1.5,Veg,None,Veg_Snack
+Steeped hot coffee,Snack,47,1.2,9.0,1.0,Veg,None,Veg_Snack
+Hot chocolate,Breakfast,135,5.1,13.5,6.9,Veg,None,Veg_Breakfast
+Hot chocolate,Snack,135,5.1,13.5,6.9,Veg,None,Veg_Snack
+Cold coffee (with cream),Snack,124,2.9,18.0,4.9,Veg,Dairy,Veg_Snack
+Banana milkshake with ice cream (Kele ka milkshake ice cream ke saath),Snack,114,3.0,16.7,4.2,Veg,Dairy,Veg_Snack
+Flavoured milkshake,Snack,100,3.1,13.0,4.2,Veg,Dairy,Veg_Snack
+Jal jeera,Breakfast,90,1.3,20.1,0.8,Veg,None,Veg_Breakfast
+Jal jeera,Snack,90,1.3,20.1,0.8,Veg,None,Veg_Snack
+Gingo,Breakfast,144,0.4,37.3,0.2,Veg,None,Veg_Breakfast
+Gingo,Snack,144,0.4,37.3,0.2,Veg,None,Veg_Snack
+Mintade,Breakfast,120,0.1,31.8,0.1,Veg,None,Veg_Breakfast
+Mintade,Snack,120,0.1,31.8,0.1,Veg,None,Veg_Snack
+Canjee,Breakfast,19,0.7,1.3,1.3,Veg,None,Veg_Breakfast
+Canjee,Snack,19,0.7,1.3,1.3,Veg,None,Veg_Snack
+Cauliflower canjee (Phoolgobhi ki canjee),Breakfast,20,1.2,1.0,1.3,Veg,None,Veg_Breakfast
+Cauliflower canjee (Phoolgobhi ki canjee),Snack,20,1.2,1.0,1.3,Veg,None,Veg_Snack
+Potato canjee (Aloo canjee),Breakfast,48,1.3,8.1,1.2,Veg,None,Veg_Breakfast
+Potato canjee (Aloo canjee),Snack,48,1.3,8.1,1.2,Veg,None,Veg_Snack
+Vermicelli porridge (Semiya/Seviyan porridge),Breakfast,117,3.8,15.8,4.5,Veg,None,Veg_Breakfast
+Vermicelli porridge (Semiya/Seviyan porridge),Snack,117,3.8,15.8,4.5,Veg,None,Veg_Snack
+Semolina upma (Suji/Rava upma),Breakfast,221,4.9,24.5,11.2,Veg,None,Veg_Breakfast
+Vermicelli upma (Semiya/Seviyan upma),Breakfast,223,4.7,25.3,11.2,Veg,None,Veg_Breakfast
+Rice upma,Breakfast,378,6.6,44.9,18.6,Veg,None,Veg_Breakfast
+Bread upma,Breakfast,194,4.2,18.9,11.6,Veg,Gluten,Veg_Breakfast
+Vegetable upma,Breakfast,219,7.1,24.7,9.9,Veg,None,Veg_Breakfast
+Poha,Breakfast,736,15.2,87.6,35.4,Veg,None,Veg_Breakfast
+Vegetable poha,Breakfast,451,12.2,53.8,20.2,Veg,None,Veg_Breakfast
+Moong dal stuffed cheela/chilla (Moong dal ka cheela/chilla),Lunch,387,17.4,48.6,12.8,Veg,None,Veg_Lunch
+Moong dal stuffed cheela/chilla (Moong dal ka cheela/chilla),Dinner,387,17.4,48.6,12.8,Veg,None,Veg_Dinner
+Paneer stuffed cheela/chilla,Lunch,512,28.6,47.9,22.2,Veg,Dairy,Veg_Lunch
+Paneer stuffed cheela/chilla,Dinner,512,28.6,47.9,22.2,Veg,Dairy,Veg_Dinner
+Indian style egg bhujia (Anda bhujia (Indian style)),Breakfast,154,9.1,5.6,10.5,Non-Veg,Eggs,Non-Veg_Breakfast
+French omelette/omlet,Lunch,527,25.1,1.0,47.2,Veg,None,Veg_Lunch
+French omelette/omlet,Dinner,527,25.1,1.0,47.2,Veg,None,Veg_Dinner
+Puffy omelette/omlet,Lunch,470,22.0,0.2,42.1,Veg,None,Veg_Lunch
+Puffy omelette/omlet,Dinner,470,22.0,0.2,42.1,Veg,None,Veg_Dinner
+Orange omelette/omlet,Lunch,486,22.3,4.2,42.1,Veg,None,Veg_Lunch
+Orange omelette/omlet,Dinner,486,22.3,4.2,42.1,Veg,None,Veg_Dinner
+Cheese and mushroom omelette/omlet,Lunch,514,24.2,4.2,44.6,Veg,None,Veg_Lunch
+Cheese and mushroom omelette/omlet,Dinner,514,24.2,4.2,44.6,Veg,None,Veg_Dinner
+Spanish omelette/omlet,Lunch,393,20.6,12.8,28.6,Veg,None,Veg_Lunch
+Spanish omelette/omlet,Dinner,393,20.6,12.8,28.6,Veg,None,Veg_Dinner
+Mixed stock,Breakfast,75,6.2,1.0,5.1,Veg,None,Veg_Breakfast
+Mixed stock,Snack,75,6.2,1.0,5.1,Veg,None,Veg_Snack
+Meat stock,Breakfast,73,6.3,0.0,5.3,Non-Veg,None,Non-Veg_Breakfast
+Meat stock,Snack,73,6.3,0.0,5.3,Non-Veg,None,Non-Veg_Snack
+White stock,Breakfast,20,0.2,1.2,1.7,Veg,None,Veg_Breakfast
+White stock,Snack,20,0.2,1.2,1.7,Veg,None,Veg_Snack
+Meat consomme (with mutton),Breakfast,89,44.6,1.5,41.0,Non-Veg,None,Non-Veg_Breakfast
+Meat consomme (with mutton),Snack,89,44.6,1.5,41.0,Non-Veg,None,Non-Veg_Snack
+Consomme au julienne,Breakfast,83,37.5,4.5,32.0,Veg,None,Veg_Breakfast
+Consomme au julienne,Snack,83,37.5,4.5,32.0,Veg,None,Veg_Snack
+Consomme au vermicelli,Breakfast,89,45.7,3.9,38.9,Veg,None,Veg_Breakfast
+Consomme au vermicelli,Snack,89,45.7,3.9,38.9,Veg,None,Veg_Snack
+Green pea soup (Matar ka soup),Breakfast,119,33.2,10.9,38.7,Veg,None,Veg_Breakfast
+Green pea soup (Matar ka soup),Snack,119,33.2,10.9,38.7,Veg,None,Veg_Snack
+Spinach soup (Palak ka soup),Breakfast,97,31.6,9.1,42.8,Veg,None,Veg_Breakfast
+Spinach soup (Palak ka soup),Snack,97,31.6,9.1,42.8,Veg,None,Veg_Snack
+Mixed vegetable soup,Breakfast,107,24.7,8.9,35.0,Veg,None,Veg_Breakfast
+Mixed vegetable soup,Snack,107,24.7,8.9,35.0,Veg,None,Veg_Snack
+Cheese soup,Breakfast,123,37.2,5.6,51.2,Veg,None,Veg_Breakfast
+Cheese soup,Snack,123,37.2,5.6,51.2,Veg,None,Veg_Snack
+Mulligatawny soup,Breakfast,81,16.9,12.4,19.9,Veg,None,Veg_Breakfast
+Mulligatawny soup,Snack,81,16.9,12.4,19.9,Veg,None,Veg_Snack
+Cream of carrot soup,Breakfast,89,12.4,8.5,18.5,Veg,Dairy,Veg_Breakfast
+Cream of carrot soup,Snack,89,12.4,8.5,18.5,Veg,Dairy,Veg_Snack
+Cream of broccoli soup,Breakfast,84,13.5,5.6,19.1,Veg,Dairy,Veg_Breakfast
+Cream of broccoli soup,Snack,84,13.5,5.6,19.1,Veg,Dairy,Veg_Snack
+Cream of potato soup,Breakfast,90,12.1,9.2,18.1,Veg,Dairy,Veg_Breakfast
+Cream of potato soup,Snack,90,12.1,9.2,18.1,Veg,Dairy,Veg_Snack
+Almond soup (Badam ka soup),Breakfast,117,15.2,5.5,20.7,Veg,Nuts,Veg_Breakfast
+Almond soup (Badam ka soup),Snack,117,15.2,5.5,20.7,Veg,Nuts,Veg_Snack
+Cold cucumber cream soup ,Breakfast,35,1.0,5.3,1.0,Veg,Dairy,Veg_Breakfast
+Cold cucumber cream soup ,Snack,35,1.0,5.3,1.0,Veg,Dairy,Veg_Snack
+Cold tomato soup,Breakfast,50,0.3,1.8,4.7,Veg,None,Veg_Breakfast
+Cold tomato soup,Snack,50,0.3,1.8,4.7,Veg,None,Veg_Snack
+Chicken stew,Breakfast,191,10.8,6.7,13.4,Non-Veg,None,Non-Veg_Breakfast
+Chicken stew,Snack,191,10.8,6.7,13.4,Non-Veg,None,Non-Veg_Snack
+Veg paneer stew,Breakfast,218,10.5,15.3,12.6,Veg,Dairy,Veg_Breakfast
+Veg paneer stew,Snack,218,10.5,15.3,12.6,Veg,Dairy,Veg_Snack
+Onion-green chilli parantha/paratha (Pyaaz aur hari mirch ka parantha/paratha),Breakfast,478,10.9,65.9,18.2,Veg,Gluten,Veg_Breakfast
+Methi parantha/paratha,Breakfast,222,6.4,33.3,6.5,Veg,Gluten,Veg_Breakfast
+Bathua poori,Lunch,1496,5.9,34.6,147.8,Veg,None,Veg_Lunch
+Bathua poori,Dinner,1496,5.9,34.6,147.8,Veg,None,Veg_Dinner
+Gram flour poori (Besan poori),Lunch,1744,6.5,27.3,178.8,Veg,None,Veg_Lunch
+Gram flour poori (Besan poori),Dinner,1744,6.5,27.3,178.8,Veg,None,Veg_Dinner
+Beetroot poori (Chukandar ki poori),Lunch,1319,4.8,30.7,130.4,Veg,None,Veg_Lunch
+Beetroot poori (Chukandar ki poori),Dinner,1319,4.8,30.7,130.4,Veg,None,Veg_Dinner
+Peas poori (Matar ki poori),Lunch,1482,7.6,37.3,144.2,Veg,None,Veg_Lunch
+Peas poori (Matar ki poori),Dinner,1482,7.6,37.3,144.2,Veg,None,Veg_Dinner
+Peas kachori (Matar kachori),Lunch,1461,8.0,33.1,143.8,Veg,None,Veg_Lunch
+Peas kachori (Matar kachori),Dinner,1461,8.0,33.1,143.8,Veg,None,Veg_Dinner
+Pizza,Breakfast,220,10.3,14.9,13.1,Veg,None,Veg_Breakfast
+Pizza,Snack,220,10.3,14.9,13.1,Veg,None,Veg_Snack
+Bacon and mushroom pancake,Lunch,394,17.0,21.2,26.5,Veg,None,Veg_Lunch
+Bacon and mushroom pancake,Dinner,394,17.0,21.2,26.5,Veg,None,Veg_Dinner
+Cheese and tomato pancake,Breakfast,221,7.7,16.0,13.9,Veg,None,Veg_Breakfast
+Cheese and tomato pancake,Snack,221,7.7,16.0,13.9,Veg,None,Veg_Snack
+Minced meat pancake (with chicken),Breakfast,174,18.0,12.3,15.7,Non-Veg,None,Non-Veg_Breakfast
+Minced meat pancake (with chicken),Snack,174,18.0,12.3,15.7,Non-Veg,None,Non-Veg_Snack
+Eggplant/Brinjal rice (Vangi bhat),Breakfast,462,13.2,79.4,9.2,Non-Veg,Eggs,Non-Veg_Breakfast
+Kashmiri 'tahar',Breakfast,147,2.9,28.7,2.1,Veg,None,Veg_Breakfast
+Kashmiri 'tahar',Snack,147,2.9,28.7,2.1,Veg,None,Veg_Snack
+Cumin pulao (Jeera/Zeera pulao),Breakfast,202,3.7,35.4,4.8,Veg,None,Veg_Breakfast
+Cumin pulao (Jeera/Zeera pulao),Snack,202,3.7,35.4,4.8,Veg,None,Veg_Snack
+Peas pulao (Matar pulao),Breakfast,163,5.8,27.6,2.8,Veg,None,Veg_Breakfast
+Peas pulao (Matar pulao),Snack,163,5.8,27.6,2.8,Veg,None,Veg_Snack
+Split bengal gram dal and vegetable pulao (Channa dal and vegetable pulao),Breakfast,174,5.4,29.6,3.4,Veg,None,Veg_Breakfast
+Split bengal gram dal and vegetable pulao (Channa dal and vegetable pulao),Snack,174,5.4,29.6,3.4,Veg,None,Veg_Snack
+Black channa pulao/ Bengal gram pulao (Kale chane ka pulao),Breakfast,188,5.2,32.3,3.9,Veg,None,Veg_Breakfast
+Black channa pulao/ Bengal gram pulao (Kale chane ka pulao),Snack,188,5.2,32.3,3.9,Veg,None,Veg_Snack
+Mutton pulao,Breakfast,196,9.8,16.9,16.2,Non-Veg,None,Non-Veg_Breakfast
+Mutton pulao,Snack,196,9.8,16.9,16.2,Non-Veg,None,Non-Veg_Snack
+Chicken pulao,Breakfast,162,9.1,16.8,12.7,Non-Veg,None,Non-Veg_Breakfast
+Chicken pulao,Snack,162,9.1,16.8,12.7,Non-Veg,None,Non-Veg_Snack
+Mexican rice,Breakfast,180,6.9,21.3,7.3,Veg,None,Veg_Breakfast
+Mexican rice,Snack,180,6.9,21.3,7.3,Veg,None,Veg_Snack
+Plain khitchdi (Plain khichri/khichdi),Breakfast,85,2.6,15.1,1.5,Veg,None,Veg_Breakfast
+Plain khitchdi (Plain khichri/khichdi),Snack,85,2.6,15.1,1.5,Veg,None,Veg_Snack
+Instant idli (with semolina),Breakfast,618,22.9,108.5,9.0,Veg,None,Veg_Breakfast
+Plain dosa,Breakfast,952,25.8,160.2,21.1,Veg,None,Veg_Breakfast
+Masala dosa mixed vegetable fillings,Breakfast,216,7.3,34.5,4.9,Veg,None,Veg_Breakfast
+Masala dosa paneer fillings,Breakfast,607,25.8,74.4,22.1,Veg,Dairy,Veg_Breakfast
+Uttapam,Lunch,639,15.4,90.7,22.6,Veg,None,Veg_Lunch
+Uttapam,Dinner,639,15.4,90.7,22.6,Veg,None,Veg_Dinner
+Appam,Lunch,669,7.8,33.2,56.6,Veg,None,Veg_Lunch
+Appam,Dinner,669,7.8,33.2,56.6,Veg,None,Veg_Dinner
+Beans and macaroni,Breakfast,204,6.9,21.4,10.5,Veg,None,Veg_Breakfast
+Beans and macaroni,Snack,204,6.9,21.4,10.5,Veg,None,Veg_Snack
+Spaghetti bolognese,Breakfast,146,14.0,15.1,14.3,Veg,None,Veg_Breakfast
+Spaghetti bolognese,Snack,146,14.0,15.1,14.3,Veg,None,Veg_Snack
+Meat and macaroni casserole,Lunch,403,22.9,40.3,25.4,Non-Veg,None,Non-Veg_Lunch
+Meat and macaroni casserole,Dinner,403,22.9,40.3,25.4,Non-Veg,None,Non-Veg_Dinner
+Spaghetti with meat balls and tomato sauce,Lunch,395,14.0,26.2,26.6,Non-Veg,None,Non-Veg_Lunch
+Spaghetti with meat balls and tomato sauce,Dinner,395,14.0,26.2,26.6,Non-Veg,None,Non-Veg_Dinner
+Spaghetti with paneer balls and tomato sauce,Lunch,396,9.9,31.8,26.1,Veg,Dairy,Veg_Lunch
+Spaghetti with paneer balls and tomato sauce,Dinner,396,9.9,31.8,26.1,Veg,Dairy,Veg_Dinner
+Lasagne with meat sauce,Breakfast,95,4.4,8.1,5.1,Non-Veg,None,Non-Veg_Breakfast
+Lasagne with meat sauce,Snack,95,4.4,8.1,5.1,Non-Veg,None,Non-Veg_Snack
+Lasagne with vegetables,Breakfast,147,5.1,17.7,6.5,Veg,None,Veg_Breakfast
+Lasagne with vegetables,Snack,147,5.1,17.7,6.5,Veg,None,Veg_Snack
+Home made egg noodles,Breakfast,602,16.4,107.3,10.9,Non-Veg,Eggs,Non-Veg_Breakfast
+Sour lentils (Khatti dal),Breakfast,104,6.7,18.1,0.4,Veg,None,Veg_Breakfast
+Sour lentils (Khatti dal),Snack,104,6.7,18.1,0.4,Veg,None,Veg_Snack
+Urad special dehusked,Breakfast,104,4.7,13.3,3.3,Veg,None,Veg_Breakfast
+Urad special dehusked,Snack,104,4.7,13.3,3.3,Veg,None,Veg_Snack
+Arhar with spinach (Arhar dal aur palak),Breakfast,79,3.1,7.2,4.1,Veg,None,Veg_Breakfast
+Arhar with spinach (Arhar dal aur palak),Snack,79,3.1,7.2,4.1,Veg,None,Veg_Snack
+Moong dal with vadi,Breakfast,72,1.2,3.0,6.1,Veg,None,Veg_Breakfast
+Moong dal with vadi,Snack,72,1.2,3.0,6.1,Veg,None,Veg_Snack
+Rasam with tamarind (Puli rasam/ Chintapandu rasam/ Charu/Saaru),Breakfast,80,3.4,10.1,2.6,Veg,None,Veg_Breakfast
+Rasam with tamarind (Puli rasam/ Chintapandu rasam/ Charu/Saaru),Snack,80,3.4,10.1,2.6,Veg,None,Veg_Snack
+Rasam with lemon (Nimmakaya rasam/Nimmakaya charu/Elumichai rasam/Nimbe hannina saaru),Breakfast,73,3.3,8.6,2.6,Veg,None,Veg_Breakfast
+Rasam with lemon (Nimmakaya rasam/Nimmakaya charu/Elumichai rasam/Nimbe hannina saaru),Snack,73,3.3,8.6,2.6,Veg,None,Veg_Snack
+Green gram whole with baghar (Sabut moong dal with tadka),Breakfast,95,4.8,10.2,3.7,Veg,None,Veg_Breakfast
+Green gram whole with baghar (Sabut moong dal with tadka),Snack,95,4.8,10.2,3.7,Veg,None,Veg_Snack
+Urad sabut special,Breakfast,119,3.5,7.5,8.2,Veg,None,Veg_Breakfast
+Urad sabut special,Snack,119,3.5,7.5,8.2,Veg,None,Veg_Snack
+Kabuli channa curry,Breakfast,102,4.4,11.4,4.6,Veg,None,Veg_Breakfast
+Kabuli channa curry,Snack,102,4.4,11.4,4.6,Veg,None,Veg_Snack
+Besan gatte curry,Lunch,473,19.4,40.7,26.8,Veg,None,Veg_Lunch
+Besan gatte curry,Dinner,473,19.4,40.7,26.8,Veg,None,Veg_Dinner
+Dry masala chops,Breakfast,202,13.6,4.9,14.3,Veg,None,Veg_Breakfast
+Dry masala chops,Snack,202,13.6,4.9,14.3,Veg,None,Veg_Snack
+Mutton korma,Breakfast,173,10.6,3.8,12.8,Non-Veg,None,Non-Veg_Breakfast
+Mutton korma,Snack,173,10.6,3.8,12.8,Non-Veg,None,Non-Veg_Snack
+Shahi keema kofta curry,Lunch,1045,10.4,4.3,109.6,Veg,None,Veg_Lunch
+Shahi keema kofta curry,Dinner,1045,10.4,4.3,109.6,Veg,None,Veg_Dinner
+Minced meat ball curry,Breakfast,164,10.2,4.3,11.8,Non-Veg,None,Non-Veg_Breakfast
+Minced meat ball curry,Snack,164,10.2,4.3,11.8,Non-Veg,None,Non-Veg_Snack
+Boti kebab,Breakfast,199,13.8,4.6,13.9,Veg,None,Veg_Breakfast
+Boti kebab,Snack,199,13.8,4.6,13.9,Veg,None,Veg_Snack
+Mutton seekh kebab,Breakfast,200,16.9,4.7,12.6,Non-Veg,None,Non-Veg_Breakfast
+Mutton seekh kebab,Snack,200,16.9,4.7,12.6,Non-Veg,None,Non-Veg_Snack
+Indian lamb and egg curry (Nargisi kofta),Breakfast,839,9.6,5.2,86.8,Non-Veg,Eggs,Non-Veg_Breakfast
+Soya chunks sweet and sour (Nutrinugget sweet and sour),Lunch,1252,7.1,8.2,140.0,Veg,"Nuts, Soy",Veg_Lunch
+Soya chunks sweet and sour (Nutrinugget sweet and sour),Dinner,1252,7.1,8.2,140.0,Veg,"Nuts, Soy",Veg_Dinner
+Soya chunks korma (Nutrinugget korma),Breakfast,197,5.8,11.5,14.2,Veg,"Nuts, Soy",Veg_Breakfast
+Soya chunks korma (Nutrinugget korma),Snack,197,5.8,11.5,14.2,Veg,"Nuts, Soy",Veg_Snack
+Mushroom matar,Breakfast,106,4.2,8.0,6.2,Veg,None,Veg_Breakfast
+Mushroom matar,Snack,106,4.2,8.0,6.2,Veg,None,Veg_Snack
+Soya chunks and peas (Nutrinugget matar),Breakfast,123,4.5,8.7,7.7,Veg,"Nuts, Soy",Veg_Breakfast
+Soya chunks and peas (Nutrinugget matar),Snack,123,4.5,8.7,7.7,Veg,"Nuts, Soy",Veg_Snack
+Vegetable yakhni,Lunch,1015,2.9,4.8,109.5,Veg,None,Veg_Lunch
+Vegetable yakhni,Dinner,1015,2.9,4.8,109.5,Veg,None,Veg_Dinner
+Spinach mushroom (Palak mushroom),Breakfast,142,5.8,8.9,8.9,Veg,None,Veg_Breakfast
+Spinach mushroom (Palak mushroom),Snack,142,5.8,8.9,8.9,Veg,None,Veg_Snack
+Vegetarian nargisi kofta curry,Lunch,830,5.7,16.4,82.4,Veg,None,Veg_Lunch
+Vegetarian nargisi kofta curry,Dinner,830,5.7,16.4,82.4,Veg,None,Veg_Dinner
+Roast chicken,Lunch,499,51.2,0.2,32.6,Non-Veg,None,Non-Veg_Lunch
+Roast chicken,Dinner,499,51.2,0.2,32.6,Non-Veg,None,Non-Veg_Dinner
+Shahi chicken masala,Lunch,409,24.6,10.2,30.0,Non-Veg,None,Non-Veg_Lunch
+Shahi chicken masala,Dinner,409,24.6,10.2,30.0,Non-Veg,None,Non-Veg_Dinner
+Tomato chicken,Breakfast,167,15.9,3.2,10.1,Non-Veg,None,Non-Veg_Breakfast
+Tomato chicken,Snack,167,15.9,3.2,10.1,Non-Veg,None,Non-Veg_Snack
+Creamy chicken,Lunch,382,33.8,7.8,23.9,Non-Veg,Dairy,Non-Veg_Lunch
+Creamy chicken,Dinner,382,33.8,7.8,23.9,Non-Veg,Dairy,Non-Veg_Dinner
+Broccoli chicken ala king,Breakfast,179,12.0,8.0,11.4,Non-Veg,None,Non-Veg_Breakfast
+Broccoli chicken ala king,Snack,179,12.0,8.0,11.4,Non-Veg,None,Non-Veg_Snack
+Ginger chicken,Breakfast,193,12.4,8.4,12.4,Non-Veg,None,Non-Veg_Breakfast
+Ginger chicken,Snack,193,12.4,8.4,12.4,Non-Veg,None,Non-Veg_Snack
+Chicken sweet and sour,Lunch,1112,17.3,6.7,119.0,Non-Veg,None,Non-Veg_Lunch
+Chicken sweet and sour,Dinner,1112,17.3,6.7,119.0,Non-Veg,None,Non-Veg_Dinner
+Chicken korma,Breakfast,221,14.7,8.1,14.5,Non-Veg,None,Non-Veg_Breakfast
+Chicken korma,Snack,221,14.7,8.1,14.5,Non-Veg,None,Non-Veg_Snack
+Bengal fish curry (Bengali machli curry),Breakfast,164,10.9,6.6,10.5,Non-Veg,Fish,Non-Veg_Breakfast
+Bengal fish curry (Bengali machli curry),Snack,164,10.9,6.6,10.5,Non-Veg,Fish,Non-Veg_Snack
+Fish finger,Lunch,1357,14.2,11.2,139.6,Non-Veg,Fish,Non-Veg_Lunch
+Fish finger,Dinner,1357,14.2,11.2,139.6,Non-Veg,Fish,Non-Veg_Dinner
+Fish in coconut milk (Nariyal ke doodh ke saath machli),Breakfast,129,13.0,4.1,6.6,Non-Veg,"Dairy, Nuts, Fish",Non-Veg_Breakfast
+Fish in coconut milk (Nariyal ke doodh ke saath machli),Snack,129,13.0,4.1,6.6,Non-Veg,"Dairy, Nuts, Fish",Non-Veg_Snack
+Prawn curry (with coconut) (Jhinga curry),Breakfast,164,12.8,4.6,10.4,Non-Veg,"Nuts, Fish",Non-Veg_Breakfast
+Prawn curry (with coconut) (Jhinga curry),Snack,164,12.8,4.6,10.4,Non-Veg,"Nuts, Fish",Non-Veg_Snack
+Baked stuffed fish,Breakfast,182,24.2,3.2,8.1,Non-Veg,Fish,Non-Veg_Breakfast
+Baked stuffed fish,Snack,182,24.2,3.2,8.1,Non-Veg,Fish,Non-Veg_Snack
+Fish pie,Breakfast,181,13.9,11.6,8.7,Non-Veg,Fish,Non-Veg_Breakfast
+Fish pie,Snack,181,13.9,11.6,8.7,Non-Veg,Fish,Non-Veg_Snack
+Crispy baked fish,Breakfast,207,16.4,14.4,9.6,Non-Veg,Fish,Non-Veg_Breakfast
+Crispy baked fish,Snack,207,16.4,14.4,9.6,Non-Veg,Fish,Non-Veg_Snack
+Fish souffle,Breakfast,209,15.8,7.7,12.8,Non-Veg,Fish,Non-Veg_Breakfast
+Fish souffle,Snack,209,15.8,7.7,12.8,Non-Veg,Fish,Non-Veg_Snack
+Potato curry (Aloo ki sabzi),Breakfast,134,2.3,15.6,6.7,Veg,None,Veg_Breakfast
+Potato curry (Aloo ki sabzi),Snack,134,2.3,15.6,6.7,Veg,None,Veg_Snack
+Egg curry (Anda curry),Breakfast,176,8.1,6.0,13.2,Non-Veg,Eggs,Non-Veg_Breakfast
+Vegetable curry with coconut ,Breakfast,124,4.2,10.8,7.0,Veg,Nuts,Veg_Breakfast
+Vegetable curry with coconut ,Snack,124,4.2,10.8,7.0,Veg,Nuts,Veg_Snack
+Curd with potatoes (Dahi aloo),Breakfast,89,2.3,10.7,4.1,Veg,Dairy,Veg_Breakfast
+Curd with potatoes (Dahi aloo),Snack,89,2.3,10.7,4.1,Veg,Dairy,Veg_Snack
+Potato kofta curry (Aloo kofta curry),Lunch,1138,1.4,7.0,122.7,Veg,None,Veg_Lunch
+Potato kofta curry (Aloo kofta curry),Dinner,1138,1.4,7.0,122.7,Veg,None,Veg_Dinner
+Yam kofta curry (Zimikand/Suran kofta curry),Lunch,807,1.8,9.4,84.6,Veg,None,Veg_Lunch
+Yam kofta curry (Zimikand/Suran kofta curry),Dinner,807,1.8,9.4,84.6,Veg,None,Veg_Dinner
+Jackfruit kofta curry (Kathal ka kofta curry),Lunch,802,2.0,7.9,84.6,Veg,None,Veg_Lunch
+Jackfruit kofta curry (Kathal ka kofta curry),Dinner,802,2.0,7.9,84.6,Veg,None,Veg_Dinner
+Spinach and potato (Palak aloo),Breakfast,85,2.4,8.9,4.2,Veg,None,Veg_Breakfast
+Spinach and potato (Palak aloo),Snack,85,2.4,8.9,4.2,Veg,None,Veg_Snack
+Mooli bhujia,Breakfast,136,2.5,7.1,10.9,Veg,None,Veg_Breakfast
+Mooli bhujia,Snack,136,2.5,7.1,10.9,Veg,None,Veg_Snack
+Bathua bhujia,Breakfast,136,3.4,5.4,10.9,Veg,None,Veg_Breakfast
+Bathua bhujia,Snack,136,3.4,5.4,10.9,Veg,None,Veg_Snack
+Cabbage rolls (dry) ((Pattagobhi rolls) (dry)),Breakfast,213,12.3,9.1,14.0,Veg,None,Veg_Breakfast
+Cabbage rolls (dry) ((Pattagobhi rolls) (dry)),Snack,213,12.3,9.1,14.0,Veg,None,Veg_Snack
+Cabbage rolls (curry) ((Pattagobhi rolls)(curry)),Breakfast,186,8.6,10.5,12.3,Veg,None,Veg_Breakfast
+Cabbage rolls (curry) ((Pattagobhi rolls)(curry)),Snack,186,8.6,10.5,12.3,Veg,None,Veg_Snack
+Dry arbi (Sookhi arbi),Breakfast,202,3.2,16.7,13.5,Veg,None,Veg_Breakfast
+Dry arbi (Sookhi arbi),Snack,202,3.2,16.7,13.5,Veg,None,Veg_Snack
+Masala arbi,Lunch,463,7.5,40.4,29.8,Veg,None,Veg_Lunch
+Masala arbi,Dinner,463,7.5,40.4,29.8,Veg,None,Veg_Dinner
+Peas brinjal bhartha (Matar baingan bhartha),Breakfast,126,3.1,7.5,9.1,Veg,None,Veg_Breakfast
+Peas brinjal bhartha (Matar baingan bhartha),Snack,126,3.1,7.5,9.1,Veg,None,Veg_Snack
+Okra/Lady's fingers fry (Bhindi sabzi/sabji/subji),Breakfast,166,2.7,6.8,13.9,Veg,None,Veg_Breakfast
+Okra/Lady's fingers fry (Bhindi sabzi/sabji/subji),Snack,166,2.7,6.8,13.9,Veg,None,Veg_Snack
+Crispy okra/Crispy lady's fingers (Karare bhindi),Lunch,1644,4.8,10.9,176.0,Veg,None,Veg_Lunch
+Crispy okra/Crispy lady's fingers (Karare bhindi),Dinner,1644,4.8,10.9,176.0,Veg,None,Veg_Dinner
+Beans foogath,Breakfast,157,3.0,4.9,13.8,Veg,None,Veg_Breakfast
+Beans foogath,Snack,157,3.0,4.9,13.8,Veg,None,Veg_Snack
+Stuffed bittergourd (wet) (Bharwa karele),Lunch,405,3.4,11.7,38.1,Veg,None,Veg_Lunch
+Stuffed bittergourd (wet) (Bharwa karele),Dinner,405,3.4,11.7,38.1,Veg,None,Veg_Dinner
+Jackfruit/Kathal (dry),Lunch,1222,2.3,11.4,129.4,Veg,None,Veg_Lunch
+Jackfruit/Kathal (dry),Dinner,1222,2.3,11.4,129.4,Veg,None,Veg_Dinner
+Yam fried (Zimikand/Suran fried),Lunch,1229,2.0,13.7,129.5,Veg,None,Veg_Lunch
+Yam fried (Zimikand/Suran fried),Dinner,1229,2.0,13.7,129.5,Veg,None,Veg_Dinner
+"Cauliflower, pea and potato bhujia (Phoolgobhi, matar aur aloo bhujia)",Breakfast,143,4.1,12.3,8.3,Veg,None,Veg_Breakfast
+"Cauliflower, pea and potato bhujia (Phoolgobhi, matar aur aloo bhujia)",Snack,143,4.1,12.3,8.3,Veg,None,Veg_Snack
+Vegetable jalfrezi,Breakfast,102,2.1,8.1,6.6,Veg,None,Veg_Breakfast
+Vegetable jalfrezi,Snack,102,2.1,8.1,6.6,Veg,None,Veg_Snack
+Vegetables stir fry ,Breakfast,92,3.1,9.6,4.4,Veg,None,Veg_Breakfast
+Vegetables stir fry ,Snack,92,3.1,9.6,4.4,Veg,None,Veg_Snack
+Broccoli delight,Breakfast,122,7.5,7.0,7.4,Veg,None,Veg_Breakfast
+Broccoli delight,Snack,122,7.5,7.0,7.4,Veg,None,Veg_Snack
+Dhansak (vegetarian),Breakfast,124,5.0,10.9,6.3,Veg,None,Veg_Breakfast
+Dhansak (vegetarian),Snack,124,5.0,10.9,6.3,Veg,None,Veg_Snack
+Cauliflower basket,Breakfast,136,7.8,6.0,8.8,Veg,None,Veg_Breakfast
+Cauliflower basket,Snack,136,7.8,6.0,8.8,Veg,None,Veg_Snack
+Stuffed bottle gourd (Stuffed ghiya/lauki),Breakfast,139,8.8,6.5,8.7,Veg,None,Veg_Breakfast
+Stuffed bottle gourd (Stuffed ghiya/lauki),Snack,139,8.8,6.5,8.7,Veg,None,Veg_Snack
+Ducheese potato,Breakfast,210,5.4,16.4,13.5,Veg,None,Veg_Breakfast
+Ducheese potato,Snack,210,5.4,16.4,13.5,Veg,None,Veg_Snack
+Roast potatoes ,Breakfast,130,2.3,21.8,3.5,Veg,None,Veg_Breakfast
+Roast potatoes ,Snack,130,2.3,21.8,3.5,Veg,None,Veg_Snack
+Stuffed baked potatoes ,Breakfast,150,5.7,16.5,6.6,Veg,None,Veg_Breakfast
+Stuffed baked potatoes ,Snack,150,5.7,16.5,6.6,Veg,None,Veg_Snack
+Potato nests,Breakfast,167,8.6,16.6,7.2,Veg,None,Veg_Breakfast
+Potato nests,Snack,167,8.6,16.6,7.2,Veg,None,Veg_Snack
+Parsley potato,Breakfast,179,2.2,20.7,9.4,Veg,None,Veg_Breakfast
+Parsley potato,Snack,179,2.2,20.7,9.4,Veg,None,Veg_Snack
+Creamed spinach and mushroom,Lunch,1049,5.7,7.9,110.4,Veg,Dairy,Veg_Lunch
+Creamed spinach and mushroom,Dinner,1049,5.7,7.9,110.4,Veg,Dairy,Veg_Dinner
+Fricassee of Mushroom,Breakfast,159,5.5,12.2,9.9,Veg,None,Veg_Breakfast
+Fricassee of Mushroom,Snack,159,5.5,12.2,9.9,Veg,None,Veg_Snack
+Cauliflower au gratin,Breakfast,218,6.7,13.7,15.3,Veg,None,Veg_Breakfast
+Cauliflower au gratin,Snack,218,6.7,13.7,15.3,Veg,None,Veg_Snack
+Vegetable and cheese pie,Breakfast,190,6.0,13.1,12.4,Veg,None,Veg_Breakfast
+Vegetable and cheese pie,Snack,190,6.0,13.1,12.4,Veg,None,Veg_Snack
+Spinach souffle ,Lunch,375,18.4,15.7,26.3,Veg,None,Veg_Lunch
+Spinach souffle ,Dinner,375,18.4,15.7,26.3,Veg,None,Veg_Dinner
+Beetroot and egg salad (Chukandar aur ande ka salad),Breakfast,127,5.0,5.1,9.7,Non-Veg,Eggs,Non-Veg_Breakfast
+Sour cream potato salad,Breakfast,182,4.3,13.6,12.2,Veg,Dairy,Veg_Breakfast
+Sour cream potato salad,Snack,182,4.3,13.6,12.2,Veg,Dairy,Veg_Snack
+Tossed green salad,Breakfast,149,4.0,11.5,9.7,Veg,None,Veg_Breakfast
+Tossed green salad,Snack,149,4.0,11.5,9.7,Veg,None,Veg_Snack
+Spring basket salad,Lunch,401,8.4,29.0,28.2,Veg,None,Veg_Lunch
+Spring basket salad,Dinner,401,8.4,29.0,28.2,Veg,None,Veg_Dinner
+Cucumber and yogurt salad (Kheere aur dahi ka salad),Breakfast,108,6.3,14.2,2.8,Veg,Dairy,Veg_Breakfast
+Cucumber and yogurt salad (Kheere aur dahi ka salad),Snack,108,6.3,14.2,2.8,Veg,Dairy,Veg_Snack
+Chicken and tomato towers,Breakfast,150,10.4,3.5,10.5,Non-Veg,None,Non-Veg_Breakfast
+Chicken and tomato towers,Snack,150,10.4,3.5,10.5,Non-Veg,None,Non-Veg_Snack
+Jellied sunshine fruit salad,Breakfast,146,17.5,12.6,2.6,Veg,None,Veg_Breakfast
+Jellied sunshine fruit salad,Snack,146,17.5,12.6,2.6,Veg,None,Veg_Snack
+Tomato aspic,Breakfast,75,10.3,7.5,0.4,Veg,None,Veg_Breakfast
+Tomato aspic,Snack,75,10.3,7.5,0.4,Veg,None,Veg_Snack
+Frozen frosty fruit salad (Phalon ka salaad),Breakfast,155,2.5,23.4,6.3,Veg,None,Veg_Breakfast
+Frozen frosty fruit salad (Phalon ka salaad),Snack,155,2.5,23.4,6.3,Veg,None,Veg_Snack
+French dressing,Lunch,1834,0.8,9.2,199.1,Veg,None,Veg_Lunch
+French dressing,Dinner,1834,0.8,9.2,199.1,Veg,None,Veg_Dinner
+Mayonnaise without eggs,Breakfast,822,5.3,10.0,84.6,Non-Veg,Eggs,Non-Veg_Breakfast
+Curd dressing ,Breakfast,118,8.4,12.0,4.4,Veg,Dairy,Veg_Breakfast
+Curd dressing ,Snack,118,8.4,12.0,4.4,Veg,Dairy,Veg_Snack
+Carrot raita (Gajar ka raita),Breakfast,97,6.2,10.8,3.3,Veg,None,Veg_Breakfast
+Carrot raita (Gajar ka raita),Snack,97,6.2,10.8,3.3,Veg,None,Veg_Snack
+Pumpkin raita (Kaddu ka raita),Breakfast,83,5.6,9.0,2.8,Veg,None,Veg_Breakfast
+Pumpkin raita (Kaddu ka raita),Snack,83,5.6,9.0,2.8,Veg,None,Veg_Snack
+Mint and peanut raita (Pudinay aur moongfali ka raita),Breakfast,168,10.6,11.0,9.3,Veg,Nuts,Veg_Breakfast
+Mint and peanut raita (Pudinay aur moongfali ka raita),Snack,168,10.6,11.0,9.3,Veg,Nuts,Veg_Snack
+Spinach raita (Palak ka raita),Breakfast,79,5.9,7.6,2.8,Veg,None,Veg_Breakfast
+Spinach raita (Palak ka raita),Snack,79,5.9,7.6,2.8,Veg,None,Veg_Snack
+Bathua raita,Breakfast,81,6.2,8.0,2.6,Veg,None,Veg_Breakfast
+Bathua raita,Snack,81,6.2,8.0,2.6,Veg,None,Veg_Snack
+Pineapple raita (Ananas ka raita),Breakfast,101,5.8,12.9,3.0,Veg,None,Veg_Breakfast
+Pineapple raita (Ananas ka raita),Snack,101,5.8,12.9,3.0,Veg,None,Veg_Snack
+Banana raita (Kele ka raita),Breakfast,133,6.2,20.3,3.1,Veg,None,Veg_Breakfast
+Banana raita (Kele ka raita),Snack,133,6.2,20.3,3.1,Veg,None,Veg_Snack
+Mango raita (Aam ka raita),Breakfast,101,5.8,12.3,3.2,Veg,None,Veg_Breakfast
+Mango raita (Aam ka raita),Snack,101,5.8,12.3,3.2,Veg,None,Veg_Snack
+Guava raita (Amarood ka raita),Breakfast,96,6.3,10.9,3.1,Veg,None,Veg_Breakfast
+Guava raita (Amarood ka raita),Snack,96,6.3,10.9,3.1,Veg,None,Veg_Snack
+Grapes raita (Angoor ka raita),Breakfast,108,6.0,14.5,3.1,Veg,None,Veg_Breakfast
+Grapes raita (Angoor ka raita),Snack,108,6.0,14.5,3.1,Veg,None,Veg_Snack
+Bottle gourd kheer (Ghiya/Lauki kheer),Breakfast,126,4.1,15.0,5.8,Veg,None,Veg_Breakfast
+Bottle gourd kheer (Ghiya/Lauki kheer),Snack,126,4.1,15.0,5.8,Veg,None,Veg_Snack
+Pumpkin kheer (Kaddu ki kheer),Breakfast,129,4.1,15.7,5.8,Veg,None,Veg_Breakfast
+Pumpkin kheer (Kaddu ki kheer),Snack,129,4.1,15.7,5.8,Veg,None,Veg_Snack
+Apple kheer (Seb ki kheer),Breakfast,121,3.2,17.0,4.8,Veg,None,Veg_Breakfast
+Apple kheer (Seb ki kheer),Snack,121,3.2,17.0,4.8,Veg,None,Veg_Snack
+Caramel custard (baked),Breakfast,184,7.7,22.4,7.5,Veg,None,Veg_Breakfast
+Caramel custard (baked),Snack,184,7.7,22.4,7.5,Veg,None,Veg_Snack
+Vanilla ice cream without egg,Breakfast,571,6.7,35.5,45.4,Non-Veg,"Dairy, Eggs",Non-Veg_Breakfast
+Vanilla ice cream with egg,Breakfast,537,10.4,29.3,42.6,Non-Veg,"Dairy, Eggs",Non-Veg_Breakfast
+Strawberry ice cream,Lunch,539,10.4,30.6,42.4,Veg,Dairy,Veg_Lunch
+Strawberry ice cream,Dinner,539,10.4,30.6,42.4,Veg,Dairy,Veg_Dinner
+Chocochip ice cream,Lunch,603,10.6,41.9,44.8,Veg,Dairy,Veg_Lunch
+Chocochip ice cream,Dinner,603,10.6,41.9,44.8,Veg,Dairy,Veg_Dinner
+Choconut ice cream,Lunch,684,12.6,57.8,46.2,Veg,"Dairy, Nuts",Veg_Lunch
+Choconut ice cream,Dinner,684,12.6,57.8,46.2,Veg,"Dairy, Nuts",Veg_Dinner
+Pear chocholate sunday,Lunch,458,5.2,37.6,32.8,Veg,None,Veg_Lunch
+Pear chocholate sunday,Dinner,458,5.2,37.6,32.8,Veg,None,Veg_Dinner
+Chocolate sauce,Lunch,658,4.8,108.0,26.0,Veg,None,Veg_Lunch
+Chocolate sauce,Dinner,658,4.8,108.0,26.0,Veg,None,Veg_Dinner
+Coffee ice cream,Snack,376,7.9,35.2,23.6,Veg,Dairy,Veg_Snack
+Coffee pear alaska,Snack,509,7.2,48.4,33.1,Veg,None,Veg_Snack
+Crunchy butterscotch,Lunch,693,7.8,49.8,52.5,Veg,None,Veg_Lunch
+Crunchy butterscotch,Dinner,693,7.8,49.8,52.5,Veg,None,Veg_Dinner
+Peach melba ice cream,Lunch,502,5.2,40.8,36.3,Veg,Dairy,Veg_Lunch
+Peach melba ice cream,Dinner,502,5.2,40.8,36.3,Veg,Dairy,Veg_Dinner
+Vanilla ice cream with apples in hot cherry sauce,Lunch,490,4.3,56.9,28.6,Veg,Dairy,Veg_Lunch
+Vanilla ice cream with apples in hot cherry sauce,Dinner,490,4.3,56.9,28.6,Veg,Dairy,Veg_Dinner
+Grape and orange whip,Breakfast,86,2.1,10.1,3.9,Veg,None,Veg_Breakfast
+Grape and orange whip,Snack,86,2.1,10.1,3.9,Veg,None,Veg_Snack
+Honey banana cream,Breakfast,188,4.2,20.5,10.0,Veg,Dairy,Veg_Breakfast
+Honey banana cream,Snack,188,4.2,20.5,10.0,Veg,Dairy,Veg_Snack
+Raspberry bavarian cream,Lunch,375,8.4,44.6,19.7,Veg,Dairy,Veg_Lunch
+Raspberry bavarian cream,Dinner,375,8.4,44.6,19.7,Veg,Dairy,Veg_Dinner
+Fruit delight,Breakfast,160,3.1,13.7,10.6,Veg,None,Veg_Breakfast
+Fruit delight,Snack,160,3.1,13.7,10.6,Veg,None,Veg_Snack
+Creamy chocolate mousse,Lunch,576,17.1,23.8,45.4,Veg,Dairy,Veg_Lunch
+Creamy chocolate mousse,Dinner,576,17.1,23.8,45.4,Veg,Dairy,Veg_Dinner
+Cold lemon souffle,Lunch,424,14.7,39.0,24.4,Veg,None,Veg_Lunch
+Cold lemon souffle,Dinner,424,14.7,39.0,24.4,Veg,None,Veg_Dinner
+Cold orange souffle,Lunch,432,14.8,40.7,24.6,Veg,None,Veg_Lunch
+Cold orange souffle,Dinner,432,14.8,40.7,24.6,Veg,None,Veg_Dinner
+Cold pineapple souffle,Lunch,453,15.6,42.1,26.0,Veg,None,Veg_Lunch
+Cold pineapple souffle,Dinner,453,15.6,42.1,26.0,Veg,None,Veg_Dinner
+Cold vanilla souffle,Lunch,448,15.6,40.7,25.8,Veg,None,Veg_Lunch
+Cold vanilla souffle,Dinner,448,15.6,40.7,25.8,Veg,None,Veg_Dinner
+Cold chocolate souffle,Lunch,468,15.9,43.0,27.2,Veg,None,Veg_Lunch
+Cold chocolate souffle,Dinner,468,15.9,43.0,27.2,Veg,None,Veg_Dinner
+Stewed fruit (with pear),Breakfast,111,0.4,27.3,0.5,Veg,None,Veg_Breakfast
+Stewed fruit (with pear),Snack,111,0.4,27.3,0.5,Veg,None,Veg_Snack
+Apricot fool,Lunch,601,3.8,84.1,28.4,Veg,None,Veg_Lunch
+Apricot fool,Dinner,601,3.8,84.1,28.4,Veg,None,Veg_Dinner
+Pavlova,Lunch,501,4.6,54.6,30.7,Veg,None,Veg_Lunch
+Pavlova,Dinner,501,4.6,54.6,30.7,Veg,None,Veg_Dinner
+Apple crumb pudding,Lunch,552,3.8,87.9,22.2,Veg,None,Veg_Lunch
+Apple crumb pudding,Dinner,552,3.8,87.9,22.2,Veg,None,Veg_Dinner
+Steamed cake with chocolate sauce,Snack,754,11.2,72.6,47.5,Veg,None,Veg_Snack
+Hot lemon souffle,Lunch,388,13.2,40.8,19.8,Veg,None,Veg_Lunch
+Hot lemon souffle,Dinner,388,13.2,40.8,19.8,Veg,None,Veg_Dinner
+Gulab jamun with milk powder,Lunch,1177,2.1,70.6,100.4,Veg,Dairy,Veg_Lunch
+Gulab jamun with milk powder,Dinner,1177,2.1,70.6,100.4,Veg,Dairy,Veg_Dinner
+Chum chum,Breakfast,195,2.3,42.4,2.9,Veg,None,Veg_Breakfast
+Chum chum,Snack,195,2.3,42.4,2.9,Veg,None,Veg_Snack
+Dil bahar,Breakfast,195,2.3,42.4,2.9,Veg,None,Veg_Breakfast
+Dil bahar,Snack,195,2.3,42.4,2.9,Veg,None,Veg_Snack
+Rasbhari,Breakfast,195,2.3,42.4,2.9,Veg,None,Veg_Breakfast
+Rasbhari,Snack,195,2.3,42.4,2.9,Veg,None,Veg_Snack
+Rajbogh,Breakfast,200,2.6,42.2,3.4,Veg,None,Veg_Breakfast
+Rajbogh,Snack,200,2.6,42.2,3.4,Veg,None,Veg_Snack
+Rasgulla,Breakfast,177,2.1,38.7,2.6,Veg,None,Veg_Breakfast
+Rasgulla,Snack,177,2.1,38.7,2.6,Veg,None,Veg_Snack
+Rasmalai,Breakfast,203,2.4,43.8,3.2,Veg,None,Veg_Breakfast
+Rasmalai,Snack,203,2.4,43.8,3.2,Veg,None,Veg_Snack
+Khoa coconut burfi,Lunch,1028,25.0,91.4,65.0,Veg,Nuts,Veg_Lunch
+Khoa coconut burfi,Dinner,1028,25.0,91.4,65.0,Veg,Nuts,Veg_Dinner
+Danedar burfi,Breakfast,154,4.9,18.5,7.1,Veg,None,Veg_Breakfast
+Danedar burfi,Snack,154,4.9,18.5,7.1,Veg,None,Veg_Snack
+Semolina burfi (Suji/Rava burfi),Lunch,871,8.7,117.8,42.2,Veg,None,Veg_Lunch
+Semolina burfi (Suji/Rava burfi),Dinner,871,8.7,117.8,42.2,Veg,None,Veg_Dinner
+Pumpkin coconut burfi (Kaddu aur nariyal ki burfi),Lunch,465,4.4,42.6,31.6,Veg,Nuts,Veg_Lunch
+Pumpkin coconut burfi (Kaddu aur nariyal ki burfi),Dinner,465,4.4,42.6,31.6,Veg,Nuts,Veg_Dinner
+Khoa ladoo,Lunch,990,30.5,86.1,60.2,Veg,None,Veg_Lunch
+Khoa ladoo,Dinner,990,30.5,86.1,60.2,Veg,None,Veg_Dinner
+Wheat and gram flour ladoo (Atta besan ladoo),Lunch,1254,23.5,126.2,74.6,Veg,Gluten,Veg_Lunch
+Wheat and gram flour ladoo (Atta besan ladoo),Dinner,1254,23.5,126.2,74.6,Veg,Gluten,Veg_Dinner
+Semolina ladoo with nuts (Suji/Rava ladoo with nuts),Lunch,1104,13.6,120.0,63.6,Veg,Nuts,Veg_Lunch
+Semolina ladoo with nuts (Suji/Rava ladoo with nuts),Dinner,1104,13.6,120.0,63.6,Veg,Nuts,Veg_Dinner
+Sesame chickpeas brittle (Til aur channe ki chikki),Lunch,706,21.2,126.2,11.6,Veg,None,Veg_Lunch
+Sesame chickpeas brittle (Til aur channe ki chikki),Dinner,706,21.2,126.2,11.6,Veg,None,Veg_Dinner
+Murmura chikki,Lunch,634,5.3,149.0,0.8,Veg,None,Veg_Lunch
+Murmura chikki,Dinner,634,5.3,149.0,0.8,Veg,None,Veg_Dinner
+Masala onion pakora/pakoda (Pyaaz ke pakode),Lunch,1379,5.1,16.2,144.0,Veg,None,Veg_Lunch
+Masala onion pakora/pakoda (Pyaaz ke pakode),Dinner,1379,5.1,16.2,144.0,Veg,None,Veg_Dinner
+Masala green chilli pakora/pakoda (Hari mirch kay pakode),Lunch,1671,5.6,13.9,177.5,Veg,None,Veg_Lunch
+Masala green chilli pakora/pakoda (Hari mirch kay pakode),Dinner,1671,5.6,13.9,177.5,Veg,None,Veg_Dinner
+Chicken pakora/pakoda,Lunch,1475,15.1,11.4,152.4,Non-Veg,None,Non-Veg_Lunch
+Chicken pakora/pakoda,Dinner,1475,15.1,11.4,152.4,Non-Veg,None,Non-Veg_Dinner
+Fish pakora/pakoda,Lunch,1442,14.9,11.4,148.8,Non-Veg,Fish,Non-Veg_Lunch
+Fish pakora/pakoda,Dinner,1442,14.9,11.4,148.8,Non-Veg,Fish,Non-Veg_Dinner
+Paneer cutlet,Lunch,1680,11.5,19.0,173.4,Veg,Dairy,Veg_Lunch
+Paneer cutlet,Dinner,1680,11.5,19.0,173.4,Veg,Dairy,Veg_Dinner
+Sago cutlet/vadas (Sabudana cutlet/vadas),Lunch,1396,1.4,28.1,142.4,Veg,None,Veg_Lunch
+Sago cutlet/vadas (Sabudana cutlet/vadas),Dinner,1396,1.4,28.1,142.4,Veg,None,Veg_Dinner
+Poshtik cutlet,Lunch,1241,5.0,18.5,127.4,Veg,None,Veg_Lunch
+Poshtik cutlet,Dinner,1241,5.0,18.5,127.4,Veg,None,Veg_Dinner
+Egg cutlet (Anda cutlet),Breakfast,1437,6.1,14.4,150.6,Non-Veg,Eggs,Non-Veg_Breakfast
+Minced meat cutlet,Lunch,1329,12.8,14.0,136.2,Non-Veg,None,Non-Veg_Lunch
+Minced meat cutlet,Dinner,1329,12.8,14.0,136.2,Non-Veg,None,Non-Veg_Dinner
+Vegetable samosa,Lunch,1107,5.5,33.1,105.6,Veg,None,Veg_Lunch
+Vegetable samosa,Dinner,1107,5.5,33.1,105.6,Veg,None,Veg_Dinner
+Plain urad dal vada (Uzunne vada/Minapa garelu/Ulundu vadai/Medu vada),Lunch,1863,11.0,24.2,190.8,Veg,None,Veg_Lunch
+Plain urad dal vada (Uzunne vada/Minapa garelu/Ulundu vadai/Medu vada),Dinner,1863,11.0,24.2,190.8,Veg,None,Veg_Dinner
+Masala urad dal vada,Lunch,1759,10.8,24.8,179.0,Veg,None,Veg_Lunch
+Masala urad dal vada,Dinner,1759,10.8,24.8,179.0,Veg,None,Veg_Dinner
+Khaman (dhokla),Breakfast,82,2.9,8.0,4.2,Veg,None,Veg_Breakfast
+Khaman (dhokla),Snack,82,2.9,8.0,4.2,Veg,None,Veg_Snack
+Instant dhokla,Lunch,517,19.2,60.3,23.4,Veg,None,Veg_Lunch
+Instant dhokla,Dinner,517,19.2,60.3,23.4,Veg,None,Veg_Dinner
+Tomato ginger chutney (Tamatar adarak ki chutney),Breakfast,133,3.2,27.3,1.0,Veg,None,Veg_Breakfast
+Tomato ginger chutney (Tamatar adarak ki chutney),Snack,133,3.2,27.3,1.0,Veg,None,Veg_Snack
+Mint tomato chutney (Pudinay aur tamatar ki chutney),Breakfast,130,4.6,24.7,1.1,Veg,None,Veg_Breakfast
+Mint tomato chutney (Pudinay aur tamatar ki chutney),Snack,130,4.6,24.7,1.1,Veg,None,Veg_Snack
+Coriander chutney (Hare dhaniye ki chutney),Breakfast,128,4.1,24.5,1.1,Veg,None,Veg_Breakfast
+Coriander chutney (Hare dhaniye ki chutney),Snack,128,4.1,24.5,1.1,Veg,None,Veg_Snack
+Gooseberry chutney (Amla chutney),Breakfast,129,4.3,26.5,1.9,Veg,None,Veg_Breakfast
+Gooseberry chutney (Amla chutney),Snack,129,4.3,26.5,1.9,Veg,None,Veg_Snack
+Walnut chutney (Akhrot ki chutney),Lunch,926,23.6,22.3,83.6,Veg,Nuts,Veg_Lunch
+Walnut chutney (Akhrot ki chutney),Dinner,926,23.6,22.3,83.6,Veg,Nuts,Veg_Dinner
+Saunth/Sonth chutney with ginger,Breakfast,126,0.4,30.9,0.2,Veg,None,Veg_Breakfast
+Saunth/Sonth chutney with ginger,Snack,126,0.4,30.9,0.2,Veg,None,Veg_Snack
+Gun powder chutney,Lunch,780,53.9,119.1,6.7,Veg,None,Veg_Lunch
+Gun powder chutney,Dinner,780,53.9,119.1,6.7,Veg,None,Veg_Dinner
+Dessicated coconut chutney (Sookhe kase nariyal ki chutney) ,Lunch,865,32.2,91.8,39.7,Veg,Nuts,Veg_Lunch
+Dessicated coconut chutney (Sookhe kase nariyal ki chutney) ,Dinner,865,32.2,91.8,39.7,Veg,Nuts,Veg_Dinner
+Curd mint dip ,Breakfast,114,7.2,13.7,3.7,Veg,Dairy,Veg_Breakfast
+Curd mint dip ,Snack,114,7.2,13.7,3.7,Veg,Dairy,Veg_Snack
+Curd vegetable dip,Breakfast,84,5.8,9.1,2.9,Veg,Dairy,Veg_Breakfast
+Curd vegetable dip,Snack,84,5.8,9.1,2.9,Veg,Dairy,Veg_Snack
+Mayonnaise vegetable dip,Lunch,603,7.5,12.0,58.6,Veg,None,Veg_Lunch
+Mayonnaise vegetable dip,Dinner,603,7.5,12.0,58.6,Veg,None,Veg_Dinner
+Tomato and cucumber sandwich (Tamatar aur kheere ka sandwich),Lunch,376,10.1,51.3,15.8,Veg,None,Veg_Lunch
+Tomato and cucumber sandwich (Tamatar aur kheere ka sandwich),Dinner,376,10.1,51.3,15.8,Veg,None,Veg_Dinner
+Tomato sandwich (grilled),Lunch,474,15.6,53.2,23.5,Veg,None,Veg_Lunch
+Tomato sandwich (grilled),Dinner,474,15.6,53.2,23.5,Veg,None,Veg_Dinner
+French sandwich (toasted),Breakfast,466,17.0,37.0,28.8,Veg,None,Veg_Breakfast
+Peanut butter cucumber sandwich,Lunch,608,22.6,74.4,26.4,Veg,Nuts,Veg_Lunch
+Peanut butter cucumber sandwich,Dinner,608,22.6,74.4,26.4,Veg,Nuts,Veg_Dinner
+Mint and peanut sandwich,Lunch,683,18.0,79.6,34.7,Veg,Nuts,Veg_Lunch
+Mint and peanut sandwich,Dinner,683,18.0,79.6,34.7,Veg,Nuts,Veg_Dinner
+Spicy chutney sandwich,Lunch,623,21.8,85.1,24.0,Veg,None,Veg_Lunch
+Spicy chutney sandwich,Dinner,623,21.8,85.1,24.0,Veg,None,Veg_Dinner
+Chicken walnut sandwich (Chicken aur akhrot ke sandwich),Lunch,714,31.4,56.6,41.9,Non-Veg,Nuts,Non-Veg_Lunch
+Chicken walnut sandwich (Chicken aur akhrot ke sandwich),Dinner,714,31.4,56.6,41.9,Non-Veg,Nuts,Non-Veg_Dinner
+Rolled sandwich,Lunch,732,16.1,86.7,38.2,Veg,None,Veg_Lunch
+Rolled sandwich,Dinner,732,16.1,86.7,38.2,Veg,None,Veg_Dinner
+Ribbon sandwich,Lunch,598,15.6,61.9,33.4,Veg,None,Veg_Lunch
+Ribbon sandwich,Dinner,598,15.6,61.9,33.4,Veg,None,Veg_Dinner
+Checker board sandwich,Lunch,870,18.4,64.9,61.6,Veg,None,Veg_Lunch
+Checker board sandwich,Dinner,870,18.4,64.9,61.6,Veg,None,Veg_Dinner
+Submarine sandwich,Lunch,542,15.2,34.0,38.3,Veg,None,Veg_Lunch
+Submarine sandwich,Dinner,542,15.2,34.0,38.3,Veg,None,Veg_Dinner
+Cheese open sandwich,Lunch,685,24.6,71.1,35.6,Veg,None,Veg_Lunch
+Cheese open sandwich,Dinner,685,24.6,71.1,35.6,Veg,None,Veg_Dinner
+Sunset and sunrise open sandwich,Lunch,603,21.4,47.2,37.8,Veg,None,Veg_Lunch
+Sunset and sunrise open sandwich,Dinner,603,21.4,47.2,37.8,Veg,None,Veg_Dinner
+Danish luncheon sandwich,Lunch,484,22.6,44.4,25.2,Veg,None,Veg_Lunch
+Danish luncheon sandwich,Dinner,484,22.6,44.4,25.2,Veg,None,Veg_Dinner
+Chicken and corn open sandwich,Lunch,470,21.6,48.0,22.1,Non-Veg,None,Non-Veg_Lunch
+Chicken and corn open sandwich,Dinner,470,21.6,48.0,22.1,Non-Veg,None,Non-Veg_Dinner
+Chocolate sponge cake,Lunch,599,22.8,98.8,13.8,Veg,None,Veg_Lunch
+Chocolate sponge cake,Dinner,599,22.8,98.8,13.8,Veg,None,Veg_Dinner
+Chocolate swiss roll,Lunch,765,15.0,67.4,49.4,Veg,None,Veg_Lunch
+Chocolate swiss roll,Dinner,765,15.0,67.4,49.4,Veg,None,Veg_Dinner
+Lemon curd filling,Lunch,564,8.6,66.0,31.4,Veg,Dairy,Veg_Lunch
+Lemon curd filling,Dinner,564,8.6,66.0,31.4,Veg,Dairy,Veg_Dinner
+Jam filling,Lunch,461,0.0,115.4,0.0,Veg,None,Veg_Lunch
+Jam filling,Dinner,461,0.0,115.4,0.0,Veg,None,Veg_Dinner
+Chocolate pastry,Lunch,608,17.6,80.6,25.3,Veg,None,Veg_Lunch
+Chocolate pastry,Dinner,608,17.6,80.6,25.3,Veg,None,Veg_Dinner
+Assorted pastry,Lunch,576,17.0,80.0,22.3,Veg,None,Veg_Lunch
+Assorted pastry,Dinner,576,17.0,80.0,22.3,Veg,None,Veg_Dinner
+Orange gateau,Snack,445,12.0,67.5,15.0,Veg,None,Veg_Snack
+Black forest gateau,Snack,544,14.8,76.4,21.4,Veg,None,Veg_Snack
+Lemon cake,Lunch,934,13.2,107.8,51.6,Veg,None,Veg_Lunch
+Lemon cake,Dinner,934,13.2,107.8,51.6,Veg,None,Veg_Dinner
+Dundee cake,Lunch,991,19.4,103.5,56.8,Veg,None,Veg_Lunch
+Dundee cake,Dinner,991,19.4,103.5,56.8,Veg,None,Veg_Dinner
+Victorian sandwich cake,Lunch,932,13.0,111.8,49.6,Veg,None,Veg_Lunch
+Victorian sandwich cake,Dinner,932,13.0,111.8,49.6,Veg,None,Veg_Dinner
+Chocolate eggless cake,Breakfast,780,16.6,108.6,33.0,Non-Veg,Eggs,Non-Veg_Breakfast
+Orange eggless cake,Breakfast,889,17.9,131.6,34.6,Non-Veg,Eggs,Non-Veg_Breakfast
+Chocolate glace icing,Lunch,1090,8.0,156.1,52.0,Veg,None,Veg_Lunch
+Chocolate glace icing,Dinner,1090,8.0,156.1,52.0,Veg,None,Veg_Dinner
+Butter icing,Lunch,1251,0.5,179.1,63.4,Veg,None,Veg_Lunch
+Butter icing,Dinner,1251,0.5,179.1,63.4,Veg,None,Veg_Dinner
+Chocolate butter icing,Lunch,1173,8.0,154.3,61.9,Veg,None,Veg_Lunch
+Chocolate butter icing,Dinner,1173,8.0,154.3,61.9,Veg,None,Veg_Dinner
+Almond biscuit (Badam ke biscuit),Snack,1019,15.6,130.4,49.2,Veg,Nuts,Veg_Snack
+Orange biscuit,Snack,886,9.1,155.3,27.5,Veg,None,Veg_Snack
+Gingerman biscuit,Snack,893,15.6,138.1,31.8,Veg,None,Veg_Snack
+Coffee drops,Snack,1107,18.9,107.6,67.9,Veg,None,Veg_Snack
+Christmas biscuit,Snack,1015,14.2,152.4,39.7,Veg,None,Veg_Snack
+Christmas wreath biscuit,Snack,965,13.6,145.2,37.5,Veg,None,Veg_Snack
+Christmas bell biscuit,Snack,1012,14.2,152.0,39.6,Veg,None,Veg_Snack
+Christmas star biscuit,Snack,980,8.8,186.4,25.1,Veg,None,Veg_Snack
+Christmas tree biscuit,Snack,964,13.6,146.0,37.5,Veg,None,Veg_Snack
+Chocolate cream shells,Lunch,1067,12.8,148.2,48.4,Veg,Dairy,Veg_Lunch
+Chocolate cream shells,Dinner,1067,12.8,148.2,48.4,Veg,Dairy,Veg_Dinner
+Jelly biscuit,Snack,1011,10.6,138.1,48.3,Veg,None,Veg_Snack
+Cherry and walnut cookies,Lunch,1056,14.1,148.4,46.9,Veg,Nuts,Veg_Lunch
+Cherry and walnut cookies,Dinner,1056,14.1,148.4,46.9,Veg,Nuts,Veg_Dinner
+Cheese straws,Lunch,955,24.6,76.5,60.7,Veg,None,Veg_Lunch
+Cheese straws,Dinner,955,24.6,76.5,60.7,Veg,None,Veg_Dinner
+Butterfly biscuit,Snack,853,25.0,63.3,55.3,Veg,None,Veg_Snack
+Flan pastry,Lunch,1114,16.8,119.6,62.6,Veg,None,Veg_Lunch
+Flan pastry,Dinner,1114,16.8,119.6,62.6,Veg,None,Veg_Dinner
+Fruit flan,Lunch,653,8.2,86.8,31.2,Veg,None,Veg_Lunch
+Fruit flan,Dinner,653,8.2,86.8,31.2,Veg,None,Veg_Dinner
+Orange cream flan,Lunch,700,11.8,90.4,34.0,Veg,Dairy,Veg_Lunch
+Orange cream flan,Dinner,700,11.8,90.4,34.0,Veg,Dairy,Veg_Dinner
+Fruit puree tart,Lunch,716,8.4,76.1,42.1,Veg,None,Veg_Lunch
+Fruit puree tart,Dinner,716,8.4,76.1,42.1,Veg,None,Veg_Dinner
+Apple banana pie,Lunch,609,7.8,80.3,28.5,Veg,None,Veg_Lunch
+Apple banana pie,Dinner,609,7.8,80.3,28.5,Veg,None,Veg_Dinner
+Lemon chiffon pie,Lunch,648,12.2,69.1,36.3,Veg,None,Veg_Lunch
+Lemon chiffon pie,Dinner,648,12.2,69.1,36.3,Veg,None,Veg_Dinner
+Orange chiffon pie,Lunch,518,9.7,57.8,27.9,Veg,None,Veg_Lunch
+Orange chiffon pie,Dinner,518,9.7,57.8,27.9,Veg,None,Veg_Dinner
+Cream buns,Lunch,539,11.1,35.4,39.5,Veg,Dairy,Veg_Lunch
+Cream buns,Dinner,539,11.1,35.4,39.5,Veg,Dairy,Veg_Dinner
+Savoury puffs,Lunch,476,23.8,27.0,38.1,Veg,None,Veg_Lunch
+Savoury puffs,Dinner,476,23.8,27.0,38.1,Veg,None,Veg_Dinner
+Choux swans,Lunch,540,10.9,37.3,39.0,Veg,None,Veg_Lunch
+Choux swans,Dinner,540,10.9,37.3,39.0,Veg,None,Veg_Dinner
+Potato aigrettes,Lunch,1325,5.9,20.0,135.6,Veg,None,Veg_Lunch
+Potato aigrettes,Dinner,1325,5.9,20.0,135.6,Veg,None,Veg_Dinner
+Cream horns,Lunch,1020,8.6,57.8,83.9,Veg,Dairy,Veg_Lunch
+Cream horns,Dinner,1020,8.6,57.8,83.9,Veg,Dairy,Veg_Dinner
+Savoury cheese horns,Lunch,737,14.2,53.4,51.8,Veg,None,Veg_Lunch
+Savoury cheese horns,Dinner,737,14.2,53.4,51.8,Veg,None,Veg_Dinner
+Paneer patties,Lunch,846,19.0,57.0,59.9,Veg,Dairy,Veg_Lunch
+Paneer patties,Dinner,846,19.0,57.0,59.9,Veg,Dairy,Veg_Dinner
+Vegetable patties ,Lunch,654,10.0,52.4,44.3,Veg,None,Veg_Lunch
+Vegetable patties ,Dinner,654,10.0,52.4,44.3,Veg,None,Veg_Dinner
+Pearl millet infant food (Bajra shishu aahaar),Lunch,906,30.0,155.2,16.6,Veg,None,Veg_Lunch
+Pearl millet infant food (Bajra shishu aahaar),Dinner,906,30.0,155.2,16.6,Veg,None,Veg_Dinner
+Sajina,Lunch,863,27.0,167.2,7.6,Veg,None,Veg_Lunch
+Sajina,Dinner,863,27.0,167.2,7.6,Veg,None,Veg_Dinner
+Cereal mix ,Breakfast,181,5.0,32.8,3.0,Veg,None,Veg_Breakfast
+Cereal mix ,Snack,181,5.0,32.8,3.0,Veg,None,Veg_Snack
+Pulse mix,Breakfast,124,4.7,24.0,0.8,Veg,None,Veg_Breakfast
+Pulse mix,Snack,124,4.7,24.0,0.8,Veg,None,Veg_Snack
+Shishu ahar,Breakfast,140,3.9,26.1,2.1,Veg,None,Veg_Breakfast
+Shishu ahar,Snack,140,3.9,26.1,2.1,Veg,None,Veg_Snack
+Cereal pulse mix with amylase rice flour,Lunch,378,10.7,69.5,6.8,Veg,None,Veg_Lunch
+Cereal pulse mix with amylase rice flour,Dinner,378,10.7,69.5,6.8,Veg,None,Veg_Dinner
+Banana groundnut paste/puree,Lunch,532,10.7,90.4,13.6,Veg,Nuts,Veg_Lunch
+Banana groundnut paste/puree,Dinner,532,10.7,90.4,13.6,Veg,Nuts,Veg_Dinner
+Rice dal porridge (Chawal dal ki khichdi/khichri),Lunch,958,27.0,162.6,20.8,Veg,None,Veg_Lunch
+Rice dal porridge (Chawal dal ki khichdi/khichri),Dinner,958,27.0,162.6,20.8,Veg,None,Veg_Dinner
+Lentils and semolina porridge (Dal suji porridge/daliya),Breakfast,175,4.9,34.8,1.6,Veg,None,Veg_Breakfast
+Lentils and semolina porridge (Dal suji porridge/daliya),Snack,175,4.9,34.8,1.6,Veg,None,Veg_Snack
+Spinach khichri (Palak khichri/khichdi),Breakfast,153,5.1,26.0,2.9,Veg,None,Veg_Breakfast
+Spinach khichri (Palak khichri/khichdi),Snack,153,5.1,26.0,2.9,Veg,None,Veg_Snack
+Vegetable mix,Lunch,435,11.8,90.1,2.3,Veg,None,Veg_Lunch
+Vegetable mix,Dinner,435,11.8,90.1,2.3,Veg,None,Veg_Dinner
+Lentils and wheat porridge (Dal wheat porridge/daliya ),Breakfast,78,4.1,12.5,1.4,Veg,Gluten,Veg_Breakfast
+Lentils and wheat porridge (Dal wheat porridge/daliya ),Snack,78,4.1,12.5,1.4,Veg,Gluten,Veg_Snack
+Maize porridge,Breakfast,134,3.2,23.5,2.8,Veg,None,Veg_Breakfast
+Maize porridge,Snack,134,3.2,23.5,2.8,Veg,None,Veg_Snack
+Spinach peanut burfi (Palak aur mungfali ki burfi),Breakfast,158,5.0,20.4,6.6,Veg,Nuts,Veg_Breakfast
+Spinach peanut burfi (Palak aur mungfali ki burfi),Snack,158,5.0,20.4,6.6,Veg,Nuts,Veg_Snack
+Split bengal gram burfi/fudge (Channa dal burfi),Lunch,718,11.6,136.6,17.7,Veg,None,Veg_Lunch
+Split bengal gram burfi/fudge (Channa dal burfi),Dinner,718,11.6,136.6,17.7,Veg,None,Veg_Dinner
+Chickpea flour cookies (Sweet besan rounds/cookies),Lunch,517,10.7,99.1,8.6,Veg,None,Veg_Lunch
+Chickpea flour cookies (Sweet besan rounds/cookies),Dinner,517,10.7,99.1,8.6,Veg,None,Veg_Dinner
+Pearl millet mathri (Bajra mathri),Lunch,1962,4.6,18.6,207.8,Veg,None,Veg_Lunch
+Pearl millet mathri (Bajra mathri),Dinner,1962,4.6,18.6,207.8,Veg,None,Veg_Dinner
+Sesame biscuit (Til ke biscuit),Snack,1060,20.7,134.1,48.4,Veg,None,Veg_Snack
+Fermented bengal gram vada (Khameerikrit/Ufna hua channa dal ka vada),Lunch,1643,10.1,21.7,168.0,Veg,None,Veg_Lunch
+Fermented bengal gram vada (Khameerikrit/Ufna hua channa dal ka vada),Dinner,1643,10.1,21.7,168.0,Veg,None,Veg_Dinner
+Poshtik namak paras,Lunch,1533,16.2,48.8,141.4,Veg,None,Veg_Lunch
+Poshtik namak paras,Dinner,1533,16.2,48.8,141.4,Veg,None,Veg_Dinner
+Soya chikki,Lunch,1059,18.0,157.2,38.8,Veg,Soy,Veg_Lunch
+Soya chikki,Dinner,1059,18.0,157.2,38.8,Veg,Soy,Veg_Dinner
+Besan bathua chilla/cheela,Lunch,934,28.7,101.6,46.4,Veg,None,Veg_Lunch
+Besan bathua chilla/cheela,Dinner,934,28.7,101.6,46.4,Veg,None,Veg_Dinner
+Wheat flour and nuts ladoos (Atta nuts ladoos),Lunch,979,23.7,110.8,48.0,Veg,"Nuts, Gluten",Veg_Lunch
+Wheat flour and nuts ladoos (Atta nuts ladoos),Dinner,979,23.7,110.8,48.0,Veg,"Nuts, Gluten",Veg_Dinner
+Gram flour and semolina dhokla (Besan suji dhokla),Lunch,497,21.3,64.8,17.8,Veg,None,Veg_Lunch
+Gram flour and semolina dhokla (Besan suji dhokla),Dinner,497,21.3,64.8,17.8,Veg,None,Veg_Dinner
+Atta dal burfi ,Lunch,747,16.6,101.6,31.2,Veg,None,Veg_Lunch
+Atta dal burfi ,Dinner,747,16.6,101.6,31.2,Veg,None,Veg_Dinner
+Soya roti,Lunch,709,23.0,100.1,23.1,Veg,"Gluten, Soy",Veg_Lunch
+Soya roti,Dinner,709,23.0,100.1,23.1,Veg,"Gluten, Soy",Veg_Dinner
+Poshtik khichdi/khichri,Breakfast,140,4.6,23.5,2.8,Veg,None,Veg_Breakfast
+Poshtik khichdi/khichri,Snack,140,4.6,23.5,2.8,Veg,None,Veg_Snack
+Namkeen daliya,Lunch,737,20.7,123.3,20.0,Veg,None,Veg_Lunch
+Namkeen daliya,Dinner,737,20.7,123.3,20.0,Veg,None,Veg_Dinner
+Sprouts upma ,Breakfast,790,23.8,112.4,26.1,Veg,None,Veg_Breakfast
+Semolina idli (Suji/Rava idli),Breakfast,515,23.4,84.2,8.7,Veg,None,Veg_Breakfast
+Poshtik chilla/cheela,Lunch,398,12.1,68.7,7.6,Veg,None,Veg_Lunch
+Poshtik chilla/cheela,Dinner,398,12.1,68.7,7.6,Veg,None,Veg_Dinner
+Stuffed bittergourd (dry) (Bharwa karela),Lunch,544,3.2,6.2,56.0,Veg,None,Veg_Lunch
+Stuffed bittergourd (dry) (Bharwa karela),Dinner,544,3.2,6.2,56.0,Veg,None,Veg_Dinner
+Cauliflower potato canjee,Breakfast,50,1.7,7.9,1.2,Veg,None,Veg_Breakfast
+Cauliflower potato canjee,Snack,50,1.7,7.9,1.2,Veg,None,Veg_Snack
+Creamed spinach,Breakfast,145,7.8,6.7,9.6,Veg,Dairy,Veg_Breakfast
+Creamed spinach,Snack,145,7.8,6.7,9.6,Veg,Dairy,Veg_Snack
+Mango milkshake with ice cream (Aam milkshake ice cream ke saath),Snack,102,2.9,13.8,4.2,Veg,Dairy,Veg_Snack
+Pineapple milkshake with ice cream (Ananas milkshake ice cream ke saath),Snack,102,2.9,14.0,4.1,Veg,Dairy,Veg_Snack
+Orange milkshake with ice cream (Narangi milkshake ice cream ke saath),Snack,101,2.9,13.7,4.1,Veg,Dairy,Veg_Snack
+Woodapple juice (Bel ka sharbat),Breakfast,102,1.9,19.5,2.1,Veg,None,Veg_Breakfast
+Woodapple juice (Bel ka sharbat),Snack,102,1.9,19.5,2.1,Veg,None,Veg_Snack
+Sattu drink,Breakfast,70,1.7,15.5,0.4,Veg,None,Veg_Breakfast
+Sattu drink,Snack,70,1.7,15.5,0.4,Veg,None,Veg_Snack
+Apple and honey sorbet (Seb aur shehad ka sharbat),Breakfast,181,0.2,46.1,0.4,Veg,None,Veg_Breakfast
+Apple and honey sorbet (Seb aur shehad ka sharbat),Snack,181,0.2,46.1,0.4,Veg,None,Veg_Snack
+Thandai,Breakfast,151,5.4,13.7,8.8,Veg,None,Veg_Breakfast
+Thandai,Snack,151,5.4,13.7,8.8,Veg,None,Veg_Snack
+Cucumber sharbat (Kheere ka sharbat),Breakfast,81,0.8,19.9,0.2,Veg,None,Veg_Breakfast
+Cucumber sharbat (Kheere ka sharbat),Snack,81,0.8,19.9,0.2,Veg,None,Veg_Snack
+Apple oats chia seed smoothie,Breakfast,128,5.2,19.6,3.7,Veg,None,Veg_Breakfast
+Apple oats chia seed smoothie,Snack,128,5.2,19.6,3.7,Veg,None,Veg_Snack
+Nannari sharbat,Breakfast,133,0.0,35.4,0.0,Veg,None,Veg_Breakfast
+Nannari sharbat,Snack,133,0.0,35.4,0.0,Veg,None,Veg_Snack
+Semolina milk drink (Thari kanji),Breakfast,132,2.9,20.8,4.1,Veg,Dairy,Veg_Breakfast
+Semolina milk drink (Thari kanji),Snack,132,2.9,20.8,4.1,Veg,Dairy,Veg_Snack
+Saffron milk (Kesariya doodh),Breakfast,153,4.8,19.0,6.9,Veg,Dairy,Veg_Breakfast
+Saffron milk (Kesariya doodh),Snack,153,4.8,19.0,6.9,Veg,Dairy,Veg_Snack
+Black rice kheer (Chak-hao kheer),Breakfast,221,6.6,34.4,7.4,Veg,None,Veg_Breakfast
+Black rice kheer (Chak-hao kheer),Snack,221,6.6,34.4,7.4,Veg,None,Veg_Snack
+Coconut kheer (Nariyal ki kheer),Lunch,406,8.5,36.0,26.4,Veg,Nuts,Veg_Lunch
+Coconut kheer (Nariyal ki kheer),Dinner,406,8.5,36.0,26.4,Veg,Nuts,Veg_Dinner
+Apple sago payasam (Seb aur sabudana ki kheer),Breakfast,204,4.7,21.6,11.5,Veg,None,Veg_Breakfast
+Apple sago payasam (Seb aur sabudana ki kheer),Snack,204,4.7,21.6,11.5,Veg,None,Veg_Snack
+Kesari bath,Lunch,611,6.0,78.4,31.5,Veg,None,Veg_Lunch
+Kesari bath,Dinner,611,6.0,78.4,31.5,Veg,None,Veg_Dinner
+Putharekulu,Lunch,795,9.2,149.0,18.9,Veg,None,Veg_Lunch
+Putharekulu,Dinner,795,9.2,149.0,18.9,Veg,None,Veg_Dinner
+Mango malpua,Lunch,836,4.1,32.1,76.7,Veg,None,Veg_Lunch
+Mango malpua,Dinner,836,4.1,32.1,76.7,Veg,None,Veg_Dinner
+Mango vanilla custard,Breakfast,221,5.1,27.6,10.6,Veg,None,Veg_Breakfast
+Mango vanilla custard,Snack,221,5.1,27.6,10.6,Veg,None,Veg_Snack
+Kiwi granola pudding,Lunch,702,14.0,80.8,38.4,Veg,None,Veg_Lunch
+Kiwi granola pudding,Dinner,702,14.0,80.8,38.4,Veg,None,Veg_Dinner
+Oats burfi,Lunch,1062,22.2,156.2,43.2,Veg,None,Veg_Lunch
+Oats burfi,Dinner,1062,22.2,156.2,43.2,Veg,None,Veg_Dinner
+Lotus seed halwa (Kamal gattay ka halwa),Lunch,926,19.5,98.9,51.7,Veg,None,Veg_Lunch
+Lotus seed halwa (Kamal gattay ka halwa),Dinner,926,19.5,98.9,51.7,Veg,None,Veg_Dinner
+Amaranth ladoo (Rajgira ladoo),Lunch,1135,25.3,128.3,56.8,Veg,None,Veg_Lunch
+Amaranth ladoo (Rajgira ladoo),Dinner,1135,25.3,128.3,56.8,Veg,None,Veg_Dinner
+Chhena poda,Lunch,861,34.2,84.1,44.8,Veg,None,Veg_Lunch
+Chhena poda,Dinner,861,34.2,84.1,44.8,Veg,None,Veg_Dinner
+Sweet couscous dessert,Lunch,490,9.5,74.2,19.2,Veg,None,Veg_Lunch
+Sweet couscous dessert,Dinner,490,9.5,74.2,19.2,Veg,None,Veg_Dinner
+Sweetened yogurt (Shrikhand),Breakfast,160,7.9,24.0,4.3,Veg,Dairy,Veg_Breakfast
+Sweetened yogurt (Shrikhand),Snack,160,7.9,24.0,4.3,Veg,Dairy,Veg_Snack
+Thickened sweetened milk (Rabri),Breakfast,154,5.3,15.8,8.0,Veg,Dairy,Veg_Breakfast
+Thickened sweetened milk (Rabri),Snack,154,5.3,15.8,8.0,Veg,Dairy,Veg_Snack
+Gram flour halwa (Besan halwa),Lunch,691,14.7,64.4,43.2,Veg,None,Veg_Lunch
+Gram flour halwa (Besan halwa),Dinner,691,14.7,64.4,43.2,Veg,None,Veg_Dinner
+Prawn sandwich,Lunch,424,25.9,29.7,23.2,Non-Veg,Fish,Non-Veg_Lunch
+Prawn sandwich,Dinner,424,25.9,29.7,23.2,Non-Veg,Fish,Non-Veg_Dinner
+Watercress sandwich,Lunch,573,12.9,70.1,28.7,Veg,None,Veg_Lunch
+Watercress sandwich,Dinner,573,12.9,70.1,28.7,Veg,None,Veg_Dinner
+Fish sandwich ,Lunch,375,11.8,25.2,25.9,Non-Veg,Fish,Non-Veg_Lunch
+Fish sandwich ,Dinner,375,11.8,25.2,25.9,Non-Veg,Fish,Non-Veg_Dinner
+Kidney bean sandwich with cottage cheese,Lunch,441,24.6,47.2,17.1,Veg,None,Veg_Lunch
+Kidney bean sandwich with cottage cheese,Dinner,441,24.6,47.2,17.1,Veg,None,Veg_Dinner
+Finger millet biscuit (Ragi biscuit),Snack,1146,10.1,131.7,64.5,Veg,None,Veg_Snack
+Buttermilk biscuit,Snack,806,14.4,87.3,43.8,Veg,Dairy,Veg_Snack
+Lemon cookies,Lunch,986,14.1,105.5,57.6,Veg,None,Veg_Lunch
+Lemon cookies,Dinner,986,14.1,105.5,57.6,Veg,None,Veg_Dinner
+Sweet potato biscuit (Shakarkand ke biscuit),Snack,741,12.8,95.3,33.3,Veg,None,Veg_Snack
+Raspberry shortbread cookies,Lunch,1102,7.5,153.1,53.1,Veg,Gluten,Veg_Lunch
+Raspberry shortbread cookies,Dinner,1102,7.5,153.1,53.1,Veg,Gluten,Veg_Dinner
+Pumpkin cookies ,Lunch,546,6.3,111.7,9.8,Veg,None,Veg_Lunch
+Pumpkin cookies ,Dinner,546,6.3,111.7,9.8,Veg,None,Veg_Dinner
+Greenpea cookies,Lunch,398,16.3,57.7,10.6,Veg,None,Veg_Lunch
+Greenpea cookies,Dinner,398,16.3,57.7,10.6,Veg,None,Veg_Dinner
+Sunflower cookies,Lunch,1301,23.7,100.2,90.7,Veg,None,Veg_Lunch
+Sunflower cookies,Dinner,1301,23.7,100.2,90.7,Veg,None,Veg_Dinner
+Cardamom cookies (Elaichi cookies),Lunch,1001,12.8,135.0,47.8,Veg,None,Veg_Lunch
+Cardamom cookies (Elaichi cookies),Dinner,1001,12.8,135.0,47.8,Veg,None,Veg_Dinner
+Hazelnut cookies,Lunch,1233,15.6,98.6,87.4,Veg,Nuts,Veg_Lunch
+Hazelnut cookies,Dinner,1233,15.6,98.6,87.4,Veg,Nuts,Veg_Dinner
+Milk cookies,Lunch,1148,26.2,121.1,62.4,Veg,Dairy,Veg_Lunch
+Milk cookies,Dinner,1148,26.2,121.1,62.4,Veg,Dairy,Veg_Dinner
+Cranberry cookies,Lunch,681,9.8,91.0,31.6,Veg,None,Veg_Lunch
+Cranberry cookies,Dinner,681,9.8,91.0,31.6,Veg,None,Veg_Dinner
+Olive biscuit,Snack,1095,8.0,137.5,59.4,Veg,None,Veg_Snack
+Tutti fruitti biscuit,Snack,1051,13.0,132.8,44.8,Veg,None,Veg_Snack
+Peach blueberry preserves,Lunch,443,1.3,114.4,0.5,Veg,None,Veg_Lunch
+Peach blueberry preserves,Dinner,443,1.3,114.4,0.5,Veg,None,Veg_Dinner
+Pear preserves (Naashpati ka murabba),Breakfast,151,0.4,38.5,0.3,Veg,None,Veg_Breakfast
+Pear preserves (Naashpati ka murabba),Snack,151,0.4,38.5,0.3,Veg,None,Veg_Snack
+Starfruit preserves ,Breakfast,193,0.4,50.4,0.2,Veg,None,Veg_Breakfast
+Starfruit preserves ,Snack,193,0.4,50.4,0.2,Veg,None,Veg_Snack
+Gooseberry pickle (Amla ka achaar),Lunch,696,3.9,19.0,69.0,Veg,None,Veg_Lunch
+Gooseberry pickle (Amla ka achaar),Dinner,696,3.9,19.0,69.0,Veg,None,Veg_Dinner
+Lotus stem pickle (Kamal kakdi ka achar),Breakfast,154,2.2,30.1,2.4,Veg,None,Veg_Breakfast
+Lotus stem pickle (Kamal kakdi ka achar),Snack,154,2.2,30.1,2.4,Veg,None,Veg_Snack
+Date pickle (Khajoor ka achaar),Lunch,455,4.2,86.6,10.5,Veg,None,Veg_Lunch
+Date pickle (Khajoor ka achaar),Dinner,455,4.2,86.6,10.5,Veg,None,Veg_Dinner
+Garlic pickle (Lahasun ka achar),Lunch,1034,9.3,24.4,99.7,Veg,None,Veg_Lunch
+Garlic pickle (Lahasun ka achar),Dinner,1034,9.3,24.4,99.7,Veg,None,Veg_Dinner
+Fermented bamboo shoot pickle (Mesu pickle),Breakfast,89,2.4,2.6,8.4,Veg,None,Veg_Breakfast
+Fermented bamboo shoot pickle (Mesu pickle),Snack,89,2.4,2.6,8.4,Veg,None,Veg_Snack
+Sweet peach pickle (Aadoo ka achaar),Breakfast,216,0.7,55.5,0.3,Veg,None,Veg_Breakfast
+Sweet peach pickle (Aadoo ka achaar),Snack,216,0.7,55.5,0.3,Veg,None,Veg_Snack
+Pickled mustard greens ,Breakfast,39,4.5,3.2,0.7,Veg,None,Veg_Breakfast
+Pickled mustard greens ,Snack,39,4.5,3.2,0.7,Veg,None,Veg_Snack
+Small onion pickle ,Breakfast,50,4.9,8.3,1.9,Veg,None,Veg_Breakfast
+Small onion pickle ,Snack,50,4.9,8.3,1.9,Veg,None,Veg_Snack
+Green tomato pickle (Haray tamatar ka achaar),Lunch,483,3.1,7.2,49.2,Veg,None,Veg_Lunch
+Green tomato pickle (Haray tamatar ka achaar),Dinner,483,3.1,7.2,49.2,Veg,None,Veg_Dinner
+Pickled cabbage ,Breakfast,41,1.2,7.7,0.4,Veg,None,Veg_Breakfast
+Pickled cabbage ,Snack,41,1.2,7.7,0.4,Veg,None,Veg_Snack
+Coconut pickle (Nariyal ka aachar),Lunch,1293,7.6,28.8,129.3,Veg,Nuts,Veg_Lunch
+Coconut pickle (Nariyal ka aachar),Dinner,1293,7.6,28.8,129.3,Veg,Nuts,Veg_Dinner
+Potato pickle (Aloo ka achaar),Lunch,922,5.2,19.7,91.2,Veg,None,Veg_Lunch
+Potato pickle (Aloo ka achaar),Dinner,922,5.2,19.7,91.2,Veg,None,Veg_Dinner
+Mango murabba candy,Lunch,733,0.7,193.3,0.1,Veg,None,Veg_Lunch
+Mango murabba candy,Dinner,733,0.7,193.3,0.1,Veg,None,Veg_Dinner
+Afghani chicken,Lunch,378,39.2,4.9,22.7,Non-Veg,None,Non-Veg_Lunch
+Afghani chicken,Dinner,378,39.2,4.9,22.7,Non-Veg,None,Non-Veg_Dinner
+Fish orly,Lunch,1409,14.7,10.7,145.4,Non-Veg,Fish,Non-Veg_Lunch
+Fish orly,Dinner,1409,14.7,10.7,145.4,Non-Veg,Fish,Non-Veg_Dinner
+Hariyali Fish Tikka,Lunch,375,35.0,5.5,23.5,Non-Veg,Fish,Non-Veg_Lunch
+Hariyali Fish Tikka,Dinner,375,35.0,5.5,23.5,Non-Veg,Fish,Non-Veg_Dinner
+Chicken manchurian,Breakfast,213,14.3,9.1,17.9,Non-Veg,None,Non-Veg_Breakfast
+Chicken manchurian,Snack,213,14.3,9.1,17.9,Non-Veg,None,Non-Veg_Snack
+Handi chicken,Lunch,415,30.8,3.7,31.2,Non-Veg,None,Non-Veg_Lunch
+Handi chicken,Dinner,415,30.8,3.7,31.2,Non-Veg,None,Non-Veg_Dinner
+Lemon chicken,Lunch,424,50.5,1.4,24.2,Non-Veg,None,Non-Veg_Lunch
+Lemon chicken,Dinner,424,50.5,1.4,24.2,Non-Veg,None,Non-Veg_Dinner
+Lemon butter fish,Lunch,400,40.9,1.9,25.6,Non-Veg,Fish,Non-Veg_Lunch
+Lemon butter fish,Dinner,400,40.9,1.9,25.6,Non-Veg,Fish,Non-Veg_Dinner
+Baked eggs in tomato sauce,Breakfast,120,7.4,5.7,7.8,Non-Veg,Eggs,Non-Veg_Breakfast
+Egg in a pepper,Breakfast,193,19.0,0.3,13.0,Non-Veg,Eggs,Non-Veg_Breakfast
+Spinach mushroom scrambled egg (Palak mushroom bhurji),Breakfast,397,33.2,1.5,28.8,Non-Veg,Eggs,Non-Veg_Breakfast
+Corn omelette/omlet,Lunch,417,28.4,3.9,32.2,Veg,None,Veg_Lunch
+Corn omelette/omlet,Dinner,417,28.4,3.9,32.2,Veg,None,Veg_Dinner
+Cajun chicken,Lunch,462,31.7,4.8,35.0,Non-Veg,None,Non-Veg_Lunch
+Cajun chicken,Dinner,462,31.7,4.8,35.0,Non-Veg,None,Non-Veg_Dinner
+Paaner do pyaza,Breakfast,191,6.3,5.1,16.3,Veg,None,Veg_Breakfast
+Paaner do pyaza,Snack,191,6.3,5.1,16.3,Veg,None,Veg_Snack
+Cabbage manchurian (Pattagobhi manchurian),Lunch,560,1.6,12.1,56.2,Veg,None,Veg_Lunch
+Cabbage manchurian (Pattagobhi manchurian),Dinner,560,1.6,12.1,56.2,Veg,None,Veg_Dinner
+Gobi 65,Lunch,695,1.4,9.0,72.8,Veg,None,Veg_Lunch
+Gobi 65,Dinner,695,1.4,9.0,72.8,Veg,None,Veg_Dinner
+Paneer lababdar,Breakfast,158,6.0,5.1,12.7,Veg,Dairy,Veg_Breakfast
+Paneer lababdar,Snack,158,6.0,5.1,12.7,Veg,Dairy,Veg_Snack
+Roasted cauliflower steak,Snack,118,3.1,3.0,10.0,Veg,None,Veg_Snack
+Sauteed radishes with green beans,Breakfast,141,3.6,9.1,9.9,Veg,None,Veg_Breakfast
+Sauteed radishes with green beans,Snack,141,3.6,9.1,9.9,Veg,None,Veg_Snack
+Garlic chutney/Poondu chutney (Lahasun ki chutney),Lunch,638,8.4,51.1,43.9,Veg,None,Veg_Lunch
+Garlic chutney/Poondu chutney (Lahasun ki chutney),Dinner,638,8.4,51.1,43.9,Veg,None,Veg_Dinner
+Schezwan chutney,Lunch,512,8.3,27.0,44.3,Veg,None,Veg_Lunch
+Schezwan chutney,Dinner,512,8.3,27.0,44.3,Veg,None,Veg_Dinner
+Onion chutney (Pyaaz ki chutney/Vengaya chutney),Breakfast,215,4.5,20.3,12.6,Veg,None,Veg_Breakfast
+Onion chutney (Pyaaz ki chutney/Vengaya chutney),Snack,215,4.5,20.3,12.6,Veg,None,Veg_Snack
+Dates chutney (Khajoor ki chutney),Breakfast,155,1.6,32.5,1.7,Veg,None,Veg_Breakfast
+Dates chutney (Khajoor ki chutney),Snack,155,1.6,32.5,1.7,Veg,None,Veg_Snack
+Chicken salad,Lunch,845,38.3,3.2,75.6,Non-Veg,None,Non-Veg_Lunch
+Chicken salad,Dinner,845,38.3,3.2,75.6,Non-Veg,None,Non-Veg_Dinner
+Macaroni salad,Lunch,655,12.5,54.1,44.4,Veg,None,Veg_Lunch
+Macaroni salad,Dinner,655,12.5,54.1,44.4,Veg,None,Veg_Dinner
+Cabbage raita (Pattagobhi raita),Breakfast,127,4.9,7.9,8.6,Veg,None,Veg_Breakfast
+Cabbage raita (Pattagobhi raita),Snack,127,4.9,7.9,8.6,Veg,None,Veg_Snack
+Pomegranate raita (Anaar ka raita),Breakfast,108,6.1,10.7,4.9,Veg,None,Veg_Breakfast
+Pomegranate raita (Anaar ka raita),Snack,108,6.1,10.7,4.9,Veg,None,Veg_Snack
+Onion raita (Pyaaz ka raita),Breakfast,107,7.3,11.8,3.6,Veg,None,Veg_Breakfast
+Onion raita (Pyaaz ka raita),Snack,107,7.3,11.8,3.6,Veg,None,Veg_Snack
+Green chilli raita (Hari mirch ka raita),Breakfast,115,8.4,11.5,4.4,Veg,None,Veg_Breakfast
+Green chilli raita (Hari mirch ka raita),Snack,115,8.4,11.5,4.4,Veg,None,Veg_Snack
+Kale salad,Lunch,444,12.2,12.5,38.3,Veg,None,Veg_Lunch
+Kale salad,Dinner,444,12.2,12.5,38.3,Veg,None,Veg_Dinner
+Spinach and paneer souffle ,Lunch,465,18.9,24.1,33.7,Veg,Dairy,Veg_Lunch
+Spinach and paneer souffle ,Dinner,465,18.9,24.1,33.7,Veg,Dairy,Veg_Dinner
+Masala souffle ,Breakfast,185,9.6,12.0,11.1,Veg,None,Veg_Breakfast
+Masala souffle ,Snack,185,9.6,12.0,11.1,Veg,None,Veg_Snack
+Chicken and cheese souffle,Lunch,455,22.7,8.7,36.8,Non-Veg,None,Non-Veg_Lunch
+Chicken and cheese souffle,Dinner,455,22.7,8.7,36.8,Non-Veg,None,Non-Veg_Dinner
+Tamarind chutney (Chintapandu pachadi/Puli chutney),Breakfast,163,1.3,37.6,0.7,Veg,None,Veg_Breakfast
+Tamarind chutney (Chintapandu pachadi/Puli chutney),Snack,163,1.3,37.6,0.7,Veg,None,Veg_Snack
+Pav bhaji masala,Lunch,576,22.8,72.9,27.4,Veg,None,Veg_Lunch
+Pav bhaji masala,Dinner,576,22.8,72.9,27.4,Veg,None,Veg_Dinner
+Green chutney,Breakfast,119,8.1,15.0,2.4,Veg,None,Veg_Breakfast
+Green chutney,Snack,119,8.1,15.0,2.4,Veg,None,Veg_Snack
+Sago khitchdi/khichri (Sabudana khitchdi/khichri),Lunch,467,6.8,56.0,25.2,Veg,None,Veg_Lunch
+Sago khitchdi/khichri (Sabudana khitchdi/khichri),Dinner,467,6.8,56.0,25.2,Veg,None,Veg_Dinner
+Gram flour chilla/cheela (Besan chilla/cheela),Breakfast,203,11.7,31.5,4.3,Veg,None,Veg_Breakfast
+Gram flour chilla/cheela (Besan chilla/cheela),Snack,203,11.7,31.5,4.3,Veg,None,Veg_Snack
+Vegetable namkeen jave,Breakfast,168,4.4,28.5,3.8,Veg,None,Veg_Breakfast
+Vegetable namkeen jave,Snack,168,4.4,28.5,3.8,Veg,None,Veg_Snack
+Khakhra,Lunch,446,12.0,69.2,13.3,Veg,None,Veg_Lunch
+Khakhra,Dinner,446,12.0,69.2,13.3,Veg,None,Veg_Dinner
+Moong bean dosa (Pesarattu),Breakfast,714,30.8,79.8,29.2,Veg,None,Veg_Breakfast
+Methi thepla,Lunch,865,22.5,103.4,39.9,Veg,None,Veg_Lunch
+Methi thepla,Dinner,865,22.5,103.4,39.9,Veg,None,Veg_Dinner
+Rice puttu (Ari puttu),Breakfast,122,1.9,17.7,4.7,Veg,None,Veg_Breakfast
+Rice puttu (Ari puttu),Snack,122,1.9,17.7,4.7,Veg,None,Veg_Snack
+Buckwheat pancake (Khura),Lunch,658,7.3,68.2,41.1,Veg,Gluten,Veg_Lunch
+Buckwheat pancake (Khura),Dinner,658,7.3,68.2,41.1,Veg,Gluten,Veg_Dinner
+Quinoa khichdi/khichri,Breakfast,96,4.8,13.2,2.4,Veg,None,Veg_Breakfast
+Quinoa khichdi/khichri,Snack,96,4.8,13.2,2.4,Veg,None,Veg_Snack
+Khakhra chaat,Lunch,896,11.3,41.6,76.6,Veg,None,Veg_Lunch
+Khakhra chaat,Dinner,896,11.3,41.6,76.6,Veg,None,Veg_Dinner
+Banana appam,Lunch,1174,2.9,50.2,106.3,Veg,None,Veg_Lunch
+Banana appam,Dinner,1174,2.9,50.2,106.3,Veg,None,Veg_Dinner
+Veg manchurian,Lunch,1464,2.2,17.0,154.1,Veg,None,Veg_Lunch
+Veg manchurian,Dinner,1464,2.2,17.0,154.1,Veg,None,Veg_Dinner
+Pav bhaji,Breakfast,144,4.0,18.0,6.5,Veg,None,Veg_Breakfast
+Pav bhaji,Snack,144,4.0,18.0,6.5,Veg,None,Veg_Snack
+Rice murukku,Lunch,1484,13.5,83.2,120.6,Veg,None,Veg_Lunch
+Rice murukku,Dinner,1484,13.5,83.2,120.6,Veg,None,Veg_Dinner
+Bhel puri ,Lunch,1274,8.8,41.2,119.8,Veg,None,Veg_Lunch
+Bhel puri ,Dinner,1274,8.8,41.2,119.8,Veg,None,Veg_Dinner
+Semolina dhokla (Suji/Rava dhokla),Lunch,487,13.6,77.2,13.0,Veg,None,Veg_Lunch
+Semolina dhokla (Suji/Rava dhokla),Dinner,487,13.6,77.2,13.0,Veg,None,Veg_Dinner
+Spicy corn chaat ,Lunch,1199,11.5,28.6,116.4,Veg,None,Veg_Lunch
+Spicy corn chaat ,Dinner,1199,11.5,28.6,116.4,Veg,None,Veg_Dinner
+Jackfruit fritters (Ponsa mulik/Kathal ka pakora),Lunch,1494,5.8,60.0,136.0,Veg,None,Veg_Lunch
+Jackfruit fritters (Ponsa mulik/Kathal ka pakora),Dinner,1494,5.8,60.0,136.0,Veg,None,Veg_Dinner
+Banana chips (Kele ke chips),Lunch,1664,0.9,18.3,176.1,Veg,None,Veg_Lunch
+Banana chips (Kele ke chips),Dinner,1664,0.9,18.3,176.1,Veg,None,Veg_Dinner
+Wheat cake,Lunch,786,12.0,102.8,37.4,Veg,Gluten,Veg_Lunch
+Wheat cake,Dinner,786,12.0,102.8,37.4,Veg,Gluten,Veg_Dinner
+Mango cheesecake,Lunch,381,6.0,50.2,18.2,Veg,None,Veg_Lunch
+Mango cheesecake,Dinner,381,6.0,50.2,18.2,Veg,None,Veg_Dinner
+Carrot cake (Gajar ka cake),Lunch,638,14.0,89.9,25.7,Veg,None,Veg_Lunch
+Carrot cake (Gajar ka cake),Dinner,638,14.0,89.9,25.7,Veg,None,Veg_Dinner
+Semolina cake (Suji/Rava cake),Lunch,935,16.4,78.3,63.0,Veg,None,Veg_Lunch
+Semolina cake (Suji/Rava cake),Dinner,935,16.4,78.3,63.0,Veg,None,Veg_Dinner
+Finger millet cake (Ragi cake),Lunch,698,9.9,97.3,30.7,Veg,None,Veg_Lunch
+Finger millet cake (Ragi cake),Dinner,698,9.9,97.3,30.7,Veg,None,Veg_Dinner
+Honey cake,Lunch,833,7.7,122.6,36.8,Veg,None,Veg_Lunch
+Honey cake,Dinner,833,7.7,122.6,36.8,Veg,None,Veg_Dinner
+Almond cardamom cake (Badam elaichi cake),Lunch,890,18.0,86.3,53.4,Veg,Nuts,Veg_Lunch
+Almond cardamom cake (Badam elaichi cake),Dinner,890,18.0,86.3,53.4,Veg,Nuts,Veg_Dinner
+Tutti frutti cake,Lunch,869,11.2,132.4,31.7,Veg,None,Veg_Lunch
+Tutti frutti cake,Dinner,869,11.2,132.4,31.7,Veg,None,Veg_Dinner
+Ham and Bean soup,Breakfast,144,15.9,6.3,6.2,Veg,None,Veg_Breakfast
+Ham and Bean soup,Snack,144,15.9,6.3,6.2,Veg,None,Veg_Snack
+Whey soup,Breakfast,103,5.2,9.4,5.0,Veg,None,Veg_Breakfast
+Whey soup,Snack,103,5.2,9.4,5.0,Veg,None,Veg_Snack
+Bottle gourd soup (Ghiya/Lauki soup),Breakfast,69,1.4,3.5,5.4,Veg,None,Veg_Breakfast
+Bottle gourd soup (Ghiya/Lauki soup),Snack,69,1.4,3.5,5.4,Veg,None,Veg_Snack
+Baked potato soup,Breakfast,220,8.6,8.8,16.8,Veg,None,Veg_Breakfast
+Baked potato soup,Snack,220,8.6,8.8,16.8,Veg,None,Veg_Snack
+Pumpkin soup,Breakfast,120,1.4,6.2,9.6,Veg,None,Veg_Breakfast
+Pumpkin soup,Snack,120,1.4,6.2,9.6,Veg,None,Veg_Snack
+Sweet corn soup,Breakfast,96,3.0,10.7,4.9,Veg,None,Veg_Breakfast
+Sweet corn soup,Snack,96,3.0,10.7,4.9,Veg,None,Veg_Snack
+Paneer soup,Breakfast,143,9.7,7.3,8.4,Veg,Dairy,Veg_Breakfast
+Paneer soup,Snack,143,9.7,7.3,8.4,Veg,Dairy,Veg_Snack
+Curried Cauliflower soup,Breakfast,111,20.2,9.4,29.3,Veg,None,Veg_Breakfast
+Curried Cauliflower soup,Snack,111,20.2,9.4,29.3,Veg,None,Veg_Snack
+Millet soup,Breakfast,83,16.9,12.3,18.9,Veg,None,Veg_Breakfast
+Millet soup,Snack,83,16.9,12.3,18.9,Veg,None,Veg_Snack
+Lemon coriander soup,Breakfast,162,3.4,15.5,9.4,Veg,None,Veg_Breakfast
+Lemon coriander soup,Snack,162,3.4,15.5,9.4,Veg,None,Veg_Snack
+Garlic soup,Lunch,487,5.9,17.5,44.1,Veg,None,Veg_Lunch
+Garlic soup,Dinner,487,5.9,17.5,44.1,Veg,None,Veg_Dinner
+Dal makhani,Breakfast,111,5.0,11.9,4.6,Veg,None,Veg_Breakfast
+Dal makhani,Snack,111,5.0,11.9,4.6,Veg,None,Veg_Snack
+Dalma,Breakfast,178,7.4,22.6,6.9,Veg,None,Veg_Breakfast
+Dalma,Snack,178,7.4,22.6,6.9,Veg,None,Veg_Snack
+Split bengal gram dal (Channa dal),Breakfast,149,6.2,15.0,6.9,Veg,None,Veg_Breakfast
+Split bengal gram dal (Channa dal),Snack,149,6.2,15.0,6.9,Veg,None,Veg_Snack
+Horsegram dal (Kulthi dal) ,Breakfast,83,4.4,12.3,1.7,Veg,None,Veg_Breakfast
+Horsegram dal (Kulthi dal) ,Snack,83,4.4,12.3,1.7,Veg,None,Veg_Snack
+Panchmel dal,Breakfast,166,6.9,16.1,8.0,Veg,None,Veg_Breakfast
+Panchmel dal,Snack,166,6.9,16.1,8.0,Veg,None,Veg_Snack
+Dal dhokli,Breakfast,103,4.4,12.8,3.7,Veg,None,Veg_Breakfast
+Dal dhokli,Snack,103,4.4,12.8,3.7,Veg,None,Veg_Snack
+Gujarati handvo ,Lunch,517,20.6,79.6,12.0,Veg,None,Veg_Lunch
+Gujarati handvo ,Dinner,517,20.6,79.6,12.0,Veg,None,Veg_Dinner
+Sev (Omapodi/Karapusa),Lunch,1522,12.8,32.2,150.2,Veg,None,Veg_Lunch
+Sev (Omapodi/Karapusa),Dinner,1522,12.8,32.2,150.2,Veg,None,Veg_Dinner
+Papdi,Lunch,1772,4.6,32.2,180.3,Veg,None,Veg_Lunch
+Papdi,Dinner,1772,4.6,32.2,180.3,Veg,None,Veg_Dinner
+Jowar dosa,Breakfast,735,21.2,101.3,25.7,Veg,None,Veg_Breakfast
+Bread roll,Lunch,1088,7.1,40.3,100.6,Veg,Gluten,Veg_Lunch
+Bread roll,Dinner,1088,7.1,40.3,100.6,Veg,Gluten,Veg_Dinner
+Soya seekh kebab,Breakfast,172,8.1,15.0,8.8,Veg,Soy,Veg_Breakfast
+Soya seekh kebab,Snack,172,8.1,15.0,8.8,Veg,Soy,Veg_Snack
+Classic seasoned black beans,Breakfast,86,24.0,23.0,24.8,Veg,None,Veg_Breakfast
+Classic seasoned black beans,Snack,86,24.0,23.0,24.8,Veg,None,Veg_Snack
+Maa chaane ki dal,Lunch,861,49.5,107.8,23.8,Veg,None,Veg_Lunch
+Maa chaane ki dal,Dinner,861,49.5,107.8,23.8,Veg,None,Veg_Dinner
+Garlic chickpea soup (Lahasun aur chane ka shoraba),Breakfast,134,6.7,20.9,3.0,Veg,None,Veg_Breakfast
+Garlic chickpea soup (Lahasun aur chane ka shoraba),Snack,134,6.7,20.9,3.0,Veg,None,Veg_Snack
+White sauce (thin),Breakfast,172,5.0,9.9,12.6,Veg,None,Veg_Breakfast
+White sauce (thin),Snack,172,5.0,9.9,12.6,Veg,None,Veg_Snack
+White sauce (medium),Lunch,378,8.4,20.0,29.4,Veg,None,Veg_Lunch
+White sauce (medium),Dinner,378,8.4,20.0,29.4,Veg,None,Veg_Dinner
+White sauce (thick),Lunch,524,8.6,25.6,43.0,Veg,None,Veg_Lunch
+White sauce (thick),Dinner,524,8.6,25.6,43.0,Veg,None,Veg_Dinner
+Cheese sauce,Lunch,486,19.2,17.7,37.8,Veg,None,Veg_Lunch
+Cheese sauce,Dinner,486,19.2,17.7,37.8,Veg,None,Veg_Dinner
+Egg sauce,Breakfast,220,9.0,8.8,16.6,Non-Veg,Eggs,Non-Veg_Breakfast
+Mushroom sauce,Breakfast,206,5.1,11.0,15.8,Veg,None,Veg_Breakfast
+Mushroom sauce,Snack,206,5.1,11.0,15.8,Veg,None,Veg_Snack
+Mustard sauce,Lunch,396,10.0,20.7,30.4,Veg,None,Veg_Lunch
+Mustard sauce,Dinner,396,10.0,20.7,30.4,Veg,None,Veg_Dinner
+Brown sauce,Breakfast,163,17.9,8.1,35.5,Veg,None,Veg_Breakfast
+Brown sauce,Snack,163,17.9,8.1,35.5,Veg,None,Veg_Snack
+Classic italian pasta,Breakfast,126,1.7,13.2,7.4,Veg,None,Veg_Breakfast
+Classic italian pasta,Snack,126,1.7,13.2,7.4,Veg,None,Veg_Snack
+Pasta spinach sauce,Breakfast,128,2.6,2.6,11.9,Veg,None,Veg_Breakfast
+Pasta spinach sauce,Snack,128,2.6,2.6,11.9,Veg,None,Veg_Snack
+Pasta cheese sauce,Breakfast,223,6.5,13.5,16.3,Veg,None,Veg_Breakfast
+Pasta cheese sauce,Snack,223,6.5,13.5,16.3,Veg,None,Veg_Snack
+Mayonnaise,Lunch,1937,4.6,4.1,211.3,Veg,None,Veg_Lunch
+Mayonnaise,Dinner,1937,4.6,4.1,211.3,Veg,None,Veg_Dinner
+Low calorie quick mayonnaise,Lunch,607,3.5,11.8,60.9,Veg,None,Veg_Lunch
+Low calorie quick mayonnaise,Dinner,607,3.5,11.8,60.9,Veg,None,Veg_Dinner
+Thousand island dressing,Lunch,1019,3.4,11.2,107.2,Veg,None,Veg_Lunch
+Thousand island dressing,Dinner,1019,3.4,11.2,107.2,Veg,None,Veg_Dinner
+Curd dip,Breakfast,119,7.6,11.9,5.0,Veg,Dairy,Veg_Breakfast
+Curd dip,Snack,119,7.6,11.9,5.0,Veg,Dairy,Veg_Snack
+Short crust pastry,Lunch,1055,15.3,111.8,60.0,Veg,None,Veg_Lunch
+Short crust pastry,Dinner,1055,15.3,111.8,60.0,Veg,None,Veg_Dinner
+Choux pastry,Lunch,555,13.9,40.5,37.4,Veg,None,Veg_Lunch
+Choux pastry,Dinner,555,13.9,40.5,37.4,Veg,None,Veg_Dinner
+Flaky pastry,Lunch,1109,11.7,84.0,80.0,Veg,None,Veg_Lunch
+Flaky pastry,Dinner,1109,11.7,84.0,80.0,Veg,None,Veg_Dinner
+Sponge cake ,Lunch,634,23.0,111.6,11.9,Veg,None,Veg_Lunch
+Sponge cake ,Dinner,634,23.0,111.6,11.9,Veg,None,Veg_Dinner
+Glace icing,Lunch,808,0.0,215.8,0.0,Veg,None,Veg_Lunch
+Glace icing,Dinner,808,0.0,215.8,0.0,Veg,None,Veg_Dinner
+Royal icing,Lunch,831,4.4,216.3,0.0,Veg,None,Veg_Lunch
+Royal icing,Dinner,831,4.4,216.3,0.0,Veg,None,Veg_Dinner
+American frosting,Lunch,643,2.6,168.7,0.0,Veg,None,Veg_Lunch
+American frosting,Dinner,643,2.6,168.7,0.0,Veg,None,Veg_Dinner
+Gum icing,Lunch,557,14.8,133.0,0.0,Veg,None,Veg_Lunch
+Gum icing,Dinner,557,14.8,133.0,0.0,Veg,None,Veg_Dinner
+Channa murmura premix,Lunch,847,26.5,181.5,8.2,Veg,None,Veg_Lunch
+Channa murmura premix,Dinner,847,26.5,181.5,8.2,Veg,None,Veg_Dinner
+Cracked wheat and green gram dal premix (Dalia moong dal premix),Lunch,905,39.7,161.9,12.8,Veg,Gluten,Veg_Lunch
+Cracked wheat and green gram dal premix (Dalia moong dal premix),Dinner,905,39.7,161.9,12.8,Veg,Gluten,Veg_Dinner
+Rice flakes and roasted channa ,Lunch,833,26.4,179.8,7.4,Veg,None,Veg_Lunch
+Rice flakes and roasted channa ,Dinner,833,26.4,179.8,7.4,Veg,None,Veg_Dinner
+Spinach soup in milk ,Breakfast,85,4.3,6.0,4.8,Veg,Dairy,Veg_Breakfast
+Spinach soup in milk ,Snack,85,4.3,6.0,4.8,Veg,Dairy,Veg_Snack
+Vegetable soup,Breakfast,82,3.3,11.4,2.3,Veg,None,Veg_Breakfast
+Vegetable soup,Snack,82,3.3,11.4,2.3,Veg,None,Veg_Snack
+Mashed banana with milk,Breakfast,143,3.8,21.9,4.5,Veg,Dairy,Veg_Breakfast
+Mashed banana with milk,Snack,143,3.8,21.9,4.5,Veg,Dairy,Veg_Snack
+Poha with curd (Poha aur dahi),Breakfast,433,15.0,66.8,11.6,Veg,Dairy,Veg_Breakfast
+Potato with curd,Breakfast,109,4.8,18.0,2.0,Veg,Dairy,Veg_Breakfast
+Potato with curd,Snack,109,4.8,18.0,2.0,Veg,Dairy,Veg_Snack
+Sweet wheat porridge (Sweet dalia),Breakfast,210,7.7,35.7,4.2,Veg,Gluten,Veg_Breakfast
+Sweet wheat porridge (Sweet dalia),Snack,210,7.7,35.7,4.2,Veg,Gluten,Veg_Snack
+Vegetable khichdi/khichri,Breakfast,214,8.4,29.4,6.8,Veg,None,Veg_Breakfast
+Vegetable khichdi/khichri,Snack,214,8.4,29.4,6.8,Veg,None,Veg_Snack
+Moong dal mixture,Lunch,397,11.6,84.8,2.5,Veg,None,Veg_Lunch
+Moong dal mixture,Dinner,397,11.6,84.8,2.5,Veg,None,Veg_Dinner
+Cracked wheat khichri/khichdi (Dalia khichri/khichdi),Lunch,418,18.9,55.9,13.8,Veg,Gluten,Veg_Lunch
+Cracked wheat khichri/khichdi (Dalia khichri/khichdi),Dinner,418,18.9,55.9,13.8,Veg,Gluten,Veg_Dinner
+Stewed apple,Breakfast,137,0.3,33.7,0.6,Veg,None,Veg_Breakfast
+Stewed apple,Snack,137,0.3,33.7,0.6,Veg,None,Veg_Snack
+Lemon squash (Nimbu ka squash),Lunch,461,0.4,122.2,0.2,Veg,None,Veg_Lunch
+Lemon squash (Nimbu ka squash),Dinner,461,0.4,122.2,0.2,Veg,None,Veg_Dinner
+Orange squash (Santre ka squash),Lunch,483,0.6,127.2,0.1,Veg,None,Veg_Lunch
+Orange squash (Santre ka squash),Dinner,483,0.6,127.2,0.1,Veg,None,Veg_Dinner
+Lichi squash,Lunch,495,0.8,129.9,0.2,Veg,None,Veg_Lunch
+Lichi squash,Dinner,495,0.8,129.9,0.2,Veg,None,Veg_Dinner
+Mango squash (Aam ka squash),Lunch,486,0.4,127.4,0.4,Veg,None,Veg_Lunch
+Mango squash (Aam ka squash),Dinner,486,0.4,127.4,0.4,Veg,None,Veg_Dinner
+Pineapple squash (Ananas ka squash),Lunch,487,0.4,128.4,0.1,Veg,None,Veg_Lunch
+Pineapple squash (Ananas ka squash),Dinner,487,0.4,128.4,0.1,Veg,None,Veg_Dinner
+Lemon and ginger squash (Nimbu aur adrak ka squash),Lunch,425,1.4,110.2,0.5,Veg,None,Veg_Lunch
+Lemon and ginger squash (Nimbu aur adrak ka squash),Dinner,425,1.4,110.2,0.5,Veg,None,Veg_Dinner
+Apple jam (Seb ka murabba),Lunch,471,0.4,121.4,0.8,Veg,None,Veg_Lunch
+Apple jam (Seb ka murabba),Dinner,471,0.4,121.4,0.8,Veg,None,Veg_Dinner
+Plum jam (Aloo bukhara jam),Lunch,447,0.8,115.5,0.5,Veg,None,Veg_Lunch
+Plum jam (Aloo bukhara jam),Dinner,447,0.8,115.5,0.5,Veg,None,Veg_Dinner
+Pineapple jam ,Breakfast,223,0.5,57.4,0.2,Veg,None,Veg_Breakfast
+Pineapple jam ,Snack,223,0.5,57.4,0.2,Veg,None,Veg_Snack
+Guava jelly (Amrood ki jelly),Breakfast,173,1.7,42.3,0.4,Veg,None,Veg_Breakfast
+Guava jelly (Amrood ki jelly),Snack,173,1.7,42.3,0.4,Veg,None,Veg_Snack
+Orange marmalade (Santray ka murabba),Breakfast,156,1.0,38.9,0.2,Veg,None,Veg_Breakfast
+Orange marmalade (Santray ka murabba),Snack,156,1.0,38.9,0.2,Veg,None,Veg_Snack
+Carrot murabba (Gajar ka murabba),Lunch,438,0.8,114.0,0.4,Veg,None,Veg_Lunch
+Carrot murabba (Gajar ka murabba),Dinner,438,0.8,114.0,0.4,Veg,None,Veg_Dinner
+Gooseberry marmalade (Amla murabba),Breakfast,184,0.2,48.5,0.0,Veg,None,Veg_Breakfast
+Gooseberry marmalade (Amla murabba),Snack,184,0.2,48.5,0.0,Veg,None,Veg_Snack
+Ginger candy (Adrak ki candy),Lunch,489,1.7,126.0,0.7,Veg,None,Veg_Lunch
+Ginger candy (Adrak ki candy),Dinner,489,1.7,126.0,0.7,Veg,None,Veg_Dinner
+Mango pickle (Aam ka achaar),Lunch,480,4.0,20.3,44.7,Veg,None,Veg_Lunch
+Mango pickle (Aam ka achaar),Dinner,480,4.0,20.3,44.7,Veg,None,Veg_Dinner
+Mixed vegetable pickle (Sabziyoon ka achaar),Lunch,528,4.8,18.7,49.2,Veg,None,Veg_Lunch
+Mixed vegetable pickle (Sabziyoon ka achaar),Dinner,528,4.8,18.7,49.2,Veg,None,Veg_Dinner
+Sweet lemon pickle (Neembu ka meetha achaar),Breakfast,104,1.8,25.3,0.3,Veg,None,Veg_Breakfast
+Sweet lemon pickle (Neembu ka meetha achaar),Snack,104,1.8,25.3,0.3,Veg,None,Veg_Snack
+Plum chutney (Aloo bukhara ki chutney),Lunch,442,1.2,112.4,0.7,Veg,None,Veg_Lunch
+Plum chutney (Aloo bukhara ki chutney),Dinner,442,1.2,112.4,0.7,Veg,None,Veg_Dinner
+Raw mango chutney (Kachhe aam/Kairi ki chutney),Lunch,482,1.3,124.8,0.4,Veg,None,Veg_Lunch
+Raw mango chutney (Kachhe aam/Kairi ki chutney),Dinner,482,1.3,124.8,0.4,Veg,None,Veg_Dinner
+Tomato sauce,Breakfast,102,2.4,21.7,0.8,Veg,None,Veg_Breakfast
+Tomato sauce,Snack,102,2.4,21.7,0.8,Veg,None,Veg_Snack
+Tomato puree,Breakfast,61,2.2,11.0,0.8,Veg,None,Veg_Breakfast
+Tomato puree,Snack,61,2.2,11.0,0.8,Veg,None,Veg_Snack
+Garam masala,Lunch,635,24.7,65.5,27.4,Veg,None,Veg_Lunch
+Garam masala,Dinner,635,24.7,65.5,27.4,Veg,None,Veg_Dinner
+Chat masala,Lunch,556,20.5,59.7,24.8,Veg,None,Veg_Lunch
+Chat masala,Dinner,556,20.5,59.7,24.8,Veg,None,Veg_Dinner
+Kashmiri masala,Lunch,972,20.6,57.9,77.6,Veg,None,Veg_Lunch
+Kashmiri masala,Dinner,972,20.6,57.9,77.6,Veg,None,Veg_Dinner
+Rasam powder (Rasam masala),Lunch,669,30.1,63.0,29.5,Veg,None,Veg_Lunch
+Rasam powder (Rasam masala),Dinner,669,30.1,63.0,29.5,Veg,None,Veg_Dinner
+Sambar powder (Sambar masala),Lunch,743,31.2,58.4,39.0,Veg,None,Veg_Lunch
+Sambar powder (Sambar masala),Dinner,743,31.2,58.4,39.0,Veg,None,Veg_Dinner
+Tartare sauce,Lunch,1527,3.6,7.4,165.3,Veg,None,Veg_Lunch
+Tartare sauce,Dinner,1527,3.6,7.4,165.3,Veg,None,Veg_Dinner
+Barbeque sauce,Breakfast,182,1.4,30.7,6.8,Veg,None,Veg_Breakfast
+Barbeque sauce,Snack,182,1.4,30.7,6.8,Veg,None,Veg_Snack
+Bread sauce,Breakfast,166,5.2,13.0,10.6,Veg,Gluten,Veg_Breakfast
+Bread sauce,Snack,166,5.2,13.0,10.6,Veg,Gluten,Veg_Snack
+Green chilli sauce,Breakfast,138,3.8,22.1,0.8,Veg,None,Veg_Breakfast
+Green chilli sauce,Snack,138,3.8,22.1,0.8,Veg,None,Veg_Snack
+Home made plain noodles,Lunch,596,15.5,111.2,8.9,Veg,None,Veg_Lunch
+Home made plain noodles,Dinner,596,15.5,111.2,8.9,Veg,None,Veg_Dinner
+Dal moong,Breakfast,131,6.6,14.8,4.9,Veg,None,Veg_Breakfast
+Dal moong,Snack,131,6.6,14.8,4.9,Veg,None,Veg_Snack
+Cumin seeds baghar (Jeera baghar/tadka),Lunch,1842,8.4,13.0,196.9,Veg,None,Veg_Lunch
+Cumin seeds baghar (Jeera baghar/tadka),Dinner,1842,8.4,13.0,196.9,Veg,None,Veg_Dinner
+Onion tomato baghar (Pyaaz tamatar ka tadka),Breakfast,206,1.9,9.3,18.0,Veg,None,Veg_Breakfast
+Onion tomato baghar (Pyaaz tamatar ka tadka),Snack,206,1.9,9.3,18.0,Veg,None,Veg_Snack
+Mustard seeds baghar (Mustard seed tadka),Lunch,1381,11.8,26.1,135.8,Veg,None,Veg_Lunch
+Mustard seeds baghar (Mustard seed tadka),Dinner,1381,11.8,26.1,135.8,Veg,None,Veg_Dinner
+Hot cherry sauce,Lunch,631,0.3,169.9,0.2,Veg,None,Veg_Lunch
+Hot cherry sauce,Dinner,631,0.3,169.9,0.2,Veg,None,Veg_Dinner
+Apple jelly (Seb ki jelly),Lunch,380,0.2,98.4,0.5,Veg,None,Veg_Lunch
+Apple jelly (Seb ki jelly),Dinner,380,0.2,98.4,0.5,Veg,None,Veg_Dinner
+Marmalade (Murabba),Breakfast,215,0.3,56.5,0.1,Veg,None,Veg_Breakfast
+Marmalade (Murabba),Snack,215,0.3,56.5,0.1,Veg,None,Veg_Snack
+Plum squash (Aloo bukhara squash),Lunch,527,0.4,138.8,0.2,Veg,None,Veg_Lunch
+Plum squash (Aloo bukhara squash),Dinner,527,0.4,138.8,0.2,Veg,None,Veg_Dinner
+Lemon green chilli pickle (Nimboo aur hari mirch ka achaar),Breakfast,42,2.6,6.4,0.7,Veg,None,Veg_Breakfast
+Lemon green chilli pickle (Nimboo aur hari mirch ka achaar),Snack,42,2.6,6.4,0.7,Veg,None,Veg_Snack
+Brinjal pickle (Baingan ka achaar),Breakfast,208,3.4,6.3,19.5,Veg,None,Veg_Breakfast
+Brinjal pickle (Baingan ka achaar),Snack,208,3.4,6.3,19.5,Veg,None,Veg_Snack
+Sweet and sour tomato pickle (Khatta meetha tamatar ka achaar),Breakfast,91,1.9,9.8,4.9,Veg,None,Veg_Breakfast
+Sweet and sour tomato pickle (Khatta meetha tamatar ka achaar),Snack,91,1.9,9.8,4.9,Veg,None,Veg_Snack
+Jhatpat achar with carrot (Jhatpat achaar gajar ke saath),Breakfast,136,3.0,9.5,9.8,Veg,None,Veg_Breakfast
+Jhatpat achar with carrot (Jhatpat achaar gajar ke saath),Snack,136,3.0,9.5,9.8,Veg,None,Veg_Snack
+Tomato chutney (Tamatar ki chutney),Lunch,440,2.4,79.6,15.0,Veg,None,Veg_Lunch
+Tomato chutney (Tamatar ki chutney),Dinner,440,2.4,79.6,15.0,Veg,None,Veg_Dinner
+Tomato ketchup,Breakfast,99,2.7,19.4,0.9,Veg,None,Veg_Breakfast
+Tomato ketchup,Snack,99,2.7,19.4,0.9,Veg,None,Veg_Snack
+Bengal 5 Spice Blend (Panch Phoran),Lunch,724,45.7,50.0,55.4,Veg,None,Veg_Lunch
+Bengal 5 Spice Blend (Panch Phoran),Dinner,724,45.7,50.0,55.4,Veg,None,Veg_Dinner

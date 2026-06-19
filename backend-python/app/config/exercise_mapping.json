@@ -1,0 +1,6592 @@
+{
+  "3/4 Sit-Up": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "45\u00b0 Side Bend": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Air Bike": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "All Fours Squad Stretch": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Alternate Heel Touchers": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Alternate Lateral Pulldown": {
+    "movement_pattern": "vertical_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Ankle Circles": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Archer Pull Up": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Archer Push Up": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Arm Slingers Hanging Bent Knee Legs": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Arm Slingers Hanging Straight Legs": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Arms Apart Circular Toe Touch (Male)": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Arms Overhead Full Sit-Up (Male)": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Assisted Chest Dip (Kneeling)": {
+    "movement_pattern": "dip",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Assisted Hanging Knee Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Assisted Hanging Knee Raise With Throw Down": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Assisted Lying Calves Stretch": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Assisted Lying Glutes Stretch": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Assisted Lying Gluteus And Piriformis Stretch": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Assisted Lying Leg Raise With Lateral Throw Down": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Assisted Lying Leg Raise With Throw Down": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Assisted Motion Russian Twist": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Assisted Parallel Close Grip Pull-Up": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Assisted Prone Hamstring": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Assisted Prone Lying Quads Stretch": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Assisted Prone Rectus Femoris Stretch": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": false
+  },
+  "Assisted Pull-Up": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Assisted Seated Pectoralis Major Stretch With Stability Ball": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Assisted Side Lying Adductor Stretch": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Assisted Sit-Up": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": false
+  },
+  "Assisted Standing Chin-Up": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Assisted Standing Pull-Up": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Assisted Standing Triceps Extension (With Towel)": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Assisted Triceps Dip (Kneeling)": {
+    "movement_pattern": "dip",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Assisted Wide-Grip Chest Dip (Kneeling)": {
+    "movement_pattern": "dip",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Astride Jumps (Male)": {
+    "movement_pattern": "jump",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Back And Forth Step": {
+    "movement_pattern": "lunge",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Back Extension On Exercise Ball": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Back Lever": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Back Pec Stretch": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Backward Jump": {
+    "movement_pattern": "jump",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Balance Board": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Band Alternating Biceps Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Band Alternating V-Up": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Band Assisted Pull-Up": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Band Assisted Wheel Rollerout": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Band Bench Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Band Bent-Over Hip Extension": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Band Bicycle Crunch": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Band Close-Grip Pulldown": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Band Close-Grip Push-Up": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Band Concentration Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Band Fixed Back Close Grip Pulldown": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Band Fixed Back Underhand Pulldown": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Band Front Lateral Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Band Front Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Band Hip Lift": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Band Horizontal Pallof Press": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Band Jack Knife Sit-Up": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Band Kneeling One Arm Pulldown": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Band Kneeling Twisting Crunch": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Band Lying Hip Internal Rotation": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Band Lying Straight Leg Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Band One Arm Overhead Biceps Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Band One Arm Single Leg Split Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Band One Arm Standing Low Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Band One Arm Twisting Chest Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Band One Arm Twisting Seated Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Band Pull Through": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Band Push Sit-Up": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Band Reverse Fly": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Band Reverse Wrist Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Band Seated Hip Internal Rotation": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Band Seated Twist": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Band Shoulder Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Band Shrug": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Band Side Triceps Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Band Single Leg Calf Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Band Single Leg Reverse Calf Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Band Single Leg Split Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Band Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Band Squat Row": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Band Standing Crunch": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Band Standing Rear Delt Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Band Standing Twisting Crunch": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Band Step-Up": {
+    "movement_pattern": "lunge",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Band Stiff Leg Deadlift": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Band Straight Back Stiff Leg Deadlift": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Band Straight Leg Deadlift": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Band Twisting Overhead Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Band Two Legs Calf Raise - (Band Under Both Legs) V. 2": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Band Underhand Pulldown": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Band V-Up": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Band Vertical Pallof Press": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Band Wrist Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Band Y-Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Barbell Alternate Biceps Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Bench Front Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell Bench Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Bench Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell Bent Arm Pullover": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Bent Over Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Biceps Curl (With Arm Blaster)": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Clean And Press": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell Clean-Grip Front Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell Close-Grip Bench Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Deadlift": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Barbell Decline Bench Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Decline Bent Arm Pullover": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Decline Close Grip To Skull Press": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Barbell Decline Pullover": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Decline Wide-Grip Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Decline Wide-Grip Pullover": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Drag Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Floor Calf Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Barbell Front Chest Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell Front Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Barbell Front Raise And Pullover": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Barbell Front Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell Full Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell Full Squat (Back Pov)": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell Full Squat (Side Pov)": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell Full Zercher Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell Glute Bridge": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Barbell Glute Bridge Two Legs On Bench (Male)": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Barbell Good Morning": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Barbell Guillotine Bench Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Hack Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell High Bar Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell Incline Bench Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Incline Close Grip Bench Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Incline Reverse-Grip Press": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Barbell Incline Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Incline Shoulder Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Barbell Jefferson Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell Jm Bench Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Jump Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell Lateral Lunge": {
+    "movement_pattern": "lunge",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell Low Bar Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell Lunge": {
+    "movement_pattern": "lunge",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell Lying Back Of The Head Tricep Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Lying Close-Grip Press": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Barbell Lying Close-Grip Triceps Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Lying Extension": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Barbell Lying Lifting (On Hip)": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell Lying Preacher Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Lying Triceps Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Lying Triceps Extension Skull Crusher": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Narrow Stance Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell One Arm Bent Over Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell One Arm Floor Press": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Barbell One Arm Side Deadlift": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Barbell One Arm Snatch": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell One Leg Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell Overhead Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell Palms Down Wrist Curl Over A Bench": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Palms Up Wrist Curl Over A Bench": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Pendlay Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Pin Presses": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Barbell Preacher Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Press Sit-Up": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Barbell Prone Incline Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Pullover": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Pullover To Press": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Rack Pull": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell Rear Delt Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Barbell Rear Delt Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Rear Lunge": {
+    "movement_pattern": "lunge",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell Rear Lunge V. 2": {
+    "movement_pattern": "lunge",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell Revers Wrist Curl V. 2": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Reverse Close-Grip Bench Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Reverse Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Reverse Grip Bent Over Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Reverse Grip Decline Bench Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Reverse Grip Incline Bench Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Reverse Grip Incline Bench Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Reverse Grip Skullcrusher": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Barbell Reverse Preacher Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Reverse Wrist Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Rollerout": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Barbell Rollerout From Bench": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Romanian Deadlift": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Barbell Seated Behind Head Military Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Seated Bradford Rocky Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Seated Calf Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Barbell Seated Close Grip Behind Neck Triceps Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Seated Close-Grip Concentration Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Seated Good Morning": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Barbell Seated Overhead Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Seated Overhead Triceps Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Seated Twist": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Barbell Shrug": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Side Bent V. 2": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Barbell Side Split Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell Side Split Squat V. 2": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell Single Leg Deadlift": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Barbell Single Leg Split Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell Sitted Alternate Leg Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Barbell Sitted Alternate Leg Raise (Female)": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Barbell Skier": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Speed Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell Split Squat V. 2": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell Squat (On Knees)": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell Squat Jump Step Rear Lunge": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell Standing Ab Rollerout": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Barbell Standing Back Wrist Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Standing Bradford Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Standing Calf Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Barbell Standing Close Grip Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Standing Close Grip Military Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Standing Concentration Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Standing Front Raise Over Head": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Barbell Standing Leg Calf Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Barbell Standing Overhead Triceps Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Standing Reverse Grip Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Standing Rocking Leg Calf Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Barbell Standing Twist": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Barbell Standing Wide Grip Biceps Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Standing Wide Military Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Standing Wide-Grip Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Step-Up": {
+    "movement_pattern": "lunge",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell Stiff Leg Good Morning": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Barbell Straight Leg Deadlift": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Barbell Sumo Deadlift": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Barbell Thruster": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Upright Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Upright Row V. 2": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Upright Row V. 3": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Wide Bench Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Wide Reverse Grip Bench Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Wide Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Barbell Wide-Grip Upright Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Wrist Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Wrist Curl V. 2": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Barbell Zercher Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Basic Toe Touch (Male)": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Battling Ropes": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Bear Crawl": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Behind Head Chest Stretch": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Bench Dip (Knees Bent)": {
+    "movement_pattern": "dip",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Bench Dip On Floor": {
+    "movement_pattern": "dip",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Bench Hip Extension": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Bench Pull-Ups": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Bent Knee Lying Twist (Male)": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Biceps Leg Concentration Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Biceps Narrow Pull-Ups": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Biceps Pull-Up": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Body-Up": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Bodyweight Drop Jump Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Bodyweight Incline Side Plank": {
+    "movement_pattern": "plank",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Bodyweight Kneeling Triceps Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Bodyweight Side Lying Biceps Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Bodyweight Squatting Row": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Bodyweight Squatting Row (With Towel)": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Bodyweight Standing Calf Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Bodyweight Standing Close-Grip One Arm Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Bodyweight Standing Close-Grip Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Bodyweight Standing One Arm Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Bodyweight Standing One Arm Row (With Towel)": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Bodyweight Standing Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Bodyweight Standing Row (With Towel)": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Bottoms-Up": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Box Jump Down With One Leg Stabilization": {
+    "movement_pattern": "jump",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Bridge - Mountain Climber (Cross Body)": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Burpee": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Butt-Ups": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Butterfly Yoga Pose": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Cable Alternate Shoulder Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Alternate Triceps Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Assisted Inverse Leg Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Bar Lateral Pulldown": {
+    "movement_pattern": "vertical_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Bench Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Close Grip Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Concentration Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Concentration Extension (On Knee)": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": false
+  },
+  "Cable Cross-Over Lateral Pulldown": {
+    "movement_pattern": "vertical_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Cross-Over Revers Fly": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Cable Cross-Over Variation": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Deadlift": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": false
+  },
+  "Cable Decline Fly": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Cable Decline One Arm Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Decline Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Decline Seated Wide-Grip Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Drag Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Floor Seated Wide-Grip Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Forward Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Cable Front Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Cable Front Shoulder Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Cable Hammer Curl (With Rope)": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable High Pulley Overhead Tricep Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable High Row (Kneeling)": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Hip Adduction": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Cable Incline Bench Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Incline Bench Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Incline Fly": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Cable Incline Fly (On Stability Ball)": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Cable Incline Pushdown": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Incline Triceps Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Judo Flip": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": false
+  },
+  "Cable Kickback": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": false
+  },
+  "Cable Kneeling Crunch": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": false
+  },
+  "Cable Kneeling Rear Delt Row (With Rope) (Male)": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Kneeling Triceps Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Lat Pulldown Full Range Of Motion": {
+    "movement_pattern": "vertical_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Lateral Pulldown (With Rope Attachment)": {
+    "movement_pattern": "vertical_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Lateral Pulldown With V-Bar": {
+    "movement_pattern": "vertical_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Lateral Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Cable Low Fly": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Cable Low Seated Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Lying Bicep Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Lying Close-Grip Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Lying Extension Pullover (With Rope Attachment)": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Lying Fly": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Cable Lying Triceps Extension V. 2": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Middle Fly": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Cable One Arm Bent Over Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable One Arm Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable One Arm Decline Chest Fly": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Cable One Arm Fly On Exercise Ball": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Cable One Arm Incline Fly On Exercise Ball": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Cable One Arm Incline Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable One Arm Incline Press On Exercise Ball": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable One Arm Lateral Bent-Over": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Cable One Arm Lateral Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Cable One Arm Preacher Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable One Arm Press On Exercise Ball": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable One Arm Pulldown": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable One Arm Reverse Preacher Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable One Arm Straight Back High Row (Kneeling)": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable One Arm Tricep Pushdown": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": false
+  },
+  "Cable Overhead Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Overhead Curl On Exercise Ball": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Overhead Triceps Extension (Rope Attachment)": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Palm Rotational Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Preacher Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Press On Exercise Ball": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Pull Through (With Rope)": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Cable Pulldown": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Pulldown (Pro Lat Bar)": {
+    "movement_pattern": "vertical_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Pulldown Bicep Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Pushdown": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": false
+  },
+  "Cable Pushdown (Straight Arm) V. 2": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Pushdown (With Rope Attachment)": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": false
+  },
+  "Cable Rear Delt Row (Stirrups)": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Rear Delt Row (With Rope)": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Rear Drive": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": false
+  },
+  "Cable Rear Pulldown": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Reverse Crunch": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": false
+  },
+  "Cable Reverse Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Reverse Grip Triceps Pushdown (Sz-Bar) (With Arm Blaster)": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": false
+  },
+  "Cable Reverse One Arm Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Reverse Preacher Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Reverse Wrist Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Reverse-Grip Pushdown": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": false
+  },
+  "Cable Reverse-Grip Straight Back Seated High Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Rope Crossover Seated Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Rope Elevated Seated Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Rope Extension Incline Bench Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Rope Hammer Preacher Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Rope High Pulley Overhead Tricep Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Rope Incline Tricep Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Rope Lying On Floor Tricep Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Rope One Arm Hammer Preacher Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Rope Seated Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Russian Twists (On Stability Ball)": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": false
+  },
+  "Cable Seated Chest Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Seated Crunch": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": false
+  },
+  "Cable Seated Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Seated High Row (V-Bar)": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Seated One Arm Alternate Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Seated One Arm Concentration Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Seated Overhead Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Seated Rear Lateral Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Cable Seated Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Seated Shoulder Internal Rotation": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Seated Twist": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": false
+  },
+  "Cable Seated Wide-Grip Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Shoulder Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Shrug": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Side Bend": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": false
+  },
+  "Cable Side Bend Crunch (Bosu Ball)": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": false
+  },
+  "Cable Side Crunch": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": false
+  },
+  "Cable Squat Row (With Rope Attachment)": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Cable Squatting Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Standing Back Wrist Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Standing Calf Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Cable Standing Cross-Over High Reverse Fly": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Cable Standing Crunch": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": false
+  },
+  "Cable Standing Crunch (With Rope Attachment)": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": false
+  },
+  "Cable Standing Fly": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Cable Standing Hip Extension": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Cable Standing Inner Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Standing Lift": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": false
+  },
+  "Cable Standing One Arm Triceps Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Standing One Leg Calf Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Cable Standing Pulldown (With Rope)": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Standing Rear Delt Row (With Rope)": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Standing Reverse Grip One Arm Overhead Tricep Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Standing Row (V-Bar)": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Standing Shoulder External Rotation": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Standing Twist Row (V-Bar)": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Standing Up Straight Crossovers": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Straight Arm Pulldown": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Straight Arm Pulldown (With Rope)": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Straight Back Seated Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Supine Reverse Fly": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Cable Thibaudeau Kayak Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Triceps Pushdown (V-Bar)": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": false
+  },
+  "Cable Triceps Pushdown (V-Bar) (With Arm Blaster)": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": false
+  },
+  "Cable Tuck Reverse Crunch": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": false
+  },
+  "Cable Twist": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": false
+  },
+  "Cable Twist (Up-Down)": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": false
+  },
+  "Cable Twisting Pull": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Two Arm Curl On Incline Bench": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Two Arm Tricep Kickback": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": false
+  },
+  "Cable Underhand Pulldown": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Upper Chest Crossovers": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Upper Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Upright Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Wide Grip Rear Pulldown Behind Neck": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Cable Wrist Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Calf Push Stretch With Hands Against Wall": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Calf Stretch With Hands Against Wall": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Calf Stretch With Rope": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Cambered Bar Lying Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Captains Chair Straight Leg Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Chair Leg Extended Stretch": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Chest And Front Of Shoulder Stretch": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Chest Dip": {
+    "movement_pattern": "dip",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Chest Dip (On Dip-Pull-Up Cage)": {
+    "movement_pattern": "dip",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Chest Dip On Straight Bar": {
+    "movement_pattern": "dip",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Chest Stretch With Exercise Ball": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Chest Tap Push-Up (Male)": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Chin-Up": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Chin-Ups (Narrow Parallel Grip)": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Circles Knee Stretch": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Clap Push Up": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Clock Push-Up": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Close Grip Chin-Up": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Close-Grip Push-Up": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Close-Grip Push-Up (On Knees)": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Cocoons": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Crab Twist Toe Touch": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Cross Body Crunch": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Crunch (Hands Overhead)": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Crunch (On Stability Ball)": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Crunch (On Stability Ball, Arms Straight)": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Crunch Floor": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Curl-Up": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Curtsey Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Cycle Cross Trainer": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": false
+  },
+  "Dead Bug": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Decline Crunch": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Decline Push-Up": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Decline Sit-Up": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Deep Push Up": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Diamond Push-Up": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Donkey Calf Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Drop Push Up": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Alternate Biceps Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Alternate Biceps Curl (With Arm Blaster)": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Alternate Hammer Preacher Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Alternate Preacher Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Alternate Seated Hammer Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Alternate Side Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Alternating Bicep Curl With Leg Raised On Exercise Ball": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Alternating Seated Bicep Curl On Exercise Ball": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Arnold Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Arnold Press V. 2": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Around Pullover": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Bench Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Bench Seated Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Bench Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Dumbbell Bent Over Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Bicep Curl Lunge With Bowling Motion": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Bicep Curl On Exercise Ball With Leg Raised": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Bicep Curl With Stork Stance": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Biceps Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Biceps Curl (With Arm Blaster)": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Biceps Curl Reverse": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Biceps Curl Squat": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Biceps Curl V Sit On Bosu Ball": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Burpee": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Dumbbell Clean": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Dumbbell Close Grip Press": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Dumbbell Close-Grip Press": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Dumbbell Concentration Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Contralateral Forward Lunge": {
+    "movement_pattern": "lunge",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Dumbbell Cross Body Hammer Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Cross Body Hammer Curl V. 2": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Cuban Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Cuban Press V. 2": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Deadlift": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Dumbbell Decline Bench Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Decline Fly": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Decline Hammer Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Decline One Arm Fly": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Decline One Arm Hammer Press": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Dumbbell Decline Shrug": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Decline Shrug V. 2": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Decline Triceps Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Decline Twist Fly": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Finger Curls": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Fly": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Fly On Exercise Ball": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Forward Lunge Triceps Extension": {
+    "movement_pattern": "lunge",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Dumbbell Front Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Front Raise V. 2": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Full Can Lateral Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Goblet Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Dumbbell Hammer Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Hammer Curl On Exercise Ball": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Hammer Curl V. 2": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Hammer Curls (With Arm Blaster)": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell High Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Incline Alternate Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Incline Bench Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Incline Biceps Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Incline Breeding": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Incline Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Incline Curl V. 2": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Incline Fly": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Incline Fly On Exercise Ball": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Incline Hammer Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Incline Hammer Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Incline Hammer Press On Exercise Ball": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Dumbbell Incline Inner Biceps Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Incline One Arm Fly": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Incline One Arm Fly On Exercise Ball": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Incline One Arm Hammer Press": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Dumbbell Incline One Arm Hammer Press On Exercise Ball": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Dumbbell Incline One Arm Lateral Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Incline One Arm Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Incline One Arm Press On Exercise Ball": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Incline Palm-In Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Incline Press On Exercise Ball": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Incline Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Incline Rear Lateral Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Incline Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Incline Shoulder Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Incline Shrug": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Incline T-Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Incline Triceps Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Incline Twisted Flyes": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Incline Two Arm Extension": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Dumbbell Incline Y-Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Iron Cross": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Kickback": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Dumbbell Kickbacks On Exercise Ball": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Dumbbell Kneeling Bicep Curl Exercise Ball": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Lateral Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Lateral To Front Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Lunge": {
+    "movement_pattern": "lunge",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Dumbbell Lunge With Bicep Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Lying Extension (Across Face)": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Dumbbell Lying Alternate Extension": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Dumbbell Lying Elbow Press": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Dumbbell Lying External Shoulder Rotation": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Lying Femoral": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Dumbbell Lying Hammer Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Lying On Floor Rear Delt Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Lying One Arm Deltoid Rear": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Lying One Arm Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Lying One Arm Press V. 2": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Lying One Arm Pronated Triceps Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Lying One Arm Rear Lateral Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Lying One Arm Supinated Triceps Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Lying Pronation": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Dumbbell Lying Pronation On Floor": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Dumbbell Lying Pullover On Exercise Ball": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Lying Rear Delt Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Lying Rear Lateral Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Lying Single Extension": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Dumbbell Lying Supination": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Dumbbell Lying Supination On Floor": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Dumbbell Lying Supine Biceps Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Lying Supine Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Lying Triceps Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Lying Wide Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Neutral Grip Bench Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell One Arm Bench Fly": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell One Arm Bent-Over Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell One Arm Chest Fly On Exercise Ball": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell One Arm Concentration Curl (On Stability Ball)": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell One Arm Decline Chest Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell One Arm Fly On Exercise Ball": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell One Arm French Press On Exercise Ball": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Dumbbell One Arm Hammer Preacher Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell One Arm Hammer Press On Exercise Ball": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Dumbbell One Arm Incline Chest Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell One Arm Kickback": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Dumbbell One Arm Lateral Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell One Arm Lateral Raise With Support": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell One Arm Press On Exercise Ball": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell One Arm Prone Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell One Arm Prone Hammer Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell One Arm Pullover On Exercise Ball": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell One Arm Reverse Wrist Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell One Arm Reverse Fly (With Support)": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell One Arm Reverse Grip Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell One Arm Reverse Preacher Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell One Arm Reverse Spider Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell One Arm Seated Bicep Curl On Exercise Ball": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell One Arm Seated Hammer Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell One Arm Seated Neutral Wrist Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell One Arm Shoulder Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell One Arm Shoulder Press V. 2": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell One Arm Snatch": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Dumbbell One Arm Standing Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell One Arm Standing Hammer Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell One Arm Triceps Extension (On Bench)": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell One Arm Upright Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell One Arm Wrist Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell One Arm Zottman Preacher Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell One Leg Fly On Exercise Ball": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Over Bench Neutral Wrist Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Over Bench One Arm Neutral Wrist Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Over Bench One Arm Reverse Wrist Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Over Bench One Arm Wrist Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Over Bench Revers Wrist Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Over Bench Wrist Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Palm Rotational Bent Over Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Palms In Incline Bench Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Peacher Hammer Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Plyo Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Dumbbell Preacher Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Preacher Curl Over Exercise Ball": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Press On Exercise Ball": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Pronate-Grip Triceps Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Prone Incline Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Prone Incline Hammer Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Pullover": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Pullover Hip Extension On Exercise Ball": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Pullover On Exercise Ball": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Push Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Rear Delt Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Rear Delt Row_Shoulder": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Rear Fly": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Rear Lateral Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Rear Lateral Raise (Support Head)": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Rear Lunge": {
+    "movement_pattern": "lunge",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Dumbbell Revers Grip Biceps Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Reverse Bench Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Reverse Fly": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Reverse Grip Incline Bench One Arm Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Reverse Grip Incline Bench Two Arm Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Reverse Grip Row (Female)": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Reverse Preacher Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Reverse Spider Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Reverse Wrist Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Romanian Deadlift": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Dumbbell Rotation Reverse Fly": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Scott Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Seated Alternate Front Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Seated Alternate Hammer Curl On Exercise Ball": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Seated Alternate Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Seated Alternate Shoulder": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Seated Bench Extension": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Seated Bent Arm Lateral Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Seated Bent Over Alternate Kickback": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Dumbbell Seated Bent Over Triceps Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Seated Bicep Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Seated Biceps Curl (On Stability Ball)": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Seated Biceps Curl To Shoulder Press": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Seated Calf Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Seated Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Seated Front Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Seated Hammer Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Seated Inner Biceps Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Seated Kickback": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Dumbbell Seated Lateral Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Seated Lateral Raise V. 2": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Seated Neutral Wrist Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Seated One Arm Bicep Curl On Exercise Ball With Leg Raised": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Seated One Arm Kickback": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Dumbbell Seated One Arm Rotate": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Dumbbell Seated One Leg Calf Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Seated One Leg Calf Raise - Hammer Grip": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Seated One Leg Calf Raise - Palm Up": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Seated Palms Up Wrist Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Seated Preacher Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Seated Revers Grip Concentration Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Seated Reverse Grip One Arm Overhead Tricep Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Seated Shoulder Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Seated Shoulder Press (Parallel Grip)": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Seated Triceps Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Shrug": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Side Bend": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Dumbbell Side Lying One Hand Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Side Plank With Rear Fly": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Single Arm Overhead Carry": {
+    "movement_pattern": "carry",
+    "check_type": "posture",
+    "trackable": true
+  },
+  "Dumbbell Single Leg Calf Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Single Leg Deadlift": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Dumbbell Single Leg Deadlift With Stepbox Support": {
+    "movement_pattern": "lunge",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Dumbbell Single Leg Split Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Dumbbell Single Leg Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Dumbbell Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Dumbbell Standing Alternate Hammer Curl And Press": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Standing Alternate Overhead Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Standing Alternate Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Standing Alternating Tricep Kickback": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Dumbbell Standing Around World": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Standing Bent Over One Arm Triceps Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Standing Bent Over Two Arm Triceps Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Standing Biceps Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Standing Calf Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Standing Concentration Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Standing Front Raise Above Head": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Dumbbell Standing Inner Biceps Curl V. 2": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Standing Kickback": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Dumbbell Standing One Arm Concentration Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Standing One Arm Curl (Over Incline Bench)": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Standing One Arm Curl Over Incline Bench": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Standing One Arm Extension": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Dumbbell Standing One Arm Palm In Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Standing One Arm Reverse Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Standing Overhead Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Standing Palms In Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Standing Preacher Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Standing Reverse Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Standing Triceps Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Standing Zottman Preacher Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Step Up Single Leg Balance With Bicep Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Step-Up": {
+    "movement_pattern": "lunge",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Dumbbell Step-Up Lunge": {
+    "movement_pattern": "lunge",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Dumbbell Step-Up Split Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Dumbbell Stiff Leg Deadlift": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Dumbbell Straight Arm Pullover": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Straight Leg Deadlift": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Dumbbell Sumo Pull Through": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Dumbbell Supported Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Dumbbell Tate Press": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Dumbbell Tricep Kickback With Stork Stance": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Dumbbell Twisting Bench Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Upright Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Upright Row (Back Pov)": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Upright Shoulder External Rotation": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Waiter Biceps Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell W-Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Zottman Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbell Zottman Preacher Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dumbbells Seated Triceps Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Dynamic Chest Stretch (Male)": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Elbow Dips": {
+    "movement_pattern": "dip",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Elbow Lift - Reverse Push-Up": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Elbow-To-Knee": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Elevator": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Exercise Ball Alternating Arm Ups": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Exercise Ball Back Extension With Arms Extended": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Exercise Ball Back Extension With Hands Behind Head": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Exercise Ball Back Extension With Knees Off Ground": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Exercise Ball Back Extension With Rotation": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Exercise Ball Dip": {
+    "movement_pattern": "dip",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Exercise Ball Hip Flexor Stretch": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Exercise Ball Hug": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Exercise Ball Lat Stretch": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Exercise Ball Lower Back Stretch (Pyramid)": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Exercise Ball Lying Side Lat Stretch": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Exercise Ball On The Wall Calf Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Exercise Ball On The Wall Calf Raise (Tennis Ball Between Ankles)": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Exercise Ball On The Wall Calf Raise (Tennis Ball Between Knees)": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Exercise Ball One Leg Prone Lower Body Rotation": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Exercise Ball One Legged Diagonal Kick Hamstring Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Exercise Ball Pike Push Up": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Exercise Ball Prone Leg Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Exercise Ball Seated Hamstring Stretch": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Exercise Ball Seated Triceps Stretch": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Exercise Ball Supine Triceps Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Ez Bar French Press On Exercise Ball": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Ez Bar Lying Bent Arms Pullover": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Ez Bar Lying Close Grip Triceps Extension Behind Head": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Ez Bar Reverse Grip Bent Over Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Ez Bar Seated Close Grip Concentration Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Ez Bar Standing French Press": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Ez Barbell Anti Gravity Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Ez Barbell Close Grip Preacher Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Ez Barbell Close-Grip Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Ez Barbell Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Ez Barbell Decline Close Grip Face Press": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Ez Barbell Decline Triceps Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Ez Barbell Incline Triceps Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Ez Barbell Jm Bench Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Ez Barbell Reverse Grip Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Ez Barbell Reverse Grip Preacher Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Ez Barbell Seated Curls": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Ez Barbell Seated Triceps Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Ez Barbell Spider Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Ez-Bar Biceps Curl (With Arm Blaster)": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Ez-Bar Close-Grip Bench Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Ez-Barbell Standing Wide Grip Biceps Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Farmers Walk": {
+    "movement_pattern": "carry",
+    "check_type": "posture",
+    "trackable": true
+  },
+  "Finger Curls": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Flag": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Flexion Leg Sit Up (Bent Knee)": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Flexion Leg Sit Up (Straight Arm)": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Floor Fly (With Barbell)": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Flutter Kicks": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Forward Jump": {
+    "movement_pattern": "jump",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Forward Lunge (Male)": {
+    "movement_pattern": "lunge",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Frankenstein Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Frog Crunch": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Frog Planche": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Front Lever": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Front Lever Reps": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Front Plank With Twist": {
+    "movement_pattern": "plank",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Full Maltese": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Full Planche": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Full Planche Push-Up": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Gironda Sternum Chin": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Glute Bridge March": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Glute Bridge Two Legs On Bench (Male)": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Glute-Ham Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Gorilla Chin": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Groin Crunch": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Hack Calf Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Hack One Leg Calf Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Half Knee Bends (Male)": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Half Sit-Up (Male)": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Hamstring Stretch": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Hands Bike": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Hands Clasped Circular Toe Touch (Male)": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Hands Reversed Clasped Circular Toe Touch (Male)": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Handstand": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Handstand Push-Up": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Hanging Leg Hip Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Hanging Leg Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Hanging Oblique Knee Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Hanging Pike": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Hanging Straight Leg Hip Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Hanging Straight Leg Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Hanging Straight Twisting Leg Hip Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "High Knee Against Wall": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Hip Raise (Bent Knee)": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Hug Keens To Chest": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Hyght Dumbbell Fly": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Hyperextension": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Hyperextension (On Bench)": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Impossible Dips": {
+    "movement_pattern": "dip",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Inchworm": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Inchworm V. 2": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Incline Close-Grip Push-Up": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Incline Leg Hip Raise (Leg Straight)": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Incline Push Up Depth Jump": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Incline Push-Up": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Incline Push-Up (On Box)": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Incline Reverse Grip Push-Up": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Incline Scapula Push Up": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Incline Twisting Sit-Up": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Intermediate Hip Flexor And Quad Stretch": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Inverse Leg Curl (Bench Support)": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Inverse Leg Curl (On Pull-Up Cable Machine)": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Inverted Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Inverted Row Bent Knees": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Inverted Row On Bench": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Inverted Row V. 2": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Inverted Row With Straps": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Iron Cross Stretch": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Isometric Chest Squeeze": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Isometric Wipers": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Jack Burpee": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Jack Jump (Male)": {
+    "movement_pattern": "jump",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Jackknife Sit-Up": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Janda Sit-Up": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Jump Rope": {
+    "movement_pattern": "jump",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Jump Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Jump Squat V. 2": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Kettlebell Advanced Windmill": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Kettlebell Alternating Hang Clean": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Kettlebell Alternating Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Kettlebell Alternating Press On Floor": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Kettlebell Alternating Renegade Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Kettlebell Alternating Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Kettlebell Arnold Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Kettlebell Bent Press": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Kettlebell Bottoms Up Clean From The Hang Position": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Kettlebell Double Alternating Hang Clean": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Kettlebell Double Jerk": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Kettlebell Double Push Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Kettlebell Double Snatch": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Kettlebell Double Windmill": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Kettlebell Extended Range One Arm Press On Floor": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Kettlebell Figure 8": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Kettlebell Front Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Kettlebell Goblet Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Kettlebell Hang Clean": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Kettlebell Lunge Pass Through": {
+    "movement_pattern": "lunge",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Kettlebell One Arm Clean And Jerk": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Kettlebell One Arm Floor Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Kettlebell One Arm Jerk": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Kettlebell One Arm Military Press To The Side": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Kettlebell One Arm Push Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Kettlebell One Arm Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Kettlebell One Arm Snatch": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Kettlebell Pirate Supper Legs": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Kettlebell Pistol Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Kettlebell Plyo Push-Up": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Kettlebell Seated Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Kettlebell Seated Two Arm Military Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Kettlebell Seesaw Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Kettlebell Sumo High Pull": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Kettlebell Swing": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Kettlebell Thruster": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Kettlebell Turkish Get Up (Squat Style)": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Kettlebell Two Arm Clean": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Kettlebell Two Arm Military Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Kettlebell Two Arm Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Kettlebell Windmill": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Kick Out Sit": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Kipping Muscle Up": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Knee Touch Crunch": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Kneeling Jump Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Kneeling Lat Stretch": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Kneeling Plank Tap Shoulder (Male)": {
+    "movement_pattern": "plank",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Kneeling Push-Up (Male)": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Korean Dips": {
+    "movement_pattern": "dip",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "L-Pull-Up": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "L-Sit On Floor": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Landmine 180": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Landmine Lateral Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Lean Planche": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Left Hook. Boxing": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Leg Pull In Flat Bench": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Leg Up Hamstring Stretch": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Lever Alternate Leg Press": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Lever Alternating Narrow Grip Seated Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Assisted Chin-Up": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Back Extension": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": false
+  },
+  "Lever Bent Over Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Lever Bent-Over Row With V-Bar": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Bicep Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Calf Press": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Lever Chest Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Deadlift": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": false
+  },
+  "Lever Decline Chest Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Donkey Calf Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Lever Front Pulldown": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Gripless Shrug": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Gripless Shrug V. 2": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Gripper Hands": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": false
+  },
+  "Lever Hammer Grip Preacher Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever High Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Hip Extension V. 2": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Lever Horizontal One Leg Press": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Lever Incline Chest Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Incline Chest Press V. 2": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Kneeling Leg Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Kneeling Twist": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": false
+  },
+  "Lever Lateral Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Lever Leg Extension": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Lever Lying Leg Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Lying Two-One Leg Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Military Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Narrow Grip Seated Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever One Arm Bent Over Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Lever One Arm Lateral High Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever One Arm Lateral Wide Pulldown": {
+    "movement_pattern": "vertical_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever One Arm Shoulder Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Overhand Triceps Dip": {
+    "movement_pattern": "dip",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Preacher Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Preacher Curl V. 2": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Pullover": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Reverse Grip Lateral Pulldown": {
+    "movement_pattern": "vertical_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Reverse Grip Preacher Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Reverse Grip Vertical Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Reverse Hyperextension": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Lever Reverse T-Bar Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Rotary Calf": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Lever Seated Calf Press": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Lever Seated Calf Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Lever Seated Crunch": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": false
+  },
+  "Lever Seated Crunch (Chest Pad)": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": false
+  },
+  "Lever Seated Crunch V. 2": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": false
+  },
+  "Lever Seated Dip": {
+    "movement_pattern": "dip",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Seated Fly": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Lever Seated Good Morning": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": false
+  },
+  "Lever Seated Hip Abduction": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Lever Seated Hip Adduction": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Lever Seated Leg Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Seated Leg Raise Crunch": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Lever Seated Reverse Fly": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Lever Seated Reverse Fly (Parallel Grip)": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Lever Seated Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Seated Squat Calf Raise On Leg Press Machine": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Lever Shoulder Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Shoulder Press V. 2": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Shoulder Press V. 3": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Shrug": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Standing Calf Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Lever Standing Chest Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever T Bar Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever T-Bar Reverse Grip Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Triceps Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Lever Unilateral Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "London Bridge": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Low Glute Bridge On Floor": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Lower Back Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Lunge With Jump": {
+    "movement_pattern": "lunge",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Lunge With Twist": {
+    "movement_pattern": "lunge",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Lying (Side) Quads Stretch": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Lying Elbow To Knee": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Lying Leg Raise Flat Bench": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Lying Leg-Hip Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Machine Inner Chest Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "March Sit (Wall)": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Medicine Ball Catch And Overhead Throw": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Medicine Ball Chest Pass": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Medicine Ball Chest Push From 3 Point Stance": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Medicine Ball Chest Push Multiple Response": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Medicine Ball Chest Push Single Response": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Medicine Ball Chest Push With Run Release": {
+    "movement_pattern": "carry",
+    "check_type": "posture",
+    "trackable": true
+  },
+  "Medicine Ball Close Grip Push Up": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Medicine Ball Overhead Slam": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Medicine Ball Supine Chest Throw": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Mixed Grip Chin-Up": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Modified Hindu Push-Up (Male)": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Modified Push Up To Lower Arms": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Monster Walk": {
+    "movement_pattern": "carry",
+    "check_type": "posture",
+    "trackable": true
+  },
+  "Mountain Climber": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Muscle Up": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Muscle-Up (On Vertical Bar)": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Narrow Push-Up On Exercise Ball": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Neck Side Stretch": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Negative Crunch": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Oblique Crunch V. 2": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Oblique Crunches Floor": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Olympic Barbell Hammer Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Olympic Barbell Triceps Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "One Arm Against Wall": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "One Arm Chin-Up": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "One Arm Dip": {
+    "movement_pattern": "dip",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "One Arm Slam (With Medicine Ball)": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "One Arm Towel Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "One Leg Donkey Calf Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "One Leg Floor Calf Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "One Leg Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Otis Up": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Outside Leg Kick Push-Up": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Overhead Triceps Stretch": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Pelvic Tilt": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Pelvic Tilt Into Bridge": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Peroneals Stretch": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Pike-To-Cobra Push-Up": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Plyo Push Up": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Posterior Step To Overhead Reach": {
+    "movement_pattern": "lunge",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Posterior Tibialis Stretch": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Potty Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Potty Squat With Support": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Power Clean": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Power Point Plank": {
+    "movement_pattern": "plank",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Prisoner Half Sit-Up (Male)": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Prone Twist On Stability Ball": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Pull Up (Neutral Grip)": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Pull-In (On Stability Ball)": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Pull-Up": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Push And Pull Bodyweight": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Push To Run": {
+    "movement_pattern": "carry",
+    "check_type": "posture",
+    "trackable": true
+  },
+  "Push Up On Bosu Ball": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Push-Up": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Push-Up (Bosu Ball)": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Push-Up (On Stability Ball)": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Push-Up (Wall)": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Push-Up (Wall) V. 2": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Push-Up Close-Grip Off Dumbbell": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Push-Up Inside Leg Kick": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Push-Up Medicine Ball": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Push-Up On Lower Arms": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Push-Up Plus": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Push-Up To Side Plank": {
+    "movement_pattern": "plank",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Quads": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Quarter Sit-Up": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Quick Feet V. 2": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Raise Single Arm Push-Up": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Rear Decline Bridge": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Rear Deltoid Stretch": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Rear Pull-Up": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Reclining Big Toe Pose With Rope": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Resistance Band Hip Thrusts On Knees (Female)": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Resistance Band Leg Extension": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Resistance Band Seated Biceps Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Resistance Band Seated Chest Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Resistance Band Seated Hip Abduction": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Resistance Band Seated Shoulder Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Resistance Band Seated Straight Back Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Reverse Crunch": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Reverse Dip": {
+    "movement_pattern": "dip",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Reverse Grip Machine Lat Pulldown": {
+    "movement_pattern": "vertical_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Reverse Grip Pull-Up": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Reverse Hyper Extension (On Stability Ball)": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Reverse Hyper On Flat Bench": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Reverse Plank With Leg Lift": {
+    "movement_pattern": "plank",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Ring Dips": {
+    "movement_pattern": "dip",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Rocking Frog Stretch": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Rocky Pull-Up Pulldown": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Roller Back Stretch": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Roller Body Saw": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Roller Hip Lat Stretch": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Roller Hip Stretch": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Roller Reverse Crunch": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Roller Seated Shoulder Flexor Depresor Retractor": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Roller Seated Single Leg Shoulder Flexor Depresor Retractor": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Roller Side Lat Stretch": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Rope Climb": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Run": {
+    "movement_pattern": "carry",
+    "check_type": "posture",
+    "trackable": true
+  },
+  "Run (Equipment)": {
+    "movement_pattern": "carry",
+    "check_type": "posture",
+    "trackable": true
+  },
+  "Runners Stretch": {
+    "movement_pattern": "carry",
+    "check_type": "posture",
+    "trackable": true
+  },
+  "Russian Twist": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Scapula Dips": {
+    "movement_pattern": "dip",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Scapula Push-Up": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Scapular Pull-Up": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Scissor Jumps (Male)": {
+    "movement_pattern": "jump",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Seated Calf Stretch (Male)": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Seated Glute Stretch": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Seated Leg Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Seated Lower Back Stretch": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Seated Piriformis Stretch": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Seated Side Crunch (Wall)": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Seated Wide Angle Pose Sequence": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Self Assisted Inverse Leg Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Self Assisted Inverse Leg Curl (On Floor)": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Semi Squat Jump (Male)": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Short Stride Run": {
+    "movement_pattern": "carry",
+    "check_type": "posture",
+    "trackable": true
+  },
+  "Shoulder Grip Pull-Up": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Shoulder Tap": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Shoulder Tap Push-Up": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Side Bridge Hip Abduction": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Side Bridge V. 2": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Side Hip (On Parallel Bars)": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Side Hip Abduction": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Side Lying Floor Stretch": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Side Lying Hip Adduction (Male)": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Side Plank Hip Adduction": {
+    "movement_pattern": "plank",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Side Push Neck Stretch": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Side Push-Up": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Side Wrist Pull Stretch": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Side-To-Side Chin": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Side-To-Side Toe Touch (Male)": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Single Arm Push-Up": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Single Leg Bridge With Outstretched Leg": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Single Leg Calf Raise (On A Dumbbell)": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Single Leg Platform Slide": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Single Leg Squat (Pistol) Male": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Sissy Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Sit-Up V. 2": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Sit-Up With Arms On Chest": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Skater Hops": {
+    "movement_pattern": "jump",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Ski Ergometer": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": false
+  },
+  "Ski Step": {
+    "movement_pattern": "lunge",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Skin The Cat": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Sled 45 Degrees One Leg Press": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Sled 45\u0412\u00b0 Calf Press": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Sled 45\u0412\u00b0 Leg Press": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Sled 45\u0412\u00b0 Leg Press (Back Pov)": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Sled 45\u00b0 Leg Press (Side Pov)": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Sled 45\u0412\u00b0 Leg Wide Press": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Sled Calf Press On Leg Press": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Sled Closer Hack Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Sled Forward Angled Calf Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Sled Hack Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Sled Lying Calf Press": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Sled Lying Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Sled One Leg Calf Press On Leg Press": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Sledge Hammer": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Smith Back Shrug": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Smith Behind Neck Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Smith Bench Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Smith Bent Knee Good Morning": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": false
+  },
+  "Smith Bent Over Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Smith Chair Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Smith Close-Grip Bench Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Smith Deadlift": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": false
+  },
+  "Smith Decline Bench Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Smith Decline Reverse-Grip Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Smith Front Squat (Clean Grip)": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Smith Full Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Smith Hack Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Smith Hip Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Smith Incline Bench Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Smith Incline Reverse-Grip Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Smith Incline Shoulder Raises": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Smith Leg Press": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Smith Low Bar Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Smith Machine Bicep Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Smith Machine Decline Close Grip Bench Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Smith Machine Incline Tricep Extension": {
+    "movement_pattern": "tricep_extension",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Smith Machine Reverse Decline Close Grip Bench Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Smith Narrow Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Smith One Arm Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Smith One Leg Floor Calf Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Smith Rear Delt Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Smith Reverse Calf Raises": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Smith Reverse Grip Bent Over Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Smith Reverse-Grip Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Smith Seated One Leg Calf Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Smith Seated Shoulder Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Smith Seated Wrist Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Smith Shoulder Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Smith Shrug": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Smith Single Leg Split Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Smith Sprint Lunge": {
+    "movement_pattern": "lunge",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Smith Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Smith Standing Back Wrist Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Smith Standing Behind Head Military Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Smith Standing Leg Calf Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Smith Standing Military Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Smith Sumo Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Smith Toe Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": false
+  },
+  "Smith Upright Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Smith Wide Grip Bench Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Smith Wide Grip Decline Bench Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Snatch Pull": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Spell Caster": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Sphinx": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Spider Crawl Push Up": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Spine Stretch": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Spine Twist": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Split Squats": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Squat Jerk": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Squat On Bosu Ball": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Squat To Overhead Reach": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Squat To Overhead Reach With Twist": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Stability Ball Crunch (Full Range Hands Behind Head)": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Stalder Press": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Standing Archer": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Standing Behind Neck Press": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Standing Calf Raise (On A Staircase)": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Standing Calves": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Standing Calves Calf Stretch": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Standing Hamstring And Calf Stretch With Strap": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Standing Lateral Stretch": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Standing Pelvic Tilt": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Standing Single Leg Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Standing Wheel Rollerout": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Star Jump (Male)": {
+    "movement_pattern": "jump",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Stationary Bike Run V. 3": {
+    "movement_pattern": "carry",
+    "check_type": "posture",
+    "trackable": false
+  },
+  "Stationary Bike Walk": {
+    "movement_pattern": "carry",
+    "check_type": "posture",
+    "trackable": false
+  },
+  "Straddle Maltese": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Straddle Planche": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Straight Leg Outer Hip Abductor": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Superman Push-Up": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Suspended Abdominal Fallout": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Suspended Push-Up": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Suspended Reverse Crunch": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Suspended Row": {
+    "movement_pattern": "row",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Suspended Split Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Swimmer Kicks V. 2 (Male)": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Swing 360": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Three Bench Dip": {
+    "movement_pattern": "dip",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Tire Flip": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Trap Bar Deadlift": {
+    "movement_pattern": "hinge",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Triceps Dip": {
+    "movement_pattern": "dip",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Triceps Dip (Bench Leg)": {
+    "movement_pattern": "dip",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Triceps Dip (Between Benches)": {
+    "movement_pattern": "dip",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Triceps Dips Floor": {
+    "movement_pattern": "dip",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Triceps Press": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Triceps Stretch": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Tuck Crunch": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Twin Handle Parallel Grip Lat Pulldown": {
+    "movement_pattern": "vertical_pull",
+    "check_type": "elbow_angle",
+    "trackable": false
+  },
+  "Twist Hip Lift": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Twisted Leg Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Twisted Leg Raise (Female)": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Two Toe Touch (Male)": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Upper Back Stretch": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Upward Facing Dog": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "V-Sit On Floor": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Vertical Leg Raise (On Parallel Bars)": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Walk Elliptical Cross Trainer": {
+    "movement_pattern": "carry",
+    "check_type": "posture",
+    "trackable": false
+  },
+  "Walking High Knees Lunge": {
+    "movement_pattern": "lunge",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Walking Lunge": {
+    "movement_pattern": "lunge",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Walking On Incline Treadmill": {
+    "movement_pattern": "carry",
+    "check_type": "posture",
+    "trackable": false
+  },
+  "Walking On Stepmill": {
+    "movement_pattern": "lunge",
+    "check_type": "knee_angle",
+    "trackable": false
+  },
+  "Weighted Bench Dip": {
+    "movement_pattern": "dip",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Weighted Close Grip Chin-Up On Dip Cage": {
+    "movement_pattern": "dip",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Weighted Cossack Squats (Male)": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Weighted Crunch": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Weighted Decline Sit-Up": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Weighted Donkey Calf Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Weighted Drop Push Up": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Weighted Front Plank": {
+    "movement_pattern": "plank",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Weighted Front Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Weighted Hanging Leg-Hip Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Weighted Hyperextension (On Stability Ball)": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Weighted Kneeling Step With Swing": {
+    "movement_pattern": "lunge",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Weighted Lunge With Swing": {
+    "movement_pattern": "lunge",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Weighted Muscle Up": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Weighted Muscle Up (On Bar)": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Weighted One Hand Pull Up": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Weighted Overhead Crunch (On Stability Ball)": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Weighted Pull-Up": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Weighted Round Arm": {
+    "movement_pattern": "vertical_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Weighted Russian Twist": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Weighted Russian Twist (Legs Up)": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Weighted Russian Twist V. 2": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Weighted Seated Bicep Curl (On Stability Ball)": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Weighted Seated Twist (On Stability Ball)": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Weighted Side Bend (On Stability Ball)": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Weighted Sissy Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Weighted Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Weighted Standing Curl": {
+    "movement_pattern": "curl",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Weighted Standing Hand Squeeze": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Weighted Straight Bar Dip": {
+    "movement_pattern": "dip",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Weighted Stretch Lunge": {
+    "movement_pattern": "lunge",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Weighted Svend Press": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Weighted Three Bench Dips": {
+    "movement_pattern": "dip",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Weighted Tricep Dips": {
+    "movement_pattern": "dip",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Weighted Triceps Dip On High Parallel Bars": {
+    "movement_pattern": "dip",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Wheel Rollerout": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Wheel Run": {
+    "movement_pattern": "carry",
+    "check_type": "posture",
+    "trackable": true
+  },
+  "Wide Grip Pull-Up": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Wide Grip Rear Pull-Up": {
+    "movement_pattern": "horizontal_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Wide Hand Push Up": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Wide-Grip Chest Dip On High Parallel Bars": {
+    "movement_pattern": "dip",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Wind Sprints": {
+    "movement_pattern": "crunch",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "World Greatest Stretch": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Wrist Circles": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  },
+  "Wrist Rollerer": {
+    "movement_pattern": "generic",
+    "check_type": "general_logic",
+    "trackable": true
+  }
+}

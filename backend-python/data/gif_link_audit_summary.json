@@ -1,0 +1,88 @@
+{
+  "timestamp": "2026-04-09 22:25:57",
+  "total_exercises": 1324,
+  "with_gif_url": 1312,
+  "missing_gif_url": 12,
+  "gif_url_reachable": 1312,
+  "gif_url_broken_or_missing": 12,
+  "gif_url_broken_with_url_present": 0,
+  "coverage_reachable_percent": 99.09,
+  "status_buckets_for_broken_with_url": {},
+  "top_error_buckets": {},
+  "top_broken_domains": {},
+  "broken_examples": [
+    {
+      "name": "Barbell Incline Bench Press",
+      "gif_url": "",
+      "gif_status": 0,
+      "gif_error": "MISSING_GIF_URL"
+    },
+    {
+      "name": "Cable Incline Bench Press",
+      "gif_url": "",
+      "gif_status": 0,
+      "gif_error": "MISSING_GIF_URL"
+    },
+    {
+      "name": "Dumbbell Decline Triceps Extension",
+      "gif_url": "",
+      "gif_status": 0,
+      "gif_error": "MISSING_GIF_URL"
+    },
+    {
+      "name": "Dumbbell Incline Alternate Press",
+      "gif_url": "",
+      "gif_status": 0,
+      "gif_error": "MISSING_GIF_URL"
+    },
+    {
+      "name": "Dumbbell Incline Bench Press",
+      "gif_url": "",
+      "gif_status": 0,
+      "gif_error": "MISSING_GIF_URL"
+    },
+    {
+      "name": "Dumbbell Incline Hammer Press",
+      "gif_url": "",
+      "gif_status": 0,
+      "gif_error": "MISSING_GIF_URL"
+    },
+    {
+      "name": "Dumbbell Incline Triceps Extension",
+      "gif_url": "",
+      "gif_status": 0,
+      "gif_error": "MISSING_GIF_URL"
+    },
+    {
+      "name": "Dumbbell Lying Triceps Extension",
+      "gif_url": "",
+      "gif_status": 0,
+      "gif_error": "MISSING_GIF_URL"
+    },
+    {
+      "name": "Dumbbell Seated Triceps Extension",
+      "gif_url": "",
+      "gif_status": 0,
+      "gif_error": "MISSING_GIF_URL"
+    },
+    {
+      "name": "Dumbbell Standing Triceps Extension",
+      "gif_url": "",
+      "gif_status": 0,
+      "gif_error": "MISSING_GIF_URL"
+    },
+    {
+      "name": "Lever Seated Hip Adduction",
+      "gif_url": "",
+      "gif_status": 0,
+      "gif_error": "MISSING_GIF_URL"
+    },
+    {
+      "name": "Smith Incline Bench Press",
+      "gif_url": "",
+      "gif_status": 0,
+      "gif_error": "MISSING_GIF_URL"
+    }
+  ],
+  "details_csv": "d:/Final Year Project/githubclone 22 mor/githubclone/Elevate/backend-python/data/gif_link_audit_details.csv"
+}

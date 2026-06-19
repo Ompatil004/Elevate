@@ -1,0 +1,133 @@
+# ==========================================
+# DEPENDENCIES
+# ==========================================
+node_modules/
+venv/
+.venv
+__pycache__/
+*.pyc
+*.egg-info/
+
+# ==========================================
+# ENVIRONMENT VARIABLES (SENSITIVE - NEVER COMMIT)
+# ==========================================
+.env
+.env.local
+.env.*.local
+.env.production
+.env.production.local
+.env.test
+.env.test.local
+
+# ==========================================
+# BUILD & DIST
+# ==========================================
+dist/
+dist-ssr/
+build/
+*.tsbuildinfo
+
+# ==========================================
+# TESTING
+# ==========================================
+coverage/
+.coverage
+htmlcov/
+.pytest_cache/
+*.lcov
+.nyc_output/
+
+# ==========================================
+# LOGS
+# ==========================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ==========================================
+# IDE & EDITOR
+# ==========================================
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.vs/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ==========================================
+# CACHE
+# ==========================================
+.npm
+.eslintcache
+.node_repl_history
+.vuepress/dist
+.cache
+.cache-loader
+
+# ==========================================
+# LOCAL DEVELOPMENT
+# ==========================================
+.env.local
+.env.*.local
+*.local
+.next/
+out/
+
+# ==========================================
+# OS
+# ==========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ==========================================
+# MISC
+# ==========================================
+.turbo/
+turbo.log
+.vercel
+.env.*.local
+dist-ssr
+*.zip
+*.tar.gz
+
+# ==========================================
+# EXPLICIT LARGE FILES & MODELS (Elevate Custom)
+# ==========================================
+frontend/node_modules/
+backend-node/node_modules/
+backend-python/.venv/
+backend-python/models/*.joblib
+backend-python/models/*.pkl
+# Python
+__pycache__/
+*.pyc
+
+# MongoDB local data
+mongodb_data/
+
+# Local test folders
+scratch/
+validation_results/
+
+# Environment
+.venv/
+.env

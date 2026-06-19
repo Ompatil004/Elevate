@@ -1,0 +1,12 @@
+{
+  "total": 1324,
+  "with_gif": 1324,
+  "missing_gif": 0,
+  "video_only_count": 0,
+  "broken_gif_count": 0,
+  "reachable_gif_count": 1324,
+  "coverage_reachable_percent": 100.0,
+  "missing_names": [],
+  "video_only_names": [],
+  "broken_examples": []
+}
