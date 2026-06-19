@@ -3179,7 +3179,8 @@ class SessionResultRequest(BaseModel):
 @app.post("/api/workout/session-result")
 async def workout_session_result(
     request_body: SessionResultRequest,
-    x_auth_token: str = Header(..., alias="x-auth-token"),
+    http_request: Request,
+    x_auth_token: Optional[str] = Header(None, alias="x-auth-token"),
 ):
     """
     After a set completes, submit the form score and get:
@@ -3204,15 +3205,7 @@ async def workout_session_result(
         )
 
         # Get progression update
-        secret = os.environ.get("JWT_SECRET", "")
-        user_id = None
-        if secret and x_auth_token:
-            try:
-                payload = jwt.decode(x_auth_token, secret, algorithms=["HS256"])
-                user_info = payload.get("user", {})
-                user_id = str(user_info.get("id", "")).strip() or None
-            except Exception:
-                pass
+        user_id = _require_user_id_from_request(http_request, x_auth_token, req_id)
 
         user_profile = {}
         workout_history = []
@@ -3287,21 +3280,14 @@ class DailyLogRequest(BaseModel):
 @app.post("/api/daily-log")
 async def save_daily_log(
     request_body: DailyLogRequest,
-    x_auth_token: str = Header(..., alias="x-auth-token"),
+    http_request: Request,
+    x_auth_token: Optional[str] = Header(None, alias="x-auth-token"),
 ):
     """Save a daily sleep/water check-in for the adaptive modifier."""
     req_id = str(uuid.uuid4())[:8]
 
     try:
-        secret = os.environ.get("JWT_SECRET", "")
-        if not secret:
-            raise HTTPException(status_code=500, detail="JWT_SECRET not configured")
-
-        payload = jwt.decode(x_auth_token, secret, algorithms=["HS256"])
-        user_info = payload.get("user", {})
-        user_id = str(user_info.get("id", "")).strip()
-        if not user_id:
-            raise HTTPException(status_code=401, detail="Invalid token")
+        user_id = _require_user_id_from_request(http_request, x_auth_token, req_id)
 
         log_date = request_body.date or _utcnow().strftime("%Y-%m-%d")
 
@@ -3337,21 +3323,14 @@ async def save_daily_log(
 
 @app.get("/api/daily-log/week")
 async def get_weekly_logs(
-    x_auth_token: str = Header(..., alias="x-auth-token"),
+    http_request: Request,
+    x_auth_token: Optional[str] = Header(None, alias="x-auth-token"),
 ):
     """Get last 7 daily logs for the current user."""
     req_id = str(uuid.uuid4())[:8]
 
     try:
-        secret = os.environ.get("JWT_SECRET", "")
-        if not secret:
-            raise HTTPException(status_code=500, detail="JWT_SECRET not configured")
-
-        payload = jwt.decode(x_auth_token, secret, algorithms=["HS256"])
-        user_info = payload.get("user", {})
-        user_id = str(user_info.get("id", "")).strip()
-        if not user_id:
-            raise HTTPException(status_code=401, detail="Invalid token")
+        user_id = _require_user_id_from_request(http_request, x_auth_token, req_id)
 
         db = get_database()
         daily_logs = db.daily_logs

@@ -132,6 +132,10 @@ if (!process.env.CORS_ORIGINS) {
     console.error('❌ CORS_ORIGINS environment variable is not set. Server cannot start.');
     process.exit(1);
 }
+// SEC-1: Parse cookies for HttpOnly token authentication
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
 const corsOrigins = process.env.CORS_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean);
 if (process.env.NODE_ENV === 'production' && corsOrigins.includes('*')) {
     console.error('❌ Wildcard "*" is not permitted for CORS_ORIGINS in production.');
@@ -153,10 +157,6 @@ app.use((req, res, next) => {
     }
     next();
 });
-
-// SEC-1: Parse cookies for HttpOnly token authentication
-const cookieParser = require('cookie-parser');
-app.use(cookieParser());
 
 // SEC-12: CSRF protection using the Signed Double-Submit Cookie pattern.
 // - A CSRF cookie is set when the client calls GET /api/csrf-token

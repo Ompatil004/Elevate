@@ -6,7 +6,7 @@ const User = require('../models/User');
  * HttpOnly `elevate_token` cookie. The legacy `x-auth-token` header fallback
  * has been removed now that all clients send the cookie.
  *
- * Cookie name: `elevate_token` (HttpOnly, SameSite=Strict, Secure in prod)
+ * Cookie name: `elevate_token` (HttpOnly, SameSite=None, Secure in prod)
  *
  * If you are rolling back to header-based auth (e.g. for a native mobile
  * client), re-add: `|| req.header('x-auth-token')` to line 19.
@@ -29,7 +29,7 @@ module.exports = async function(req, res, next) {
             if (Date.now() - issuedAtMs > sessionMaxMs) {
                 res.clearCookie('elevate_token', {
                     path: '/',
-                    sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+                    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
                     secure: process.env.NODE_ENV === 'production',
                 });
                 return res.status(401).json({

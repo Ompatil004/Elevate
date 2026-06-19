@@ -283,7 +283,7 @@ def _generate_nutrition_plan(
 @router.put("/update")
 async def update_profile(
     profile_update: ProfileUpdateRequest,
-    x_auth_token: str = Header(..., alias="x-auth-token", description="JWT token"),
+    x_auth_token: Optional[str] = Header(None, alias="x-auth-token", description="JWT token"),
     current_user: dict = Depends(get_current_user_from_token)
 ):
     """
@@ -523,7 +523,7 @@ async def update_profile(
 
 @router.get("/me")
 async def get_current_user_profile(
-    x_auth_token: str = Header(..., alias="x-auth-token", description="JWT token"),
+    x_auth_token: Optional[str] = Header(None, alias="x-auth-token", description="JWT token"),
     current_user: dict = Depends(get_current_user_from_token)
 ):
     """Get current user profile"""
