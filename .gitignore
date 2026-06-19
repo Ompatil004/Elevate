@@ -115,8 +115,6 @@ dist-ssr
 frontend/node_modules/
 backend-node/node_modules/
 backend-python/.venv/
-backend-python/models/*.joblib
-backend-python/models/*.pkl
 # Python
 __pycache__/
 *.pyc
