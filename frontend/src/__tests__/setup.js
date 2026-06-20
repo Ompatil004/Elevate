@@ -19,7 +19,7 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 // Mock IntersectionObserver (not in jsdom)
-global.IntersectionObserver = class {
+globalThis.IntersectionObserver = class {
   constructor() {}
   observe() {}
   unobserve() {}

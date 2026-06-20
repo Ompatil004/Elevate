@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import {
   adminActivateUser,
   adminDeleteUser,
@@ -33,7 +33,7 @@ export default function AdminUsers() {
     return params;
   }, [pagination.page, pagination.limit, search, suspendedFilter]);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
     setError('');
     setNotice('');
@@ -51,11 +51,11 @@ export default function AdminUsers() {
       setLoading(false);
       setActionBusyId('');
     }
-  };
+  }, [queryParams]);
 
   useEffect(() => {
     fetchUsers();
-  }, [queryParams]);
+  }, [fetchUsers]);
 
   const runAction = async (userId, actionFn) => {
     setActionBusyId(userId);
@@ -187,21 +187,21 @@ export default function AdminUsers() {
                   const busy = actionBusyId === user._id;
                   return (
                     <tr key={user._id}>
-                      <td>
+                      <td data-label="User">
                         <strong>{user.name || 'Unknown'}</strong>
                         <div className="admin-note">{user.email}</div>
                       </td>
-                      <td>{user.role || 'user'}</td>
-                      <td>{user.goal || '-'}</td>
-                      <td>
+                      <td data-label="Role">{user.role || 'user'}</td>
+                      <td data-label="Goal">{user.goal || '-'}</td>
+                      <td data-label="Status">
                         {user.isSuspended ? (
                           <span className="admin-status danger">Suspended</span>
                         ) : (
                           <span className="admin-status ok">Active</span>
                         )}
                       </td>
-                      <td>{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '-'}</td>
-                      <td>
+                      <td data-label="Created">{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '-'}</td>
+                      <td data-label="Actions">
                         <div className="admin-actions">
                           {user.role !== 'owner' && !user.isSuspended ? (
                             <button className="admin-btn secondary" disabled={busy} onClick={() => handleSuspend(user._id)}>

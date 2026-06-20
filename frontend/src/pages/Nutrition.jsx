@@ -65,6 +65,53 @@ const nutritionAnimations = `
   .macro-stat-hover:hover { background: rgba(255,255,255,0.04) !important; transform: scale(1.03); }
   .icon-hover:hover { background: rgba(255,255,255,0.1) !important; }
   .logout-btn:hover { background: rgba(239, 68, 68, 0.2) !important; }
+
+  @media (max-width: 768px) {
+    .food-table-header { display: none !important; }
+    .food-item-row { 
+      display: flex !important; 
+      flex-direction: column !important; 
+      gap: 12px !important; 
+      min-width: 0 !important; 
+      padding: 16px !important; 
+    }
+    .food-item-top {
+      display: flex !important;
+      align-items: flex-start !important;
+      gap: 12px !important;
+      width: 100% !important;
+    }
+    .food-item-macros {
+      display: flex !important;
+      justify-content: space-between !important;
+      width: 100% !important;
+      background: rgba(0,0,0,0.2);
+      padding: 10px;
+      border-radius: 10px;
+      margin-top: 4px;
+    }
+    .food-macro-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .food-macro-label {
+      display: block !important;
+      font-size: 10px;
+      color: #71717a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .meal-macro-total {
+      justify-content: space-between !important;
+      gap: 8px !important;
+    }
+    .history-panel { width: 100% !important; }
+    .swap-modal-card { width: 100% !important; max-height: 90dvh !important; border-radius: 20px 20px 0 0 !important; align-self: flex-end; animation: slideUp 0.3s ease-out !important; }
+    .swap-modal { align-items: flex-end !important; }
+  }
+  .food-macro-label { display: none; }
 `;
 
 function Nutrition() {
@@ -233,7 +280,7 @@ function Nutrition() {
     return "light";
   };
 
-  const getWorkoutPlanForNutrition = async (profile) => {
+  const getWorkoutPlanForNutrition = async () => {
     const cachedPlan = safeJSONParse("workoutPlan", null);
     if (Array.isArray(cachedPlan)) {
       return cachedPlan;
@@ -317,7 +364,7 @@ function Nutrition() {
       // Clear invalidation flag since we're fetching fresh
       setToStorage(StorageKeys.NUTRITION_CACHE_INVALID, 'false');
 
-      const workoutPlan = await getWorkoutPlanForNutrition(profile);
+      const workoutPlan = await getWorkoutPlanForNutrition();
       const workoutIntensity = getTodayWorkoutIntensity(workoutPlan);
 
       const response = await generateNutritionPlan({
@@ -943,8 +990,8 @@ function Nutrition() {
 
       {/* Swap Modal — backend driven */}
       {swapModal.show && (
-        <div style={styles.swapModal} onClick={() => setSwapModal({ show: false, food: null, mealType: null, dayIndex: null })}>
-          <div style={styles.swapModalCard} onClick={e => e.stopPropagation()}>
+        <div style={styles.swapModal} className="swap-modal" onClick={() => setSwapModal({ show: false, food: null, mealType: null, dayIndex: null })}>
+          <div style={styles.swapModalCard} className="swap-modal-card" onClick={e => e.stopPropagation()}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
               <div style={{ fontSize: "28px", fontWeight: "800", color: "#fff", letterSpacing: "-0.5px" }}>Swap Food</div>
               <button onClick={() => setSwapModal({ show: false, food: null, mealType: null, dayIndex: null })} style={{ background: "rgba(255,255,255,0.05)", borderRadius: "50%", width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", color: "#a1a1aa", border: "1px solid rgba(255,255,255,0.1)", fontSize: "16px", cursor: "pointer", transition: "all 0.2s ease" }} className="icon-hover">✕</button>
@@ -1089,7 +1136,7 @@ function MealCard({ meal, isLocked, isSequenceLocked, unlockMessage, checkedFood
         </div>
       </div>
 
-      <div style={styles.foodTableHeader}>
+      <div style={styles.foodTableHeader} className="food-table-header">
         <div></div><div>Food</div><div style={{ textAlign: "center" }}>Cal</div>
         <div style={{ textAlign: "center" }}>Pro</div><div style={{ textAlign: "center" }}>Carb</div>
         <div style={{ textAlign: "center" }}>Fat</div><div></div>
@@ -1101,33 +1148,50 @@ function MealCard({ meal, isLocked, isSequenceLocked, unlockMessage, checkedFood
           const isChecked = !!checkedFoods[checkKey] || isLocked;
           const itemTickTime = tickTimes[checkKey];
           return (
-            <div key={food.id} className="food-row-hover" style={{
+            <div key={food.id} className="food-row-hover food-item-row" style={{
               ...styles.foodItemRow,
               opacity: isChecked ? (isLocked ? 0.5 : 0.7) : 1,
               background: isChecked ? "rgba(34, 197, 94, 0.04)" : "rgba(255,255,255,0.02)",
               ...(isSequenceLocked ? { pointerEvents: "none", opacity: 0.5 } : {}),
             }}>
-              <div onClick={() => !isDisabled && onCheckFood(food.id, meal.name, meal.meal_type, dayIndex)} style={{
-                ...styles.checkbox, ...(isChecked ? styles.checkboxChecked : {}),
-                ...(isDisabled && !isChecked ? { opacity: 0.3, cursor: "not-allowed" } : {}),
-              }}>
-                {isChecked && "✓"}
+              <div className="food-item-top">
+                <div onClick={() => !isDisabled && onCheckFood(food.id, meal.name, meal.meal_type, dayIndex)} style={{
+                  ...styles.checkbox, ...(isChecked ? styles.checkboxChecked : {}), flexShrink: 0,
+                  ...(isDisabled && !isChecked ? { opacity: 0.3, cursor: "not-allowed" } : {}),
+                }}>
+                  {isChecked && "✓"}
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                  <span style={{ fontWeight: "600", color: isChecked ? "#3f3f46" : "#e4e4e7", textDecoration: isChecked ? "line-through" : "none", lineHeight: 1.3 }}>{food.name}</span>
+                  {isChecked && itemTickTime && <span style={{ fontSize: "10px", color: "#22c55e", fontFamily: "monospace", marginTop: "4px" }}>✓ {itemTickTime}</span>}
+                </div>
+                <button className="swap-btn-hover" onClick={() => !isDisabled && onSwapFood(food, meal.meal_type, dayIndex)} disabled={isDisabled} style={{ ...styles.swapBtn, flexShrink: 0, ...(isDisabled ? { opacity: 0.3, cursor: "not-allowed" } : {}) }}>🔄</button>
               </div>
-              <div style={{ display: "flex", flexDirection: "column" }}>
-                <span style={{ fontWeight: "600", color: isChecked ? "#3f3f46" : "#e4e4e7", textDecoration: isChecked ? "line-through" : "none" }}>{food.name}</span>
-                {isChecked && itemTickTime && <span style={{ fontSize: "10px", color: "#22c55e", fontFamily: "monospace", marginTop: "2px" }}>✓ {itemTickTime}</span>}
+
+              <div className="food-item-macros">
+                <div className="food-macro-block">
+                  <span className="food-macro-label">Cal</span>
+                  <div style={{ textAlign: "center", color: "#e4e4e7", fontWeight: "600", fontFamily: "monospace", fontSize: "13px" }}>{food.calories}</div>
+                </div>
+                <div className="food-macro-block">
+                  <span className="food-macro-label">Pro</span>
+                  <div style={{ textAlign: "center", color: "#10b981", fontFamily: "monospace", fontSize: "13px" }}>{food.protein_g}g</div>
+                </div>
+                <div className="food-macro-block">
+                  <span className="food-macro-label">Carb</span>
+                  <div style={{ textAlign: "center", color: "#3b82f6", fontFamily: "monospace", fontSize: "13px" }}>{food.carbs_g}g</div>
+                </div>
+                <div className="food-macro-block">
+                  <span className="food-macro-label">Fat</span>
+                  <div style={{ textAlign: "center", color: "#f59e0b", fontFamily: "monospace", fontSize: "13px" }}>{food.fat_g}g</div>
+                </div>
               </div>
-              <div style={{ textAlign: "center", color: "#e4e4e7", fontWeight: "600", fontFamily: "monospace", fontSize: "13px" }}>{food.calories}</div>
-              <div style={{ textAlign: "center", color: "#10b981", fontFamily: "monospace", fontSize: "13px" }}>{food.protein_g}g</div>
-              <div style={{ textAlign: "center", color: "#3b82f6", fontFamily: "monospace", fontSize: "13px" }}>{food.carbs_g}g</div>
-              <div style={{ textAlign: "center", color: "#f59e0b", fontFamily: "monospace", fontSize: "13px" }}>{food.fat_g}g</div>
-              <button className="swap-btn-hover" onClick={() => !isDisabled && onSwapFood(food, meal.meal_type, dayIndex)} disabled={isDisabled} style={{ ...styles.swapBtn, ...(isDisabled ? { opacity: 0.3, cursor: "not-allowed" } : {}) }}>🔄</button>
             </div>
           );
         })}
       </div>
 
-      <div style={styles.mealMacroTotal}>
+      <div style={styles.mealMacroTotal} className="meal-macro-total">
         <div style={{ fontSize: "13px", fontWeight: "800", color: "#fff", fontFamily: "monospace" }}>{meal.totals.calories} cal</div>
         <div style={{ fontSize: "13px", fontWeight: "700", color: "#10b981", fontFamily: "monospace" }}>{meal.totals.protein_g}g pro</div>
         <div style={{ fontSize: "13px", fontWeight: "700", color: "#3b82f6", fontFamily: "monospace" }}>{meal.totals.carbs_g}g carb</div>

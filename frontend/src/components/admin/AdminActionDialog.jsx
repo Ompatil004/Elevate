@@ -52,13 +52,16 @@ export default function AdminActionDialog({
 }) {
   const [reason, setReason] = useState('');
   const [phrase, setPhrase] = useState('');
+  const [prevShow, setPrevShow] = useState(show);
+
+  if (show !== prevShow) {
+    setPrevShow(show);
+    setReason('');
+    setPhrase('');
+  }
 
   useEffect(() => {
-    if (!show) {
-      setReason('');
-      setPhrase('');
-      return;
-    }
+    if (!show) return;
 
     document.body.style.overflow = 'hidden';
     return () => {

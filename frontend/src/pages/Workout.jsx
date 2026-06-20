@@ -28,7 +28,7 @@ const DEFAULT_FALLBACK_GIF = 'https://media.giphy.com/media/3o7TKsQ8UQJ5n6WfTO/g
 
 // --- STYLES (Your Exact Styles Preserved) ---
 const styles = {
-  page: { background: '#09090b', minHeight: '100dvh', color: '#e4e4e7', fontFamily: "'Inter', sans-serif", overflowX: 'hidden' },
+  page: { background: '#09090b', minHeight: '100dvh', color: '#e4e4e7', fontFamily: "'Inter', sans-serif", overflowX: 'hidden', width: '100vw' },
   navbar: {
     display: 'flex', alignItems: 'center',
     padding: '0 clamp(12px, 4vw, 40px)', height: 'clamp(64px, 9vw, 80px)',
@@ -70,11 +70,11 @@ const styles = {
   dateDisplay: { fontSize: 'clamp(11px, 1.6vw, 13px)', fontWeight: '600', color: '#a1a1aa', fontFamily: 'sans-serif', letterSpacing: '0.5px', marginRight: '8px' },
   iconButton: { width: 'clamp(36px, 6vw, 42px)', height: 'clamp(36px, 6vw, 42px)', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '18px', transition: 'all 0.2s', position: 'relative' },
   notifDropdown: { position: 'absolute', top: '60px', right: '0px', width: 'min(92vw, 340px)', background: '#18181b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', padding: '16px', zIndex: 2000, boxShadow: '0 20px 50px rgba(0,0,0,0.5)', animation: 'slideDown 0.2s ease-out' },
-  notifItem: { padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '13px', color: '#d4d4d8' },
+  notifItem: { padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '13px', color: '#d4d4d8', wordBreak: 'break-word' },
   logoutBtn: { display: 'flex', alignItems: 'center', gap: '8px', padding: '0 clamp(10px, 2vw, 20px)', borderRadius: '12px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#ef4444', cursor: 'pointer', transition: 'all 0.2s ease', height: 'clamp(36px, 6vw, 42px)' },
   logoutText: { fontSize: '12px', fontWeight: '700', letterSpacing: '0.5px', textTransform: 'uppercase' },
-  container: { maxWidth: '1600px', margin: '0 auto', padding: '40px' },
-  h1: { fontSize: '42px', fontWeight: '800', marginBottom: '40px', color: '#fff', letterSpacing: '-1px' },
+  container: { width: '100%', maxWidth: '1600px', margin: '0 auto', padding: '40px' },
+  h1: { fontSize: '42px', fontWeight: '800', marginBottom: '40px', color: '#fff', letterSpacing: '-1px', wordBreak: 'break-word' },
   grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' },
   card: { background: '#18181b', borderRadius: '20px', padding: '24px', border: '1px solid rgba(255,255,255,0.05)', position: 'relative', transition: 'all 0.3s ease', overflow: 'hidden', minHeight: '200px', display: 'flex', flexDirection: 'column' },
   cardDone: { opacity: 0.5, border: '1px solid #22c55e', background: 'rgba(34, 197, 94, 0.05)' },
@@ -85,29 +85,29 @@ const styles = {
   overlayLocked: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.4)', zIndex: 10, flexDirection: 'column', gap: '10px' },
   cardActive: { border: '2px solid #6366f1', background: 'linear-gradient(145deg, #1e1e2e 0%, #2a2a35 100%)', boxShadow: '0 0 30px rgba(99, 102, 241, 0.15)', cursor: 'pointer', transform: 'scale(1.02)' },
   dayTitle: { fontSize: '14px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px', color: '#a1a1aa' },
-  focusText: { fontSize: '20px', fontWeight: '800', color: '#fff', marginBottom: '16px', lineHeight: '1.3' },
-  exPreview: { fontSize: '13px', color: '#71717a', marginBottom: '4px', display: 'flex', justifyContent: 'space-between' },
+  focusText: { fontSize: '20px', fontWeight: '800', color: '#fff', marginBottom: '16px', lineHeight: '1.3', wordBreak: 'break-word' },
+  exPreview: { fontSize: '13px', color: '#71717a', marginBottom: '4px', display: 'flex', justifyContent: 'space-between', gap: '8px' },
   sessionContainer: { position: 'fixed', top: '80px', left: 0, width: '100%', height: 'calc(100vh - 80px)', background: '#09090b', zIndex: 500, display: 'flex', padding: '20px', gap: '20px', animation: 'fadeIn 0.3s ease-out' },
   selectionList: { flex: '0 0 350px', background: '#18181b', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', padding: '20px', overflowY: 'auto' },
-  sidebarHeader: { fontSize: '18px', fontWeight: '800', color: '#fff', marginBottom: '20px', display:'flex', justifyContent:'space-between', alignItems:'center' },
-  backBtn: { fontSize: '12px', padding: '6px 12px', background: 'rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', border:'none', cursor:'pointer' },
-  selectionPreview: { flex: 1, background: '#000', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', color: '#52525b' },
+  sidebarHeader: { fontSize: '18px', fontWeight: '800', color: '#fff', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' },
+  backBtn: { fontSize: '12px', padding: '6px 12px', background: 'rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', border: 'none', cursor: 'pointer' },
+  selectionPreview: { flex: 1, background: '#000', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', color: '#52525b', padding: '20px', textAlign: 'center' },
   focusContainer: { width: '100%', height: '100%', display: 'flex', gap: '20px' },
   focusLeft: { flex: '4', display: 'flex', flexDirection: 'column', background: '#18181b', borderRadius: '24px', padding: '24px', border: '1px solid rgba(255,255,255,0.05)' },
-  activeExTitle: { fontSize: '28px', fontWeight: '800', color: '#fff', marginBottom: '8px', lineHeight: '1.2' },
+  activeExTitle: { fontSize: 'clamp(20px, 4vw, 28px)', fontWeight: '800', color: '#fff', marginBottom: '8px', lineHeight: '1.2', wordBreak: 'break-word' },
   activeExStats: { fontSize: '16px', color: '#a5b4fc', fontWeight: '600', marginBottom: '20px', fontFamily: 'monospace' },
   gifLargeContainer: { flex: 1, background: '#09090b', borderRadius: '16px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', border: '1px solid rgba(255,255,255,0.1)', marginBottom: '20px' },
-  gifLarge: { width: '100%', height: '100%', objectFit: 'contain' },
+  gifLarge: { width: '100%', height: '100%', objectFit: 'contain', maxWidth: '100%' },
   controlsContainer: { height: '80px', display: 'flex', gap: '15px' },
   focusRight: { flex: '6', background: '#000', borderRadius: '24px', border: '2px solid #6366f1', overflow: 'hidden', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 50px rgba(99, 102, 241, 0.1)' },
   videoFeed: { width: '100%', height: '100%', objectFit: 'contain', transform: 'scaleX(-1)' },
-  recBadge: { position: 'absolute', top: 20, left: 20, background: 'rgba(220, 38, 38, 0.9)', padding: '6px 12px', borderRadius: '8px', color: 'white', fontWeight: '700', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', zIndex:10 },
+  recBadge: { position: 'absolute', top: 20, left: 20, background: 'rgba(220, 38, 38, 0.9)', padding: '6px 12px', borderRadius: '8px', color: 'white', fontWeight: '700', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', zIndex: 10 },
   exerciseItem: { padding: '18px', borderRadius: '16px', marginBottom: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', cursor: 'pointer', transition: 'all 0.2s ease', position: 'relative' },
   exerciseItemActive: { background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)', borderColor: '#6366f1', boxShadow: '0 4px 20px rgba(99, 102, 241, 0.3)' },
-  btnStartLarge: { padding: '15px 40px', fontSize:'16px', borderRadius: '12px', background: '#6366f1', color: 'white', border: 'none', fontWeight: '800', cursor: 'pointer', marginTop:'20px', boxShadow: '0 4px 20px rgba(99, 102, 241, 0.4)' },
-  btnStop: { flex: 1, borderRadius: '16px', background: '#27272a', border: '1px solid rgba(255,255,255,0.1)', color: '#ef4444', fontWeight: '800', fontSize: '16px', cursor: 'pointer', transition:'all 0.2s' },
-  btnDone: { flex: 1, borderRadius: '16px', background: '#22c55e', color: 'white', fontWeight: '800', fontSize: '16px', border:'none', cursor: 'pointer', boxShadow: '0 4px 15px rgba(34, 197, 94, 0.3)' },
-  historyPanel: { position: 'fixed', top: '80px', right: '0', width: '400px', height: 'calc(100vh - 80px)', background: '#09090b', borderLeft: '1px solid rgba(255,255,255,0.1)', zIndex: 1500, padding: '24px', overflowY: 'auto', animation: 'slideInRight 0.3s ease-out', boxShadow: '-20px 0 50px rgba(0,0,0,0.5)' },
+  btnStartLarge: { padding: '15px 40px', fontSize: '16px', borderRadius: '12px', background: '#6366f1', color: 'white', border: 'none', fontWeight: '800', cursor: 'pointer', marginTop: '20px', boxShadow: '0 4px 20px rgba(99, 102, 241, 0.4)', width: '100%' },
+  btnStop: { flex: 1, borderRadius: '16px', background: '#27272a', border: '1px solid rgba(255,255,255,0.1)', color: '#ef4444', fontWeight: '800', fontSize: '16px', cursor: 'pointer', transition: 'all 0.2s', padding: '10px' },
+  btnDone: { flex: 1, borderRadius: '16px', background: '#22c55e', color: 'white', fontWeight: '800', fontSize: '16px', border: 'none', cursor: 'pointer', boxShadow: '0 4px 15px rgba(34, 197, 94, 0.3)', padding: '10px' },
+  historyPanel: { position: 'fixed', top: '80px', right: '0', width: '100%', maxWidth: '400px', height: 'calc(100vh - 80px)', background: '#09090b', borderLeft: '1px solid rgba(255,255,255,0.1)', zIndex: 1500, padding: '24px', overflowY: 'auto', animation: 'slideInRight 0.3s ease-out', boxShadow: '-20px 0 50px rgba(0,0,0,0.5)' },
   historyItem: { background: '#18181b', borderRadius: '16px', padding: '20px', marginBottom: '16px', border: '1px solid rgba(255,255,255,0.05)', cursor: 'pointer', transition: 'all 0.2s' },
   historyDate: { fontSize: '14px', fontWeight: '700', color: '#fff', marginBottom: '12px' },
   historySection: { marginBottom: '10px' },
@@ -275,8 +275,8 @@ const Workout = () => {
   const [selectedHistory, setSelectedHistory] = useState(null);
   const [weekMetadata, setWeekMetadata] = useState(() => getFromStorage(StorageKeys.WORKOUT_WEEK_METADATA, null));
   const [poseTrackingError, setPoseTrackingError] = useState(null); // Bug #52 fixed: setter now available for error updates
-  const [loading, setLoading] = useState(false); // Bug #18 fixed: state variable properly destructured
-  const [errorMsg, setError] = useState(null); // Bug #18 fixed: state variable properly destructured
+  const [_loading, setLoading] = useState(false); // Bug #18 fixed: state variable properly destructured
+  const [_errorMsg, setError] = useState(null); // Bug #18 fixed: state variable properly destructured
   const [pastWorkouts, setPastWorkouts] = useState([]);
 
   // Posture processing state
@@ -293,12 +293,11 @@ const Workout = () => {
   const [mediaUrlIndex, setMediaUrlIndex] = useState(0);
   // Separate index for the active-session GIF so preview errors don't contaminate it
   const [sessionMediaUrlIndex, setSessionMediaUrlIndex] = useState(0);
-  // Guide video fallback when media fails to load
-  const [guideVideoFallback, setGuideVideoFallback] = useState(false);
-  
+  // Guide video fallback when media fails to load (unused placeholder deleted)
+
   // Bug #2 Fix: Pose detector loading state
   const [poseLoadingStatus, setPoseLoadingStatus] = useState('initializing'); // 'initializing' → 'warming' → 'ready'
-  
+
   const [viewportWidth, setViewportWidth] = useState(
     typeof window !== 'undefined' ? window.innerWidth : 1280
   );
@@ -312,43 +311,43 @@ const Workout = () => {
   const isMobileLayout = viewportWidth <= 980;
   const workoutLayout = isMobileLayout
     ? {
-        container: { ...styles.container, padding: 'clamp(12px, 4vw, 24px)' },
-        h1: { ...styles.h1, fontSize: 'clamp(28px, 5vw, 42px)', marginBottom: 'clamp(16px, 3vw, 30px)' },
-        grid: { ...styles.grid, gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 'clamp(12px, 2.4vw, 20px)' },
-        card: { ...styles.card, padding: 'clamp(14px, 2.4vw, 24px)', minHeight: '180px' },
-        restDay: { ...styles.restDay, padding: 'clamp(12px, 2.8vw, 20px)' },
-        sessionContainer: {
-          ...styles.sessionContainer,
-          height: 'calc(100dvh - 80px)',
-          flexWrap: 'wrap',
-          alignContent: 'flex-start',
-          overflowY: 'auto',
-          padding: 'clamp(10px, 2vw, 20px)',
-          gap: 'clamp(10px, 2vw, 20px)'
-        },
-        selectionList: { ...styles.selectionList, flex: '1 1 min(100%, 350px)', maxWidth: 'min(100%, 360px)' },
-        focusContainer: { ...styles.focusContainer, minHeight: 0, height: 'auto', flexWrap: 'wrap', gap: 'clamp(10px, 2vw, 20px)' },
-        focusLeft: { ...styles.focusLeft, flex: '1 1 min(100%, 420px)', padding: 'clamp(12px, 2.5vw, 24px)' },
-        controlsContainer: { ...styles.controlsContainer, height: 'auto', minHeight: '68px', gap: '12px', flexWrap: 'wrap' },
-        focusRight: { ...styles.focusRight, flex: '1 1 min(100%, 520px)', minHeight: '280px' },
-        historyPanel: { ...styles.historyPanel, width: 'min(96vw, 400px)', height: 'calc(100dvh - 80px)', padding: 'clamp(14px, 2.5vw, 24px)' },
-        previewMedia: { width: 'min(100%, 420px)', aspectRatio: '16 / 10', marginBottom: '24px', flex: 'none' }
-      }
+      container: { ...styles.container, padding: 'clamp(12px, 4vw, 24px)' },
+      h1: { ...styles.h1, fontSize: 'clamp(28px, 5vw, 42px)', marginBottom: 'clamp(16px, 3vw, 30px)' },
+      grid: { ...styles.grid, gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 'clamp(12px, 2.4vw, 20px)' },
+      card: { ...styles.card, padding: 'clamp(14px, 2.4vw, 24px)', minHeight: '180px' },
+      restDay: { ...styles.restDay, padding: 'clamp(12px, 2.8vw, 20px)' },
+      sessionContainer: {
+        ...styles.sessionContainer,
+        height: 'calc(100dvh - 80px)',
+        flexWrap: 'wrap',
+        alignContent: 'flex-start',
+        overflowY: 'auto',
+        padding: 'clamp(10px, 2vw, 20px)',
+        gap: 'clamp(10px, 2vw, 20px)'
+      },
+      selectionList: { ...styles.selectionList, flex: '1 1 min(100%, 350px)', maxWidth: 'min(100%, 360px)' },
+      focusContainer: { ...styles.focusContainer, minHeight: 0, height: 'auto', flexWrap: 'wrap', gap: 'clamp(10px, 2vw, 20px)' },
+      focusLeft: { ...styles.focusLeft, flex: '1 1 min(100%, 420px)', padding: 'clamp(12px, 2.5vw, 24px)' },
+      controlsContainer: { ...styles.controlsContainer, height: 'auto', minHeight: '68px', gap: '12px', flexWrap: 'wrap' },
+      focusRight: { ...styles.focusRight, flex: '1 1 min(100%, 520px)', minHeight: '280px' },
+      historyPanel: { ...styles.historyPanel, width: 'min(96vw, 400px)', height: 'calc(100dvh - 80px)', padding: 'clamp(14px, 2.5vw, 24px)' },
+      previewMedia: { width: 'min(100%, 420px)', aspectRatio: '16 / 10', marginBottom: '24px', flex: 'none' }
+    }
     : {
-        container: styles.container,
-        h1: styles.h1,
-        grid: styles.grid,
-        card: styles.card,
-        restDay: styles.restDay,
-        sessionContainer: styles.sessionContainer,
-        selectionList: styles.selectionList,
-        focusContainer: styles.focusContainer,
-        focusLeft: styles.focusLeft,
-        controlsContainer: styles.controlsContainer,
-        focusRight: styles.focusRight,
-        historyPanel: styles.historyPanel,
-        previewMedia: { width: '350px', height: '220px', marginBottom: '30px', flex: 'none' }
-      };
+      container: styles.container,
+      h1: styles.h1,
+      grid: styles.grid,
+      card: styles.card,
+      restDay: styles.restDay,
+      sessionContainer: styles.sessionContainer,
+      selectionList: styles.selectionList,
+      focusContainer: styles.focusContainer,
+      focusLeft: styles.focusLeft,
+      controlsContainer: styles.controlsContainer,
+      focusRight: styles.focusRight,
+      historyPanel: styles.historyPanel,
+      previewMedia: { width: '350px', height: '220px', marginBottom: '30px', flex: 'none' }
+    };
 
   const showConfirmDialog = (message, onConfirm) => {
     setConfirmDialog({ show: true, message, onConfirm });
@@ -747,8 +746,7 @@ const Workout = () => {
     );
   };
 
-  // Keep old name as alias so any remaining call sites still work
-  const renderActiveExerciseMedia = renderPreviewMedia;
+  // Keep old name as alias so any remaining call sites still work (unused alias deleted)
 
   useEffect(() => {
     setMediaUrlIndex(0);
@@ -775,11 +773,6 @@ const Workout = () => {
       setFormFeedback(feedback);
     }
   }, []);
-
-  // Reset guide video fallback when exercise changes
-  useEffect(() => {
-    setGuideVideoFallback(false);
-  }, [activeExercise]);
 
   // Auto-dismiss the 'ready' overlay after 1.5s so it never blocks the camera feed
   useEffect(() => {
@@ -823,12 +816,12 @@ const Workout = () => {
   useEffect(() => {
     if (isCameraOn && videoRef.current && stream) {
       videoRef.current.srcObject = stream;
-      void videoRef.current.play().catch(() => {});
+      void videoRef.current.play().catch(() => { });
     }
   }, [isCameraOn, stream]);
 
   // ===== HELPER FUNCTIONS =====
-  
+
   /**
    * Create fallback workout plan if backend returns empty
    */
@@ -870,7 +863,7 @@ const Workout = () => {
         media_type: 'image'
       }
     ];
-    
+
     return dayNames.map((day, idx) => ({
       day_of_week: idx,
       day: day,
@@ -887,7 +880,7 @@ const Workout = () => {
   const normalizeToSevenDays = (plan) => {
     const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     const normalized = [...plan];
-    
+
     // Pad with rest days if less than 7
     while (normalized.length < 7) {
       const idx = normalized.length;
@@ -900,7 +893,7 @@ const Workout = () => {
         note: 'Recovery and rest'
       });
     }
-    
+
     // Trim if more than 7
     return normalized.slice(0, 7);
   };
@@ -1040,7 +1033,7 @@ const Workout = () => {
 
         // ===== VALIDATE RESPONSE STRUCTURE =====
         // Backend returns: { success: true, workout: [...], exercises_count: number }
-        
+
         if (!response.data) {
           throw new Error('Empty response from server');
         }
@@ -1052,7 +1045,7 @@ const Workout = () => {
 
         // Check for workout array (could be at response.data.workout OR response.data.data.workout)
         let workoutPlan = null;
-        
+
         if (Array.isArray(response.data.workout)) {
           // ✅ Correct structure: { success: true, workout: [...] }
           workoutPlan = response.data.workout;
@@ -1182,7 +1175,7 @@ const Workout = () => {
         console.log("=".repeat(60));
         console.log("📊 Stored profile (from localStorage):", storedNormalized);
         console.log("📊 Current profile (from API):", currentNormalized);
-        
+
         const profileChanged = JSON.stringify(storedNormalized) !== JSON.stringify(currentNormalized);
         const cachedPlan = getFromStorage('workoutPlan', []);
         const hasLegacyDemoData = Array.isArray(cachedPlan) && cachedPlan.some((day) =>
@@ -1234,7 +1227,7 @@ const Workout = () => {
         setLoading(false);
       }
     };
-    
+
     const fetchHistory = async () => {
       try {
         const historyResponse = await getWorkoutHistory();
@@ -1246,7 +1239,7 @@ const Workout = () => {
 
     checkAndFetchPlan();
     fetchHistory();
-    
+
     // Cleanup function to prevent state updates on unmount
     // Bug #63 fix: also cancel any in-flight generateWorkout request
     return () => {
@@ -1320,7 +1313,7 @@ const Workout = () => {
         const idx = toDayIndex(d.day_of_week, 0);
         const normalizedType = d.type || (isRestDay(d) ? 'rest' : 'workout');
         const normalizedExercises = Array.isArray(d.exercises) ? d.exercises : [];
-        return [idx, { 
+        return [idx, {
           ...d,
           day_of_week: idx,
           day: d.day || days[idx],
@@ -1423,7 +1416,7 @@ const Workout = () => {
 
         try {
           showSuccess('Swapping rest day...', 1500);
-          
+
           const response = await swapRestToWorkout({
             rest_day_index: todayIdx,
             current_day_index: todayIdx,
@@ -1439,15 +1432,15 @@ const Workout = () => {
             );
             setPlan(swappedPlan);
             setWeekMetadata(updatedWeekMetadata);
-            
+
             // Save to storage
             setToStorage('workoutPlan', swappedPlan);
             setToStorage('workoutPlanTimestamp', new Date().toISOString());
             setToStorage(StorageKeys.WORKOUT_WEEK_METADATA, updatedWeekMetadata);
-            
+
             // DON'T save a decision - the plan is already swapped from backend
             // The displayPlan local swap logic should NOT apply here
-            
+
             showSuccess(
               `Workout moved to today! ${weekdayNames[nextWorkoutIdx]} is now your rest day.`,
               3500
@@ -1459,7 +1452,7 @@ const Workout = () => {
         } catch (error) {
           console.error('Error swapping rest day:', error);
           let errorMessage = 'Failed to swap rest day. ';
-          
+
           if (error.response) {
             // Server responded with error
             errorMessage += error.response.data?.detail || error.response.data?.message || `Server error: ${error.response.status}`;
@@ -1470,7 +1463,7 @@ const Workout = () => {
             // Error setting up request
             errorMessage += error.message || 'Unknown error occurred.';
           }
-          
+
           showError(errorMessage, 5000);
         }
       }
@@ -1806,7 +1799,7 @@ const Workout = () => {
 
   const handleRepUpdate = (repsCount) => {
     if (isResting || isDoneSession || !activeExercise || !isPoseTrackableExercise(activeExercise)) return;
-    
+
     setCurrentReps(repsCount);
 
     const targetReps = getTargetReps(activeExercise);
@@ -1814,10 +1807,10 @@ const Workout = () => {
 
     if (repsCount >= targetReps) {
       if (currentSet >= targetSets) {
-         handleExerciseComplete();
+        handleExerciseComplete();
       } else {
-         setRestTimeLeft(getRestSeconds(activeExercise));
-         setIsResting(true);
+        setRestTimeLeft(getRestSeconds(activeExercise));
+        setIsResting(true);
       }
     }
   };
@@ -1851,19 +1844,19 @@ const Workout = () => {
         setToStorage(`workout_done_${activeDay.day}`, 'true');
         setToStorage(StorageKeys.TODAY_WORKOUT_DONE, 'true');
       }
-      
+
       try {
         await saveUserWorkoutToNode({
-           dayName: activeDay.day,
-           focus: activeDay.focus,
-           exercises: activeDay.exercises.map(ex => ({
-             name: ex.name,
-             duration: ex.duration || "Custom"
-           })),
-           completedAt: new Date().toISOString(),
-           status: isPartialSession ? 'partial' : 'completed',
-           completed_exercises: completedExercises.length,
-           skipped_exercises: skippedNames,
+          dayName: activeDay.day,
+          focus: activeDay.focus,
+          exercises: activeDay.exercises.map(ex => ({
+            name: ex.name,
+            duration: ex.duration || "Custom"
+          })),
+          completedAt: new Date().toISOString(),
+          status: isPartialSession ? 'partial' : 'completed',
+          completed_exercises: completedExercises.length,
+          skipped_exercises: skippedNames,
         });
         console.log("Workout saved to Node backend successfully.");
       } catch (err) {
@@ -1953,14 +1946,14 @@ const Workout = () => {
             <>
               <div style={styles.dateDisplay}>{todayDate}</div>
               <button style={styles.iconButton} className="icon-hover" onClick={() => setShowHistory(!showHistory)} title="Past Workouts">🕒</button>
-              <div style={{position:'relative'}} ref={notifRef}>
+              <div style={{ position: 'relative' }} ref={notifRef}>
                 <button style={styles.iconButton} className="icon-hover" onClick={() => setShowNotif(!showNotif)}>🔔</button>
                 {showNotif && (
                   <div style={styles.notifDropdown}>
-                    <div style={{fontSize:'14px', fontWeight:'700', color:'#fff', marginBottom:'12px'}}>Notifications</div>
+                    <div style={{ fontSize: '14px', fontWeight: '700', color: '#fff', marginBottom: '12px' }}>Notifications</div>
                     <div style={styles.notifItem}>🔥 You're on a 12-day streak!</div>
                     <div style={styles.notifItem}>🏋️ Leg Day today!</div>
-                    <div style={{...styles.notifItem, borderBottom:'none', color:'#a1a1aa', fontSize:'12px', justifyContent:'center', marginTop:'8px'}}>No new alerts</div>
+                    <div style={{ ...styles.notifItem, borderBottom: 'none', color: '#a1a1aa', fontSize: '12px', justifyContent: 'center', marginTop: '8px' }}>No new alerts</div>
                   </div>
                 )}
               </div>
@@ -1995,27 +1988,6 @@ const Workout = () => {
                       const isPlaceholder = !!day.is_placeholder;
                       const status = getDayStatus(day, todayIdx, completedIds);
                       const isToday = status === 'TODAY' || (status === 'REST' && dayIdx === todayIdx);
-                      const dayExercises = day.exercises || []; // FIXED: Define here
-                      const previewExercises = dayExercises.filter((ex) => !ex?.is_warmup);
-                      const displayExercises = previewExercises.length > 0 ? previewExercises : dayExercises;
-
-                      let cardStyle = {...workoutLayout.card};
-                      if (status === 'TODAY') {
-                        cardStyle = {...cardStyle, ...styles.cardActive};
-                      } else if (status === 'COMPLETED') {
-                        cardStyle = {...cardStyle, ...styles.cardDone};
-                      } else if (status === 'NOT_STARTED') {
-                        cardStyle = {
-                          ...cardStyle,
-                          border: '1px dashed rgba(161, 161, 170, 0.25)',
-                          background: 'rgba(113, 113, 122, 0.05)',
-                          opacity: 0.75,
-                        };
-                      } else if (status === 'PAST') {
-                        cardStyle = {...cardStyle, ...styles.cardMissed};
-                      } else if (isRest || isPlaceholder) {
-                        cardStyle = {...cardStyle, border: '1px dashed rgba(255,255,255,0.2)', opacity: 0.7};
-                      }
 
                       return (
                         <WorkoutDayCard
@@ -2036,7 +2008,7 @@ const Workout = () => {
                       );
                     })
                 ) : (
-                  <div style={{gridColumn: '1 / -1', textAlign: 'center', padding: '40px', color: '#a1a1aa', fontSize: '16px'}}>
+                  <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px', color: '#a1a1aa', fontSize: '16px' }}>
                     No plan yet. Generate to see your week.
                   </div>
                 )}
@@ -2087,22 +2059,22 @@ const Workout = () => {
                               ...(isSelected ? styles.exerciseItemActive : {}),
                               ...(isWarmupSection
                                 ? {
-                                    borderColor: 'rgba(245, 158, 11, 0.3)',
-                                    background: 'rgba(245, 158, 11, 0.06)',
-                                  }
+                                  borderColor: 'rgba(245, 158, 11, 0.3)',
+                                  background: 'rgba(245, 158, 11, 0.06)',
+                                }
                                 : {}),
                               ...(isCompleted
                                 ? {
-                                    opacity: 0.55,
-                                    borderColor: '#22c55e',
-                                  }
+                                  opacity: 0.55,
+                                  borderColor: '#22c55e',
+                                }
                                 : {}),
                               ...(isSkipped
                                 ? {
-                                    opacity: 0.45,
-                                    borderColor: '#ef4444',
-                                    textDecoration: 'line-through',
-                                  }
+                                  opacity: 0.45,
+                                  borderColor: '#ef4444',
+                                  textDecoration: 'line-through',
+                                }
                                 : {}),
                             }}
                           >
@@ -2161,13 +2133,13 @@ const Workout = () => {
                   <div style={styles.selectionPreview}>
                     {activeExercise ? (
                       <>
-                        <div style={{fontSize:'32px', fontWeight:'800', color:'#fff', marginBottom:'10px'}}>{activeExercise.name}</div>
-                        <div style={{fontSize:'16px', color:'#a5b4fc', marginBottom:'30px', fontFamily:'monospace'}}>
+                        <div style={{ fontSize: '32px', fontWeight: '800', color: '#fff', marginBottom: '10px' }}>{activeExercise.name}</div>
+                        <div style={{ fontSize: '16px', color: '#a5b4fc', marginBottom: '30px', fontFamily: 'monospace' }}>
                           {activeExerciseTimed
                             ? `${activeExerciseTargetSets} SETS x ${formatDurationClock(activeExerciseDuration)} TIMER`
                             : `${activeExercise.sets} SETS x ${activeExercise.reps} REPS`}
                         </div>
-                        <div style={{...styles.gifLargeContainer, ...workoutLayout.previewMedia}}>
+                        <div style={{ ...styles.gifLargeContainer, ...workoutLayout.previewMedia }}>
                           {renderPreviewMedia()}
                         </div>
                         <button style={styles.btnStartLarge} onClick={startCamera}>
@@ -2176,8 +2148,8 @@ const Workout = () => {
                       </>
                     ) : (
                       <>
-                        <div style={{fontSize:'60px', marginBottom:'20px'}}>👈</div>
-                        <div style={{fontSize:'18px', fontWeight:'600'}}>Select an exercise from the left to begin</div>
+                        <div style={{ fontSize: '60px', marginBottom: '20px' }}>👈</div>
+                        <div style={{ fontSize: '18px', fontWeight: '600' }}>Select an exercise from the left to begin</div>
                       </>
                     )}
                   </div>
@@ -2188,34 +2160,34 @@ const Workout = () => {
                 <div style={workoutLayout.focusContainer}>
                   <div style={workoutLayout.focusLeft}>
                     <div style={styles.activeExTitle}>{activeExercise.name}</div>
-                    
+
                     {!isResting ? (
                       <div style={styles.activeExStats}>
                         {activeExerciseTimed ? (
                           <>
-                            <span style={{color: '#fff'}}>SET {currentSet} OF {activeExerciseTargetSets}</span> • <span style={{color: '#22c55e'}}>{formatDurationClock(exerciseTimeLeft)} LEFT</span>
+                            <span style={{ color: '#fff' }}>SET {currentSet} OF {activeExerciseTargetSets}</span> • <span style={{ color: '#22c55e' }}>{formatDurationClock(exerciseTimeLeft)} LEFT</span>
                           </>
                         ) : (
                           <>
-                            <span style={{color: '#fff'}}>SET {currentSet} OF {activeExercise.sets}</span> • <span style={{color: '#22c55e'}}>{currentReps} / {activeExercise.reps} REPS</span>
+                            <span style={{ color: '#fff' }}>SET {currentSet} OF {activeExercise.sets}</span> • <span style={{ color: '#22c55e' }}>{currentReps} / {activeExercise.reps} REPS</span>
                           </>
                         )}
                       </div>
                     ) : (
-                      <div style={{...styles.activeExStats, color: '#f59e0b', fontSize: '24px'}}>
+                      <div style={{ ...styles.activeExStats, color: '#f59e0b', fontSize: '24px' }}>
                         RESTING: {restTimeLeft}s
                       </div>
                     )}
-                    
+
                     {formFeedback?.status === 'warning' && formFeedback?.message && !isResting && activeExercisePoseTrackable && (
-                       <div style={{background: 'rgba(239, 68, 68, 0.2)', color: '#ef4444', padding: '10px', borderRadius: '8px', marginBottom: '15px', fontWeight: 'bold', fontSize: '14px'}}>
-                         ⚠️ {formFeedback.message}
-                       </div>
+                      <div style={{ background: 'rgba(239, 68, 68, 0.2)', color: '#ef4444', padding: '10px', borderRadius: '8px', marginBottom: '15px', fontWeight: 'bold', fontSize: '14px' }}>
+                        ⚠️ {formFeedback.message}
+                      </div>
                     )}
                     {formFeedback?.status === 'tracking_lost' && !isResting && activeExercisePoseTrackable && (
-                       <div style={{background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', padding: '10px', borderRadius: '8px', marginBottom: '15px', fontWeight: 'bold', fontSize: '14px'}}>
-                         ⚠ {formFeedback.message || 'Camera tracking lost'}
-                       </div>
+                      <div style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', padding: '10px', borderRadius: '8px', marginBottom: '15px', fontWeight: 'bold', fontSize: '14px' }}>
+                        ⚠ {formFeedback.message || 'Camera tracking lost'}
+                      </div>
                     )}
 
                     <div style={{
@@ -2234,7 +2206,7 @@ const Workout = () => {
                       }}>📹 FORM GUIDE</div>
                       {renderSessionMedia()}
                     </div>
-                    
+
                     <div style={workoutLayout.controlsContainer}>
                       <button style={styles.btnStop} className="btn-stop" onClick={stopCamera}>END SESSION</button>
                       <button style={styles.btnDone} className="btn-done" onClick={() => handleExerciseSkipped(activeExercise)}>SKIP TO NEXT</button>
@@ -2255,17 +2227,17 @@ const Workout = () => {
                         <video ref={videoRef} autoPlay playsInline muted style={styles.videoFeed} />
 
                         {/* MASSIVE IN-VIDEO UI OVERLAYS FOR POSTURE AND REPS */}
-                        <div style={{position: 'absolute', top: 20, left: 20, zIndex: 25, display: 'flex', flexDirection: 'column', gap: '10px'}}>
-                            {!isResting && (
-                                <div style={{background: 'rgba(0,0,0,0.8)', padding: '10px 20px', borderRadius: '12px', border: '2px solid #3f3f46'}}>
-                                    <div style={{color: '#a1a1aa', fontSize: '14px', fontWeight: 'bold'}}>SET {currentSet} OF {activeExerciseTargetSets}</div>
-                                    {activeExerciseTimed ? (
-                                      <div style={{color: '#22c55e', fontSize: '48px', fontWeight: '900', lineHeight: '1'}}>{formatDurationClock(exerciseTimeLeft)}</div>
-                                    ) : (
-                                      <div style={{color: '#22c55e', fontSize: '48px', fontWeight: '900', lineHeight: '1'}}>{currentReps} <span style={{fontSize: '24px', color: '#fff'}}>/ {getTargetReps(activeExercise)}</span></div>
-                                    )}
-                                </div>
-                            )}
+                        <div style={{ position: 'absolute', top: 20, left: 20, zIndex: 25, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                          {!isResting && (
+                            <div style={{ background: 'rgba(0,0,0,0.8)', padding: '10px 20px', borderRadius: '12px', border: '2px solid #3f3f46' }}>
+                              <div style={{ color: '#a1a1aa', fontSize: '14px', fontWeight: 'bold' }}>SET {currentSet} OF {activeExerciseTargetSets}</div>
+                              {activeExerciseTimed ? (
+                                <div style={{ color: '#22c55e', fontSize: '48px', fontWeight: '900', lineHeight: '1' }}>{formatDurationClock(exerciseTimeLeft)}</div>
+                              ) : (
+                                <div style={{ color: '#22c55e', fontSize: '48px', fontWeight: '900', lineHeight: '1' }}>{currentReps} <span style={{ fontSize: '24px', color: '#fff' }}>/ {getTargetReps(activeExercise)}</span></div>
+                              )}
+                            </div>
+                          )}
                         </div>
 
                         {/* Bug #2 Fix: Warming message overlay with auto-dismiss */}
@@ -2328,7 +2300,6 @@ const Workout = () => {
                           const message = formFeedback?.message;
                           const isWarning = status === 'warning' && message;
                           const isTrackingLost = status === 'tracking_lost';
-                          const isGood = !isWarning && !isTrackingLost;
 
                           if (isWarning) {
                             return (
@@ -2350,8 +2321,8 @@ const Workout = () => {
                                 transition: 'all 0.4s ease',
                                 maxWidth: '80%',
                               }}>
-                                ⚠️ INCORRECT POSTURE<br/>
-                                <span style={{fontSize: '16px', fontWeight: '500', opacity: 0.9}}>{message}</span>
+                                ⚠️ INCORRECT POSTURE<br />
+                                <span style={{ fontSize: '16px', fontWeight: '500', opacity: 0.9 }}>{message}</span>
                               </div>
                             );
                           }
@@ -2436,16 +2407,16 @@ const Workout = () => {
                         )}
 
                         {activeExerciseNeedsCamera && (
-                          <div style={styles.recBadge}><div style={{width:10, height:10, background:'white', borderRadius:'50%', animation:'pulseBorder 1s infinite'}}></div>REC</div>
+                          <div style={styles.recBadge}><div style={{ width: 10, height: 10, background: 'white', borderRadius: '50%', animation: 'pulseBorder 1s infinite' }}></div>REC</div>
                         )}
 
                         {activeExerciseNeedsCamera && isResting && (
-                           <div style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', zIndex: 30}}>
-                             <div style={{fontSize: '32px', color: '#a1a1aa', marginBottom: '10px', fontWeight: '800'}}>RECOVERY TIME</div>
-                             <div style={{fontSize: '100px', fontWeight: '900', color: '#f59e0b'}}>{restTimeLeft}</div>
-                             <div style={{fontSize: '18px', color: '#fff', marginTop: '20px'}}>Next: Set {currentSet + 1} of {activeExercise.name}</div>
-                             <button onClick={() => setRestTimeLeft(0)} style={{marginTop: '30px', background: '#3f3f46', border: 'none', color: 'white', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold'}}>Skip Rest</button>
-                           </div>
+                          <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', zIndex: 30 }}>
+                            <div style={{ fontSize: '32px', color: '#a1a1aa', marginBottom: '10px', fontWeight: '800' }}>RECOVERY TIME</div>
+                            <div style={{ fontSize: '100px', fontWeight: '900', color: '#f59e0b' }}>{restTimeLeft}</div>
+                            <div style={{ fontSize: '18px', color: '#fff', marginTop: '20px' }}>Next: Set {currentSet + 1} of {activeExercise.name}</div>
+                            <button onClick={() => setRestTimeLeft(0)} style={{ marginTop: '30px', background: '#3f3f46', border: 'none', color: 'white', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Skip Rest</button>
+                          </div>
                         )}
                       </>
                     )}
@@ -2566,9 +2537,9 @@ const Workout = () => {
 
         {showHistory && (
           <div style={workoutLayout.historyPanel}>
-            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'24px'}}>
-              <div style={{fontSize:'20px', fontWeight:'800', color:'#fff'}}>History</div>
-              <button onClick={() => setShowHistory(false)} style={{background:'none', border:'none', color:'#fff', fontSize:'20px', cursor:'pointer'}}>✕</button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <div style={{ fontSize: '20px', fontWeight: '800', color: '#fff' }}>History</div>
+              <button onClick={() => setShowHistory(false)} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '20px', cursor: 'pointer' }}>✕</button>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '16px' }}>
@@ -2607,22 +2578,22 @@ const Workout = () => {
                 {pastWorkouts && pastWorkouts.length > 0 ? (
                   pastWorkouts.map((day, i) => (
                     <div key={i} style={styles.historyItem} className="history-card" onClick={() => setSelectedHistory(selectedHistory === i ? null : i)}>
-                      <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div style={styles.historyDate}>{day.date || new Date().toLocaleDateString()}</div>
-                        <div style={{fontSize:'12px', fontWeight:'700', color: day.status === 'Completed' ? '#22c55e' : '#ef4444'}}>{day.status || 'Completed'}</div>
+                        <div style={{ fontSize: '12px', fontWeight: '700', color: day.status === 'Completed' ? '#22c55e' : '#ef4444' }}>{day.status || 'Completed'}</div>
                       </div>
                       {selectedHistory === i && day.details && (
-                        <div style={{marginTop:'15px', paddingTop:'15px', borderTop:'1px solid rgba(255,255,255,0.1)'}}>
+                        <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
                           <div style={styles.historyLabel}>Details:</div>
                           <div style={styles.historyList}>
-                            <div style={{marginBottom:'4px'}}>{day.details}</div>
+                            <div style={{ marginBottom: '4px' }}>{day.details}</div>
                           </div>
                         </div>
                       )}
                     </div>
                   ))
                 ) : (
-                  <div style={{textAlign:'center', padding:'40px', color:'#52525b'}}>No workout history yet</div>
+                  <div style={{ textAlign: 'center', padding: '40px', color: '#52525b' }}>No workout history yet</div>
                 )}
               </>
             ) : (
@@ -2660,7 +2631,7 @@ const Workout = () => {
 
                       return (
                         <div key={`swap-history-${idx}`} style={styles.historyItem} className="history-card">
-                          <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'8px'}}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                             <div style={{ ...styles.historyDate, marginBottom: 0 }}>
                               {isRestToWorkout ? 'Rest -> Workout' : 'Workout -> Rest'}
                             </div>
@@ -2676,7 +2647,7 @@ const Workout = () => {
                       );
                     })
                 ) : (
-                  <div style={{textAlign:'center', padding:'40px', color:'#52525b'}}>No swaps recorded this week</div>
+                  <div style={{ textAlign: 'center', padding: '40px', color: '#52525b' }}>No swaps recorded this week</div>
                 )}
               </>
             )}

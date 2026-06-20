@@ -4,6 +4,9 @@
  */
 
 export const StorageKeys = {
+  // Auth
+  TOKEN: 'token',
+
   // Activity & History
   ACTIVITY_HISTORY: 'activityHistory',
   

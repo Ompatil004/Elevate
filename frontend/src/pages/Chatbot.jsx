@@ -10,11 +10,12 @@ import { logoutSafe } from '../utils/storage';
 const styles = {
   page: {
     background: '#09090b',
-    minHeight: '100dvh',
+    height: '100dvh',
+    maxHeight: '100dvh',
     color: '#e4e4e7',
     fontFamily: "'Inter', sans-serif",
     display: 'flex', flexDirection: 'column',
-    overflowX: 'hidden',
+    overflow: 'hidden',
     backgroundImage: `
       radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.15), transparent 35%),
       radial-gradient(circle at 100% 100%, rgba(236, 72, 153, 0.1), transparent 35%)
@@ -589,7 +590,10 @@ function Chatbot() {
           .chat-container { padding: 10px !important; }
           .chat-header { padding: 12px 16px !important; }
           .messages-area { padding: 16px !important; }
-          .input-area { padding: 12px !important; }
+          .input-area { 
+            padding: 12px !important; 
+            padding-bottom: calc(12px + env(safe-area-inset-bottom)) !important;
+          }
           .suggestion-grid { grid-template-columns: 1fr !important; }
           .bubble-msg { max-width: 85% !important; }
           .navbar-pad { padding: 0 16px !important; }

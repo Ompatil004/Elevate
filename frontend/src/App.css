@@ -729,8 +729,8 @@ body {
   .login-card {
     flex-direction: column;
     border-radius: 12px;
-    max-width: 98%;
-    margin: 10px;
+    max-width: 100%;
+    margin: 0;
   }
 
   .login-left {

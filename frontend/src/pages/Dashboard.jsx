@@ -935,368 +935,385 @@ const responsiveStyles = `
   /* Extra Small Mobile (320px - 480px) */
   @media (max-width: 480px) {
     .page {
-      padding: 8px;
+      padding: 8px !important;
     }
 
     .container {
-      padding: 16px;
-      gap: 16px;
+      padding: 16px !important;
+      gap: 16px !important;
+      display: flex !important;
+      flex-direction: column !important;
     }
 
     .bentoBox {
-      flex-direction: column;
-      gap: 16px;
-      padding: 16px;
+      flex-direction: column !important;
+      gap: 16px !important;
+      padding: 16px !important;
     }
 
     .heroSection {
-      flex-direction: column;
-      gap: 20px;
-      padding: 20px;
+      flex-direction: column !important;
+      gap: 20px !important;
+      padding: 20px !important;
     }
 
     .heroLeft,
     .heroCenter,
     .heroRight {
-      width: 100%;
-      text-align: center;
+      width: 100% !important;
+      text-align: center !important;
     }
 
     .avatarWrapper {
-      margin: 0 auto 16px auto;
+      margin: 0 auto 16px auto !important;
     }
 
     .statsRow {
-      grid-template-columns: 1fr;
-      gap: 16px;
+      grid-template-columns: 1fr !important;
+      gap: 16px !important;
+      display: flex !important;
+      flex-direction: column !important;
     }
 
     .chartSection {
-      grid-column: span 12;
-      height: 340px;
+      grid-column: span 12 !important;
+      height: 340px !important;
+      width: 100% !important;
     }
 
     .activitySection {
-      grid-column: span 12;
-      height: 340px;
+      grid-column: span 12 !important;
+      height: auto !important;
+      width: 100% !important;
     }
 
     .glassPill {
-      flex-direction: column;
-      gap: 8px;
-      padding: 12px;
-      width: 100%;
-      max-width: 240px;
-      margin: 0 auto;
+      flex-direction: column !important;
+      gap: 8px !important;
+      padding: 12px !important;
+      width: 100% !important;
+      max-width: 240px !important;
+      margin: 0 auto !important;
     }
 
     .glassBtn {
-      width: 100%;
-      padding: 10px;
+      width: 100% !important;
+      padding: 10px !important;
     }
 
     .sectionHeader {
-      flex-direction: column;
-      gap: 12px;
-      align-items: flex-start;
+      flex-direction: column !important;
+      gap: 12px !important;
+      align-items: flex-start !important;
     }
 
     .chartControls {
-      width: 100%;
-      flex-direction: column;
-      gap: 12px;
-      align-items: center;
+      width: 100% !important;
+      flex-direction: column !important;
+      gap: 12px !important;
+      align-items: center !important;
     }
 
     .chartTabs {
-      width: 100%;
-      justify-content: center;
+      width: 100% !important;
+      justify-content: center !important;
     }
 
     .chartTab {
-      padding: 4px 10px;
-      font-size: 10px;
+      padding: 4px 10px !important;
+      font-size: 10px !important;
     }
 
     .listRow {
-      padding: 12px;
-      flex-direction: column;
-      gap: 6px;
-      align-items: center;
+      padding: 12px !important;
+      flex-direction: column !important;
+      gap: 6px !important;
+      align-items: center !important;
     }
 
     .navbar {
-      padding: 0 16px;
-      height: 50px;
+      padding: 0 16px !important;
+      height: 50px !important;
     }
 
     .brand {
-      font-size: 16px;
+      font-size: 16px !important;
     }
 
     .navLink {
-      padding: 6px 10px;
-      font-size: 11px;
+      padding: 6px 10px !important;
+      font-size: 11px !important;
     }
 
     .dateDisplay {
-      font-size: 11px;
+      font-size: 11px !important;
     }
 
     .iconButton {
-      width: 36px;
-      height: 36px;
+      width: 36px !important;
+      height: 36px !important;
     }
 
     .logoutBtn {
-      padding: 0 12px;
+      padding: 0 12px !important;
     }
 
     .logoutText {
-      font-size: 10px;
+      font-size: 10px !important;
     }
 
     .notifDropdown {
-      width: 280px;
-      right: -120px;
+      width: 280px !important;
+      right: -120px !important;
     }
 
     .circleBtn {
-      width: 150px;
-      height: 150px;
-      font-size: 14px;
+      width: 100% !important;
+      height: auto !important;
+      font-size: 14px !important;
     }
 
     .h1 {
-      font-size: 32px;
+      font-size: 32px !important;
     }
 
     .quoteCard {
-      max-width: 100%;
-      padding: 12px 16px;
+      max-width: 100% !important;
+      padding: 12px 16px !important;
     }
 
     .streakNumber {
-      font-size: 60px;
+      font-size: 60px !important;
     }
 
     .weekGrid {
-      gap: 6px;
+      gap: 6px !important;
+      justify-content: center !important;
     }
 
     .dayCircle {
-      width: 36px;
-      height: 36px;
-      font-size: 14px;
+      width: 36px !important;
+      height: 36px !important;
+      font-size: 14px !important;
     }
 
     .macroBar {
-      height: 12px;
+      height: 12px !important;
     }
 
     .modalContent {
-      width: 95%;
-      padding: 8px;
+      width: 95% !important;
+      padding: 8px !important;
     }
-
+    
     .closeModalBtn {
-      width: 28px;
-      height: 28px;
-      font-size: 14px;
+      width: 28px !important;
+      height: 28px !important;
+      font-size: 14px !important;
     }
   }
 
   /* Small Mobile (481px - 768px) */
   @media (min-width: 481px) and (max-width: 768px) {
     .page {
-      padding: 10px;
+      padding: 10px !important;
     }
 
     .container {
-      padding: 20px;
-      gap: 20px;
+      padding: 20px !important;
+      gap: 20px !important;
+      display: flex !important;
+      flex-direction: column !important;
     }
 
     .bentoBox {
-      flex-direction: column;
-      gap: 16px;
-      padding: 16px;
+      flex-direction: column !important;
+      gap: 16px !important;
+      padding: 16px !important;
     }
 
     .heroSection {
-      flex-direction: column;
-      gap: 20px;
-      padding: 20px;
+      flex-direction: column !important;
+      gap: 20px !important;
+      padding: 20px !important;
     }
 
     .heroLeft,
     .heroCenter,
     .heroRight {
-      width: 100%;
-      text-align: center;
+      width: 100% !important;
+      text-align: center !important;
     }
 
     .avatarWrapper {
-      margin: 0 auto 16px;
+      margin: 0 auto 16px !important;
     }
 
     .statsRow {
-      grid-template-columns: 1fr;
-      gap: 16px;
+      grid-template-columns: 1fr !important;
+      gap: 16px !important;
+      display: flex !important;
+      flex-direction: column !important;
     }
 
     .chartSection {
-      grid-column: span 12;
-      height: 340px;
+      grid-column: span 12 !important;
+      height: 340px !important;
+      width: 100% !important;
     }
 
     .activitySection {
-      grid-column: span 12;
-      height: 340px;
+      grid-column: span 12 !important;
+      height: auto !important;
+      width: 100% !important;
     }
 
     .glassPill {
-      flex-direction: column;
-      gap: 8px;
-      padding: 12px;
-      width: 100%;
-      max-width: 240px;
-      margin: 0 auto;
+      flex-direction: column !important;
+      gap: 8px !important;
+      padding: 12px !important;
+      width: 100% !important;
+      max-width: 240px !important;
+      margin: 0 auto !important;
     }
 
     .glassBtn {
-      width: 100%;
-      padding: 10px;
+      width: 100% !important;
+      padding: 10px !important;
     }
 
     .sectionHeader {
-      flex-direction: column;
-      gap: 12px;
-      align-items: center;
+      flex-direction: column !important;
+      gap: 12px !important;
+      align-items: center !important;
     }
 
     .chartControls {
-      width: 100%;
-      flex-direction: column;
-      gap: 12px;
-      align-items: center;
+      width: 100% !important;
+      flex-direction: column !important;
+      gap: 12px !important;
+      align-items: center !important;
     }
 
     .chartTabs {
-      width: 100%;
-      justify-content: center;
+      width: 100% !important;
+      justify-content: center !important;
     }
 
     .chartTab {
-      padding: 4px 10px;
-      font-size: 10px;
+      padding: 4px 10px !important;
+      font-size: 10px !important;
     }
 
     .listRow {
-      padding: 14px 12px;
-      flex-direction: column;
-      gap: 8px;
-      align-items: center;
+      padding: 14px 12px !important;
+      flex-direction: column !important;
+      gap: 8px !important;
+      align-items: center !important;
     }
 
     .navbar {
-      padding: 0 20px;
-      height: 60px;
+      padding: 0 20px !important;
+      height: 60px !important;
     }
 
     .brand {
-      font-size: 18px;
+      font-size: 18px !important;
     }
 
     .navLink {
-      padding: 6px 12px;
-      font-size: 12px;
+      padding: 6px 12px !important;
+      font-size: 12px !important;
     }
 
     .circleBtn {
-      width: 150px;
-      height: 150px;
-      font-size: 14px;
+      width: 100% !important;
+      height: auto !important;
+      font-size: 14px !important;
     }
 
     .h1 {
-      font-size: 28px;
+      font-size: 28px !important;
     }
 
     .quoteCard {
-      max-width: 100%;
-      padding: 12px 16px;
+      max-width: 100% !important;
+      padding: 12px 16px !important;
     }
 
     .streakNumber {
-      font-size: 60px;
+      font-size: 60px !important;
     }
 
     .weekGrid {
-      gap: 6px;
-      justify-content: center;
+      gap: 6px !important;
+      justify-content: center !important;
     }
 
     .dayCircle {
-      width: 36px;
-      height: 36px;
-      font-size: 14px;
+      width: 36px !important;
+      height: 36px !important;
+      font-size: 14px !important;
     }
 
     .macroBar {
-      height: 12px;
+      height: 12px !important;
     }
 
     .sectionTitle {
-      font-size: 18px;
-    }
-
-    .listRow {
-      padding: 14px 12px;
-      flex-direction: column;
-      gap: 8px;
-      align-items: center;
+      font-size: 18px !important;
     }
 
     .modalContent {
-      width: 95%;
-      padding: 8px;
+      width: 95% !important;
+      padding: 8px !important;
     }
 
     .closeModalBtn {
-      width: 28px;
-      height: 28px;
-      font-size: 14px;
+      width: 28px !important;
+      height: 28px !important;
+      font-size: 14px !important;
     }
   }
 
   /* Tablet (769px - 1024px) */
   @media (min-width: 769px) and (max-width: 1024px) {
+    .container {
+      display: flex !important;
+      flex-direction: column !important;
+    }
+
     .bentoBox {
-      padding: 20px;
+      padding: 20px !important;
     }
 
     .heroSection {
-      flex-direction: row;
-      gap: 30px;
+      flex-direction: row !important;
+      gap: 30px !important;
     }
 
     .statsRow {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 20px !important;
+      display: grid !important;
     }
 
     .chartSection {
-      height: 380px;
+      height: 380px !important;
+      grid-column: span 12 !important;
+      width: 100% !important;
     }
 
     .activitySection {
-      height: 380px;
+      height: auto !important;
+      grid-column: span 12 !important;
+      width: 100% !important;
     }
 
     .navbar {
-      padding: 0 30px;
+      padding: 0 30px !important;
     }
+
 
     .circleBtn {
       width: 170px;
@@ -2000,7 +2017,7 @@ function Dashboard({ onLogout }) {
     } catch (err) {
       console.error('Error computing daily progress:', err);
     }
-  }, [status, water, sleep, mealsLoggedToday, workoutProgress]);
+  }, [status, water, sleep, mealsLoggedToday, workoutProgress, workoutPartial]);
 
   useEffect(() => {
     const unsubWater = syncBridge.subscribe(SyncTypes.WATER_ADDED, (data) => {

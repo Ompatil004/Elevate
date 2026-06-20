@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const STATUS_META = {
@@ -203,7 +203,7 @@ function DashboardActionIdeas() {
     };
   }, [score]);
 
-  const radarAxes = ['Strength', 'Mobility', 'Endurance', 'Sleep', 'Focus', 'Recovery'];
+  const radarAxes = useMemo(() => ['Strength', 'Mobility', 'Endurance', 'Sleep', 'Focus', 'Recovery'], []);
 
   const radarMetrics = useMemo(() => {
     if (status === 'sync') return [28, 35, 24, 26, 30, 22];
@@ -212,17 +212,17 @@ function DashboardActionIdeas() {
     return [90, 64, 80, 88, 84, 86];
   }, [status]);
 
-  const toRadarPoint = (idx, value, radius = 72, cx = 90, cy = 90) => {
+  const toRadarPoint = useCallback((idx, value, radius = 72, cx = 90, cy = 90) => {
     const angle = ((-90 + idx * (360 / radarAxes.length)) * Math.PI) / 180;
     const scaled = (value / 100) * radius;
     const x = cx + scaled * Math.cos(angle);
     const y = cy + scaled * Math.sin(angle);
     return `${x},${y}`;
-  };
+  }, [radarAxes]);
 
   const radarPolygon = useMemo(
     () => radarMetrics.map((v, idx) => toRadarPoint(idx, v)).join(' '),
-    [radarMetrics]
+    [radarMetrics, toRadarPoint]
   );
 
   const weakestRadarAxis = useMemo(() => {

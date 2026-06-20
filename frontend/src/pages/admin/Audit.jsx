@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { adminGetAuditLogs } from '../../api';
 
 const ACTION_OPTIONS = [
@@ -42,7 +42,7 @@ export default function AdminAudit() {
     return base;
   }, [pagination.page, pagination.limit, actionFilter]);
 
-  const fetchLogs = async () => {
+  const fetchLogs = useCallback(async () => {
     setLoading(true);
     setError('');
 
@@ -58,11 +58,11 @@ export default function AdminAudit() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [params]);
 
   useEffect(() => {
     fetchLogs();
-  }, [params]);
+  }, [fetchLogs]);
 
   const setPage = (nextPage) => {
     setPagination((prev) => ({
@@ -129,17 +129,17 @@ export default function AdminAudit() {
               ) : (
                 logs.map((log) => (
                   <tr key={log._id}>
-                    <td>{log.timestamp ? new Date(log.timestamp).toLocaleString() : '-'}</td>
-                    <td>{log.action}</td>
-                    <td>
+                    <td data-label="Timestamp">{log.timestamp ? new Date(log.timestamp).toLocaleString() : '-'}</td>
+                    <td data-label="Action">{log.action}</td>
+                    <td data-label="Owner">
                       <strong>{log.ownerId?.name || 'Unknown'}</strong>
                       <div className="admin-note">{log.ownerId?.email || '-'}</div>
                     </td>
-                    <td>
+                    <td data-label="Target">
                       <div>{log.targetType || '-'}</div>
                       <div className="admin-note">{log.targetId || '-'}</div>
                     </td>
-                    <td>
+                    <td data-label="Details">
                       <pre
                         style={{
                           margin: 0,

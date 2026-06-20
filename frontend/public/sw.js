@@ -3,16 +3,6 @@ const RUNTIME_CACHE = 'elevate-runtime-v1';
 
 const STATIC_ASSETS = ['/', '/index.html', '/vite.svg'];
 
-const cacheFirst = async (request, cacheName) => {
-  const cache = await caches.open(cacheName);
-  const cached = await cache.match(request);
-  if (cached) return cached;
-
-  const response = await fetch(request);
-  cache.put(request, response.clone());
-  return response;
-};
-
 const staleWhileRevalidate = async (request, cacheName) => {
   const cache = await caches.open(cacheName);
   const cached = await cache.match(request);

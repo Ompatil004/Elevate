@@ -38,7 +38,7 @@ export function useInactivityLogout(onLogout, timeoutMs = 30 * 60 * 1000, enable
       localStorage.setItem(LAST_ACTIVE_KEY, Date.now().toString());
       hasFiredRef.current = false;
     } catch (e) {
-      console.warn('LocalStorage quota exceeded or disabled, fallback to local tracking.');
+      console.warn('LocalStorage quota exceeded or disabled, fallback to local tracking.', e);
     }
   }, [enabled, timeoutMs]);
 

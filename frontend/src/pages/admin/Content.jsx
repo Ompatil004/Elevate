@@ -270,20 +270,20 @@ export default function AdminContent() {
               ) : (
                 exercises.map((exercise) => (
                   <tr key={exercise._id}>
-                    <td>
+                    <td data-label="Name">
                       <strong>{exercise.name}</strong>
                       <div className="admin-note">{exercise.description || '-'}</div>
                     </td>
-                    <td>{exercise.category || '-'}</td>
-                    <td>{exercise.difficulty || '-'}</td>
-                    <td>
+                    <td data-label="Category">{exercise.category || '-'}</td>
+                    <td data-label="Difficulty">{exercise.difficulty || '-'}</td>
+                    <td data-label="Status">
                       {exercise.active ? (
                         <span className="admin-status ok">Active</span>
                       ) : (
                         <span className="admin-status warn">Inactive</span>
                       )}
                     </td>
-                    <td>
+                    <td data-label="Actions">
                       <div className="admin-actions">
                         <button className="admin-btn secondary" type="button" onClick={() => handleEdit(exercise)}>
                           Edit
