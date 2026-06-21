@@ -1,49 +1,40 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useNotification } from '../components/NotificationProvider';
+import { useTheme } from '../context/ThemeContext';
 import ConfirmDialog from '../components/ConfirmDialog';
-import {
-  getProfile,
-  saveTrends,
-  getTrends,
-  getExternalNutritionData,
-  getExternalExerciseData,
-} from '../api';
-import Navbar from '../components/Navbar';
-// BUG-F2/F8: ActivityChart extracted to its own component file (no Dashboard coupling)
-import ActivityChart from '../components/dashboard/ActivityChart';
-// BUG-F5: QUOTES lazy-loaded after mount to reduce initial bundle parse time.
+import { getProfile, saveTrends, getTrends, logActivityToBackend, getRecentActivities, syncActivitiesToBackend, saveDailyLog, getWeeklyLogs } from '../api';
+import { QUOTES } from '../data/quotes';
 import {
   getFromStorage,
   setToStorage,
   removeFromStorage,
   logoutSafe,
   StorageKeys,
+  getLocalDateStr,
   getTodayStr,
   safeJSONParse
 } from '../utils/storage';
-import { persistSessionUser } from '../utils/sessionUtils';
 import { syncBridge, SyncTypes } from '../utils/syncBridge';
-
+import AuroraBackground from '../components/AuroraBackground';
 
 // --- FULL PREMIUM STYLES (JS Object - Static Only) ---
 const styles = {
   page: {
-    background: '#09090b',
+    background: 'transparent',
     minHeight: '100dvh',
-    color: '#e4e4e7',
+    color: 'var(--app-text)',
     fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
     overflowX: 'hidden',
-    backgroundImage: `
-      radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.08), transparent 25%),
-      radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.08), transparent 25%)
-    `,
-    paddingBottom: '40px'
+    position: 'relative',
+    zIndex: 1,
+    paddingBottom: '40px',
+    paddingTop: 'clamp(64px, 9vw, 80px)'
   },
   dateDisplay: {
     fontSize: '13px',
     fontWeight: '600',
-    color: '#a1a1aa',
+    color: 'var(--app-text-muted)',
     fontFamily: 'sans-serif',
     letterSpacing: '0.5px',
     marginRight: '8px'
@@ -54,11 +45,13 @@ const styles = {
     padding: '0 clamp(12px, 4vw, 40px)',
     height: 'clamp(64px, 9vw, 80px)',
     gap: 'clamp(8px, 2vw, 18px)',
-    borderBottom: '1px solid rgba(255,255,255,0.08)',
-    background: 'rgba(9, 9, 11, 0.6)',
+    borderBottom: '1px solid var(--app-border)',
+    background: 'var(--app-nav-bg, rgba(9, 9, 11, 0.6))',
     backdropFilter: 'blur(16px)',
-    position: 'sticky',
+    position: 'fixed',
     top: 0,
+    left: 0,
+    right: 0,
     zIndex: 1000,
     overflowX: 'auto'
   },
@@ -87,7 +80,7 @@ const styles = {
     padding: '8px clamp(10px, 2vw, 20px)',
     fontSize: 'clamp(11px, 1.7vw, 13px)',
     fontWeight: '600',
-    color: '#a1a1aa',
+    color: 'var(--app-text-muted)',
     cursor: 'pointer',
     borderRadius: '20px',
     transition: 'all 0.2s',
@@ -96,10 +89,10 @@ const styles = {
     border: '1px solid transparent'
   },
   navLinkActive: {
-    background: 'rgba(255,255,255,0.1)',
-    color: '#fff',
-    boxShadow: '0 0 20px rgba(255,255,255,0.05)',
-    border: '1px solid rgba(255,255,255,0.05)'
+    background: 'var(--app-border)',
+    color: 'var(--app-text)',
+    boxShadow: '0 0 20px var(--app-border)',
+    border: '1px solid var(--app-border)'
   },
   navRight: {
     flex: 1,
@@ -112,9 +105,9 @@ const styles = {
     width: 'clamp(36px, 6vw, 42px)',
     height: 'clamp(36px, 6vw, 42px)',
     borderRadius: '12px',
-    background: 'rgba(255,255,255,0.03)',
-    border: '1px solid rgba(255,255,255,0.08)',
-    color: '#fff',
+    background: 'var(--quote-bg)',
+    border: '1px solid var(--app-border)',
+    color: 'var(--app-text)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -128,8 +121,8 @@ const styles = {
     top: '60px',
     right: '0px',
     width: 'min(92vw, 340px)',
-    background: '#18181b',
-    border: '1px solid rgba(255,255,255,0.1)',
+    background: 'var(--app-surface)',
+    border: '1px solid var(--app-border)',
     borderRadius: '16px',
     padding: '16px',
     zIndex: 2000,
@@ -138,7 +131,7 @@ const styles = {
   },
   notifItem: {
     padding: '12px 16px',
-    borderBottom: '1px solid rgba(255,255,255,0.05)',
+    borderBottom: '1px solid var(--app-border)',
     fontSize: '13px',
     color: '#d4d4d8',
     display: 'flex',
@@ -174,34 +167,36 @@ const styles = {
   container: {
     maxWidth: '1600px',
     margin: '0 auto',
-    padding: 'clamp(12px, 4vw, 40px)',
+    padding: 'clamp(10px, 2.5vw, 24px)',
     display: 'grid',
     gridTemplateColumns: 'repeat(12, 1fr)',
-    gap: 'clamp(12px, 2.4vw, 24px)'
+    gap: 'clamp(10px, 1.6vw, 16px)'
   },
   bentoBox: {
-    background: '#18181b',
-    border: '1px solid rgba(255,255,255,0.05)',
-    borderRadius: '24px',
-    padding: 'clamp(16px, 3vw, 32px)',
+    background: 'var(--app-surface-glass, var(--app-surface))',
+    border: '1px solid var(--app-border)',
+    borderRadius: '18px',
+    padding: 'clamp(12px, 1.8vw, 20px)',
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
     overflow: 'hidden',
-    transition: 'transform 0.2s ease, border-color 0.2s ease'
+    transition: 'transform 0.2s ease, border-color 0.2s ease',
+    backdropFilter: 'blur(14px)',
+    boxShadow: '0 14px 34px rgba(0,0,0,0.22)'
   },
   heroSection: {
     gridColumn: 'span 12',
-    background: 'linear-gradient(120deg, #18181b 0%, #0f0f11 100%)',
+    background: 'var(--app-hero-glass, var(--app-bg-grad))',
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: 'clamp(12px, 2.5vw, 28px)',
+    gap: 'clamp(10px, 1.8vw, 20px)',
     minHeight: 'auto',
-    padding: 'clamp(14px, 3vw, 34px)',
-    boxShadow: '0 20px 40px rgba(0,0,0,0.2)'
+    padding: 'clamp(12px, 2vw, 22px)',
+    boxShadow: '0 12px 28px rgba(0,0,0,0.2)'
   },
   heroLeft: {
     display: 'flex',
@@ -213,8 +208,8 @@ const styles = {
   },
   avatarWrapper: {
     position: 'relative',
-    width: 'clamp(88px, 16vw, 140px)',
-    height: 'clamp(88px, 16vw, 140px)',
+    width: 'clamp(64px, 8vw, 96px)',
+    height: 'clamp(64px, 8vw, 96px)',
     flexShrink: 0,
     cursor: 'pointer'
   },
@@ -231,13 +226,13 @@ const styles = {
     width: '100%',
     height: '100%',
     borderRadius: '50%',
-    background: '#18181b',
+    background: 'var(--app-surface)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: 'clamp(34px, 8vw, 64px)',
+    fontSize: 'clamp(24px, 5vw, 44px)',
     fontWeight: '700',
-    color: '#fff',
+    color: 'var(--app-text)',
     objectFit: 'cover'
   },
   editIconBadge: {
@@ -248,8 +243,8 @@ const styles = {
     height: 'clamp(30px, 6vw, 40px)',
     borderRadius: '50%',
     background: '#4f46e5',
-    border: '4px solid #18181b',
-    color: '#fff',
+    border: '4px solid var(--app-bg)',
+    color: 'var(--app-text)',
     fontSize: 'clamp(14px, 2.6vw, 18px)',
     display: 'flex',
     alignItems: 'center',
@@ -266,26 +261,26 @@ const styles = {
     paddingTop: '8px'
   },
   h1: {
-    fontSize: 'clamp(30px, 6vw, 52px)',
+    fontSize: 'clamp(22px, 3.5vw, 36px)',
     fontWeight: '800',
-    background: 'linear-gradient(to right, #ffffff 0%, #a5b4fc 100%)',
+    background: 'var(--h1-grad)',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
     margin: 0,
     whiteSpace: 'normal',
     display: 'flex',
     alignItems: 'center',
-    gap: '10px',
+    gap: '8px',
     filter: 'drop-shadow(0 4px 20px rgba(99, 102, 241, 0.3))',
     lineHeight: '1.1'
   },
   quoteCard: {
-    background: 'rgba(255,255,255,0.03)',
+    background: 'var(--quote-bg)',
     borderLeft: '4px solid #6366f1',
     padding: '12px 18px',
     borderRadius: '0 12px 12px 0',
     fontStyle: 'italic',
-    color: '#a1a1aa',
+    color: 'var(--app-text-muted)',
     fontSize: '15px',
     lineHeight: '1.6',
     marginTop: '8px',
@@ -300,24 +295,24 @@ const styles = {
     gap: '10px'
   },
   circleBtn: {
-    width: 'min(100%, 300px)',
-    minHeight: '154px',
-    borderRadius: '24px',
+    width: 'min(100%, 260px)',
+    minHeight: '118px',
+    borderRadius: '18px',
     border: '1px solid rgba(255,255,255,0.16)',
     cursor: 'pointer',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
-    gap: '10px',
-    padding: '16px 16px 14px',
+    gap: '8px',
+    padding: '12px 14px 10px',
     textAlign: 'left',
-    color: '#fff',
+    color: 'var(--app-text)',
     transition: 'all 0.3s ease',
     textShadow: '0 2px 10px rgba(0,0,0,0.3)',
     position: 'relative',
     zIndex: 10,
-    boxShadow: '0 14px 34px rgba(0,0,0,0.32)',
+    boxShadow: '0 10px 24px rgba(0,0,0,0.28)',
     backdropFilter: 'blur(12px)',
     overflow: 'hidden',
     letterSpacing: '0.6px'
@@ -329,16 +324,16 @@ const styles = {
     justifyContent: 'space-between'
   },
   actionIconPill: {
-    width: '46px',
-    height: '46px',
-    borderRadius: '14px',
+    width: '36px',
+    height: '36px',
+    borderRadius: '10px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '22px',
+    fontSize: '18px',
     border: '1px solid rgba(255,255,255,0.3)',
-    background: 'rgba(255,255,255,0.15)',
-    boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.08)'
+    background: 'var(--app-border)',
+    boxShadow: 'inset 0 0 0 1px var(--app-border)'
   },
   actionStateTag: {
     fontSize: '11px',
@@ -357,11 +352,11 @@ const styles = {
     gap: '6px'
   },
   actionTitle: {
-    fontSize: 'clamp(20px, 2.4vw, 24px)',
+    fontSize: 'clamp(14px, 1.6vw, 18px)',
     fontWeight: '800',
     letterSpacing: '-0.3px',
     lineHeight: 1.15,
-    color: '#ffffff'
+    color: 'var(--app-text)'
   },
   actionSubtitle: {
     fontSize: '13px',
@@ -372,11 +367,11 @@ const styles = {
   actionHint: {
     fontSize: '12px',
     fontWeight: '700',
-    color: '#a1a1aa',
+    color: 'var(--app-text-muted)',
     textTransform: 'uppercase',
     letterSpacing: '1.2px',
     background: 'rgba(255,255,255,0.04)',
-    border: '1px solid rgba(255,255,255,0.08)',
+    border: '1px solid var(--app-border)',
     borderRadius: '999px',
     padding: '8px 14px'
   },
@@ -400,18 +395,18 @@ const styles = {
   streakLabel: {
     fontSize: '13px',
     fontWeight: '700',
-    color: '#a1a1aa',
+    color: 'var(--app-text-muted)',
     letterSpacing: '3px',
     textTransform: 'uppercase'
   },
   streakNumber: {
-    fontSize: '78px',
+    fontSize: '54px',
     fontWeight: '900',
-    lineHeight: 0.8,
+    lineHeight: 0.9,
     background: 'linear-gradient(to bottom, #fff 30%, #6366f1 100%)',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
-    filter: 'drop-shadow(0 0 30px rgba(99,102,241,0.3))'
+    filter: 'drop-shadow(0 0 20px rgba(99,102,241,0.3))'
   },
   weekGrid: {
     display: 'flex',
@@ -422,27 +417,27 @@ const styles = {
     width: 'clamp(34px, 5.5vw, 42px)',
     height: 'clamp(34px, 5.5vw, 42px)',
     borderRadius: '14px',
-    background: '#27272a',
+    background: 'var(--app-surface2)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     fontSize: '16px',
-    border: '1px solid rgba(255,255,255,0.05)',
+    border: '1px solid var(--app-border)',
     transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
     cursor: 'default',
     fontWeight: '700',
-    color: '#71717a'
+    color: 'var(--app-text-muted)'
   },
   dayActive: {
     background: 'rgba(99, 102, 241, 0.1)',
     borderColor: '#6366f1',
     boxShadow: '0 0 15px rgba(99, 102, 241, 0.2)',
-    color: '#fff'
+    color: 'var(--app-text)'
   },
   dayDone: {
     background: 'rgba(34, 197, 94, 0.1)',
     borderColor: '#22c55e',
-    color: '#fff',
+    color: 'var(--app-text)',
     boxShadow: '0 0 15px rgba(34, 197, 94, 0.2)'
   },
   statsRow: {
@@ -451,10 +446,13 @@ const styles = {
     gridTemplateColumns: 'repeat(3, 1fr)',
     gap: '24px'
   },
+  statBox: {
+    minHeight: '280px'
+  },
   macroBarBG: {
     width: '100%',
     height: '8px',
-    background: '#27272a',
+    background: 'var(--app-surface2)',
     borderRadius: '10px',
     marginTop: '8px',
     overflow: 'hidden'
@@ -468,11 +466,11 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    background: 'rgba(255,255,255,0.03)',
+    background: 'var(--quote-bg)',
     borderRadius: '50px',
     padding: '4px',
     marginTop: '20px',
-    border: '1px solid rgba(255,255,255,0.08)',
+    border: '1px solid var(--app-border)',
     boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.3)',
     width: '100%',
     maxWidth: '100%'
@@ -483,7 +481,7 @@ const styles = {
     borderRadius: '50%',
     background: 'transparent',
     border: 'none',
-    color: '#fff',
+    color: 'var(--app-text)',
     fontSize: '20px',
     cursor: 'pointer',
     display: 'flex',
@@ -494,17 +492,17 @@ const styles = {
   glassText: {
     fontSize: '12px',
     fontWeight: '700',
-    color: '#a1a1aa',
+    color: 'var(--app-text-muted)',
     letterSpacing: '1px',
     textTransform: 'uppercase'
   },
   chartSection: {
     gridColumn: 'span 8',
-    height: '460px'
+    height: '360px'
   },
   activitySection: {
     gridColumn: 'span 4',
-    height: '460px',
+    height: '360px',
     display: 'flex',
     flexDirection: 'column'
   },
@@ -512,15 +510,15 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '24px'
+    marginBottom: '14px'
   },
   sectionTitle: {
-    fontSize: 'clamp(18px, 2.8vw, 22px)',
+    fontSize: 'clamp(14px, 1.8vw, 17px)',
     fontWeight: '800',
-    color: '#fff',
+    color: 'var(--app-text)',
     display: 'flex',
     alignItems: 'center',
-    gap: '12px',
+    gap: '8px',
     letterSpacing: '-0.5px'
   },
   sectionAccent: {
@@ -537,7 +535,7 @@ const styles = {
   chartTabs: {
     display: 'flex',
     gap: '4px',
-    background: 'rgba(255,255,255,0.05)',
+    background: 'var(--app-border)',
     padding: '4px',
     borderRadius: '10px'
   },
@@ -553,8 +551,8 @@ const styles = {
     background: 'transparent'
   },
   chartTabActive: {
-    background: '#27272a',
-    color: '#fff',
+    background: 'var(--app-surface2)',
+    color: 'var(--app-text)',
     boxShadow: '0 2px 10px rgba(0,0,0,0.2)'
   },
   listRow: {
@@ -562,7 +560,7 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: '18px 16px',
-    borderBottom: '1px solid rgba(255,255,255,0.05)',
+    borderBottom: '1px solid var(--app-border)',
     borderRadius: '16px',
     marginBottom: '8px',
     cursor: 'pointer',
@@ -586,11 +584,11 @@ const styles = {
     position: 'relative',
     maxWidth: '500px',
     width: '90%',
-    background: '#18181b',
+    background: 'var(--app-surface)',
     borderRadius: '24px',
     padding: '10px',
     boxShadow: '0 25px 50px rgba(0,0,0,0.5)',
-    border: '1px solid rgba(255,255,255,0.1)'
+    border: '1px solid var(--app-border)'
   },
   modalImage: {
     width: '100%',
@@ -604,8 +602,8 @@ const styles = {
     width: '32px',
     height: '32px',
     borderRadius: '50%',
-    background: '#fff',
-    color: '#000',
+    background: 'var(--app-text)',
+    color: 'var(--app-bg)',
     border: 'none',
     fontSize: '16px',
     fontWeight: 'bold',
@@ -631,7 +629,7 @@ const styles = {
     borderRadius: '12px',
     boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
     backdropFilter: 'blur(10px)',
-    border: '1px solid rgba(255,255,255,0.1)',
+    border: '1px solid var(--app-border)',
     display: 'flex',
     alignItems: 'center',
     animation: 'slideInRight 0.3s ease-out',
@@ -647,9 +645,9 @@ const styles = {
     borderLeft: '4px solid #3b82f6'
   },
   notificationClose: {
-    background: 'rgba(255, 255, 255, 0.1)',
+    background: 'var(--app-border)',
     border: 'none',
-    color: '#ffffff',
+    color: 'var(--app-text)',
     fontSize: '16px',
     cursor: 'pointer',
     padding: '4px 8px',
@@ -667,7 +665,7 @@ const styles = {
     flex: 1
   },
   notificationMessage: {
-    color: '#e4e4e7',
+    color: 'var(--app-text)',
     fontSize: '14px',
     lineHeight: 1.4
   }
@@ -709,7 +707,7 @@ const responsiveStyles = `
   }
 
   .icon-hover:hover {
-    background: rgba(255, 255, 255, 0.08) !important;
+    background: var(--app-border) !important;
     animation: ring 1.2s ease;
   }
 
@@ -845,7 +843,7 @@ const responsiveStyles = `
   }
 
   .activity-list::-webkit-scrollbar-thumb {
-    background: #27272a;
+    background: var(--app-surface2);
     border-radius: 4px;
   }
 
@@ -935,385 +933,368 @@ const responsiveStyles = `
   /* Extra Small Mobile (320px - 480px) */
   @media (max-width: 480px) {
     .page {
-      padding: 8px !important;
+      padding: 8px;
     }
 
     .container {
-      padding: 16px !important;
-      gap: 16px !important;
-      display: flex !important;
-      flex-direction: column !important;
+      padding: 16px;
+      gap: 16px;
     }
 
     .bentoBox {
-      flex-direction: column !important;
-      gap: 16px !important;
-      padding: 16px !important;
+      flex-direction: column;
+      gap: 16px;
+      padding: 16px;
     }
 
     .heroSection {
-      flex-direction: column !important;
-      gap: 20px !important;
-      padding: 20px !important;
+      flex-direction: column;
+      gap: 20px;
+      padding: 20px;
     }
 
     .heroLeft,
     .heroCenter,
     .heroRight {
-      width: 100% !important;
-      text-align: center !important;
+      width: 100%;
+      text-align: center;
     }
 
     .avatarWrapper {
-      margin: 0 auto 16px auto !important;
+      margin: 0 auto 16px auto;
     }
 
     .statsRow {
-      grid-template-columns: 1fr !important;
-      gap: 16px !important;
-      display: flex !important;
-      flex-direction: column !important;
+      grid-template-columns: 1fr;
+      gap: 16px;
     }
 
     .chartSection {
-      grid-column: span 12 !important;
-      height: 340px !important;
-      width: 100% !important;
+      grid-column: span 12;
+      height: 340px;
     }
 
     .activitySection {
-      grid-column: span 12 !important;
-      height: auto !important;
-      width: 100% !important;
+      grid-column: span 12;
+      height: 340px;
     }
 
     .glassPill {
-      flex-direction: column !important;
-      gap: 8px !important;
-      padding: 12px !important;
-      width: 100% !important;
-      max-width: 240px !important;
-      margin: 0 auto !important;
+      flex-direction: column;
+      gap: 8px;
+      padding: 12px;
+      width: 100%;
+      max-width: 240px;
+      margin: 0 auto;
     }
 
     .glassBtn {
-      width: 100% !important;
-      padding: 10px !important;
+      width: 100%;
+      padding: 10px;
     }
 
     .sectionHeader {
-      flex-direction: column !important;
-      gap: 12px !important;
-      align-items: flex-start !important;
+      flex-direction: column;
+      gap: 12px;
+      align-items: flex-start;
     }
 
     .chartControls {
-      width: 100% !important;
-      flex-direction: column !important;
-      gap: 12px !important;
-      align-items: center !important;
+      width: 100%;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
     }
 
     .chartTabs {
-      width: 100% !important;
-      justify-content: center !important;
+      width: 100%;
+      justify-content: center;
     }
 
     .chartTab {
-      padding: 4px 10px !important;
-      font-size: 10px !important;
+      padding: 4px 10px;
+      font-size: 10px;
     }
 
     .listRow {
-      padding: 12px !important;
-      flex-direction: column !important;
-      gap: 6px !important;
-      align-items: center !important;
+      padding: 12px;
+      flex-direction: column;
+      gap: 6px;
+      align-items: center;
     }
 
     .navbar {
-      padding: 0 16px !important;
-      height: 50px !important;
+      padding: 0 16px;
+      height: 50px;
     }
 
     .brand {
-      font-size: 16px !important;
+      font-size: 16px;
     }
 
     .navLink {
-      padding: 6px 10px !important;
-      font-size: 11px !important;
+      padding: 6px 10px;
+      font-size: 11px;
     }
 
     .dateDisplay {
-      font-size: 11px !important;
+      font-size: 11px;
     }
 
     .iconButton {
-      width: 36px !important;
-      height: 36px !important;
+      width: 36px;
+      height: 36px;
     }
 
     .logoutBtn {
-      padding: 0 12px !important;
+      padding: 0 12px;
     }
 
     .logoutText {
-      font-size: 10px !important;
+      font-size: 10px;
     }
 
     .notifDropdown {
-      width: 280px !important;
-      right: -120px !important;
+      width: 280px;
+      right: -120px;
     }
 
     .circleBtn {
-      width: 100% !important;
-      height: auto !important;
-      font-size: 14px !important;
+      width: 150px;
+      height: 150px;
+      font-size: 14px;
     }
 
     .h1 {
-      font-size: 32px !important;
+      font-size: 32px;
     }
 
     .quoteCard {
-      max-width: 100% !important;
-      padding: 12px 16px !important;
+      max-width: 100%;
+      padding: 12px 16px;
     }
 
     .streakNumber {
-      font-size: 60px !important;
+      font-size: 60px;
     }
 
     .weekGrid {
-      gap: 6px !important;
-      justify-content: center !important;
+      gap: 6px;
     }
 
     .dayCircle {
-      width: 36px !important;
-      height: 36px !important;
-      font-size: 14px !important;
+      width: 36px;
+      height: 36px;
+      font-size: 14px;
     }
 
     .macroBar {
-      height: 12px !important;
+      height: 12px;
     }
 
     .modalContent {
-      width: 95% !important;
-      padding: 8px !important;
+      width: 95%;
+      padding: 8px;
     }
-    
+
     .closeModalBtn {
-      width: 28px !important;
-      height: 28px !important;
-      font-size: 14px !important;
+      width: 28px;
+      height: 28px;
+      font-size: 14px;
     }
   }
 
   /* Small Mobile (481px - 768px) */
   @media (min-width: 481px) and (max-width: 768px) {
     .page {
-      padding: 10px !important;
+      padding: 10px;
     }
 
     .container {
-      padding: 20px !important;
-      gap: 20px !important;
-      display: flex !important;
-      flex-direction: column !important;
+      padding: 20px;
+      gap: 20px;
     }
 
     .bentoBox {
-      flex-direction: column !important;
-      gap: 16px !important;
-      padding: 16px !important;
+      flex-direction: column;
+      gap: 16px;
+      padding: 16px;
     }
 
     .heroSection {
-      flex-direction: column !important;
-      gap: 20px !important;
-      padding: 20px !important;
+      flex-direction: column;
+      gap: 20px;
+      padding: 20px;
     }
 
     .heroLeft,
     .heroCenter,
     .heroRight {
-      width: 100% !important;
-      text-align: center !important;
+      width: 100%;
+      text-align: center;
     }
 
     .avatarWrapper {
-      margin: 0 auto 16px !important;
+      margin: 0 auto 16px;
     }
 
     .statsRow {
-      grid-template-columns: 1fr !important;
-      gap: 16px !important;
-      display: flex !important;
-      flex-direction: column !important;
+      grid-template-columns: 1fr;
+      gap: 16px;
     }
 
     .chartSection {
-      grid-column: span 12 !important;
-      height: 340px !important;
-      width: 100% !important;
+      grid-column: span 12;
+      height: 340px;
     }
 
     .activitySection {
-      grid-column: span 12 !important;
-      height: auto !important;
-      width: 100% !important;
+      grid-column: span 12;
+      height: 340px;
     }
 
     .glassPill {
-      flex-direction: column !important;
-      gap: 8px !important;
-      padding: 12px !important;
-      width: 100% !important;
-      max-width: 240px !important;
-      margin: 0 auto !important;
+      flex-direction: column;
+      gap: 8px;
+      padding: 12px;
+      width: 100%;
+      max-width: 240px;
+      margin: 0 auto;
     }
 
     .glassBtn {
-      width: 100% !important;
-      padding: 10px !important;
+      width: 100%;
+      padding: 10px;
     }
 
     .sectionHeader {
-      flex-direction: column !important;
-      gap: 12px !important;
-      align-items: center !important;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
     }
 
     .chartControls {
-      width: 100% !important;
-      flex-direction: column !important;
-      gap: 12px !important;
-      align-items: center !important;
+      width: 100%;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
     }
 
     .chartTabs {
-      width: 100% !important;
-      justify-content: center !important;
+      width: 100%;
+      justify-content: center;
     }
 
     .chartTab {
-      padding: 4px 10px !important;
-      font-size: 10px !important;
+      padding: 4px 10px;
+      font-size: 10px;
     }
 
     .listRow {
-      padding: 14px 12px !important;
-      flex-direction: column !important;
-      gap: 8px !important;
-      align-items: center !important;
+      padding: 14px 12px;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
     }
 
     .navbar {
-      padding: 0 20px !important;
-      height: 60px !important;
+      padding: 0 20px;
+      height: 60px;
     }
 
     .brand {
-      font-size: 18px !important;
+      font-size: 18px;
     }
 
     .navLink {
-      padding: 6px 12px !important;
-      font-size: 12px !important;
+      padding: 6px 12px;
+      font-size: 12px;
     }
 
     .circleBtn {
-      width: 100% !important;
-      height: auto !important;
-      font-size: 14px !important;
+      width: 150px;
+      height: 150px;
+      font-size: 14px;
     }
 
     .h1 {
-      font-size: 28px !important;
+      font-size: 28px;
     }
 
     .quoteCard {
-      max-width: 100% !important;
-      padding: 12px 16px !important;
+      max-width: 100%;
+      padding: 12px 16px;
     }
 
     .streakNumber {
-      font-size: 60px !important;
+      font-size: 60px;
     }
 
     .weekGrid {
-      gap: 6px !important;
-      justify-content: center !important;
+      gap: 6px;
+      justify-content: center;
     }
 
     .dayCircle {
-      width: 36px !important;
-      height: 36px !important;
-      font-size: 14px !important;
+      width: 36px;
+      height: 36px;
+      font-size: 14px;
     }
 
     .macroBar {
-      height: 12px !important;
+      height: 12px;
     }
 
     .sectionTitle {
-      font-size: 18px !important;
+      font-size: 18px;
+    }
+
+    .listRow {
+      padding: 14px 12px;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
     }
 
     .modalContent {
-      width: 95% !important;
-      padding: 8px !important;
+      width: 95%;
+      padding: 8px;
     }
 
     .closeModalBtn {
-      width: 28px !important;
-      height: 28px !important;
-      font-size: 14px !important;
+      width: 28px;
+      height: 28px;
+      font-size: 14px;
     }
   }
 
   /* Tablet (769px - 1024px) */
   @media (min-width: 769px) and (max-width: 1024px) {
-    .container {
-      display: flex !important;
-      flex-direction: column !important;
-    }
-
     .bentoBox {
-      padding: 20px !important;
+      padding: 20px;
     }
 
     .heroSection {
-      flex-direction: row !important;
-      gap: 30px !important;
+      flex-direction: row;
+      gap: 30px;
     }
 
     .statsRow {
-      grid-template-columns: repeat(2, 1fr) !important;
-      gap: 20px !important;
-      display: grid !important;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
     }
 
     .chartSection {
-      height: 380px !important;
-      grid-column: span 12 !important;
-      width: 100% !important;
+      height: 380px;
     }
 
     .activitySection {
-      height: auto !important;
-      grid-column: span 12 !important;
-      width: 100% !important;
+      height: 380px;
     }
 
     .navbar {
-      padding: 0 30px !important;
+      padding: 0 30px;
     }
-
 
     .circleBtn {
       width: 170px;
@@ -1384,16 +1365,137 @@ const responsiveStyles = `
   }
 `;
 
-// BUG-F2/F8: ActivityChart extracted to components/dashboard/ActivityChart.jsx
-// The component was fully self-contained (no Dashboard.jsx dependencies).
-// See that file for configuration and implementation details.
+// --- CHART COMPONENT ---
+const ActivityChart = React.memo(({ data, mode, period, xLabels: propXLabels }) => {
+  const [hoveredPoint, setHoveredPoint] = useState(null);
+  if (!data || data.length === 0) return null;
+
+  const xLabels = propXLabels || (period === 'week' ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] : ['W1', 'W2', 'W3', 'W4']);
+
+  const width = 1000;
+  const height = 300;
+  const padding = { top: 10, right: 30, bottom: 40, left: 60 };
+  const chartWidth = width - padding.left - padding.right;
+  const chartHeight = height - padding.top - padding.bottom;
+
+  let yMax = Math.max(...data) * 1.2;
+  let yMin = 0;
+  let unit = '';
+  const steps = 4;
+
+  const modeConfig = {
+    all: { unit: '%', yMax: 100, color1: '#6366f1', color2: '#a855f7', gradId: 'allGrad' },
+    water: { unit: ' L', yMax: 4, color1: '#38bdf8', color2: '#0ea5e9', gradId: 'waterGrad' },
+    sleep: { unit: ' h', yMax: 12, color1: '#a78bfa', color2: '#8b5cf6', gradId: 'sleepGrad' },
+    meal:  { unit: '', yMax: 3000, color1: '#f472b6', color2: '#ec4899', gradId: 'mealGrad' },
+    workout: { unit: ' min', yMax: 120, color1: '#34d399', color2: '#10b981', gradId: 'workoutGrad' },
+  };
+  const cfg = modeConfig[mode] || modeConfig.workout;
+  unit = cfg.unit;
+  yMax = Math.max(cfg.yMax, Math.max(...data) * 1.2);
+
+  const yRange = Math.max(yMax - yMin, 1);
+  const stepX = chartWidth / Math.max(data.length - 1, 1);
+
+  const getPoint = (i) => {
+    const x = padding.left + i * stepX;
+    const y = padding.top + chartHeight - (((data[i] - yMin) / yRange) * chartHeight);
+    return [x, y];
+  };
+
+  const [startX, startY] = getPoint(0);
+  let d = `M ${startX} ${startY}`;
+
+  for (let i = 0; i < data.length - 1; i++) {
+    const [x0, y0] = getPoint(Math.max(i - 1, 0));
+    const [x1, y1] = getPoint(i);
+    const [x2, y2] = getPoint(i + 1);
+    const [x3, y3] = getPoint(Math.min(i + 2, data.length - 1));
+
+    const cp1x = x1 + (x2 - x0) / 6;
+    const cp1y = y1 + (y2 - y0) / 6;
+    const cp2x = x2 - (x3 - x1) / 6;
+    const cp2y = y2 - (y3 - y1) / 6;
+    d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${x2} ${y2}`;
+  }
+
+  const areaPath = `${d} L ${padding.left + chartWidth} ${padding.top + chartHeight} L ${padding.left} ${padding.top + chartHeight} Z`;
+
+  const yLabels = [];
+  for (let i = 0; i <= steps; i++) {
+    const val = yMin + (yRange / steps) * i;
+    const labelVal = (mode === 'water' || mode === 'sleep') ? val.toFixed(1) : Math.round(val);
+    yLabels.push({ y: padding.top + chartHeight - (i * (chartHeight / steps)), val: labelVal });
+  }
+
+  return (
+    <div style={{ flex: 1, position: 'relative', width: '100%', cursor: 'crosshair', overflow: 'hidden' }}>
+      <svg key={`${mode}-${data.length}`} viewBox={`0 0 ${width} ${height}`} style={{ width: '100%', height: '100%', overflow: 'visible', animation: 'fadeIn 0.6s ease' }}>
+        <defs>
+          <linearGradient id={cfg.gradId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={cfg.color1} stopOpacity="0.5" />
+            <stop offset="100%" stopColor={cfg.color1} stopOpacity="0" />
+          </linearGradient>
+        </defs>
+
+        {yLabels.map((label, i) => (
+          <g key={i}>
+            <line x1={padding.left} y1={label.y} x2={width - padding.right} y2={label.y} stroke="var(--app-border)" strokeWidth="1" />
+            <text x={padding.left - 15} y={label.y + 4} textAnchor="end" fill="var(--app-text-muted)" fontSize="12" fontFamily="'Inter', sans-serif" fontWeight="500">{label.val}{unit}</text>
+          </g>
+        ))}
+
+        {xLabels.map((day, i) => {
+          const xPos = padding.left + i * stepX;
+          return (<text key={i} x={xPos} y={height - 10} textAnchor="middle" fill="var(--app-text-muted)" fontSize="12" fontFamily="'Inter', sans-serif" fontWeight="500">{day}</text>);
+        })}
+
+        <path d={areaPath} fill={`url(#${cfg.gradId})`} />
+        <path d={d} fill="none" stroke={cfg.color2} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+
+        {data.map((val, i) => {
+          const [cx, cy] = getPoint(i);
+          return (
+            <g key={i} onMouseEnter={() => setHoveredPoint(i)} onMouseLeave={() => setHoveredPoint(null)}>
+              <rect x={cx - stepX / 2} y={padding.top} width={stepX} height={chartHeight} fill="transparent" />
+              <circle cx={cx} cy={cy} r={hoveredPoint === i ? 6 : 0} fill="var(--app-bg)" stroke={cfg.color1} strokeWidth="2"
+                style={{ transition: 'all 0.15s ease-out', filter: `drop-shadow(0 0 6px ${cfg.color1})` }} />
+            </g>
+          );
+        })}
+      </svg>
+
+      <div style={{ position: 'absolute', left: 0, top: 0, width: '100%', height: '100%', pointerEvents: 'none', opacity: hoveredPoint !== null ? 1 : 0, transition: 'opacity 0.2s ease' }}>
+        {hoveredPoint !== null && (() => {
+          const [cx, cy] = getPoint(hoveredPoint);
+          const val = (mode === 'water' || mode === 'sleep') ? data[hoveredPoint].toFixed(1) : Math.round(data[hoveredPoint]);
+          const dayLabel = xLabels[hoveredPoint] || '';
+          return (
+            <div style={{ position: 'absolute', left: `${(cx / width) * 100}%`, top: `${(cy / height) * 100}%`, transform: 'translate(-50%, -130%)', transition: 'left 0.1s linear, top 0.1s linear', background: 'rgba(24, 24, 27, 0.95)', border: `1px solid ${cfg.color1}40`, borderRadius: '8px', padding: '8px 16px', boxShadow: `0 4px 20px rgba(0,0,0,0.5)`, textAlign: 'center', minWidth: '70px', backdropFilter: 'blur(8px)' }}>
+              <div style={{ fontSize: '10px', color: 'var(--app-text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '2px' }}>{dayLabel}</div>
+              <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--app-text)', fontFamily: 'sans-serif' }}>
+                {val}<span style={{ fontSize: '12px', color: cfg.color1, marginLeft: '2px' }}>{unit}</span>
+              </div>
+              <div style={{ position: 'absolute', bottom: '-5px', left: '50%', transform: 'translateX(-50%) rotate(45deg)', width: '10px', height: '10px', background: 'rgba(24,24,27,0.95)', borderRight: `1px solid ${cfg.color1}40`, borderBottom: `1px solid ${cfg.color1}40` }} />
+            </div>
+          );
+        })()}
+      </div>
+    </div>
+  );
+}, (prevProps, nextProps) => {
+  return (
+    JSON.stringify(prevProps.data) === JSON.stringify(nextProps.data) &&
+    prevProps.mode === nextProps.mode &&
+    prevProps.period === nextProps.period &&
+    JSON.stringify(prevProps.xLabels) === JSON.stringify(nextProps.xLabels)
+  );
+});
+
 
 
 // --- DEFAULT HISTORY ---
 const DEFAULT_HISTORY = [];
-
-
-
 
 // Switch this value to: 'minimal' | 'bold' | 'glass' | 'orbitFusion' | 'glassSlideNeo' | 'neonRadial'
 const HERO_ACTION_VARIANT = 'neonRadial';
@@ -1407,7 +1509,7 @@ const HERO_ACTION_VARIANTS = {
       iconBg: 'rgba(255,255,255,0.09)',
       iconBorder: '1px solid rgba(255,255,255,0.2)',
       iconColor: '#f4f4f5',
-      tagBg: 'rgba(255,255,255,0.08)',
+      tagBg: 'var(--app-border)',
       tagBorder: '1px solid rgba(255,255,255,0.2)',
       tagColor: '#d4d4d8',
       subtitleColor: 'rgba(228,228,231,0.9)'
@@ -1451,10 +1553,10 @@ const HERO_ACTION_VARIANTS = {
   },
   bold: {
     sync: {
-      surface: 'linear-gradient(135deg, #3f3f46 0%, #27272a 100%)',
+      surface: 'linear-gradient(135deg, var(--app-surface2) 0%, var(--app-surface) 100%)',
       border: '1px solid rgba(255,255,255,0.18)',
       shadow: '0 16px 30px rgba(0,0,0,0.34)',
-      iconBg: 'rgba(255,255,255,0.15)',
+      iconBg: 'var(--app-border)',
       iconBorder: '1px solid rgba(255,255,255,0.3)',
       iconColor: '#f4f4f5',
       tagBg: 'rgba(255,255,255,0.12)',
@@ -1507,9 +1609,9 @@ const HERO_ACTION_VARIANTS = {
       iconBg: 'rgba(255,255,255,0.13)',
       iconBorder: '1px solid rgba(255,255,255,0.24)',
       iconColor: '#f4f4f5',
-      tagBg: 'rgba(255,255,255,0.08)',
+      tagBg: 'var(--app-border)',
       tagBorder: '1px solid rgba(255,255,255,0.2)',
-      tagColor: '#e4e4e7',
+      tagColor: 'var(--app-text)',
       subtitleColor: 'rgba(228,228,231,0.9)'
     },
     workout: {
@@ -1815,6 +1917,7 @@ const calculateOverallTrendScore = (entry, calorieGoal, waterGoal) => {
 function Dashboard({ onLogout }) {
   const navigate = useNavigate();
   const { showInfo, showError } = useNotification();
+  const { theme, toggleTheme } = useTheme();
 
   // --- STATE DECLARATIONS ---
   const [displayName, setDisplayName] = useState('Titan');
@@ -1843,7 +1946,7 @@ function Dashboard({ onLogout }) {
     fMax: 70,
     calories: 0,
     calMax: 2500,
-    fiber: 0
+    remaining: 2500   // calMax - calories: how much the user can still eat today
   });
 
   // ✅ FIX 2: Cross-page macro update — called when meal is saved from Nutrition page
@@ -1851,36 +1954,40 @@ function Dashboard({ onLogout }) {
   const _setMacrosFromTotals = (totals) => {
     try {
       if (!totals) return;
+      const calories = Math.round(Number(totals.calories) || 0);
       setMacros((prev) => ({
         ...prev,
         p: Math.round(Number(totals.protein) || prev.p),
         c: Math.round(Number(totals.carbs) || prev.c),
         f: Math.round(Number(totals.fat) || prev.f),
-        calories: Math.round(Number(totals.calories) || prev.calories),
+        calories: calories || prev.calories,
+        remaining: Math.max(0, prev.calMax - (calories || prev.calories)),
       }));
     } catch (error) {
       console.error('Error setting macros from totals:', error);
     }
   };
 
-  const _updateMacrosFromMeal = (mealData) => {
+  const _updateMacrosFromMeal = async (mealData) => {
     try {
       const protein = mealData.protein || 0;
       const carbs = mealData.carbs || 0;
       const fats = mealData.fat || mealData.fats || 0;
       const calories = mealData.calories || 0;
-      const fiber = mealData.fiber || 0;
 
-      setMacros((prev) => ({
-        ...prev,
-        p: Math.round(prev.p + protein),
-        c: Math.round(prev.c + carbs),
-        f: Math.round(prev.f + fats),
-        calories: Math.round(prev.calories + calories),
-        fiber: Math.round(prev.fiber + fiber)
-      }));
+      setMacros((prev) => {
+        const newCalories = Math.round(prev.calories + calories);
+        return {
+          ...prev,
+          p: Math.round(prev.p + protein),
+          c: Math.round(prev.c + carbs),
+          f: Math.round(prev.f + fats),
+          calories: newCalories,
+          remaining: Math.max(0, prev.calMax - newCalories),
+        };
+      });
 
-      logActivity(
+      await logActivity(
         'macros',
         'Macro Update',
         `+${calories} cal, +${protein}g P, +${carbs}g C, +${fats}g F`
@@ -1891,30 +1998,16 @@ function Dashboard({ onLogout }) {
     }
   };
 
-  // ✅ FIX: Initialize water/sleep from localStorage FIRST to prevent reset on page refresh
-  // Then they'll be updated from backend when fetchUserData completes
-  const [water, setWater] = useState(() => {
-    try {
-      const cached = getFromStorage(StorageKeys.WATER_INTAKE);
-      return cached ? Number(cached) : 0;
-    } catch {
-      return 0;
-    }
-  });
-  const [sleep, setSleep] = useState(() => {
-    try {
-      const cached = getFromStorage(StorageKeys.SLEEP_HOURS);
-      return cached ? Number(cached) : 0;
-    } catch {
-      return 0;
-    }
-  });
+  const lastSaved = useRef({ water: 0, sleep: 0, workout_completed: false });
+
+  const [water, setWater] = useState(0);
+  const [weeklyAverages, setWeeklyAverages] = useState(null);
+  const [sleep, setSleep] = useState(0);
   const [status, setStatus] = useState(null);
   const [dailyProgress, setDailyProgress] = useState(0); // 0-100, computed from real metrics
   const [mealsLoggedToday, setMealsLoggedToday] = useState(0); // 0-3: how many of breakfast/lunch/dinner done
   const [workoutProgress, setWorkoutProgress] = useState(0); // 0-1 ratio: exercises completed / total
   const [workoutIntensity] = useState(0);
-  const [workoutPartial, setWorkoutPartial] = useState(false); // NEW: Track if workout was partial/skipped
   const [recoveryScore, setRecoveryScore] = useState(0);
   const [notifications, setNotifications] = useState([]);
   const [lastNotificationCheck, setLastNotificationCheck] = useState(null);
@@ -1937,41 +2030,33 @@ function Dashboard({ onLogout }) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // PERF-7/8: Memoize breakpoint boolean — only recomputes when viewportWidth changes
-  const isCompactLayout = useMemo(() => viewportWidth <= 1024, [viewportWidth]);
-  // PERF-7/8: Memoized so spread of styles.statsRow etc. is only re-created
-  // when the viewport crosses the 1024px breakpoint — not on every state update.
-  const dashboardLayout = useMemo(() => ({
+  const isCompactLayout = viewportWidth <= 1024;
+  const dashboardLayout = {
     statsRow: isCompactLayout
       ? { ...styles.statsRow, gridTemplateColumns: '1fr' }
       : styles.statsRow,
     chartSection: isCompactLayout
-      ? { ...styles.chartSection, gridColumn: 'span 12', height: '340px' }
+      ? { ...styles.chartSection, gridColumn: 'span 12', height: '360px' }
       : styles.chartSection,
     activitySection: isCompactLayout
-      ? { ...styles.activitySection, gridColumn: 'span 12', height: '340px' }
+      ? { ...styles.activitySection, gridColumn: 'span 12', height: '360px' }
       : styles.activitySection
-  }), [isCompactLayout]);
+  };
 
-  // PERF-7/8: todayDate changes at most once per day — memoize so
-  // toLocaleDateString() is not called on every render.
-  const todayDate = useMemo(() => new Date().toLocaleDateString('en-US', {
+  const todayDate = new Date().toLocaleDateString('en-US', {
     weekday: 'short',
     month: 'short',
     day: 'numeric'
-  }), []);
+  });
 
-  // BUG-F5: Lazy-load quotes after first paint, then pick today's quote.
-  const [currentQuote, setCurrentQuote] = useState('Stay hard.');
-  useEffect(() => {
-    import('../data/quotes').then(({ QUOTES: Q }) => {
-      if (!Q || Q.length === 0) return;
-      const now = new Date();
-      const start = new Date(now.getFullYear(), 0, 0);
-      const dayOfYear = Math.floor((now - start) / (1000 * 60 * 60 * 24));
-      const infiniteIndex = dayOfYear + now.getFullYear() * 365;
-      setCurrentQuote(Q[infiniteIndex % Q.length]);
-    }).catch(() => { /* keep default */ });
+  const currentQuote = useMemo(() => {
+    if (!QUOTES || QUOTES.length === 0) return 'Stay hard.';
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 0);
+    const dayOfYear = Math.floor((now - start) / (1000 * 60 * 60 * 24));
+    const year = now.getFullYear();
+    const infiniteIndex = dayOfYear + year * 365;
+    return QUOTES[infiniteIndex % QUOTES.length];
   }, []);
 
   // --- Compute dailyProgress (0-100) from real daily metrics ---
@@ -1986,21 +2071,22 @@ function Dashboard({ onLogout }) {
   useEffect(() => {
     try {
       // 1. Workout (25 pts) — granular per-exercise ratio
-      //    FIX: Don't give full points if workout was partial/skipped
-      //    Only give full 25 if status is 'meal' or 'done' AND not a partial session
+      //    If full workout done via status flag, give full 25.
+      //    Otherwise use workoutProgress (0-1) from _workoutSync.
       let workoutPts;
-      if ((status === 'meal' || status === 'done') && !workoutPartial) {
+      if (status === 'meal' || status === 'done') {
         workoutPts = 25; // full workout completed & logged
-      } else if ((status === 'meal' || status === 'done') && workoutPartial) {
-        // Partial session - give proportional points based on what was actually completed
-        workoutPts = Math.round(workoutProgress * 25);
-        console.log(`[Dashboard] Partial workout detected, giving ${workoutPts}/25 points (${Math.round(workoutProgress * 100)}% completed)`);
       } else {
         workoutPts = Math.round(workoutProgress * 25);
       }
 
       // 2. Meals (25 pts) — exact per-meal credit (breakfast/lunch/dinner = ~8.3pts each)
-      const mealPts = Math.round((mealsLoggedToday / 3) * 25);
+      let mealPts;
+      if (status === 'done') {
+        mealPts = 25;
+      } else {
+        mealPts = Math.round((mealsLoggedToday / 3) * 25);
+      }
 
       // 3. Water (25 pts) — intake vs personal goal (weight × 0.033 L), updates per glass
       const userWeight = parseFloat(safeJSONParse('user', {})?.weight || '70');
@@ -2017,7 +2103,7 @@ function Dashboard({ onLogout }) {
     } catch (err) {
       console.error('Error computing daily progress:', err);
     }
-  }, [status, water, sleep, mealsLoggedToday, workoutProgress, workoutPartial]);
+  }, [status, water, sleep, mealsLoggedToday, workoutProgress]);
 
   useEffect(() => {
     const unsubWater = syncBridge.subscribe(SyncTypes.WATER_ADDED, (data) => {
@@ -2037,14 +2123,6 @@ function Dashboard({ onLogout }) {
       if (Number.isFinite(mealsCount)) {
         setMealsLoggedToday(Math.max(0, Math.min(3, mealsCount)));
       }
-      if (data?.calories !== undefined) {
-        _setMacrosFromTotals({
-          calories: data.calories,
-          protein: data.protein,
-          carbs: data.carbs,
-          fat: data.fat,
-        });
-      }
     });
 
     const unsubWorkoutProgress = syncBridge.subscribe(SyncTypes.WORKOUT_PROGRESS, (data) => {
@@ -2052,16 +2130,10 @@ function Dashboard({ onLogout }) {
       const total = Math.max(1, Number(data?.totalCount) || 1);
       const ratio = Math.max(0, Math.min(1, completed / total));
       setWorkoutProgress(ratio);
-      // Check if this is a partial session (some exercises skipped)
-      const hasSkips = data?.hasSkipped === true || data?.fullyDone === false;
-      if (hasSkips && ratio < 1) {
-        setWorkoutPartial(true);
-      }
     });
 
     const unsubWorkoutDone = syncBridge.subscribe(SyncTypes.WORKOUT_COMPLETED, () => {
       setWorkoutProgress(1);
-      setWorkoutPartial(false); // Full completion, not partial
     });
 
     return () => {
@@ -2140,9 +2212,6 @@ function Dashboard({ onLogout }) {
           return;
         }
 
-        // Keep session user profile in sync so other pages don't fall back to zero/default values.
-        persistSessionUser(data);
-
         if (data.name) setDisplayName(data.name.split(' ')[0]);
 
         // ✅ BACKEND SYNC: Parse MongoDB history instead of localStorage
@@ -2154,9 +2223,11 @@ function Dashboard({ onLogout }) {
 
         // Calculate exact macros eaten TODAY from MongoDB
         let cEaten = 0, pEaten = 0, fEaten = 0, carbEaten = 0;
+        // ✅ FIX: Only count meals with actual calories as "completed".
+        // Zero-calorie entries from old sessions / partial saves must not inflate mealsLoggedToday.
         const mealsToday = normalizedMeals.filter(m => {
           const d = String(m.date || m.completedAt || '');
-          return d.startsWith(todayStr);
+          return d.startsWith(todayStr) && (Number(m.calories) > 0);
         });
         mealsToday.forEach(m => {
            cEaten += Number(m.calories) || 0;
@@ -2164,14 +2235,64 @@ function Dashboard({ onLogout }) {
            carbEaten += Number(m.carbs) || 0;
            fEaten += Number(m.fat) || 0;
         });
+
+        // Fallback hydration from local checked/locked state so values persist across
+        // refresh/relogin even when backend meal-history write is still catching up.
+        try {
+          const cachedNutrition = getFromStorage(StorageKeys.NUTRITION_CACHE);
+          const checkedFoods = safeJSONParse('checkedFoods', {});
+          const lockedMeals = safeJSONParse('lockedMeals', {});
+          const todayPlan = cachedNutrition?.days?.find((d) => d?.date === todayStr) || cachedNutrition?.days?.[0];
+
+          if (todayPlan && Array.isArray(todayPlan.meals)) {
+            let localCalories = 0;
+            let localProtein = 0;
+            let localCarbs = 0;
+            let localFat = 0;
+
+            todayPlan.meals.forEach((meal) => {
+              const mealType = String(meal?.meal_type || '').toLowerCase();
+              const mealLocked =
+                Boolean(lockedMeals[`${todayStr}-${meal?.name}`])
+                || Boolean(mealType && lockedMeals[`${todayStr}-${mealType}`]);
+
+              if (mealLocked) {
+                localCalories += Number(meal?.totals?.calories) || 0;
+                localProtein += Number(meal?.totals?.protein_g) || 0;
+                localCarbs += Number(meal?.totals?.carbs_g) || 0;
+                localFat += Number(meal?.totals?.fat_g) || 0;
+                return;
+              }
+
+              (meal?.foods || []).forEach((food) => {
+                if (checkedFoods[`${todayStr}-${food.id}`]) {
+                  localCalories += Number(food?.calories) || 0;
+                  localProtein += Number(food?.protein_g) || 0;
+                  localCarbs += Number(food?.carbs_g) || 0;
+                  localFat += Number(food?.fat_g) || 0;
+                }
+              });
+            });
+
+            cEaten = Math.max(cEaten, localCalories);
+            pEaten = Math.max(pEaten, localProtein);
+            carbEaten = Math.max(carbEaten, localCarbs);
+            fEaten = Math.max(fEaten, localFat);
+          }
+        } catch (macroHydrationError) {
+          console.warn('Local macro hydration fallback failed:', macroHydrationError);
+        }
+
         // ✅ FIX: Round all macro values to integers
         cEaten = Math.round(cEaten);
         pEaten = Math.round(pEaten);
         carbEaten = Math.round(carbEaten);
         fEaten = Math.round(fEaten);
 
+        // ✅ FIX: Only use meal_type (not .name) to identify meal type — avoids false positives
+        // where old entries with name="Breakfast" (meal_type undefined) are counted as completed.
         const completedMealTypesToday = new Set(
-          mealsToday.map((m) => String(m.meal_type || m.mealType || m.name || '').toLowerCase())
+          mealsToday.map((m) => String(m.meal_type || m.mealType || '').toLowerCase()).filter(Boolean)
         );
         // ✅ Count exactly how many of breakfast/lunch/dinner have been logged today (0-3)
         const MAIN_MEALS = ['breakfast', 'lunch', 'dinner'];
@@ -2220,7 +2341,7 @@ function Dashboard({ onLogout }) {
           c: carbEaten,
           f: fEaten,
           calories: cEaten,
-          fiber: 0,
+          remaining: Math.max(0, calMax - cEaten),
           pMax,
           cMax,
           fMax,
@@ -2246,28 +2367,39 @@ function Dashboard({ onLogout }) {
                 timestamp: new Date(m.completedAt || m.date || new Date()).getTime(),
             });
         });
+        (Array.isArray(data.recent_activities) ? data.recent_activities : []).forEach((a) => {
+          combinedHistory.push({
+            type: a?.type || 'activity',
+            name: a?.name || 'Activity',
+            details: a?.details || '',
+            date: a?.date || new Date(a?.timestamp || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            timestamp: a?.timestamp || new Date().toISOString(),
+          });
+        });
+        const persistedActivities = getFromStorage(StorageKeys.ACTIVITY_HISTORY, []);
+        (Array.isArray(persistedActivities) ? persistedActivities : []).forEach((a) => {
+          combinedHistory.push(a);
+        });
 
-        const localActivity = getFromStorage(StorageKeys.ACTIVITY_HISTORY, []);
-        const normalizedLocal = (Array.isArray(localActivity) ? localActivity : [])
-          .filter((item) => item && typeof item === 'object')
-          .map((item) => ({
-            ...item,
-            timestamp: Number(item.timestamp) || Date.now(),
-          }));
-
-        const mergedMap = new Map();
-        [...combinedHistory, ...normalizedLocal].forEach((entry) => {
-          const key = `${entry.type || ''}|${entry.name || ''}|${entry.details || ''}|${entry.timestamp || 0}`;
-          if (!mergedMap.has(key)) {
-            mergedMap.set(key, entry);
+        const deduped = [];
+        const dedupeKeySet = new Set();
+        combinedHistory.forEach((item) => {
+          const ts = item?.timestamp ? new Date(item.timestamp).getTime() : 0;
+          const key = `${item?.type || ''}|${item?.name || ''}|${item?.details || ''}|${Number.isFinite(ts) ? ts : item?.date || ''}`;
+          if (!dedupeKeySet.has(key)) {
+            dedupeKeySet.add(key);
+            deduped.push(item);
           }
         });
 
-        const mergedHistory = Array.from(mergedMap.values())
-          .sort((a, b) => (Number(b.timestamp) || 0) - (Number(a.timestamp) || 0));
+        deduped.sort((a, b) => {
+          const ta = a?.timestamp ? new Date(a.timestamp).getTime() : 0;
+          const tb = b?.timestamp ? new Date(b.timestamp).getTime() : 0;
+          return tb - ta;
+        });
 
-        setRecentHistory(mergedHistory.slice(0, 5));
-        setToStorage(StorageKeys.ACTIVITY_HISTORY, mergedHistory.slice(0, 50));
+        setRecentHistory(deduped.slice(0, 20));
+        setToStorage(StorageKeys.ACTIVITY_HISTORY, deduped.slice(0, 20));
 
         // ✅ Avatar Sync
         const storedAvatar = getFromStorage(StorageKeys.USER_AVATAR);
@@ -2275,51 +2407,34 @@ function Dashboard({ onLogout }) {
 
         // ✅ State Sync from DB Trends (Water, Sleep, Streak)
         if (data.trends && Array.isArray(data.trends)) {
-           console.log(`[Dashboard] Loaded ${data.trends.length} trend entries from backend`);
            // Synchronize today's latest data points
            const todayRecord = data.trends.find(t => String(t.date).startsWith(todayStr));
            if (todayRecord) {
-             console.log('[Dashboard] Found today\'s trend record:', todayRecord);
-             if (todayRecord.water_intake !== undefined) {
-               const waterValue = Number(todayRecord.water_intake);
-               console.log(`[Dashboard] Setting water from backend: ${waterValue}L`);
-               setWater(waterValue);
-               setToStorage(StorageKeys.WATER_INTAKE, String(waterValue));
-             }
-             if (todayRecord.water_glasses !== undefined) {
-               const waterValue = Number(todayRecord.water_glasses);
-               console.log(`[Dashboard] Setting water from water_glasses: ${waterValue}L`);
-               setWater(waterValue);
-               setToStorage(StorageKeys.WATER_INTAKE, String(waterValue));
-             }
-             if (todayRecord.sleep_duration !== undefined) {
-               const sleepValue = Number(todayRecord.sleep_duration);
-               console.log(`[Dashboard] Setting sleep from backend: ${sleepValue}h`);
-               setSleep(sleepValue);
-               setToStorage(StorageKeys.SLEEP_HOURS, String(sleepValue));
-             }
-             if (todayRecord.sleep_hours !== undefined) {
-               const sleepValue = Number(todayRecord.sleep_hours);
-               console.log(`[Dashboard] Setting sleep from sleep_hours: ${sleepValue}h`);
-               setSleep(sleepValue);
-               setToStorage(StorageKeys.SLEEP_HOURS, String(sleepValue));
-             }
-           } else {
-             console.log('[Dashboard] No trend record found for today:', todayStr);
-             setWorkoutPartial(false);
-             removeFromStorage('TODAY_WORKOUT_ATTEMPTED');
-           }
+             let syncedWater = 0;
+             let syncedSleep = 0;
+             if (todayRecord.water_intake !== undefined) syncedWater = Number(todayRecord.water_intake);
+             else if (todayRecord.water_glasses !== undefined) syncedWater = Number(todayRecord.water_glasses);
+             
+             if (todayRecord.sleep_duration !== undefined) syncedSleep = Number(todayRecord.sleep_duration);
+             else if (todayRecord.sleep_hours !== undefined) syncedSleep = Number(todayRecord.sleep_hours);
 
-           // Also check for workout_partial flag
-           if (todayRecord?.workout_partial === true) {
-             console.log('[Dashboard] Found partial workout flag for today');
-             setWorkoutPartial(true);
-           }
-           if (todayRecord?.workout_attempted === true) {
-             console.log('[Dashboard] Found workout_attempted flag for today');
-             setToStorage('TODAY_WORKOUT_ATTEMPTED', 'true');
-           } else if (todayRecord) {
-             removeFromStorage('TODAY_WORKOUT_ATTEMPTED');
+             // ✅ KEY FIX: localStorage is updated synchronously on every button click, while the
+             // backend lags by the debounce window (500ms). If the user reduced water then
+             // quickly refreshed (before the debounce fired), the DB still holds the OLD value.
+             // Prefer localStorage for today's session if it holds a valid number.
+             const lsWater = parseFloat(localStorage.getItem(StorageKeys.WATER_INTAKE));
+             const lsSleep = parseFloat(localStorage.getItem(StorageKeys.SLEEP_HOURS));
+             if (Number.isFinite(lsWater)) syncedWater = lsWater;
+             if (Number.isFinite(lsSleep)) syncedSleep = lsSleep;
+             
+             setWater(syncedWater);
+             setSleep(syncedSleep);
+             // IMPORTANT: initialise lastSaved.current to match whatever we just set into
+             // state (localStorage-preferred). This ensures the debounce diff check fires
+             // correctly even when the user reduces water back to the same value that is
+             // stored in the DB (e.g. add 0→0.25 then remove 0.25→0: if lastSaved were the
+             // DB value 0 the diff would be 0===0 and the save would be silently skipped).
+             lastSaved.current = { water: syncedWater, sleep: syncedSleep, workout_completed: !!todayRecord?.workout_completed };
            }
 
            // ✅ FIX: Advanced Streak Calculation incorporating Rest Days
@@ -2335,13 +2450,14 @@ function Dashboard({ onLogout }) {
            registrationDate.setHours(0, 0, 0, 0);
 
            // Walk backwards from today, day by day
-           const dateCursor = new Date(todayStr);
+           const dateCursor = new Date();
+           dateCursor.setHours(0, 0, 0, 0);
            for (let attempts = 0; attempts < 365; attempts++) {
              if (dateCursor < registrationDate) {
                break;
              }
 
-             const dateKey = dateCursor.toISOString().split('T')[0];
+             const dateKey = getLocalDateStr(dateCursor);
              const entry = trendsByDate.get(dateKey);
 
              if (!entry) break; // No record for this date = streak broken
@@ -2373,7 +2489,7 @@ function Dashboard({ onLogout }) {
            const weekData = days.map((day, index) => {
              const dayDate = new Date(startOfWeek);
              dayDate.setDate(startOfWeek.getDate() + index);
-             const dateKey = dayDate.toISOString().split('T')[0];
+             const dateKey = getLocalDateStr(dayDate);
              const entry = trendsByDate.get(dateKey);
              const restDay = isRestDayForDate(dayDate);
              const storedDone = getFromStorage(StorageKeys.getWorkoutDoneKey(dateKey));
@@ -2432,6 +2548,16 @@ function Dashboard({ onLogout }) {
             setToStorage(StorageKeys.TODAY_MEALS_DONE, 'true');
         }
         
+        // Fetch weekly averages for adaptive coaching card
+        try {
+          const weeklyRes = await getWeeklyLogs();
+          if (weeklyRes?.data?.success && weeklyRes?.data?.summary) {
+            setWeeklyAverages(weeklyRes.data.summary);
+          }
+        } catch (weeklyErr) {
+          console.warn('Failed to load weekly logs for AI Coach:', weeklyErr);
+        }
+        
         return { workoutDone: finalWorkoutDone, mealDone: finalMealDone };
       } catch (error) {
         console.error('Error fetching profile:', error);
@@ -2461,6 +2587,11 @@ function Dashboard({ onLogout }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
 
+  // ✅ NEW: Load activities from backend on mount
+  useEffect(() => {
+    loadActivitiesFromBackend();
+  }, []);
+
   // Session recovery on mount
   useEffect(() => {
     const recoverSession = () => {
@@ -2482,38 +2613,50 @@ function Dashboard({ onLogout }) {
     recoverSession();
   }, []);
 
-  // ✅ UPDATED: Daily reset logic with storage utilities
+  // ✅ FIXED: Daily reset logic with storage utilities
+  // BUG WAS HERE: The old condition `lastActivityDate !== today || dailyResetPerformed !== today`
+  // would fire on EVERY fresh login (when keys don't exist in storage), wiping
+  // TODAY_WORKOUT_DONE / TODAY_MEALS_DONE even though the day hadn't changed.
+  //
+  // FIX: Only clear session flags when lastActivityDate exists AND is a DIFFERENT day
+  // (i.e. the user is logging in on a new calendar day). On a fresh login same day,
+  // just write the tracking keys without clearing anything.
   const checkDailyReset = async () => {
     try {
       const today = getTodayStr();
       const lastActivityDate = getFromStorage(StorageKeys.LAST_ACTIVITY_DATE);
-      const dailyResetPerformed = getFromStorage(StorageKeys.DAILY_RESET_PERFORMED);
 
-      if (lastActivityDate !== today || dailyResetPerformed !== today) {
-        setToStorage(StorageKeys.LAST_ACTIVITY_DATE, today);
-        setToStorage(StorageKeys.DAILY_RESET_PERFORMED, today);
-        // ✅ FIX: Do NOT call resetDailyMacros() here!
-        // Macros are loaded from MongoDB by fetchUserData() and are authoritative.
-        // Zeroing them would overwrite the real data from the database.
-        // Keep status unchanged here; checkDayReset() derives the final state
-        // after backend sync to avoid startup button flicker.
+      // ✅ KEY FIX: only reset if we KNOW it was a different day previously
+      const isNewDay = lastActivityDate && lastActivityDate !== today;
+
+      // Always stamp today so future checks detect a new day correctly
+      setToStorage(StorageKeys.LAST_ACTIVITY_DATE, today);
+      setToStorage(StorageKeys.DAILY_RESET_PERFORMED, today);
+
+      if (isNewDay) {
+        // A real calendar day has rolled over — clear yesterday's session state
         setNotifications([]);
         removeFromStorage(StorageKeys.TODAY_WORKOUT_DONE);
         removeFromStorage(StorageKeys.TODAY_MEALS_DONE);
-        
-        // Clear notification flags
+
+        // Clear notification flags for the old day
+        const keysToRemove = [];
         for (let i = 0; i < localStorage.length; i++) {
           const key = localStorage.key(i);
           if (key && (key.includes('notification_') || key.includes('reminder_'))) {
-            removeFromStorage(key);
+            keysToRemove.push(key);
           }
         }
+        keysToRemove.forEach(k => removeFromStorage(k));
       }
+      // If lastActivityDate is null/empty (first login ever) OR same as today,
+      // do NOT clear any flags — the backend data loaded by fetchUserData() is authoritative.
     } catch (error) {
       console.error('Error in checkDailyReset:', error);
       showInfo('There was an issue checking for daily reset. Please try again later.', 3000);
     }
   };
+
 
   // ✅ FIX 2: Cross-page macro sync — re-fetch today's data when user returns to Dashboard
   useEffect(() => {
@@ -2525,11 +2668,12 @@ function Dashboard({ onLogout }) {
           const { data } = await getProfile();
           const todayStr = getTodayStr();
           const normalizedMeals = normalizeMealEntries(data.meals || []);
+          let cEaten = 0, pEaten = 0, carbEaten = 0, fEaten = 0;
+          // ✅ FIX: Same calories>0 guard as in fetchUserData — only real meals count
           const mealsToday = normalizedMeals.filter(m => {
             const d = String(m.date || m.completedAt || '');
-            return d.startsWith(todayStr);
+            return d.startsWith(todayStr) && (Number(m.calories) > 0);
           });
-          let cEaten = 0, pEaten = 0, carbEaten = 0, fEaten = 0;
           mealsToday.forEach(m => {
             cEaten += Number(m.calories) || 0;
             pEaten += Number(m.protein) || 0;
@@ -2541,7 +2685,8 @@ function Dashboard({ onLogout }) {
             p: Math.round(pEaten),
             c: Math.round(carbEaten),
             f: Math.round(fEaten),
-            calories: Math.round(cEaten)
+            calories: Math.round(cEaten),
+            remaining: Math.max(0, prev.calMax - Math.round(cEaten)),
           }));
           // ✅ PA-6: Also refresh the chart so it reflects latest data
           updateChart(chartMode, chartPeriod);
@@ -2556,8 +2701,9 @@ function Dashboard({ onLogout }) {
             const wd = String(w.completedAt || w.date || '');
             return wd.startsWith(todayStr) && (Boolean(w.completedAt) || String(w.status || '').toLowerCase() === 'completed' || w.completed === true);
           });
+          // ✅ FIX: Only use meal_type (not .name) so old flat entries don\'t produce false meal counts
           const completedMealTypes = new Set(
-            mealsToday.map(m => String(m.meal_type || m.mealType || m.name || '').toLowerCase())
+            mealsToday.map(m => String(m.meal_type || m.mealType || '').toLowerCase()).filter(Boolean)
           );
           const mealsDone = ['breakfast', 'lunch', 'dinner'].every(t => completedMealTypes.has(t));
           // ✅ Keep mealsLoggedToday in sync after visibility refresh
@@ -2594,6 +2740,7 @@ function Dashboard({ onLogout }) {
               c: Math.round(Number(totals.carbs) || prev.c),
               f: Math.round(Number(totals.fat) || prev.f),
               calories: Math.round(Number(totals.calories) || prev.calories),
+              remaining: Math.max(0, prev.calMax - Math.round(Number(totals.calories) || prev.calories)),
             }));
             // ✅ If Nutrition page signals the meal count, update circle immediately
             if (totals.mealsCount !== undefined) {
@@ -2601,7 +2748,9 @@ function Dashboard({ onLogout }) {
             }
             console.log('✅ Dashboard macros updated from Nutrition sync:', totals);
           }
-        } catch { /* ignore parse errors */ }
+        } catch (error) {
+          console.warn('[Dashboard] Failed to parse _macroSync data:', error);
+        }
       }
       // ✅ Listen for exercise-by-exercise workout progress from Workout page
       if (e.key === '_workoutSync' && e.newValue) {
@@ -2612,7 +2761,9 @@ function Dashboard({ onLogout }) {
             setWorkoutProgress(ratio);
             console.log(`✅ Workout progress: ${data.completedCount}/${data.totalCount} (${Math.round(ratio * 100)}%)`);
           }
-        } catch { /* ignore */ }
+        } catch (error) {
+          console.warn('[Dashboard] Failed to parse _workoutSync data:', error);
+        }
       }
     };
     window.addEventListener('storage', handleStorageSync);
@@ -2646,21 +2797,40 @@ function Dashboard({ onLogout }) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // ✅ UPDATED: logActivity uses storage utility
-  const logActivity = (type, name, details) => {
+  // ✅ FIXED: logActivity uses storage utility AND saves to backend
+  // Added ISO timestamp so deduplication works correctly in loadActivitiesFromBackend
+  const logActivity = async (type, name, details) => {
+    const now = new Date();
     const newLog = {
       name,
-      date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      date: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       details,
       type,
-      timestamp: Date.now(),
+      timestamp: now.toISOString()  // ← required for deduplication & sorting
     };
+
+    // Update local state and storage first (for immediate UI feedback)
     setRecentHistory((prev) => {
       const updated = [newLog, ...prev];
       setToStorage(StorageKeys.ACTIVITY_HISTORY, updated);
       return updated;
     });
+
+    // Also save to backend for persistence across sessions
+    try {
+      await logActivityToBackend({
+        activity_type: type,
+        name,
+        details,
+        type,
+        timestamp: newLog.timestamp
+      });
+    } catch (error) {
+      // Don't break the UI if backend logging fails
+      console.warn('Failed to log activity to backend:', error);
+    }
   };
+
 
   const removeLastLog = (type) => {
     setRecentHistory((prev) => {
@@ -2673,6 +2843,64 @@ function Dashboard({ onLogout }) {
       }
       return prev;
     });
+  };
+
+  // ✅ NEW: Load activities from backend on mount
+  const loadActivitiesFromBackend = async () => {
+    const localActivities = getFromStorage(StorageKeys.ACTIVITY_HISTORY, []);
+
+    try {
+      if (Array.isArray(localActivities) && localActivities.length > 0) {
+        try {
+          await syncActivitiesToBackend(localActivities);
+        } catch (syncError) {
+          console.warn('Failed to sync local activities to backend:', syncError);
+        }
+      }
+
+      const response = await getRecentActivities(20);
+      if (response.data && response.data.success && Array.isArray(response.data.data)) {
+        const backendActivities = response.data.data;
+
+        // Merge with local storage activities (in case some were logged while offline)
+
+        // Create a map to deduplicate by type/name/details/timestamp
+        const activityMap = new Map();
+
+        // Add backend activities first (they're the authoritative source)
+        backendActivities.forEach(activity => {
+          const ts = activity?.timestamp ? new Date(activity.timestamp).getTime() : 0;
+          const key = `${activity?.type || ''}|${activity?.name || ''}|${activity?.details || ''}|${Number.isFinite(ts) ? ts : activity?.date || ''}`;
+          activityMap.set(key, activity);
+        });
+
+        // Add local activities that might not be synced yet
+        localActivities.forEach(activity => {
+          const ts = activity?.timestamp ? new Date(activity.timestamp).getTime() : 0;
+          const key = `${activity?.type || ''}|${activity?.name || ''}|${activity?.details || ''}|${Number.isFinite(ts) ? ts : activity?.date || ''}`;
+          if (!activityMap.has(key)) {
+            activityMap.set(key, activity);
+          }
+        });
+
+        // Convert to array and sort by timestamp (most recent first)
+        const merged = Array.from(activityMap.values());
+        merged.sort((a, b) => {
+          const timeA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+          const timeB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+          return timeB - timeA;
+        });
+
+        // Update state and localStorage
+        setRecentHistory(merged.slice(0, 20));
+        setToStorage(StorageKeys.ACTIVITY_HISTORY, merged.slice(0, 20));
+      }
+    } catch (error) {
+      console.warn('Failed to load activities from backend:', error);
+      // Fall back to localStorage if backend fails
+      const localActivities = getFromStorage(StorageKeys.ACTIVITY_HISTORY, []);
+      setRecentHistory(localActivities);
+    }
   };
 
   // ✅ UPDATED: Notification tracking with storage utilities
@@ -2852,11 +3080,7 @@ function Dashboard({ onLogout }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    const handleResize = () => {};
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  // Removed: Empty resize listener that did nothing (was a waste of resources)
 
   const checkInterruptedSessions = () => {
     try {
@@ -2926,22 +3150,29 @@ function Dashboard({ onLogout }) {
     }
   }, [water, sleep, dailyProgress, chartMode]);
 
-  // ✅ BACKEND PERSISTENCE: Debounce-sync water & sleep to MongoDB trends
-  // IMPROVED: Added error handling and user notification on failure
-  const latestDataRef = useRef({ water: 0, sleep: 0 });
-  const isDirtyRef = useRef(false);
+  // ✅ FIXED: Debounce-sync water & sleep to MongoDB trends
+  // BUG WAS HERE: lastSaved.current was written BEFORE the async save completed.
+  // If saveTrends() silently failed, the ref already matched the new values so the
+  // next button click produced no diff and the save was never retried.
+  //
+  // FIX: Only update the ref on success; roll it back on failure so the next
+  // state change (or page visibility change) re-triggers the save attempt.
   useEffect(() => {
-    // Wait for initial profile hydration before attempting background sync.
-    if (loading) return;
+    const workout_completed = status === 'done' || status === 'meal' || workoutProgress === 1;
+    if (
+      water === lastSaved.current.water &&
+      sleep === lastSaved.current.sleep &&
+      workout_completed === lastSaved.current.workout_completed
+    ) {
+      return;
+    }
 
-    // Don't sync on initial mount (values are 0)
-    if (water === 0 && sleep === 0) return;
-
-    latestDataRef.current = { water, sleep };
-    isDirtyRef.current = true;
+    const prevSaved = { ...lastSaved.current }; // snapshot before timer fires
 
     const timer = setTimeout(async () => {
       const todayStr = getTodayStr();
+      // Optimistically record what we're about to save
+      lastSaved.current = { water, sleep, workout_completed };
       try {
         await saveTrends({
           date: todayStr,
@@ -2949,69 +3180,36 @@ function Dashboard({ onLogout }) {
           water_glasses: water,
           sleep_duration: sleep,
           sleep_hours: sleep,
+          workout_completed: workout_completed,
         });
-        // Successfully saved - update localStorage with confirmed values
-        isDirtyRef.current = false;
-        setToStorage(StorageKeys.WATER_INTAKE, String(water));
-        setToStorage(StorageKeys.SLEEP_HOURS, String(sleep));
-      } catch (err) {
-        console.error('[Dashboard] Failed to sync water/sleep to backend:', err);
-        // Only treat confirmed session-expiry as logout-worthy.
-        const status = err?.response?.status;
-        const code = err?.response?.data?.code;
-        if (status === 401 && code === 'SESSION_EXPIRED') {
-          console.error('[Dashboard] Session expired during trend sync');
-          showInfo('Session expired. Please refresh the page or re-login to save your data.', 5000);
-        } else if (status === 401) {
-          console.error('[Dashboard] Unauthorized trend sync request');
-          showInfo('Could not verify your session for saving. Please try again.', 3500);
-        } else if (status === 403) {
-          // 403 can happen transiently (e.g. CSRF token refresh race on reload).
-          showInfo('Sync delayed for a moment. Retrying automatically...', 2500);
-        } else {
-          showInfo('Failed to save water/sleep data. Will retry automatically.', 3000);
-        }
-        // Retry once after 5 seconds
-        setTimeout(async () => {
-          try {
-            await saveTrends({
-              date: todayStr,
-              water_intake: water,
-              water_glasses: water,
-              sleep_duration: sleep,
-              sleep_hours: sleep,
-            });
-          } catch (retryErr) {
-            console.error('[Dashboard] Retry also failed:', retryErr);
+
+        // Sync with the Python daily logs backend
+        try {
+          await saveDailyLog({
+            sleep_hours: sleep,
+            water_ml: water * 1000, // liters to ml
+            workout_completed: workout_completed,
+            date: todayStr,
+          });
+
+          // Re-fetch weekly logs to update dashboard card
+          const weeklyRes = await getWeeklyLogs();
+          if (weeklyRes?.data?.success && weeklyRes?.data?.summary) {
+            setWeeklyAverages(weeklyRes.data.summary);
           }
-        }, 5000);
+        } catch (pyErr) {
+          console.warn('Python daily log sync failed:', pyErr);
+        }
+      } catch (err) {
+        console.error('Failed to sync water/sleep/workout to backend:', err);
+        // Roll back so the next value change will retry the write
+        lastSaved.current = prevSaved;
       }
-    }, 1500); // 1.5 second debounce to batch rapid clicks
+    }, 500); // 0.5 second debounce — short enough to beat a quick page refresh
 
     return () => clearTimeout(timer);
-  }, [water, sleep, loading, showInfo]);
+  }, [water, sleep, status, workoutProgress]);
 
-  // Flush unsaved data on unmount (e.g., when logging out rapidly)
-  useEffect(() => {
-    return () => {
-      if (isDirtyRef.current) {
-        const { water, sleep } = latestDataRef.current;
-        const now = new Date();
-        const yyyy = now.getFullYear();
-        const mm = String(now.getMonth() + 1).padStart(2, '0');
-        const dd = String(now.getDate()).padStart(2, '0');
-        const todayStr = `${yyyy}-${mm}-${dd}`;
-        
-        saveTrends({
-          date: todayStr,
-          water_intake: water,
-          water_glasses: water,
-          sleep_duration: sleep,
-          sleep_hours: sleep,
-        }).catch((err) => console.error('[Dashboard] Unmount flush failed:', err));
-      }
-    };
-  }, []); // Empty dependency array ensures this cleanup ONLY runs on unmount
 
   const updateRecoveryScore = (currentWater, currentSleep) => {
     const userWeight = parseFloat(safeJSONParse('user', {})?.weight || '70');
@@ -3100,24 +3298,112 @@ function Dashboard({ onLogout }) {
 
   const fetchExternalNutritionData = async (foodQuery) => {
     try {
-      const response = await getExternalNutritionData(foodQuery);
-      if (response?.data?.success && response?.data?.data) {
-        return response.data.data;
+      // Using USDA FoodData Central API (Requires API key)
+      const apiKey = import.meta.env.VITE_USDA_API_KEY;
+
+      if (!apiKey) {
+        console.warn('USDA API key not configured, using fallback nutrition data');
+        // Return mock nutrition data as fallback
+        return {
+          food_name: foodQuery,
+          calories: 0,
+          protein: 0,
+          carbs: 0,
+          fat: 0,
+          fiber: 0,
+          serving_weight_grams: 100,
+          source: 'fallback',
+          nix_item_name: foodQuery,
+          full_nutrients: []
+        };
       }
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+      const response = await fetch(
+        `https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(foodQuery)}&pageSize=1&api_key=${apiKey}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          signal: controller.signal
+        }
+      );
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        console.warn(`USDA API returned status ${response.status}`);
+        // Return fallback data if API fails
+        return {
+          food_name: foodQuery,
+          calories: 0,
+          protein: 0,
+          carbs: 0,
+          fat: 0,
+          fiber: 0,
+          serving_weight_grams: 100,
+          source: 'fallback',
+          nix_item_name: foodQuery,
+          full_nutrients: []
+        };
+      }
+
+      const data = await response.json();
+
+      if (!data.foods || data.foods.length === 0) {
+        console.warn('USDA API returned no results for:', foodQuery);
+        return {
+          food_name: foodQuery,
+          calories: 0,
+          protein: 0,
+          carbs: 0,
+          fat: 0,
+          fiber: 0,
+          serving_weight_grams: 100,
+          source: 'fallback',
+          nix_item_name: foodQuery,
+          full_nutrients: []
+        };
+      }
+
+      const food = data.foods[0];
+
+      // Extract nutrients from USDA format
+      const getNutrient = (nutrientId) => {
+        const nutrient = food.foodNutrients?.find(
+          n => n.nutrient?.id === nutrientId
+        );
+        return nutrient?.value || 0;
+      };
+
+      // USDA Nutrient IDs:
+      // 1008 = Energy (kcal)
+      // 1003 = Protein (g)
+      // 1005 = Carbohydrate (g)
+      // 1004 = Fat (g)
+      // 1079 = Fiber (g)
+
       return {
-        food_name: foodQuery,
-        calories: 0,
-        protein: 0,
-        carbs: 0,
-        fat: 0,
-        fiber: 0,
+        food_name: food.description,
+        calories: getNutrient(1008) || 0,
+        protein: getNutrient(1003) || 0,
+        carbs: getNutrient(1005) || 0,
+        fat: getNutrient(1004) || 0,
+        fiber: getNutrient(1079) || 0,
         serving_weight_grams: 100,
-        source: 'fallback',
-        nix_item_name: foodQuery,
-        full_nutrients: []
+        source: 'USDA FoodData Central',
+        nix_item_name: food.description,
+        full_nutrients: food.foodNutrients || []
       };
     } catch (error) {
-      console.error('Nutrition proxy error:', error.message);
+      if (error.name === 'AbortError') {
+        console.warn('USDA API request timeout');
+      } else {
+        console.error('USDA API error:', error.message);
+      }
       // Return fallback data on error
       return {
         food_name: foodQuery || 'unknown food',
@@ -3136,21 +3422,68 @@ function Dashboard({ onLogout }) {
 
   const fetchExternalExerciseData = async (exerciseQuery) => {
     try {
-      const response = await getExternalExerciseData(exerciseQuery);
-      const data = response?.data?.data;
-      if (Array.isArray(data) && data.length > 0) {
-        return data;
+      const apiKey = import.meta.env.VITE_API_NINJAS_KEY;
+
+      if (!apiKey) {
+        console.warn('API Ninjas credentials not configured, using fallback exercise data');
+        // Return mock exercise data as fallback
+        return [{
+          name: exerciseQuery || 'generic exercise',
+          type: 'strength',
+          muscle: exerciseQuery || 'mixed',
+          equipment: 'bodyweight',
+          difficulty: 'beginner',
+          instructions: 'Perform the exercise with proper form'
+        }];
       }
-      return [{
-        name: exerciseQuery || 'generic exercise',
-        type: 'strength',
-        muscle: exerciseQuery || 'mixed',
-        equipment: 'bodyweight',
-        difficulty: 'beginner',
-        instructions: 'Perform the exercise with proper form'
-      }];
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+      const response = await fetch(
+        `https://api.api-ninjas.com/v1/exercises?muscle=${encodeURIComponent(exerciseQuery)}`,
+        {
+          headers: { 'X-Api-Key': apiKey },
+          signal: controller.signal
+        }
+      );
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        console.warn(`API Ninjas returned status ${response.status}`);
+        // Return fallback data if API fails
+        return [{
+          name: exerciseQuery || 'generic exercise',
+          type: 'strength',
+          muscle: exerciseQuery || 'mixed',
+          equipment: 'bodyweight',
+          difficulty: 'beginner',
+          instructions: 'Perform the exercise with proper form'
+        }];
+      }
+
+      const data = await response.json();
+
+      if (!Array.isArray(data) || data.length === 0) {
+        console.warn('API Ninjas returned no exercise data');
+        return [{
+          name: exerciseQuery || 'generic exercise',
+          type: 'strength',
+          muscle: exerciseQuery || 'mixed',
+          equipment: 'bodyweight',
+          difficulty: 'beginner',
+          instructions: 'Perform the exercise with proper form'
+        }];
+      }
+
+      return data;
     } catch (error) {
-      console.error('Exercise proxy error:', error.message);
+      if (error.name === 'AbortError') {
+        console.warn('API Ninjas request timeout, using fallback data');
+      } else {
+        console.error('API Ninjas error:', error.message);
+      }
       // Return fallback data on error
       return [{
         name: exerciseQuery || 'generic exercise',
@@ -3301,9 +3634,9 @@ function Dashboard({ onLogout }) {
         if (mode === 'water' || mode === 'sleep' || mode === 'all') {
           const todayJsDay = new Date().getDay();
           const todayIdx = todayJsDay === 0 ? 6 : todayJsDay - 1;
-          if (mode === 'water') series[todayIdx] = Math.max(series[todayIdx], water);
-          if (mode === 'sleep') series[todayIdx] = Math.max(series[todayIdx], sleep);
-          if (mode === 'all') series[todayIdx] = Math.max(series[todayIdx], dailyProgress);
+          if (mode === 'water') series[todayIdx] = water;
+          if (mode === 'sleep') series[todayIdx] = sleep;
+          if (mode === 'all') series[todayIdx] = dailyProgress;
         }
 
         setChartXLabels(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']);
@@ -3368,7 +3701,6 @@ function Dashboard({ onLogout }) {
         protein: macros.p || 0,
         carbs: macros.c || 0,
         fat: macros.f || 0,
-        fiber: macros.fiber || 0,
         water_intake: water,
         sleep_duration: sleep,
         water_glasses: water,
@@ -3411,25 +3743,18 @@ function Dashboard({ onLogout }) {
   };
 
   // ✅ UPDATED: Day reset uses deriving from backend or fallback to storage
-  // FIX: Added support for workout_attempted flag so partial/skipped sessions can progress
   const checkDayReset = async (forceWorkoutDone, forceMealDone) => {
     try {
       const todayStr = getTodayStr();
       const workoutDoneFlag = forceWorkoutDone !== undefined ? forceWorkoutDone : getFromStorage(StorageKeys.TODAY_WORKOUT_DONE) === 'true';
       const mealDoneFlag = forceMealDone !== undefined ? forceMealDone : getFromStorage(StorageKeys.TODAY_MEALS_DONE) === 'true';
-      const workoutAttempted = getFromStorage('TODAY_WORKOUT_ATTEMPTED') === 'true'; // NEW
 
       const restDayToday = isRestDayForDate(new Date());
       if (restDayToday) {
         if (mealDoneFlag) setStatus('done');
         else setStatus('meal');
-      } else if (!workoutDoneFlag && !workoutAttempted) {
-        // Only show workout status if user hasn't attempted yet
+      } else if (!workoutDoneFlag) {
         setStatus('workout');
-      } else if (!workoutDoneFlag && workoutAttempted) {
-        // User attempted but didn't complete (skipped/partial) - let them proceed to meals
-        console.log('[Dashboard] Workout was attempted but not completed, transitioning to meal stage');
-        setStatus('meal');
       } else if (!mealDoneFlag) {
         setStatus('meal');
       } else {
@@ -3549,6 +3874,7 @@ function Dashboard({ onLogout }) {
                 p: Math.round(sync.protein || prev.p),
                 c: Math.round(sync.carbs || prev.c),
                 f: Math.round(sync.fat || prev.f),
+                remaining: Math.max(0, prev.calMax - Math.round(sync.calories || prev.calories)),
               }));
               console.log('✅ Dashboard macros updated from Nutrition sync:', sync);
             }
@@ -3569,6 +3895,8 @@ function Dashboard({ onLogout }) {
     <>
       <div style={styles.page} className="page">
         <style>{responsiveStyles}</style>
+        {/* ✨ Aurora Mesh Gradient background — replaces bubble animation */}
+        <AuroraBackground />
 
         {loading && (
           <div style={{
@@ -3602,57 +3930,87 @@ function Dashboard({ onLogout }) {
           </div>
         )}
 
-        {/* BUG-F3/F13: Replaced inline nav with shared Navbar component */}
-        <Navbar
-          navigate={navigate}
-          activePage="dashboard"
-          onLogout={handleLogout}
-          rightContent={
-            <>
-              <div style={styles.dateDisplay}>{todayDate}</div>
-              <div style={{ position: 'relative' }} ref={notifRef}>
-                <button
-                  style={styles.iconButton}
-                  className="icon-hover"
-                  onClick={() => setShowNotif(!showNotif)}
-                >
-                  🔔
-                </button>
-                {showNotif && (
-                  <div style={styles.notifDropdown}>
-                    <div style={{ fontSize: '14px', fontWeight: '700', color: '#fff', marginBottom: '12px' }}>
-                      Notifications
-                    </div>
-                    {notifications.length === 0 ? (
-                      <div style={{...styles.notifItem, borderBottom: 'none', color: '#a1a1aa', fontSize: '12px', justifyContent: 'center', marginTop: '8px'}}>
-                          No new alerts
-                      </div>
-                    ) : (
-                      notifications.map((n, idx) => (
-                        <div key={n.id} style={{
-                            ...styles.notifItem,
-                            borderBottom: idx === notifications.length - 1 ? 'none' : '1px solid #27272a',
-                            padding: '8px 0',
-                            fontSize: '12px',
-                            color: '#e4e4e7',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px'
-                        }}>
-                            <span>{n.type === 'error' ? '❌' : n.type === 'warning' ? '⚠️' : 'ℹ️'}</span>
-                            <span style={{lineHeight: '1.4'}}>{n.message}</span>
-                        </div>
-                      ))
-                    )}
+        {/* NAVBAR */}
+        <nav style={styles.navbar}>
+          <div style={styles.brand}>
+            <div style={styles.brandDot}></div> ELEVATE
+          </div>
+          <div style={styles.navCenter}>
+            <div style={{ ...styles.navLink, ...styles.navLinkActive }}>Dashboard</div>
+            <div
+              style={styles.navLink}
+              onClick={() => navigate('/workout')}
+            >
+              Workout
+            </div>
+            <div
+              style={styles.navLink}
+              onClick={() => navigate('/nutrition')}
+            >
+              Nutrition
+            </div>
+            <div
+              style={styles.navLink}
+              onClick={() => navigate('/chatbot')}
+            >
+              ChatBot
+            </div>
+          </div>
+          <div style={styles.navRight}>
+            <div style={styles.dateDisplay}>{todayDate}</div>
+            <div style={{ position: 'relative' }} ref={notifRef}>
+              <button
+                style={styles.iconButton}
+                className="icon-hover"
+                onClick={() => setShowNotif(!showNotif)}
+              >
+                🔔
+              </button>
+              {showNotif && (
+                <div style={styles.notifDropdown}>
+                  <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--app-text)', marginBottom: '12px' }}>
+                    Notifications
                   </div>
-                )}
-              </div>
-            </>
-          }
-        />
+                  {notifications.length === 0 ? (
+                    <div style={{...styles.notifItem, borderBottom: 'none', color: 'var(--app-text-muted)', fontSize: '12px', justifyContent: 'center', marginTop: '8px'}}>
+                        No new alerts
+                    </div>
+                  ) : (
+                    notifications.map((n, idx) => (
+                      <div key={n.id} style={{
+                          ...styles.notifItem,
+                          borderBottom: idx === notifications.length - 1 ? 'none' : '1px solid var(--app-border)',
+                          padding: '8px 0',
+                          fontSize: '12px',
+                          color: 'var(--app-text)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px'
+                      }}>
+                          <span>{n.type === 'error' ? '❌' : n.type === 'warning' ? '⚠️' : 'ℹ️'}</span>
+                          <span style={{lineHeight: '1.4'}}>{n.message}</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+            <button
+              className="theme-toggle-btn"
+              onClick={toggleTheme}
+              title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              aria-label="Toggle theme"
+            >
+              {theme === 'dark' ? '☀️' : '🌙'}
+            </button>
+            <button style={styles.logoutBtn} className="logout-btn" onClick={handleLogout}>
+              <span style={styles.logoutText}>LOGOUT</span>
+            </button>
+          </div>
+        </nav>
 
         {/* MAIN CONTAINER */}
-        <div style={styles.container} className="container">
+        <div style={styles.container} className="container responsive-grid-12">
 
           {/* WATER CELEBRATION */}
           {showWaterCelebration && (
@@ -3677,7 +4035,7 @@ function Dashboard({ onLogout }) {
                 boxShadow: '0 25px 50px rgba(0,0,0,0.4), 0 0 60px rgba(56,189,248,0.2)',
               }}>
                 <div style={{ fontSize: '56px', marginBottom: '8px', animation: 'bounce 0.6s ease 0.3s both' }}>💧</div>
-                <div style={{ fontSize: '24px', fontWeight: '800', color: '#fff', letterSpacing: '-0.5px' }}>Hydration Complete!</div>
+                <div style={{ fontSize: '24px', fontWeight: '800', color: 'var(--app-text)', letterSpacing: '-0.5px' }}>Hydration Complete!</div>
                 <div style={{ fontSize: '14px', color: '#7dd3fc', marginTop: '4px' }}>Daily water goal reached</div>
               </div>
             </div>
@@ -3706,7 +4064,7 @@ function Dashboard({ onLogout }) {
                 boxShadow: '0 25px 50px rgba(0,0,0,0.4), 0 0 60px rgba(139,92,246,0.2)',
               }}>
                 <div style={{ fontSize: '56px', marginBottom: '8px', animation: 'bounce 0.6s ease 0.3s both' }}>🌙</div>
-                <div style={{ fontSize: '24px', fontWeight: '800', color: '#fff', letterSpacing: '-0.5px' }}>Optimal Sleep!</div>
+                <div style={{ fontSize: '24px', fontWeight: '800', color: 'var(--app-text)', letterSpacing: '-0.5px' }}>Optimal Sleep!</div>
                 <div style={{ fontSize: '14px', color: '#c4b5fd', marginTop: '4px' }}>You hit the 7-9 hour sweet spot</div>
               </div>
             </div>
@@ -3714,7 +4072,8 @@ function Dashboard({ onLogout }) {
 
           {/* HERO SECTION */}
           <div style={{ ...styles.bentoBox, ...styles.heroSection }} className="bentoBox heroSection">
-            <div style={styles.heroLeft} className="heroLeft">
+
+            <div style={{ ...styles.heroLeft, position: 'relative', zIndex: 1 }} className="heroLeft">
               <div
                 style={styles.avatarWrapper}
                 className="avatarWrapper"
@@ -3743,7 +4102,7 @@ function Dashboard({ onLogout }) {
               </div>
             </div>
 
-            <div style={styles.heroCenter} className="heroCenter">
+            <div style={{ ...styles.heroCenter, position: 'relative', zIndex: 1 }} className="heroCenter">
               {(() => {
                 const heroAction = getHeroActionMeta(status);
                 const heroTheme = getHeroActionTheme(HERO_ACTION_VARIANT, heroAction.stateKey);
@@ -3755,7 +4114,7 @@ function Dashboard({ onLogout }) {
                   heroAction.stateKey === 'meal'
                     ? 'Open Meals'
                     : heroAction.stateKey === 'done'
-                    ? 'Completed'
+                    ? (radialScore < 100 ? 'Finish Habits' : 'Completed')
                     : heroAction.stateKey === 'sync'
                     ? 'Syncing...'
                     : 'Start Workout';
@@ -3800,11 +4159,12 @@ function Dashboard({ onLogout }) {
                         HERO_ACTION_VARIANT === 'neonRadial'
                           ? 'center'
                           : 'auto',
-                      background: heroTheme.surface,
+                      background: HERO_ACTION_VARIANT === 'neonRadial' ? 'transparent' : heroTheme.surface,
                       border: heroTheme.border,
                       boxShadow: heroTheme.shadow,
-                      backdropFilter: 'blur(10px)',
-                      cursor: heroAction.disabled ? 'default' : 'pointer'
+                      backdropFilter: HERO_ACTION_VARIANT === 'neonRadial' ? 'none' : 'blur(10px)',
+                      cursor: heroAction.disabled ? 'default' : 'pointer',
+                      outline: 'none'
                     }}
                     className={`hero-action-btn ${HERO_ACTION_VARIANT === 'neonRadial' ? `neon-radial-btn neon-state-${heroAction.stateKey}` : ''}`}
                     disabled={heroAction.disabled}
@@ -3817,7 +4177,7 @@ function Dashboard({ onLogout }) {
                           width: '120px',
                           height: '120px',
                           borderRadius: '50%',
-                          background: `conic-gradient(${heroTheme.ringColor} ${radialScore}%, rgba(255,255,255,0.08) ${radialScore}% 100%)`,
+                          background: `conic-gradient(${heroTheme.ringColor} ${radialScore}%, var(--app-border) ${radialScore}% 100%)`,
                           display: 'grid',
                           placeItems: 'center',
                           boxShadow: `0 0 18px ${heroTheme.ringGlow}`,
@@ -3829,7 +4189,7 @@ function Dashboard({ onLogout }) {
                             width: '96px',
                             height: '96px',
                             borderRadius: '50%',
-                            background: heroTheme.coreBg,
+                            background: heroTheme.coreBg.startsWith('#') ? `${heroTheme.coreBg}cc` : heroTheme.coreBg, /* 80% opacity */
                             border: heroTheme.coreBorder,
                             display: 'grid',
                             placeItems: 'center',
@@ -3875,14 +4235,32 @@ function Dashboard({ onLogout }) {
               })()}
             </div>
 
-            <div style={styles.heroRight} className="heroRight">
+            <div style={{ ...styles.heroRight, position: 'relative', zIndex: 1 }} className="heroRight">
               <div style={{ textAlign: 'right' }}>
                 <div style={styles.streakLabel}>CURRENT STREAK</div>
                 <div style={{ display: 'flex', gap: 15, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                   <div style={styles.streakNumber} className="streakNumber">
                     {stats.streak}
                   </div>
-                  <div style={{ fontSize: 'clamp(42px, 10vw, 80px)', animation: 'float 3s infinite' }}>🔥</div>
+                  <div style={{ animation: 'firePulse 2.5s infinite alternate ease-in-out', display: 'flex', alignItems: 'center' }}>
+                    <style>{`
+                      @keyframes firePulse {
+                        0% { transform: scale(0.95); filter: drop-shadow(0 0 8px rgba(249, 115, 22, 0.4)); }
+                        50% { transform: scale(1.03); filter: drop-shadow(0 0 18px rgba(249, 115, 22, 0.8)); }
+                        100% { transform: scale(0.98); filter: drop-shadow(0 0 14px rgba(239, 68, 68, 0.6)); }
+                      }
+                    `}</style>
+                    <svg style={{ width: 'clamp(42px, 10vw, 80px)', height: 'auto' }} viewBox="0 0 24 24" fill="url(#streakFireGrad)" stroke="none">
+                      <defs>
+                        <linearGradient id="streakFireGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+                          <stop offset="0%" stopColor="#f59e0b" />
+                          <stop offset="50%" stopColor="#f97316" />
+                          <stop offset="100%" stopColor="#ef4444" />
+                        </linearGradient>
+                      </defs>
+                      <path fillRule="evenodd" d="M12.963 2.286a.75.75 0 00-1.071-.136 9.742 9.742 0 00-3.539 6.177A7.547 7.547 0 016.648 6.61a.75.75 0 00-1.152-.082A9 9 0 1015.68 4.534a7.46 7.46 0 01-2.717-2.248zM15.75 14.25a3.75 3.75 0 11-7.313-1.172c.628.465 1.353.81 2.133 1a5.99 5.99 0 011.925-3.545 3.75 3.75 0 013.255 3.717z" clipRule="evenodd" />
+                    </svg>
+                  </div>
                 </div>
               </div>
               <div style={styles.weekGrid} className="weekGrid">
@@ -3903,9 +4281,9 @@ function Dashboard({ onLogout }) {
           </div>
 
           {/* STATS ROW (MACRO, HYDRATION, READINESS) */}
-          <div style={dashboardLayout.statsRow}>
+          <div style={dashboardLayout.statsRow} className="responsive-stats-row">
             {/* MACROS BOX */}
-            <div style={{ ...styles.bentoBox }} className="hover-card">
+            <div style={{ ...styles.bentoBox, ...styles.statBox }} className="hover-card">
               <div
                 style={{
                   display: 'flex',
@@ -3914,10 +4292,10 @@ function Dashboard({ onLogout }) {
                   marginBottom: '16px'
                 }}
               >
-                <div style={{ fontSize: '14px', fontWeight: '700', color: '#fff' }}>
+                <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--app-text)' }}>
                   MACROS TODAY
                 </div>
-                <div style={{ fontSize: '12px', color: '#a1a1aa' }}>
+                <div style={{ fontSize: '12px', color: 'var(--app-text-muted)' }}>
                   {Math.round(macros.calories)} / {Math.round(macros.calMax)} cal
                 </div>
               </div>
@@ -3931,7 +4309,7 @@ function Dashboard({ onLogout }) {
                     display: 'flex',
                     justifyContent: 'space-between',
                     fontSize: '11px',
-                    color: '#fff',
+                    color: 'var(--app-text)',
                     marginBottom: '4px'
                   }}
                 >
@@ -3942,7 +4320,7 @@ function Dashboard({ onLogout }) {
                     style={{
                       ...styles.macroBarFill,
                       width: `${Math.min(100, (macros.calories / macros.calMax) * 100)}%`,
-                      background: '#fff'
+                      background: 'var(--app-text)'
                     }}
                   ></div>
                 </div>
@@ -3954,7 +4332,7 @@ function Dashboard({ onLogout }) {
                   style={{ cursor: 'pointer' }}
                   title={`${Math.round(macros.p)}g Protein`}
                 >
-                  <div style={{ fontSize: '10px', color: '#a1a1aa', marginBottom: '4px' }}>
+                  <div style={{ fontSize: '10px', color: 'var(--app-text-muted)', marginBottom: '4px' }}>
                     Prot ({Math.round(macros.p)}g)
                   </div>
                   <div style={{ ...styles.macroBarBG, height: '4px', overflow: 'hidden' }}>
@@ -3973,7 +4351,7 @@ function Dashboard({ onLogout }) {
                   style={{ cursor: 'pointer' }}
                   title={`${Math.round(macros.c)}g Carbs`}
                 >
-                  <div style={{ fontSize: '10px', color: '#a1a1aa', marginBottom: '4px' }}>
+                  <div style={{ fontSize: '10px', color: 'var(--app-text-muted)', marginBottom: '4px' }}>
                     Carb ({Math.round(macros.c)}g)
                   </div>
                   <div style={{ ...styles.macroBarBG, height: '4px', overflow: 'hidden' }}>
@@ -3992,7 +4370,7 @@ function Dashboard({ onLogout }) {
                   style={{ cursor: 'pointer' }}
                   title={`${Math.round(macros.f)}g Fats`}
                 >
-                  <div style={{ fontSize: '10px', color: '#a1a1aa', marginBottom: '4px' }}>
+                  <div style={{ fontSize: '10px', color: 'var(--app-text-muted)', marginBottom: '4px' }}>
                     Fat ({Math.round(macros.f)}g)
                   </div>
                   <div style={{ ...styles.macroBarBG, height: '4px', overflow: 'hidden' }}>
@@ -4006,71 +4384,63 @@ function Dashboard({ onLogout }) {
                   </div>
                 </div>
               </div>
-              {/* Recovery Score - combines water, sleep, and workout completion */}
-              {(() => {
-                const userWeight = parseFloat(safeJSONParse('user', {})?.weight || '70');
-                const waterGoal = parseFloat((userWeight * 0.033).toFixed(1)) || 2.3;
-                const waterScore = Math.min(100, (water / waterGoal) * 100);
-                const sleepScore = Math.min(100, (sleep / 8) * 100);
-                const recoveryScore = Math.round((waterScore + sleepScore) / 2);
-                
-                let recoveryLabel = 'Needs Work';
-                let recoveryColor = '#ef4444';
-                if (recoveryScore >= 90) {
-                  recoveryLabel = 'Excellent';
-                  recoveryColor = '#22c55e';
-                } else if (recoveryScore >= 70) {
-                  recoveryLabel = 'Good';
-                  recoveryColor = '#3b82f6';
-                } else if (recoveryScore >= 50) {
-                  recoveryLabel = 'Fair';
-                  recoveryColor = '#f59e0b';
-                }
-                
-                return (
-                <div
-                  className="macro-item"
-                  style={{ marginTop: '12px', cursor: 'pointer' }}
-                  title={`Recovery Score: ${recoveryScore}% - Based on hydration and sleep goals`}
-                >
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      fontSize: '11px',
-                      color: '#a1a1aa',
-                      marginBottom: '4px'
-                    }}
-                  >
-                    <span>Recovery Score</span>
-                    <span style={{ color: recoveryColor, fontWeight: '700' }}>
-                      {recoveryScore}% - {recoveryLabel}
-                    </span>
-                  </div>
-                  <div style={{ ...styles.macroBarBG, overflow: 'hidden' }}>
-                    <div
-                      style={{
-                        ...styles.macroBarFill,
-                        width: `${recoveryScore}%`,
-                        background: `linear-gradient(90deg, ${recoveryColor}, ${recoveryColor}dd)`
-                      }}
-                    ></div>
-                  </div>
+              {/* Meals Logged Today */}
+              <div style={{ marginTop: '14px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '11px', color: 'var(--app-text-muted)' }}>Meals Logged</span>
+                  <span style={{ fontSize: '11px', color: mealsLoggedToday === 3 ? '#34d399' : 'var(--app-text-muted)' }}>
+                    {mealsLoggedToday} / 3
+                  </span>
                 </div>
-                );
-              })()}
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  {[
+                    { label: 'B', name: 'breakfast' },
+                    { label: 'L', name: 'lunch' },
+                    { label: 'D', name: 'dinner' },
+                  ].map(({ label, name }) => {
+                    const done = mealsLoggedToday > 0 && (
+                      name === 'breakfast' ? mealsLoggedToday >= 1 :
+                      name === 'lunch'     ? mealsLoggedToday >= 2 :
+                                             mealsLoggedToday >= 3
+                    );
+                    return (
+                      <div
+                        key={name}
+                        title={`${name.charAt(0).toUpperCase() + name.slice(1)} ${done ? 'logged ✅' : 'not logged yet'}`}
+                        style={{
+                          flex: 1,
+                          padding: '5px 0',
+                          borderRadius: '6px',
+                          textAlign: 'center',
+                          fontSize: '11px',
+                          fontWeight: '600',
+                          background: done
+                            ? 'linear-gradient(135deg, #065f46, #047857)'
+                            : 'var(--app-border)',
+                          color: done ? '#34d399' : '#52525b',
+                          border: `1px solid ${done ? 'rgba(52,211,153,0.3)' : 'rgba(255,255,255,0.06)'}`,
+                          transition: 'all 0.3s ease',
+                        }}
+                      >
+                        {label}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
 
             {/* HYDRATION BOX */}
             {(() => {
-              const userWeight = parseFloat(safeJSONParse('user', {})?.weight || '70');
+              const userWeight = parseFloat(safeJSONParse('user', {})?.weight || localStorage.getItem('userWeight') || '70');
               const waterGoal = parseFloat((userWeight * 0.033).toFixed(1));
               const waterPercent = Math.min(100, Math.round((water / waterGoal) * 100));
               return (
               <div
                 style={{
                   ...styles.bentoBox,
-                  background: 'linear-gradient(135deg, #1e3a8a 0%, #172554 100%)',
+                  ...styles.statBox,
+                  background: 'linear-gradient(135deg, rgba(30, 58, 138, 0.82) 0%, rgba(23, 37, 84, 0.82) 100%)',
                   border: '1px solid rgba(96, 165, 250, 0.2)',
                   position: 'relative',
                   overflow: 'hidden',
@@ -4087,16 +4457,16 @@ function Dashboard({ onLogout }) {
                 }} />
                 <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                    <div style={{ fontSize: '14px', fontWeight: '700', color: '#fff' }}>HYDRATION</div>
+                    <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--app-text)' }}>HYDRATION</div>
                     <div style={{ fontSize: '12px', fontWeight: '700', color: waterPercent >= 100 ? '#34d399' : '#93c5fd' }}>{waterPercent}%</div>
                   </div>
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                    <div style={{ fontSize: '48px', fontWeight: '800', color: '#fff' }}>
+                    <div style={{ fontSize: '48px', fontWeight: '800', color: 'var(--app-text)' }}>
                       {water.toFixed(1)} <span style={{ fontSize: '16px', fontWeight: '500', color: '#93c5fd' }}>L</span>
                     </div>
                     <div style={{ fontSize: '12px', color: '#bfdbfe' }}>Goal: {waterGoal} L ({Math.round(userWeight)}kg)</div>
                     {/* Progress bar */}
-                    <div style={{ width: '80%', height: '4px', background: 'rgba(255,255,255,0.1)', borderRadius: '2px', marginTop: '8px', overflow: 'hidden' }}>
+                    <div style={{ width: '80%', height: '4px', background: 'var(--app-border)', borderRadius: '2px', marginTop: '8px', overflow: 'hidden' }}>
                       <div style={{ width: `${waterPercent}%`, height: '100%', background: waterPercent >= 100 ? 'linear-gradient(90deg, #34d399, #22c55e)' : 'linear-gradient(90deg, #38bdf8, #0ea5e9)', borderRadius: '2px', transition: 'width 0.6s ease' }} />
                     </div>
                   </div>
@@ -4121,21 +4491,21 @@ function Dashboard({ onLogout }) {
               const qualityLabel = sleepQuality >= 90 ? 'Optimal' : sleepQuality >= 70 ? 'Good' : sleepQuality >= 40 ? 'Fair' : sleep > 0 ? 'Low' : '—';
               const qualityColor = sleepQuality >= 90 ? '#22c55e' : sleepQuality >= 70 ? '#34d399' : sleepQuality >= 40 ? '#f59e0b' : '#ef4444';
               return (
-              <div style={{ ...styles.bentoBox, position: 'relative', overflow: 'hidden' }} className="hover-card bentoBox">
+              <div style={{ ...styles.bentoBox, ...styles.statBox, position: 'relative', overflow: 'hidden' }} className="hover-card bentoBox">
                 <div style={{ position: 'absolute', bottom: '-20px', left: '50%', transform: 'translateX(-50%)', width: '150px', height: '80px', background: `radial-gradient(circle, ${qualityColor}15 0%, transparent 70%)`, transition: 'all 0.6s ease' }} />
                 <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <div style={{ fontSize: '14px', fontWeight: '700', color: '#fff', marginBottom: '10px' }}>SLEEP</div>
+                    <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--app-text)', marginBottom: '10px' }}>SLEEP</div>
                     <div style={{ fontSize: '12px', fontWeight: '700', padding: '2px 10px', borderRadius: '12px', background: `${qualityColor}15`, color: qualityColor, border: `1px solid ${qualityColor}30` }}>
                       {qualityLabel}
                     </div>
                   </div>
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                    <div style={{ fontSize: '48px', fontWeight: '800', color: '#fff', fontFamily: 'monospace' }}>
+                    <div style={{ fontSize: '48px', fontWeight: '800', color: 'var(--app-text)', fontFamily: 'monospace' }}>
                       {Math.floor(sleep)}<span style={{ color: '#6366f1' }}>:</span>{String(Math.round((sleep % 1) * 60)).padStart(2, '0')}
                     </div>
-                    <div style={{ fontSize: '12px', color: '#a1a1aa' }}>Hours Slept • Target 7-9h</div>
-                    <div style={{ width: '80%', height: '4px', background: 'rgba(255,255,255,0.1)', borderRadius: '2px', marginTop: '8px', overflow: 'hidden' }}>
+                    <div style={{ fontSize: '12px', color: 'var(--app-text-muted)' }}>Hours Slept • Target 7-9h</div>
+                    <div style={{ width: '80%', height: '4px', background: 'var(--app-border)', borderRadius: '2px', marginTop: '8px', overflow: 'hidden' }}>
                       <div style={{ width: `${sleepQuality}%`, height: '100%', background: `linear-gradient(90deg, ${qualityColor}, ${qualityColor}cc)`, borderRadius: '2px', transition: 'width 0.6s ease' }} />
                     </div>
                   </div>
@@ -4152,12 +4522,133 @@ function Dashboard({ onLogout }) {
                 </div>
               </div>
               );
-            })()}
+            })()
+          }
           </div>
 
+          {/* AI COACH SUMMARY / ADAPTIVE MODIFIERS */}
+          {weeklyAverages && (
+            <div
+              style={{
+                ...styles.bentoBox,
+                background: 'linear-gradient(135deg, rgba(30, 27, 75, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%)',
+                border: '1px solid rgba(139, 92, 246, 0.2)',
+                padding: '20px',
+                marginBottom: '20px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '15px',
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+              className="hover-card bentoBox"
+            >
+              {/* Decorative radial gradient glow */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '-40px',
+                  right: '-40px',
+                  width: '180px',
+                  height: '180px',
+                  background: 'radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%)',
+                  pointerEvents: 'none',
+                }}
+              />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '20px' }}>🤖</span>
+                  <div style={{ fontSize: '15px', fontWeight: '800', color: 'var(--app-text)', letterSpacing: '0.5px' }}>
+                    AI COACH • ADAPTIVE AUTO-REGULATION
+                  </div>
+                </div>
+                <div
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: '700',
+                    padding: '3px 10px',
+                    borderRadius: '20px',
+                    background: 'rgba(139, 92, 246, 0.15)',
+                    color: '#c084fc',
+                    border: '1px solid rgba(139, 92, 246, 0.3)',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  {(weeklyAverages.days_logged || 0)} Days Tracked
+                </div>
+              </div>
 
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
+                {/* Sleep Metrics */}
+                <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--app-text-muted)', marginBottom: '4px' }}>WEEKLY SLEEP AVG</div>
+                  <div style={{ fontSize: '24px', fontWeight: '800', color: '#a78bfa' }}>
+                    {(weeklyAverages.avg_sleep_hours || 0)} <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--app-text-muted)' }}>hours / night</span>
+                  </div>
+                  {weeklyAverages.deload_flag ? (
+                    <div style={{ fontSize: '11px', color: '#f87171', marginTop: '6px', fontWeight: '600' }}>
+                      ⚠️ Critical sleep deficit. Recovery Deload active.
+                    </div>
+                  ) : (weeklyAverages.avg_sleep_hours || 0) < 6.0 ? (
+                    <div style={{ fontSize: '11px', color: '#fbbf24', marginTop: '6px', fontWeight: '600' }}>
+                      ⚠️ Sleep deficit. Intensity reduced by 10%.
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: '11px', color: '#34d399', marginTop: '6px', fontWeight: '600' }}>
+                      ✓ Sleep is optimal. Recovery normal.
+                    </div>
+                  )}
+                </div>
+
+                {/* Hydration Metrics */}
+                <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--app-text-muted)', marginBottom: '4px' }}>WEEKLY HYDRATION AVG</div>
+                  <div style={{ fontSize: '24px', fontWeight: '800', color: '#60a5fa' }}>
+                    {((weeklyAverages.avg_water_ml || 0) / 1000).toFixed(2)} <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--app-text-muted)' }}>L / day</span>
+                  </div>
+                  {weeklyAverages.dehydration_flag ? (
+                    <div style={{ fontSize: '11px', color: '#f87171', marginTop: '6px', fontWeight: '600' }}>
+                      ⚠️ Dehydration detected. Cardio & work reduced.
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: '11px', color: '#34d399', marginTop: '6px', fontWeight: '600' }}>
+                      ✓ Hydration targets met.
+                    </div>
+                  )}
+                </div>
+
+                {/* Workout Consistency */}
+                <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--app-text-muted)', marginBottom: '4px' }}>WORKOUT FREQUENCY</div>
+                  <div style={{ fontSize: '24px', fontWeight: '800', color: '#34d399' }}>
+                    {Math.round((weeklyAverages.workout_completion_rate || 0) * 100)}% <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--app-text-muted)' }}>completion</span>
+                  </div>
+                  <div style={{ fontSize: '11px', color: (weeklyAverages.workout_completion_rate || 0) >= 0.57 ? '#34d399' : '#f87171', marginTop: '6px', fontWeight: '600' }}>
+                    {(weeklyAverages.workout_completion_rate || 0) >= 0.57 
+                      ? '🔥 Consistency bonus active: +1 set!' 
+                      : '⚠️ Attendance deficit. Volume increases paused.'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Coach Adaptation Explanation */}
+              <div
+                style={{
+                  background: 'rgba(139, 92, 246, 0.05)',
+                  border: '1px dashed rgba(139, 92, 246, 0.2)',
+                  padding: '12px 16px',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  lineHeight: '1.5',
+                  color: '#e9d5ff',
+                }}
+              >
+                <strong>Coach Adaptation Decision:</strong> {weeklyAverages.adaptive_reason || 'Baseline — all biometrics normal.'}
+              </div>
+            </div>
+          )}
           {/* CHART SECTION */}
-          <div style={{ ...styles.bentoBox, ...dashboardLayout.chartSection }} className="bentoBox chartSection">
+          <div style={{ ...styles.bentoBox, ...dashboardLayout.chartSection }} className="bentoBox chartSection responsive-grid-span-8">
             <div style={styles.sectionHeader} className="sectionHeader">
               <div style={styles.sectionTitle} className="sectionTitle">
                 <div style={styles.sectionAccent}></div> TRENDS
@@ -4197,7 +4688,7 @@ function Dashboard({ onLogout }) {
           </div>
 
           {/* ACTIVITY SECTION */}
-          <div style={{ ...styles.bentoBox, ...dashboardLayout.activitySection }} className="bentoBox activitySection">
+          <div style={{ ...styles.bentoBox, ...dashboardLayout.activitySection }} className="bentoBox activitySection responsive-grid-span-4">
             <div style={styles.sectionHeader}>
               <div style={styles.sectionTitle}>
                 <div style={styles.sectionAccent}></div> ACTIVITY
@@ -4246,7 +4737,7 @@ function Dashboard({ onLogout }) {
                               : '📊'}
                     </div>
                     <div>
-                      <div style={{ color: '#fff', fontSize: '14px', fontWeight: '600' }}>
+                      <div style={{ color: 'var(--app-text)', fontSize: '14px', fontWeight: '600' }}>
                         {h.name}
                       </div>
                       <div style={{ color: '#71717a', fontSize: '13px', fontFamily: 'sans-serif' }}>
@@ -4254,7 +4745,7 @@ function Dashboard({ onLogout }) {
                       </div>
                     </div>
                   </div>
-                  <div style={{ fontSize: '12px', color: '#a1a1aa', fontWeight: '500' }}>
+                  <div style={{ fontSize: '12px', color: 'var(--app-text-muted)', fontWeight: '500' }}>
                     {h.details}
                   </div>
                 </div>

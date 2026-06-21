@@ -39,10 +39,6 @@ const TimerExerciseMode = ({
     setRestTimeLeft(normalizedRestDuration);
   }, [currentSet, normalizedTargetSets, normalizedRestDuration, onComplete]);
 
-  // Bug #38 fixed: removed `timeLeft` from the dependency array.
-  // It caused the interval to be cleared and recreated on every decrement tick,
-  // resulting in 1-second delays and jitter. The functional `setTimeLeft` updater
-  // receives the latest value via `prev`, so we don't need `timeLeft` in deps.
   useEffect(() => {
     if (!isRunning || isPaused || isResting) return undefined;
 

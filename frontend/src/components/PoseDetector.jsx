@@ -9,16 +9,16 @@ import {
 
 // ─── COMPREHENSIVE MOVEMENT PATTERNS ──
 // Pattern mapping for 1300+ exercise dataset via keyword matching
-const LEGACY_MOVEMENT_PATTERNS = {
-  CURL:   ['curl', 'bicep', 'hammer', 'preacher', 'concentration', 'incline curl', 'cable curl', 'db curl'],
-  PRESS:  ['press', 'push', 'extension', 'tricep', 'dip', 'punch', 'bench press', 'chest press', 'overhead press', 'shoulder press', 'arnold press', 'push up', 'pushup'],
-  SQUAT:  ['squat', 'leg press', 'wall sit', 'box jump', 'goblet', 'hack', 'sissy', 'front squat', 'back squat', 'split squat'],
-  HINGE:  ['deadlift', 'good morning', 'row', 'swing', 'pull', 'chin up', 'chin-up', 'lat', 'shrug', 'upright row', 'bent over', 'hip thrust', 'glute bridge', 'back extension'],
-  LUNGE:  ['lunge', 'step', 'bulgarian', 'split squat', 'step up', 'curtsey'],
-  RAISE:  ['raise', 'fly', 'delt', 'abduction', 'adduction', 'lateral', 'front raise', 'rear delt', 'reverse fly', 'shrug'],
-  CORE:   ['plank', 'crunch', 'sit up', 'sit-up', 'situp', 'twist', 'bend', 'roll', 'waist', 'core', 'ab ', 'abs', 'leg raise', 'dead bug', 'bird dog', 'hollow', 'mountain climber', 'bicycle'],
-  CARDIO: ['run', 'bike', 'jump', 'burpee', 'skip', 'cardio', 'mountain climber', 'high knee', 'jumping jack', 'jog', 'sprint'],
-  CALF:   ['calf', 'heel raise', 'toe raise', 'ankle'],
+const MOVEMENT_PATTERNS = {
+  CURL:   ['curl', 'bicep', 'hammer', 'preacher', 'concentration'],
+  PRESS:  ['press', 'push', 'extension', 'tricep', 'dip', 'punch', 'bench press', 'overhead'],
+  SQUAT:  ['squat', 'leg press', 'wall sit', 'box jump', 'goblet', 'hack', 'sissy'],
+  HINGE:  ['deadlift', 'good morning', 'row', 'swing', 'pull', 'chin up', 'chin-up', 'lat', 'shrug', 'upright row', 'bent over'],
+  LUNGE:  ['lunge', 'step', 'bulgarian', 'split squat'],
+  RAISE:  ['raise', 'fly', 'delt', 'abduction', 'adduction', 'lateral', 'front raise'],
+  CORE:   ['plank', 'crunch', 'sit up', 'sit-up', 'twist', 'bend', 'roll', 'waist', 'core', 'ab ', 'abs'],
+  CARDIO: ['run', 'bike', 'jump', 'burpee', 'skip', 'cardio', 'mountain climber', 'high knee'],
+  CALF:   ['calf', 'heel raise'],
 };
 
 const getLegacyFallback = (name) => {
@@ -96,7 +96,7 @@ const getFrameSkip = (pattern) => {
 };
 
 // Minimum visibility threshold for reliable angle calculations
-const MIN_VISIBILITY = 0.30;
+const MIN_VISIBILITY = 0.40;
 const TRACK_STALE_MS = 180;
 
 const getPrimaryVisibility = (pattern, pts) => {
@@ -133,20 +133,8 @@ const smoothPoint = (prev, curr, alpha) => {
   return emaSmooth(prev, curr, alpha);
 };
 
-// ─── POSTURE STATUS CONSTANTS ──
-const POSTURE_STATUS = {
-  GOOD: 'good',
-  WARNING: 'warning',
-  TRACKING_LOST: 'tracking_lost',
-};
-
-// Stability thresholds: how many consecutive frames before state changes
-const WARNING_THRESHOLD = 3;  // bad frames before warning fires
-const GOOD_THRESHOLD = 3;     // good frames before warning clears
-const TRACKING_LOST_THRESHOLD = 4; // lost frames before showing tracking-lost
-
 // ─── FORM SAFETY RULES per pattern ──
-const checkForm = (pattern, angles, calibration = {}, repStage = 'rest') => {
+const checkForm = (pattern, angles, calibration = {}) => {
   const { baselineShoulder = null } = calibration;
   const { avgElbow, avgKnee, avgHip, avgShoulder,
           leftElbow, rightElbow, leftKnee, rightKnee,
@@ -167,24 +155,10 @@ const checkForm = (pattern, angles, calibration = {}, repStage = 'rest') => {
         return { warning: 'Don\'t go too deep — protect your knees!', color: '#ef4444' };
       break;
     case 'PRESS':
-      // Priority order: body straightness > shoulder alignment > elbow flare > symmetry > depth
-      // A. Body straightness — hip sagging or pike
-      if (avgHip < 140)
-        return { warning: 'Hips too low — keep your body in a straight line!', color: '#ef4444' };
-      if (avgHip > 185)
-        return { warning: 'Hips too high — lower them in line with shoulders.', color: '#ef4444' };
-      // B. Shoulder alignment — detect twisting
-      if (Math.abs(leftShoulder - rightShoulder) > 30)
-        return { warning: 'Keep shoulders level — avoid twisting.', color: '#f59e0b' };
-      // C. Elbow flare — elbows too wide
       if (avgElbow < 75 && avgShoulder > 125)
         return { warning: 'Don\'t flare elbows too wide — injury risk!', color: '#ef4444' };
-      // D. Elbow symmetry — uneven arm pressure
       if (Math.abs(leftElbow - rightElbow) > 35)
         return { warning: 'Press evenly with both arms!', color: '#f59e0b' };
-      // E. Depth — shallow push-ups during the extension phase
-      if (avgElbow > 150 && repStage === 'extended')
-        return { warning: 'Go lower for a full push-up!', color: '#f59e0b' };
       break;
     case 'HINGE':
       if (avgHip < 70 && avgKnee < 105)
@@ -208,10 +182,9 @@ const checkForm = (pattern, angles, calibration = {}, repStage = 'rest') => {
       }
       break;
     case 'CORE':
-      // Good plank: avgHip ~160-180°. Sagging hips: avgHip < 130°. Over-crunch: avgHip < 80°.
-      if (avgHip < 80)
+      if (avgHip < 90)
         return { warning: 'Control the movement — don\'t over-flex your spine.', color: '#f59e0b' };
-      if (avgHip < 130)
+      if (avgHip < 145)
         return { warning: 'Engage your core — don\'t let your hips sag!', color: '#ef4444' };
       break;
     default:
@@ -221,19 +194,17 @@ const checkForm = (pattern, angles, calibration = {}, repStage = 'rest') => {
 };
 
 // ─── REP COUNTING CONFIG with ROM validation ──
-// PRESS: starts EXTENDED (arms ~160°), goes DOWN (contracted ~80°), back UP.
-// cfg.down > cfg.up → triggers the "inverted" branch in the state machine.
 const REP_CONFIG = {
-  CURL:    { joint: 'elbow',    down: 150, up: 60,  startStage: 'rest', cooldown: 400, minROM: 0.50 },
-  PRESS:   { joint: 'elbow',    down: 160, up: 85,  startStage: 'rest', cooldown: 400, minROM: 0.50 },  // FIX: inverted so state machine uses correct branch
-  SQUAT:   { joint: 'knee',     down: 100, up: 160, startStage: 'rest', cooldown: 600, minROM: 0.50 },
-  HINGE:   { joint: 'hip',      down: 120, up: 160, startStage: 'rest', cooldown: 600, minROM: 0.50 },
-  LUNGE:   { joint: 'knee',     down: 100, up: 150, startStage: 'rest', cooldown: 600, useMin: true, minROM: 0.45 },
-  RAISE:   { joint: 'shoulder', down: 30,  up: 80,  startStage: 'rest', cooldown: 400, minROM: 0.50 },
-  CORE:    { joint: 'hip',      down: 110, up: 150, startStage: 'rest', cooldown: 500, minROM: 0.40, isHold: false },
-  CALF:    { joint: 'ankleY',   down: 0,   up: 0,   startStage: 'rest', cooldown: 300, minROM: 0.30 },
-  CARDIO:  { joint: 'avg',      down: 100, up: 140, startStage: 'rest', cooldown: 400, minROM: 0.40 },
-  GENERIC: { joint: 'avg',      down: 100, up: 140, startStage: 'rest', cooldown: 400, minROM: 0.40 },
+  CURL:    { joint: 'elbow', down: 150, up: 60,  startStage: 'rest', cooldown: 400, minROM: 0.55 },
+  PRESS:   { joint: 'elbow', down: 90,  up: 160, startStage: 'rest', cooldown: 400, minROM: 0.55 },
+  SQUAT:   { joint: 'knee',  down: 100, up: 160, startStage: 'rest', cooldown: 600, minROM: 0.50 },
+  HINGE:   { joint: 'hip',   down: 120, up: 160, startStage: 'rest', cooldown: 600, minROM: 0.50 },
+  LUNGE:   { joint: 'knee',  down: 100, up: 150, startStage: 'rest', cooldown: 600, useMin: true, minROM: 0.50 },
+  RAISE:   { joint: 'shoulder', down: 30, up: 80, startStage: 'rest', cooldown: 400, minROM: 0.50 },
+  CORE:    { joint: 'hip',   down: 110, up: 150, startStage: 'rest', cooldown: 500, minROM: 0.40, isHold: false },
+  CALF:    { joint: 'ankleY', down: 0, up: 0, startStage: 'rest', cooldown: 300, minROM: 0.30 },
+  CARDIO:  { joint: 'avg',   down: 100, up: 140, startStage: 'rest', cooldown: 400, minROM: 0.40 },
+  GENERIC: { joint: 'avg',   down: 100, up: 140, startStage: 'rest', cooldown: 400, minROM: 0.40 },
 };
 
 // Hysteresis band to avoid jitter-based double counting
@@ -246,7 +217,6 @@ export default function PoseDetector({
   onRepUpdate,
   onFormFeedback,
   onLoadingChange, // Bug #2 Fix: Callback to notify parent about loading status
-  resetKey,        // FIX: When this value changes the rep counter resets (used on new set)
 }) {
   const exerciseName = exercise?.name || '';
   const canvasRef = useRef(null);
@@ -292,12 +262,7 @@ export default function PoseDetector({
   const frameCountRef = useRef(0);
   // Track the last warning to avoid repeating the same message
   const lastWarningRef = useRef('');
-  // Stability window: count consecutive bad/good frames to prevent jitter
-  const badFrameCountRef = useRef(0);
-  const goodFrameCountRef = useRef(0);
-  const trackingLostCountRef = useRef(0);
-  // Track current posture status to avoid redundant callbacks
-  const currentPostureStatusRef = useRef(POSTURE_STATUS.GOOD);
+  const warningStabilityRef = useRef({ warning: '', count: 0 });
 
   // Rep state — 3-phase state machine
   const stateRef = useRef({
@@ -342,9 +307,9 @@ export default function PoseDetector({
               },
               runningMode: 'VIDEO',
               numPoses: 1,
-              minPoseDetectionConfidence: 0.5,
-              minPosePresenceConfidence: 0.5,
-              minTrackingConfidence: 0.55,
+              minPoseDetectionConfidence: 0.55,
+              minPosePresenceConfidence: 0.55,
+              minTrackingConfidence: 0.6,
             });
             break;
           } catch (err) {
@@ -366,7 +331,7 @@ export default function PoseDetector({
     return () => { active = false; };
   }, [onFormFeedback]);
 
-  // ─── Reset state on exercise change OR when resetKey changes (new set) ──
+  // ─── Reset state on exercise change ──
   useEffect(() => {
     const p = exercise?.movement_pattern
       ? (PATTERN_MAP[exercise.movement_pattern] || "GENERIC")
@@ -393,11 +358,8 @@ export default function PoseDetector({
     };
     smoothedRef.current = null;
     lastWarningRef.current = '';
-    badFrameCountRef.current = 0;
-    goodFrameCountRef.current = 0;
-    trackingLostCountRef.current = 0;
-    currentPostureStatusRef.current = POSTURE_STATUS.GOOD;
-  }, [exercise, resetKey]);  // resetKey changes when a new set starts
+    warningStabilityRef.current = { warning: '', count: 0 };
+  }, [exerciseName]);
 
   // ─────────────────────────────────────
   //  MAIN ANALYSIS & DRAWING
@@ -462,24 +424,6 @@ export default function PoseDetector({
     const isConfident = keyVisibility > MIN_VISIBILITY;
 
     const s = stateRef.current;
-    const now = Date.now();
-
-    // ─── TRACKING LOST HANDLING ──
-    // Separate tracking loss from bad posture: low visibility is NOT bad form.
-    if (!isConfident && !isPredictionStale) {
-      trackingLostCountRef.current += 1;
-      badFrameCountRef.current = 0;
-      goodFrameCountRef.current = 0;
-
-      if (trackingLostCountRef.current >= TRACKING_LOST_THRESHOLD &&
-          currentPostureStatusRef.current !== POSTURE_STATUS.TRACKING_LOST) {
-        currentPostureStatusRef.current = POSTURE_STATUS.TRACKING_LOST;
-        onFormFeedback?.({
-          status: POSTURE_STATUS.TRACKING_LOST,
-          message: 'Camera tracking momentarily lost. Stay in frame.',
-        });
-      }
-    }
 
     // Personalized baseline update for shoulder raises.
     // We only adapt baseline on confident frames to avoid jitter drift.
@@ -491,71 +435,36 @@ export default function PoseDetector({
       }
     }
 
-    // ─── FORM CHECK with stability window ──
+    // ─── FORM CHECK with dedup ──
     const formCheck = checkForm(pattern, allAngles, {
       baselineShoulder: s.baselineShoulder,
-    }, s.stage);
+    });
     let mainColor = formCheck.color;
     if (isPredictionStale) mainColor = '#f59e0b';
+    const now = Date.now();
 
-    // ─── STABILITY WINDOW: badFrames / goodFrames counter ──
-    // Prevents single-frame noise from triggering warnings or clearing them.
-    if (!isPredictionStale && isConfident) {
-      trackingLostCountRef.current = 0; // Reset tracking lost counter on confident frame
-
-      if (formCheck.warning) {
-        // Bad frame: increment bad counter, reset good counter
-        badFrameCountRef.current += 1;
-        goodFrameCountRef.current = 0;
-
-        // Fire warning after WARNING_THRESHOLD consecutive bad frames
-        if (badFrameCountRef.current >= WARNING_THRESHOLD) {
-          if (formCheck.warning !== lastWarningRef.current ||
-              currentPostureStatusRef.current !== POSTURE_STATUS.WARNING) {
-            currentPostureStatusRef.current = POSTURE_STATUS.WARNING;
-            onFormFeedback?.({
-              status: POSTURE_STATUS.WARNING,
-              message: formCheck.warning,
-            });
-            lastWarningRef.current = formCheck.warning;
-            s.lastFeedbackTime = now;
-          }
-        }
+    // Only fire feedback if: different warning than last, and enough time passed
+    // Require warning stability across multiple confident frames to avoid jitter false alarms.
+    if (!isPredictionStale && formCheck.warning) {
+      if (warningStabilityRef.current.warning === formCheck.warning) {
+        warningStabilityRef.current.count += 1;
       } else {
-        // Good frame: increment good counter, reset bad counter
-        goodFrameCountRef.current += 1;
-        badFrameCountRef.current = 0;
-
-        // ── THE CORE FIX: Clear warning after GOOD_THRESHOLD consecutive good frames ──
-        if (goodFrameCountRef.current >= GOOD_THRESHOLD &&
-            currentPostureStatusRef.current !== POSTURE_STATUS.GOOD) {
-          currentPostureStatusRef.current = POSTURE_STATUS.GOOD;
-          onFormFeedback?.({
-            status: POSTURE_STATUS.GOOD,
-            message: null,
-          });
-          lastWarningRef.current = '';
-        }
+        warningStabilityRef.current = { warning: formCheck.warning, count: 1 };
       }
-    }
 
-    // ─── DEBUG LOGGING (every 30 frames) ──
-    if (isConfident && frameCountRef.current % 30 === 0) {
-      console.log({
-        postureValid: !formCheck.warning,
-        postureStatus: currentPostureStatusRef.current,
-        feedbackMessage: formCheck.warning || 'Good Form',
-        avgElbow: Math.round(avgElbow),
-        avgHip: Math.round(avgHip),
-        avgShoulder: Math.round(avgShoulder),
-        avgKnee: Math.round(avgKnee),
-        keyVisibility: parseFloat(keyVisibility.toFixed(2)),
-        stage: s.stage,
-        reps: s.reps,
-        badFrames: badFrameCountRef.current,
-        goodFrames: goodFrameCountRef.current,
-        frameTimestamp: now,
-      });
+      const stableEnough = warningStabilityRef.current.count >= 8;
+      if (
+        stableEnough &&
+        formCheck.warning !== lastWarningRef.current &&
+        (now - stateRef.current.lastFeedbackTime > 2500)
+      ) {
+        onFormFeedback?.(formCheck.warning);
+        stateRef.current.lastFeedbackTime = now;
+        lastWarningRef.current = formCheck.warning;
+      }
+    } else {
+      warningStabilityRef.current = { warning: '', count: 0 };
+      if (!formCheck.warning) lastWarningRef.current = '';
     }
 
     // ─── REP COUNTING — 3-phase state machine with ROM validation ──

@@ -1,9 +1,11 @@
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect, lazy, Suspense, useCallback } from 'react';
 import { NotificationProvider, useNotification } from './components/NotificationProvider';
 import { logoutSafe } from './utils/storage';
 import { getSessionStatus, logoutUser } from './api';
 import { useInactivityLogout } from './hooks/useInactivityLogout';
+import { ThemeProvider } from './context/ThemeContext';
+import AuroraBackground from './components/AuroraBackground';
 import './App.css';
 
 const Login     = lazy(() => import('./pages/Login'));
@@ -50,6 +52,8 @@ const PageLoader = () => (
 // ------------------------------------------------------------------
 function AppInner({ isAuthenticated, setIsAuthenticated }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
   const { showError, showInfo } = useNotification();
 
   const handleLogout = useCallback((reason = 'manual') => {
@@ -92,7 +96,9 @@ function AppInner({ isAuthenticated, setIsAuthenticated }) {
   );
 
   return (
-    <Suspense fallback={<PageLoader />}>
+    <>
+      {!isAdminRoute && <AuroraBackground />}
+      <Suspense fallback={<PageLoader />}>
       <Routes>
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin" element={<AdminRoute />}>
@@ -163,6 +169,7 @@ function AppInner({ isAuthenticated, setIsAuthenticated }) {
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Suspense>
+    </>
   );
 }
 
@@ -213,13 +220,15 @@ export default function App() {
   }
 
   return (
-    <NotificationProvider>
-      <BrowserRouter>
-        <AppInner
-          isAuthenticated={isAuthenticated}
-          setIsAuthenticated={setIsAuthenticated}
-        />
-      </BrowserRouter>
-    </NotificationProvider>
+    <ThemeProvider>
+      <NotificationProvider>
+        <BrowserRouter>
+          <AppInner
+            isAuthenticated={isAuthenticated}
+            setIsAuthenticated={setIsAuthenticated}
+          />
+        </BrowserRouter>
+      </NotificationProvider>
+    </ThemeProvider>
   );
 }

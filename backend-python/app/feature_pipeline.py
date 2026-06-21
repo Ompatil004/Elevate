@@ -13,9 +13,9 @@ from typing import Dict, List, Tuple, Optional, Union
 import json
 from datetime import datetime
 try:
-    from .biometric_normalizer import BiometricNormalizer  # package import
-except ImportError:  # Bug #60 fixed: was bare except Exception which masked real errors
-    from biometric_normalizer import BiometricNormalizer   # script / direct-run fallback
+    from .biometric_normalizer import BiometricNormalizer
+except Exception:
+    from biometric_normalizer import BiometricNormalizer
 import warnings
 warnings.filterwarnings('ignore')
 

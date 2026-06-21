@@ -111,16 +111,6 @@ async def chatbot_endpoint(
         if len(message) > 2000:
             message = message[:2000]
 
-        # --- Check if AI is available ---
-        if not is_gemini_available():
-            offline_reply = "AI service is temporarily unavailable. Using offline fitness responses."
-            logger.warning("Chat module unavailable; returning offline reply")
-            return api_success(
-                "Chat response generated",
-                data={"reply": offline_reply, "offline_mode": True},
-                reply=offline_reply,
-            )
-
         # --- Get AI Response ---
         raw_profile = request.profile or {}
         if request.consent_to_health_processing:
@@ -153,6 +143,7 @@ async def chatbot_endpoint(
         history = request.history or []
 
         reply = get_chatbot_response(message, profile, history)
+        offline_mode = not is_gemini_available()
 
         # Check if reply is from fallback
         is_fallback = isinstance(reply, str) and (
@@ -162,7 +153,7 @@ async def chatbot_endpoint(
         
         return api_success(
             "Chat response generated", 
-            data={"reply": reply, "offline_mode": is_fallback}, 
+            data={"reply": reply, "offline_mode": offline_mode or is_fallback},
             reply=reply
         )
 
@@ -170,4 +161,4 @@ async def chatbot_endpoint(
         logger.error(f"Chatbot error: {e}")
         traceback.print_exc()
         fallback_reply = "I'm having a brief technical issue. Please try again in a moment! 🔄"
-        return api_success("Chat response generated", data={"reply": fallback_reply}, reply=fallback_reply)
+        return api_success("Chat response generated", data={"reply": fallback_reply, "offline_mode": True}, reply=fallback_reply)

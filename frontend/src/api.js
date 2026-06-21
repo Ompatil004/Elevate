@@ -463,4 +463,31 @@ export const invalidateWorkoutCache = async (profileData) => {
     }
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Priority 1: POST /api/workout/session-result — submit exercise form score,
+//             receive variation suggestion and progression update.
+// ─────────────────────────────────────────────────────────────────────────────
+/**
+ * Send exercise session result to Python backend.
+ * @param {object} payload - { exercise_name, form_score, rep_count }
+ * @returns {Promise} axios response
+ */
+export const postSessionResult = (payload) =>
+    FitnessAPI.post('/api/workout/session-result', payload, { timeout: 15000 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Priority 3: Daily check-in endpoints
+// ─────────────────────────────────────────────────────────────────────────────
+/**
+ * Save daily sleep/water/workout check-in.
+ * @param {object} payload - { sleep_hours, water_ml, workout_completed, date? }
+ */
+export const saveDailyLog = (payload) =>
+    FitnessAPI.post('/api/daily-log', payload, { timeout: 10000 });
+
+/** Get last 7 daily check-in logs + summary for the current user. */
+export const getWeeklyLogs = () =>
+    FitnessAPI.get('/api/daily-log/week', { timeout: 10000 });
+
 export default AuthAPI;
+

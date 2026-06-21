@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const STATUS_META = {
@@ -203,7 +203,10 @@ function DashboardActionIdeas() {
     };
   }, [score]);
 
-  const radarAxes = useMemo(() => ['Strength', 'Mobility', 'Endurance', 'Sleep', 'Focus', 'Recovery'], []);
+  const radarAxes = useMemo(
+    () => ['Strength', 'Mobility', 'Endurance', 'Sleep', 'Focus', 'Recovery'],
+    []
+  );
 
   const radarMetrics = useMemo(() => {
     if (status === 'sync') return [28, 35, 24, 26, 30, 22];
@@ -218,7 +221,7 @@ function DashboardActionIdeas() {
     const x = cx + scaled * Math.cos(angle);
     const y = cy + scaled * Math.sin(angle);
     return `${x},${y}`;
-  }, [radarAxes]);
+  }, [radarAxes.length]);
 
   const radarPolygon = useMemo(
     () => radarMetrics.map((v, idx) => toRadarPoint(idx, v)).join(' '),
@@ -273,7 +276,7 @@ function DashboardActionIdeas() {
     .adaptive-mobile-view {
       display: none;
       padding: 16px;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      border-top: 1px solid var(--app-border);
       background: rgba(9, 9, 11, 0.95);
     }
     
@@ -304,7 +307,7 @@ function DashboardActionIdeas() {
         minHeight: '100dvh',
         background:
           'radial-gradient(circle at 10% 15%, rgba(99,102,241,0.18), transparent 28%), radial-gradient(circle at 90% 85%, rgba(236,72,153,0.16), transparent 30%), #09090b',
-        color: '#e4e4e7',
+        color: 'var(--app-text)',
         fontFamily: "'Inter', sans-serif",
         overflowX: 'hidden'
       }}
@@ -317,7 +320,7 @@ function DashboardActionIdeas() {
           zIndex: 50,
           backdropFilter: 'blur(16px)',
           background: 'rgba(9,9,11,0.72)',
-          borderBottom: '1px solid rgba(255,255,255,0.08)',
+          borderBottom: '1px solid var(--app-border)',
           padding: '12px clamp(12px, 4vw, 34px)',
           display: 'flex',
           justifyContent: 'space-between',
@@ -334,7 +337,7 @@ function DashboardActionIdeas() {
           style={{
             border: '1px solid rgba(255,255,255,0.22)',
             background: 'rgba(255,255,255,0.06)',
-            color: '#fff',
+            color: 'var(--app-text)',
             borderRadius: '12px',
             padding: '10px 14px',
             fontWeight: 700,
@@ -370,8 +373,8 @@ function DashboardActionIdeas() {
                   onClick={() => setStatus(key)}
                   style={{
                     border: active ? '1px solid rgba(129,140,248,0.65)' : '1px solid rgba(255,255,255,0.18)',
-                    background: active ? 'rgba(79,70,229,0.28)' : 'rgba(255,255,255,0.05)',
-                    color: '#fff',
+                    background: active ? 'rgba(79,70,229,0.28)' : 'var(--app-border)',
+                    color: 'var(--app-text)',
                     borderRadius: '999px',
                     padding: '8px 14px',
                     fontWeight: 700,
@@ -394,7 +397,7 @@ function DashboardActionIdeas() {
         >
           <article style={ideaCard}>
             <h3 style={{ margin: 0 }}>1) Today Flow Stepper</h3>
-            <p style={{ margin: 0, color: '#a1a1aa', fontSize: '13px' }}>Clear progress with one primary Continue button.</p>
+            <p style={{ margin: 0, color: 'var(--app-text-muted)', fontSize: '13px' }}>Clear progress with one primary Continue button.</p>
             <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
               {STEP_TITLES.map((title, i) => {
                 const state = stepStatus[i];
@@ -421,7 +424,7 @@ function DashboardActionIdeas() {
                 border: 'none',
                 borderRadius: '12px',
                 background: status === 'sync' ? '#3f3f46' : '#4f46e5',
-                color: '#fff',
+                color: 'var(--app-text)',
                 padding: '12px',
                 fontWeight: 700,
                 cursor: status === 'sync' ? 'default' : 'pointer'
@@ -434,7 +437,7 @@ function DashboardActionIdeas() {
 
           <article style={ideaCard}>
             <h3 style={{ margin: 0 }}>2) Two Action Tiles + Banner</h3>
-            <p style={{ margin: 0, color: '#a1a1aa', fontSize: '13px' }}>Two clear tasks until complete, then success banner.</p>
+            <p style={{ margin: 0, color: 'var(--app-text-muted)', fontSize: '13px' }}>Two clear tasks until complete, then success banner.</p>
             {status === 'done' ? (
               <div
                 style={{
@@ -477,7 +480,7 @@ function DashboardActionIdeas() {
 
           <article style={ideaCard}>
             <h3 style={{ margin: 0 }}>3) Next Best Action Card</h3>
-            <p style={{ margin: 0, color: '#a1a1aa', fontSize: '13px' }}>One smart action instead of multiple competing CTAs.</p>
+            <p style={{ margin: 0, color: 'var(--app-text-muted)', fontSize: '13px' }}>One smart action instead of multiple competing CTAs.</p>
             <div
               style={{
                 marginTop: '6px',
@@ -503,8 +506,8 @@ function DashboardActionIdeas() {
                 marginTop: 'auto',
                 border: '1px solid rgba(255,255,255,0.18)',
                 borderRadius: '12px',
-                background: '#18181b',
-                color: '#fff',
+                background: 'var(--app-surface)',
+                color: 'var(--app-text)',
                 padding: '11px',
                 fontWeight: 700,
                 cursor: 'pointer'
@@ -516,7 +519,7 @@ function DashboardActionIdeas() {
 
           <article style={ideaCard}>
             <h3 style={{ margin: 0 }}>4) Mission Timeline</h3>
-            <p style={{ margin: 0, color: '#a1a1aa', fontSize: '13px' }}>Timeline format for users who like a daily mission journey.</p>
+            <p style={{ margin: 0, color: 'var(--app-text-muted)', fontSize: '13px' }}>Timeline format for users who like a daily mission journey.</p>
             <div style={{ marginTop: '8px', display: 'grid', gap: '10px' }}>
               {[
                 { key: 'workout', text: 'Workout Block' },
@@ -528,7 +531,7 @@ function DashboardActionIdeas() {
                 return (
                   <div key={item.key} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <span>{dot}</span>
-                    <span style={{ fontSize: '13px', color: '#e4e4e7' }}>{item.text}</span>
+                    <span style={{ fontSize: '13px', color: 'var(--app-text)' }}>{item.text}</span>
                   </div>
                 );
               })}
@@ -537,7 +540,7 @@ function DashboardActionIdeas() {
 
           <article style={ideaCard}>
             <h3 style={{ margin: 0 }}>5) Sticky Command Bar</h3>
-            <p style={{ margin: 0, color: '#a1a1aa', fontSize: '13px' }}>Great for mobile: one primary action + two quick actions.</p>
+            <p style={{ margin: 0, color: 'var(--app-text-muted)', fontSize: '13px' }}>Great for mobile: one primary action + two quick actions.</p>
             <div style={{ flex: 1 }} />
             <div
               style={{
@@ -551,13 +554,13 @@ function DashboardActionIdeas() {
                 alignItems: 'center'
               }}
             >
-              <button style={{ border: 'none', borderRadius: '10px', padding: '10px', background: '#4f46e5', color: '#fff', fontWeight: 700 }}>
+              <button style={{ border: 'none', borderRadius: '10px', padding: '10px', background: '#4f46e5', color: 'var(--app-text)', fontWeight: 700 }}>
                 {meta.icon} {meta.title}
               </button>
-              <button style={{ border: '1px solid rgba(255,255,255,0.25)', borderRadius: '10px', background: 'transparent', color: '#fff', padding: '10px' }}>
+              <button style={{ border: '1px solid rgba(255,255,255,0.25)', borderRadius: '10px', background: 'transparent', color: 'var(--app-text)', padding: '10px' }}>
                 💧
               </button>
-              <button style={{ border: '1px solid rgba(255,255,255,0.25)', borderRadius: '10px', background: 'transparent', color: '#fff', padding: '10px' }}>
+              <button style={{ border: '1px solid rgba(255,255,255,0.25)', borderRadius: '10px', background: 'transparent', color: 'var(--app-text)', padding: '10px' }}>
                 😴
               </button>
             </div>
@@ -565,7 +568,7 @@ function DashboardActionIdeas() {
 
           <article style={ideaCard}>
             <h3 style={{ margin: 0 }}>6) Score-Based Action Hub</h3>
-            <p style={{ margin: 0, color: '#a1a1aa', fontSize: '13px' }}>Drive behavior with one daily score + top priorities.</p>
+            <p style={{ margin: 0, color: 'var(--app-text-muted)', fontSize: '13px' }}>Drive behavior with one daily score + top priorities.</p>
             <div style={{ display: 'flex', gap: '14px', alignItems: 'center', marginTop: '4px' }}>
               <div
                 style={{
@@ -586,7 +589,7 @@ function DashboardActionIdeas() {
                     display: 'grid',
                     placeItems: 'center',
                     fontWeight: 800,
-                    color: '#fff'
+                    color: 'var(--app-text)'
                   }}
                 >
                   {score}
@@ -594,7 +597,7 @@ function DashboardActionIdeas() {
               </div>
               <div style={{ fontSize: '13px', color: '#d4d4d8' }}>
                 <div>Daily Score</div>
-                <div style={{ color: '#a1a1aa', marginTop: '4px' }}>{meta.title}</div>
+                <div style={{ color: 'var(--app-text-muted)', marginTop: '4px' }}>{meta.title}</div>
               </div>
             </div>
             <ul style={{ margin: '10px 0 0', paddingLeft: '18px', color: '#cbd5e1', fontSize: '13px', lineHeight: 1.5 }}>
@@ -608,7 +611,7 @@ function DashboardActionIdeas() {
             ...ideaCard,
             background: 'rgba(15, 23, 42, 0.4)',
             backdropFilter: 'blur(24px)',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
+            border: '1px solid var(--app-border)',
             position: 'relative',
             overflow: 'hidden'
           }}>
@@ -623,10 +626,10 @@ function DashboardActionIdeas() {
               zIndex: 0
             }} />
             <div style={{ zIndex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
-              <h3 style={{ margin: 0, color: '#fff', textShadow: '0 0 10px rgba(255,255,255,0.2)' }}>7) Glassmorphic Pulse</h3>
+              <h3 style={{ margin: 0, color: 'var(--app-text)', textShadow: '0 0 10px rgba(255,255,255,0.2)' }}>7) Glassmorphic Pulse</h3>
               <p style={{ margin: '4px 0 0', color: '#94a3b8', fontSize: '13px' }}>Premium blurred aesthetics with glowing accents.</p>
               
-              <div style={{ margin: 'auto 0', display: 'flex', alignItems: 'center', gap: '16px', background: 'rgba(255,255,255,0.03)', padding: '16px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+              <div style={{ margin: 'auto 0', display: 'flex', alignItems: 'center', gap: '16px', background: 'var(--quote-bg)', padding: '16px', borderRadius: '16px', border: '1px solid var(--app-border)' }}>
                 <div style={{ fontSize: '32px' }}>{meta.icon}</div>
                 <div>
                   <div style={{ fontWeight: 700, fontSize: '16px', color: '#e0e7ff' }}>{meta.title}</div>
@@ -653,13 +656,13 @@ function DashboardActionIdeas() {
 
           <article style={{ ...ideaCard, alignItems: 'center', textAlign: 'center', justifyContent: 'center' }}>
             <h3 style={{ margin: 0, alignSelf: 'flex-start' }}>8) Neon Radial Focus</h3>
-            <p style={{ margin: 0, color: '#a1a1aa', fontSize: '13px', alignSelf: 'flex-start' }}>Activity ring style single ring focus.</p>
+            <p style={{ margin: 0, color: 'var(--app-text-muted)', fontSize: '13px', alignSelf: 'flex-start' }}>Activity ring style single ring focus.</p>
             
             <div style={{
               width: '120px',
               height: '120px',
               borderRadius: '50%',
-              background: `conic-gradient(#ec4899 ${score}%, rgba(255,255,255,0.05) ${score}% 100%)`,
+              background: `conic-gradient(#ec4899 ${score}%, var(--app-border) ${score}% 100%)`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -670,7 +673,7 @@ function DashboardActionIdeas() {
                 width: '100px',
                 height: '100px',
                 borderRadius: '50%',
-                background: '#18181b',
+                background: 'var(--app-surface)',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
@@ -697,7 +700,7 @@ function DashboardActionIdeas() {
 
           <article style={{
             ...ideaCard,
-            background: '#09090b',
+            background: 'var(--app-bg)',
             backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.15), transparent 60%)',
             border: '1px solid rgba(245, 158, 11, 0.2)'
           }}>
@@ -707,14 +710,14 @@ function DashboardActionIdeas() {
                 🔥 7 Day Streak
               </span>
             </h3>
-            <p style={{ margin: 0, color: '#a1a1aa', fontSize: '13px' }}>Focuses on rewarding consistency and progression.</p>
+            <p style={{ margin: 0, color: 'var(--app-text-muted)', fontSize: '13px' }}>Focuses on rewarding consistency and progression.</p>
             
             <div style={{ margin: 'auto 0' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#d4d4d8', marginBottom: '8px' }}>
                 <span style={{ fontWeight: 600 }}>Level 12 Explorer</span>
                 <span style={{ color: '#fbbf24', fontWeight: 600 }}>{score} / 100 XP</span>
               </div>
-              <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.05)', borderRadius: '999px', overflow: 'hidden' }}>
+              <div style={{ width: '100%', height: '8px', background: 'var(--app-border)', borderRadius: '999px', overflow: 'hidden' }}>
                 <div style={{ width: `${score}%`, height: '100%', background: 'linear-gradient(90deg, #f59e0b, #ef4444)', borderRadius: '999px' }} />
               </div>
             </div>
@@ -723,15 +726,15 @@ function DashboardActionIdeas() {
               display: 'flex',
               alignItems: 'center',
               gap: '12px',
-              background: 'rgba(255,255,255,0.03)',
+              background: 'var(--quote-bg)',
               padding: '12px',
               borderRadius: '12px',
-              border: '1px solid rgba(255,255,255,0.05)'
+              border: '1px solid var(--app-border)'
             }}>
               <div style={{ fontSize: '24px' }}>{meta.icon}</div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: '14px', fontWeight: 700, color: '#fafafa' }}>{meta.title}</div>
-                <div style={{ fontSize: '12px', color: '#a1a1aa' }}>+ 25 XP</div>
+                <div style={{ fontSize: '12px', color: 'var(--app-text-muted)' }}>+ 25 XP</div>
               </div>
               <button style={{
                 background: 'linear-gradient(135deg, #f59e0b, #ea580c)',
@@ -739,7 +742,7 @@ function DashboardActionIdeas() {
                 width: '32px',
                 height: '32px',
                 borderRadius: '50%',
-                color: '#fff',
+                color: 'var(--app-text)',
                 fontWeight: 800,
                 cursor: 'pointer',
                 display: 'grid',
@@ -751,7 +754,7 @@ function DashboardActionIdeas() {
             </div>
           </article>
 
-          <article style={{ ...ideaCard, background: '#000', border: '1px solid #18181b', borderRadius: '4px' }}>
+          <article style={{ ...ideaCard, background: 'var(--app-bg)', border: '1px solid var(--app-border)', borderRadius: '4px' }}>
             <h3 style={{ margin: 0, color: '#52525b', fontWeight: 500, fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px' }}>
               10) Editorial Minimal
             </h3>
@@ -760,7 +763,7 @@ function DashboardActionIdeas() {
             </p>
             
             <div style={{ margin: 'auto 0' }}>
-              <div style={{ color: '#fff', fontSize: 'clamp(28px, 3vw, 34px)', fontWeight: 300, letterSpacing: '-1px', lineHeight: 1.1 }}>
+              <div style={{ color: 'var(--app-text)', fontSize: 'clamp(28px, 3vw, 34px)', fontWeight: 300, letterSpacing: '-1px', lineHeight: 1.1 }}>
                 Time for your<br />
                 <span style={{ fontWeight: 700, fontStyle: 'italic', background: 'linear-gradient(90deg, #fff, #a1a1aa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{meta.label}.</span>
               </div>
@@ -769,8 +772,8 @@ function DashboardActionIdeas() {
             <button style={{
               marginTop: '16px',
               padding: '14px 20px',
-              background: '#fff',
-              color: '#000',
+              background: 'var(--app-text)',
+              color: 'var(--app-text)',
               border: 'none',
               borderRadius: '2px',
               fontWeight: 800,
@@ -781,7 +784,7 @@ function DashboardActionIdeas() {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              boxShadow: '0 4px 14px rgba(255,255,255,0.1)'
+              boxShadow: '0 4px 14px var(--app-border)'
             }}>
               {meta.title}
               <span style={{ fontSize: '16px' }}>→</span>
@@ -790,7 +793,7 @@ function DashboardActionIdeas() {
 
           <article style={{ ...ideaCard, border: '1px solid rgba(99,102,241,0.28)' }}>
             <h3 style={{ margin: 0 }}>11) AI Coach Insight</h3>
-            <p style={{ margin: 0, color: '#a1a1aa', fontSize: '13px' }}>
+            <p style={{ margin: 0, color: 'var(--app-text-muted)', fontSize: '13px' }}>
               Replaces a generic start button with instant, specific coaching value.
             </p>
             <div
@@ -828,7 +831,7 @@ function DashboardActionIdeas() {
 
           <article style={{ ...ideaCard, border: '1px solid rgba(56,189,248,0.26)' }}>
             <h3 style={{ margin: 0 }}>12) Dynamic Glowing Rings</h3>
-            <p style={{ margin: 0, color: '#a1a1aa', fontSize: '13px' }}>
+            <p style={{ margin: 0, color: 'var(--app-text-muted)', fontSize: '13px' }}>
               Concentric score rings for Workout, Sleep, and Nutrition in one glance.
             </p>
             <div style={{ flex: 1, display: 'grid', placeItems: 'center', marginTop: '8px' }}>
@@ -838,7 +841,7 @@ function DashboardActionIdeas() {
                   width: '168px',
                   height: '168px',
                   borderRadius: '50%',
-                  background: `conic-gradient(#4f46e5 ${ringMetrics.workout}%, rgba(255,255,255,0.08) ${ringMetrics.workout}% 100%)`,
+                  background: `conic-gradient(#4f46e5 ${ringMetrics.workout}%, var(--app-border) ${ringMetrics.workout}% 100%)`,
                   display: 'grid',
                   placeItems: 'center'
                 }}
@@ -848,7 +851,7 @@ function DashboardActionIdeas() {
                     width: '128px',
                     height: '128px',
                     borderRadius: '50%',
-                    background: `conic-gradient(#06b6d4 ${ringMetrics.sleep}%, rgba(255,255,255,0.08) ${ringMetrics.sleep}% 100%)`,
+                    background: `conic-gradient(#06b6d4 ${ringMetrics.sleep}%, var(--app-border) ${ringMetrics.sleep}% 100%)`,
                     display: 'grid',
                     placeItems: 'center'
                   }}
@@ -858,7 +861,7 @@ function DashboardActionIdeas() {
                       width: '90px',
                       height: '90px',
                       borderRadius: '50%',
-                      background: `conic-gradient(#ec4899 ${ringMetrics.nutrition}%, rgba(255,255,255,0.08) ${ringMetrics.nutrition}% 100%)`,
+                      background: `conic-gradient(#ec4899 ${ringMetrics.nutrition}%, var(--app-border) ${ringMetrics.nutrition}% 100%)`,
                       display: 'grid',
                       placeItems: 'center'
                     }}
@@ -871,7 +874,7 @@ function DashboardActionIdeas() {
                         background: '#0f172a',
                         display: 'grid',
                         placeItems: 'center',
-                        color: '#fff',
+                        color: 'var(--app-text)',
                         fontWeight: 800,
                         fontSize: '12px'
                       }}
@@ -891,7 +894,7 @@ function DashboardActionIdeas() {
 
           <article style={{ ...ideaCard, border: '1px solid rgba(34,197,94,0.24)' }}>
             <h3 style={{ margin: 0 }}>13) Animated Workout Preview</h3>
-            <p style={{ margin: 0, color: '#a1a1aa', fontSize: '13px' }}>
+            <p style={{ margin: 0, color: 'var(--app-text-muted)', fontSize: '13px' }}>
               Movement-first CTA that communicates today&apos;s workout instantly.
             </p>
             <div
@@ -921,14 +924,14 @@ function DashboardActionIdeas() {
                 </line>
               </svg>
             </div>
-            <button style={{ marginTop: 'auto', padding: '11px', borderRadius: '12px', border: 'none', background: '#16a34a', color: '#fff', fontWeight: 700, cursor: 'pointer' }}>
+            <button style={{ marginTop: 'auto', padding: '11px', borderRadius: '12px', border: 'none', background: '#16a34a', color: 'var(--app-text)', fontWeight: 700, cursor: 'pointer' }}>
               Start {meta.title}
             </button>
           </article>
 
           <article style={{ ...ideaCard, border: '1px solid rgba(251,191,36,0.28)' }}>
             <h3 style={{ margin: 0 }}>14) Gamified Level-Up</h3>
-            <p style={{ margin: 0, color: '#a1a1aa', fontSize: '13px' }}>
+            <p style={{ margin: 0, color: 'var(--app-text-muted)', fontSize: '13px' }}>
               Progress visibility with XP, level milestones, and next unlock.
             </p>
             <div style={{ marginTop: '8px', display: 'grid', gap: '10px' }}>
@@ -936,7 +939,7 @@ function DashboardActionIdeas() {
                 <span style={{ fontSize: '13px', color: '#fcd34d', fontWeight: 700 }}>Level {levelData.level}</span>
                 <span style={{ fontSize: '12px', color: '#fde68a' }}>{levelData.totalXp} XP total</span>
               </div>
-              <div style={{ height: '8px', borderRadius: '999px', background: 'rgba(255,255,255,0.1)', overflow: 'hidden' }}>
+              <div style={{ height: '8px', borderRadius: '999px', background: 'var(--app-border)', overflow: 'hidden' }}>
                 <div
                   style={{
                     width: `${(levelData.currentLevelXp / 250) * 100}%`,
@@ -946,7 +949,7 @@ function DashboardActionIdeas() {
                   }}
                 />
               </div>
-              <div style={{ fontSize: '12px', color: '#a1a1aa' }}>{levelData.xpToNext} XP to next level</div>
+              <div style={{ fontSize: '12px', color: 'var(--app-text-muted)' }}>{levelData.xpToNext} XP to next level</div>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 {levelData.milestones.map((m) => (
                   <span
@@ -970,7 +973,7 @@ function DashboardActionIdeas() {
 
           <article style={{ ...ideaCard, border: '1px solid rgba(45,212,191,0.28)' }}>
             <h3 style={{ margin: 0 }}>15) Physical Balance Radar Chart</h3>
-            <p style={{ margin: 0, color: '#a1a1aa', fontSize: '13px' }}>
+            <p style={{ margin: 0, color: 'var(--app-text-muted)', fontSize: '13px' }}>
               Multi-axis wellness map to identify today&apos;s weakest area and focus goal.
             </p>
             <div style={{ marginTop: '4px', display: 'grid', placeItems: 'center' }}>
@@ -1014,10 +1017,10 @@ function DashboardActionIdeas() {
               Single, powerful call to action with strong editorial rhythm.
             </p>
             <div style={{ margin: 'auto 0' }}>
-              <div style={{ fontSize: 'clamp(30px, 4vw, 44px)', color: '#fff', fontWeight: 300, lineHeight: 1.04, letterSpacing: '-1px' }}>
+              <div style={{ fontSize: 'clamp(30px, 4vw, 44px)', color: 'var(--app-text)', fontWeight: 300, lineHeight: 1.04, letterSpacing: '-1px' }}>
                 {status === 'done' ? 'You are done.' : 'Go train now.'}
               </div>
-              <div style={{ marginTop: '8px', fontSize: 'clamp(18px, 2.6vw, 28px)', color: '#a1a1aa', fontWeight: 700 }}>
+              <div style={{ marginTop: '8px', fontSize: 'clamp(18px, 2.6vw, 28px)', color: 'var(--app-text-muted)', fontWeight: 700 }}>
                 {meta.title.toUpperCase()}
               </div>
             </div>
@@ -1027,8 +1030,8 @@ function DashboardActionIdeas() {
                 border: 'none',
                 borderRadius: '0',
                 padding: '12px 14px',
-                background: '#fff',
-                color: '#000',
+                background: 'var(--app-text)',
+                color: 'var(--app-text)',
                 fontWeight: 800,
                 letterSpacing: '0.7px',
                 cursor: 'pointer'
@@ -1040,7 +1043,7 @@ function DashboardActionIdeas() {
 
           <article style={ideaCard}>
             <h3 style={{ margin: 0 }}>17) Habit Heatmap Calendar</h3>
-            <p style={{ margin: 0, color: '#a1a1aa', fontSize: '13px' }}>
+            <p style={{ margin: 0, color: 'var(--app-text-muted)', fontSize: '13px' }}>
               A monthly visual streak map that highlights consistency at a glance.
             </p>
             <div style={{ marginTop: '8px', display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px' }}>
@@ -1054,7 +1057,7 @@ function DashboardActionIdeas() {
 
           <article style={ideaCard}>
             <h3 style={{ margin: 0 }}>18) Adaptive Micro-Challenges</h3>
-            <p style={{ margin: 0, color: '#a1a1aa', fontSize: '13px' }}>
+            <p style={{ margin: 0, color: 'var(--app-text-muted)', fontSize: '13px' }}>
               AI-generated mini goals tailored to today&apos;s readiness and backlog.
             </p>
             <div style={{ marginTop: '8px', display: 'grid', gap: '8px' }}>
@@ -1063,7 +1066,7 @@ function DashboardActionIdeas() {
                 `Add 25g protein before 7 PM`,
                 `Log 600ml water in next 45 min`
               ].map((item) => (
-                <div key={item} style={{ border: '1px solid rgba(255,255,255,0.14)', borderRadius: '10px', padding: '9px 10px', fontSize: '12px', color: '#e2e8f0', background: 'rgba(255,255,255,0.03)' }}>
+                <div key={item} style={{ border: '1px solid rgba(255,255,255,0.14)', borderRadius: '10px', padding: '9px 10px', fontSize: '12px', color: '#e2e8f0', background: 'var(--quote-bg)' }}>
                   🎯 {item}
                 </div>
               ))}
@@ -1072,7 +1075,7 @@ function DashboardActionIdeas() {
 
           <article style={ideaCard}>
             <h3 style={{ margin: 0 }}>19) Focus Mode Countdown Capsule</h3>
-            <p style={{ margin: 0, color: '#a1a1aa', fontSize: '13px' }}>
+            <p style={{ margin: 0, color: 'var(--app-text-muted)', fontSize: '13px' }}>
               A single immersive countdown capsule to lock users into the next task.
             </p>
             <div style={{ flex: 1, display: 'grid', placeItems: 'center', marginTop: '8px' }}>
@@ -1082,7 +1085,7 @@ function DashboardActionIdeas() {
                 </div>
               </div>
             </div>
-            <button style={{ marginTop: 'auto', border: 'none', borderRadius: '12px', padding: '11px', background: '#4f46e5', color: '#fff', fontWeight: 700, cursor: 'pointer' }}>
+            <button style={{ marginTop: 'auto', border: 'none', borderRadius: '12px', padding: '11px', background: '#4f46e5', color: 'var(--app-text)', fontWeight: 700, cursor: 'pointer' }}>
               Enter Focus Mode
             </button>
           </article>
@@ -1090,20 +1093,20 @@ function DashboardActionIdeas() {
           <article style={{
             ...ideaCard,
             padding: '12px',
-            background: '#09090b',
+            background: 'var(--app-bg)',
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
             gridTemplateRows: 'auto 1fr',
             gap: '8px'
           }}>
             <div style={{ gridColumn: '1 / -1', padding: '4px 8px' }}>
-               <h3 style={{ margin: 0, fontSize: '14px', color: '#e4e4e7' }}>20) Bento Action Hub</h3>
-               <p style={{ margin: '4px 0 0', color: '#a1a1aa', fontSize: '12px' }}>Modular layout packed with context.</p>
+               <h3 style={{ margin: 0, fontSize: '14px', color: 'var(--app-text)' }}>20) Bento Action Hub</h3>
+               <p style={{ margin: '4px 0 0', color: 'var(--app-text-muted)', fontSize: '12px' }}>Modular layout packed with context.</p>
             </div>
             
             <div style={{
               gridColumn: '1 / -1',
-              background: 'linear-gradient(145deg, #18181b 0%, #27272a 100%)',
+              background: 'var(--app-surface2)',
               borderRadius: '12px',
               padding: '16px',
               border: '1px solid #3f3f46',
@@ -1114,8 +1117,8 @@ function DashboardActionIdeas() {
               cursor: 'pointer'
             }}>
               <div style={{ fontSize: '36px', marginBottom: '8px' }}>{meta.icon}</div>
-              <div style={{ fontSize: '18px', fontWeight: 800, color: '#fff' }}>{meta.title}</div>
-              <div style={{ fontSize: '12px', color: '#a1a1aa', marginTop: '4px' }}>Primary Action</div>
+              <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--app-text)' }}>{meta.title}</div>
+              <div style={{ fontSize: '12px', color: 'var(--app-text-muted)', marginTop: '4px' }}>Primary Action</div>
             </div>
 
             <div style={{
@@ -1178,7 +1181,7 @@ function DashboardActionIdeas() {
                 borderRadius: '50%',
                 display: 'grid',
                 placeItems: 'center',
-                color: '#fff',
+                color: 'var(--app-text)',
                 fontSize: '18px',
                 zIndex: 2,
                 boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
@@ -1202,11 +1205,11 @@ function DashboardActionIdeas() {
             </div>
           </article>
 
-          <article style={{ ...ideaCard, background: '#18181b' }}>
+          <article style={{ ...ideaCard, background: 'var(--app-surface)' }}>
             <h3 style={{ margin: 0 }}>22) Intelligent Context</h3>
-            <p style={{ margin: 0, color: '#a1a1aa', fontSize: '13px' }}>Explains *why* this is the action, using mini-data visualizations.</p>
+            <p style={{ margin: 0, color: 'var(--app-text-muted)', fontSize: '13px' }}>Explains *why* this is the action, using mini-data visualizations.</p>
             
-            <div style={{ marginTop: '16px', background: '#27272a', borderRadius: '12px', padding: '12px' }}>
+            <div style={{ marginTop: '16px', background: 'var(--app-surface2)', borderRadius: '12px', padding: '12px' }}>
               <div style={{ display: 'flex', alignItems: 'flex-end', height: '40px', gap: '6px', marginBottom: '8px' }}>
                 <div style={{ flex: 1, background: '#3f3f46', height: '40%', borderRadius: '4px' }} />
                 <div style={{ flex: 1, background: '#3f3f46', height: '60%', borderRadius: '4px' }} />
@@ -1225,8 +1228,8 @@ function DashboardActionIdeas() {
             <button style={{
               marginTop: '16px',
               padding: '14px',
-              background: '#fff',
-              color: '#000',
+              background: 'var(--app-text)',
+              color: 'var(--app-text)',
               border: 'none',
               borderRadius: '12px',
               fontWeight: 800,
@@ -1248,16 +1251,16 @@ function DashboardActionIdeas() {
             overflow: 'visible'
           }}>
             <div style={{
-              background: '#18181b',
+              background: 'var(--app-surface)',
               borderRadius: '24px',
               padding: '24px',
               height: '100%',
               display: 'flex',
               flexDirection: 'column',
-              boxShadow: 'inset 0 1px 0 0 rgba(255,255,255,0.1), 0 20px 40px -10px rgba(0,0,0,0.8), 0 0 40px -10px rgba(99,102,241,0.15)',
+              boxShadow: 'inset 0 1px 0 0 var(--app-border), 0 20px 40px -10px rgba(0,0,0,0.8), 0 0 40px -10px rgba(99,102,241,0.15)',
               position: 'relative'
             }}>
-              <h3 style={{ margin: 0, color: '#e4e4e7', fontSize: '15px' }}>23) Floating Neumorphic</h3>
+              <h3 style={{ margin: 0, color: 'var(--app-text)', fontSize: '15px' }}>23) Floating Neumorphic</h3>
               <p style={{ margin: 0, color: '#71717a', fontSize: '13px' }}>Rich shadows and inset lighting create a tactile feel.</p>
               
               <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -1265,8 +1268,8 @@ function DashboardActionIdeas() {
                   width: '80px',
                   height: '80px',
                   borderRadius: '20px',
-                  background: 'linear-gradient(135deg, #27272a 0%, #18181b 100%)',
-                  boxShadow: '4px 4px 10px rgba(0,0,0,0.5), -4px -4px 10px rgba(255,255,255,0.03), inset 1px 1px 0px rgba(255,255,255,0.1)',
+                  background: 'var(--app-surface2)',
+                  boxShadow: '4px 4px 10px rgba(0,0,0,0.5), -4px -4px 10px rgba(255,255,255,0.03), inset 1px 1px 0px var(--app-border)',
                   display: 'grid',
                   placeItems: 'center',
                   fontSize: '36px'
@@ -1277,7 +1280,7 @@ function DashboardActionIdeas() {
               
               <button style={{
                 background: 'linear-gradient(180deg, #4f46e5 0%, #4338ca 100%)',
-                color: '#fff',
+                color: 'var(--app-text)',
                 border: 'none',
                 borderRadius: '14px',
                 padding: '14px',
@@ -1293,8 +1296,8 @@ function DashboardActionIdeas() {
           </article>
 
           <article style={ideaCard}>
-            <h3 style={{ margin: 0, color: '#e4e4e7' }}>24) Body Readiness Score</h3>
-            <p style={{ margin: 0, color: '#a1a1aa', fontSize: '13px' }}>Focuses on recovery capacity rather than the workout itself.</p>
+            <h3 style={{ margin: 0, color: 'var(--app-text)' }}>24) Body Readiness Score</h3>
+            <p style={{ margin: 0, color: 'var(--app-text-muted)', fontSize: '13px' }}>Focuses on recovery capacity rather than the workout itself.</p>
             
             <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', marginTop: '16px' }}>
               <div style={{
@@ -1307,13 +1310,13 @@ function DashboardActionIdeas() {
                 placeItems: 'center',
                 boxShadow: '0 0 20px rgba(16, 185, 129, 0.2)'
               }}>
-                <div style={{ width: '66px', height: '66px', borderRadius: '50%', background: '#18181b', display: 'grid', placeItems: 'center' }}>
-                  <span style={{ fontSize: '20px', fontWeight: 800, color: '#fff' }}>85</span>
+                <div style={{ width: '66px', height: '66px', borderRadius: '50%', background: 'var(--app-surface)', display: 'grid', placeItems: 'center' }}>
+                  <span style={{ fontSize: '20px', fontWeight: 800, color: 'var(--app-text)' }}>85</span>
                 </div>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <span style={{ color: '#34d399', fontWeight: 700, fontSize: '15px' }}>Prime Condition</span>
-                <span style={{ color: '#a1a1aa', fontSize: '12px' }}>Heart rate variability is optimal.</span>
+                <span style={{ color: 'var(--app-text-muted)', fontSize: '12px' }}>Heart rate variability is optimal.</span>
               </div>
             </div>
 
@@ -1323,7 +1326,7 @@ function DashboardActionIdeas() {
           </article>
 
           <article style={{ ...ideaCard, background: 'linear-gradient(160deg, #18181b 0%, #0f172a 100%)', border: '1px solid #1e293b' }}>
-            <h3 style={{ margin: 0, color: '#e4e4e7' }}>25) Macronutrient Gap</h3>
+            <h3 style={{ margin: 0, color: 'var(--app-text)' }}>25) Macronutrient Gap</h3>
             <p style={{ margin: 0, color: '#94a3b8', fontSize: '13px' }}>Highlights the most critical missing nutritional element.</p>
             
             <div style={{ margin: 'auto 0' }}>
@@ -1341,16 +1344,16 @@ function DashboardActionIdeas() {
               <div style={{ color: '#64748b', fontSize: '11px', marginTop: '6px', textAlign: 'right' }}>105 / 150g Consumed</div>
             </div>
 
-            <button style={{ border: 'none', background: '#3b82f6', color: '#fff', borderRadius: '12px', padding: '12px', fontWeight: 700, cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
+            <button style={{ border: 'none', background: '#3b82f6', color: 'var(--app-text)', borderRadius: '12px', padding: '12px', fontWeight: 700, cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
               <span>+</span> Log High-Protein Meal
             </button>
           </article>
 
-          <article style={{ ...ideaCard, background: '#09090b', backgroundImage: 'radial-gradient(circle at 100% 0%, rgba(244, 63, 94, 0.1), transparent 50%)' }}>
-            <h3 style={{ margin: 0, color: '#e4e4e7' }}>26) Daily Micro-Challenge</h3>
-            <p style={{ margin: 0, color: '#a1a1aa', fontSize: '13px' }}>Replaces overwhelming tasks with one highly achievable micro-goal.</p>
+          <article style={{ ...ideaCard, background: 'var(--app-bg)', backgroundImage: 'radial-gradient(circle at 100% 0%, rgba(244, 63, 94, 0.1), transparent 50%)' }}>
+            <h3 style={{ margin: 0, color: 'var(--app-text)' }}>26) Daily Micro-Challenge</h3>
+            <p style={{ margin: 0, color: 'var(--app-text-muted)', fontSize: '13px' }}>Replaces overwhelming tasks with one highly achievable micro-goal.</p>
             
-            <div style={{ margin: 'auto 0', padding: '16px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', border: '1px dashed rgba(244, 63, 94, 0.3)' }}>
+            <div style={{ margin: 'auto 0', padding: '16px', background: 'var(--quote-bg)', borderRadius: '16px', border: '1px dashed rgba(244, 63, 94, 0.3)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div style={{ fontSize: '28px' }}>🧘</div>
                 <div>
@@ -1360,14 +1363,14 @@ function DashboardActionIdeas() {
               </div>
             </div>
 
-            <button style={{ border: 'none', background: 'linear-gradient(90deg, #e11d48, #be123c)', color: '#fff', borderRadius: '12px', padding: '12px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 14px rgba(225, 29, 72, 0.3)' }}>
+            <button style={{ border: 'none', background: 'linear-gradient(90deg, #e11d48, #be123c)', color: 'var(--app-text)', borderRadius: '12px', padding: '12px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 14px rgba(225, 29, 72, 0.3)' }}>
               Start 5-Min Timer
             </button>
           </article>
 
-          <article style={{ ...ideaCard, border: '1px solid #27272a' }}>
-            <h3 style={{ margin: 0, color: '#e4e4e7' }}>27) Weekly Momentum</h3>
-            <p style={{ margin: 0, color: '#a1a1aa', fontSize: '13px' }}>Focuses on the bigger picture and maintaining weekly volume.</p>
+          <article style={{ ...ideaCard, border: '1px solid var(--app-border)' }}>
+            <h3 style={{ margin: 0, color: 'var(--app-text)' }}>27) Weekly Momentum</h3>
+            <p style={{ margin: 0, color: 'var(--app-text-muted)', fontSize: '13px' }}>Focuses on the bigger picture and maintaining weekly volume.</p>
             
             <div style={{ margin: 'auto 0', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', height: '60px', padding: '0 8px' }}>
               {[30, 45, 60, 20, 80, 50, 0].map((val, i) => {
@@ -1459,7 +1462,7 @@ function DashboardActionIdeas() {
                   border: 'none',
                   borderRadius: '11px',
                   background: '#2563eb',
-                  color: '#fff',
+                  color: 'var(--app-text)',
                   fontWeight: 700,
                   padding: '11px',
                   cursor: 'pointer'
@@ -1523,7 +1526,7 @@ function DashboardActionIdeas() {
                 border: 'none',
                 borderRadius: '12px',
                 background: '#1d4ed8',
-                color: '#fff',
+                color: 'var(--app-text)',
                 fontWeight: 700,
                 padding: '11px',
                 cursor: 'pointer'
@@ -1546,7 +1549,7 @@ function DashboardActionIdeas() {
                   width: '148px',
                   height: '148px',
                   borderRadius: '50%',
-                  background: `conic-gradient(#4f46e5 ${ringMetrics.workout}%, rgba(255,255,255,0.08) ${ringMetrics.workout}% 100%)`,
+                  background: `conic-gradient(#4f46e5 ${ringMetrics.workout}%, var(--app-border) ${ringMetrics.workout}% 100%)`,
                   display: 'grid',
                   placeItems: 'center',
                   boxShadow: '0 0 20px rgba(79,70,229,0.28)'
@@ -1557,7 +1560,7 @@ function DashboardActionIdeas() {
                     width: '112px',
                     height: '112px',
                     borderRadius: '50%',
-                    background: `conic-gradient(#06b6d4 ${ringMetrics.sleep}%, rgba(255,255,255,0.08) ${ringMetrics.sleep}% 100%)`,
+                    background: `conic-gradient(#06b6d4 ${ringMetrics.sleep}%, var(--app-border) ${ringMetrics.sleep}% 100%)`,
                     display: 'grid',
                     placeItems: 'center',
                     boxShadow: '0 0 18px rgba(6,182,212,0.25)'
@@ -1568,7 +1571,7 @@ function DashboardActionIdeas() {
                       width: '80px',
                       height: '80px',
                       borderRadius: '50%',
-                      background: `conic-gradient(#ec4899 ${ringMetrics.nutrition}%, rgba(255,255,255,0.08) ${ringMetrics.nutrition}% 100%)`,
+                      background: `conic-gradient(#ec4899 ${ringMetrics.nutrition}%, var(--app-border) ${ringMetrics.nutrition}% 100%)`,
                       display: 'grid',
                       placeItems: 'center',
                       boxShadow: '0 0 18px rgba(236,72,153,0.24)'
@@ -1608,7 +1611,7 @@ function DashboardActionIdeas() {
                 border: `2px solid ${status === 'meal' ? '#ec4899' : status === 'done' ? '#22c55e' : status === 'sync' ? '#06b6d4' : '#4f46e5'}`,
                 borderRadius: '999px',
                 background: status === 'meal' ? 'rgba(236,72,153,0.17)' : status === 'done' ? 'rgba(34,197,94,0.17)' : status === 'sync' ? 'rgba(6,182,212,0.14)' : 'rgba(79,70,229,0.2)',
-                color: '#fff',
+                color: 'var(--app-text)',
                 fontWeight: 800,
                 letterSpacing: '0.4px',
                 padding: '11px 16px',
@@ -1638,7 +1641,7 @@ function DashboardActionIdeas() {
                   width: '172px',
                   height: '172px',
                   borderRadius: '50%',
-                  background: `conic-gradient(#0ea5e9 ${ringMetrics.sleep}%, rgba(255,255,255,0.08) ${ringMetrics.sleep}% 100%)`,
+                  background: `conic-gradient(#0ea5e9 ${ringMetrics.sleep}%, var(--app-border) ${ringMetrics.sleep}% 100%)`,
                   border: '1px solid rgba(56,189,248,0.24)',
                   display: 'grid',
                   placeItems: 'center',
@@ -1650,7 +1653,7 @@ function DashboardActionIdeas() {
                     width: '132px',
                     height: '132px',
                     borderRadius: '50%',
-                    background: `conic-gradient(#4f46e5 ${ringMetrics.workout}%, rgba(255,255,255,0.08) ${ringMetrics.workout}% 100%)`,
+                    background: `conic-gradient(#4f46e5 ${ringMetrics.workout}%, var(--app-border) ${ringMetrics.workout}% 100%)`,
                     border: '1px solid rgba(129,140,248,0.24)',
                     display: 'grid',
                     placeItems: 'center'
@@ -1661,7 +1664,7 @@ function DashboardActionIdeas() {
                       width: '94px',
                       height: '94px',
                       borderRadius: '50%',
-                      background: `conic-gradient(#14b8a6 ${ringMetrics.nutrition}%, rgba(255,255,255,0.08) ${ringMetrics.nutrition}% 100%)`,
+                      background: `conic-gradient(#14b8a6 ${ringMetrics.nutrition}%, var(--app-border) ${ringMetrics.nutrition}% 100%)`,
                       border: '1px solid rgba(45,212,191,0.24)',
                       display: 'grid',
                       placeItems: 'center'
@@ -1738,11 +1741,11 @@ function DashboardActionIdeas() {
                   height: '62px',
                   borderRadius: '16px',
                   background: 'linear-gradient(135deg, #2b2f3a 0%, #171a22 100%)',
-                  border: '1px solid rgba(255,255,255,0.08)',
+                  border: '1px solid var(--app-border)',
                   display: 'grid',
                   placeItems: 'center',
                   fontSize: '28px',
-                  boxShadow: 'inset 1px 1px 0 rgba(255,255,255,0.08), 6px 8px 18px rgba(0,0,0,0.35)'
+                  boxShadow: 'inset 1px 1px 0 var(--app-border), 6px 8px 18px rgba(0,0,0,0.35)'
                 }}
               >
                 {meta.icon}
@@ -1772,7 +1775,7 @@ function DashboardActionIdeas() {
                   background: 'linear-gradient(135deg, #4f46e5, #06b6d4)',
                   display: 'grid',
                   placeItems: 'center',
-                  color: '#fff',
+                  color: 'var(--app-text)',
                   fontWeight: 800,
                   boxShadow: '0 6px 14px rgba(79,70,229,0.45)'
                 }}
@@ -1811,8 +1814,8 @@ function DashboardActionIdeas() {
             </button>
           </article>
 
-          <article style={{ ...ideaCard, gridColumn: '1 / -1', padding: 0, overflow: 'hidden', background: '#09090b', border: '1px solid rgba(255,255,255,0.15)' }}>
-            <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'linear-gradient(90deg, rgba(79,70,229,0.1), transparent)' }}>
+          <article style={{ ...ideaCard, gridColumn: '1 / -1', padding: 0, overflow: 'hidden', background: 'var(--app-bg)', border: '1px solid var(--app-border)' }}>
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--app-border)', background: 'linear-gradient(90deg, rgba(79,70,229,0.1), transparent)' }}>
               <h3 style={{ margin: 0, color: '#f8fafc', fontSize: '18px' }}>33) Universal Adaptive Layout (Desktop + Mobile)</h3>
               <p style={{ margin: '4px 0 0', color: '#94a3b8', fontSize: '14px', lineHeight: 1.5 }}>
                 Scales perfectly from an immersive desktop dashboard widget to a sticky, highly-accessible bottom command bar on mobile screens. 
@@ -1828,7 +1831,7 @@ function DashboardActionIdeas() {
                     width: '90px', height: '90px', borderRadius: '50%', background: 'conic-gradient(from 0deg, #6366f1, #ec4899, #6366f1)',
                     display: 'grid', placeItems: 'center', boxShadow: '0 0 25px rgba(99, 102, 241, 0.3)'
                   }}>
-                    <div style={{ width: '82px', height: '82px', borderRadius: '50%', background: '#18181b', display: 'grid', placeItems: 'center', fontSize: '36px' }}>
+                    <div style={{ width: '82px', height: '82px', borderRadius: '50%', background: 'var(--app-surface)', display: 'grid', placeItems: 'center', fontSize: '36px' }}>
                       {meta.icon}
                     </div>
                   </div>
@@ -1839,17 +1842,17 @@ function DashboardActionIdeas() {
                         {score}% Setup
                       </div>
                     </div>
-                    <div style={{ fontSize: '32px', fontWeight: 900, color: '#fff', margin: '4px 0', letterSpacing: '-0.5px' }}>{meta.title}</div>
-                    <div style={{ fontSize: '15px', color: '#a1a1aa' }}>{meta.subtitle}</div>
+                    <div style={{ fontSize: '32px', fontWeight: 900, color: 'var(--app-text)', margin: '4px 0', letterSpacing: '-0.5px' }}>{meta.title}</div>
+                    <div style={{ fontSize: '15px', color: 'var(--app-text-muted)' }}>{meta.subtitle}</div>
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', minWidth: '220px' }}>
-                  <button style={{ background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', border: 'none', padding: '16px', borderRadius: '14px', color: '#fff', fontWeight: 800, fontSize: '16px', cursor: 'pointer', boxShadow: '0 4px 20px rgba(79, 70, 229, 0.4)', transition: 'transform 0.2s', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <button style={{ background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', border: 'none', padding: '16px', borderRadius: '14px', color: 'var(--app-text)', fontWeight: 800, fontSize: '16px', cursor: 'pointer', boxShadow: '0 4px 20px rgba(79, 70, 229, 0.4)', transition: 'transform 0.2s', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     Start {meta.label} <span>→</span>
                   </button>
                   <div style={{ display: 'flex', gap: '10px' }}>
-                    <button style={{ flex: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', padding: '12px', borderRadius: '10px', color: '#e2e8f0', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>💧 Water</button>
-                    <button style={{ flex: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', padding: '12px', borderRadius: '10px', color: '#e2e8f0', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>😴 Sleep</button>
+                    <button style={{ flex: 1, background: 'var(--app-border)', border: '1px solid var(--app-border)', padding: '12px', borderRadius: '10px', color: '#e2e8f0', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>💧 Water</button>
+                    <button style={{ flex: 1, background: 'var(--app-border)', border: '1px solid var(--app-border)', padding: '12px', borderRadius: '10px', color: '#e2e8f0', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>😴 Sleep</button>
                   </div>
                 </div>
               </div>
@@ -1858,19 +1861,19 @@ function DashboardActionIdeas() {
               <div className="adaptive-mobile-view">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                   <div>
-                    <div style={{ fontSize: '11px', color: '#a1a1aa', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Next Up</div>
-                    <div style={{ fontSize: '18px', fontWeight: 800, color: '#fff' }}>{meta.title}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--app-text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Next Up</div>
+                    <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--app-text)' }}>{meta.title}</div>
                   </div>
                   <div style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.2), rgba(236,72,153,0.1))', border: '1px solid rgba(99,102,241,0.3)', color: '#c7d2fe', padding: '4px 10px', borderRadius: '8px', fontSize: '13px', fontWeight: 700 }}>
                     Day: {score}%
                   </div>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: '10px' }}>
-                  <button style={{ background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', border: 'none', padding: '14px', borderRadius: '12px', color: '#fff', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', fontSize: '15px' }}>
+                  <button style={{ background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', border: 'none', padding: '14px', borderRadius: '12px', color: 'var(--app-text)', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', fontSize: '15px' }}>
                     <span style={{fontSize: '20px'}}>{meta.icon}</span> Start {meta.label}
                   </button>
-                  <button style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', width: '50px', height: '50px', borderRadius: '12px', display: 'grid', placeItems: 'center', fontSize: '22px' }}>💧</button>
-                  <button style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', width: '50px', height: '50px', borderRadius: '12px', display: 'grid', placeItems: 'center', fontSize: '22px' }}>😴</button>
+                  <button style={{ background: 'var(--app-border)', border: '1px solid var(--app-border)', width: '50px', height: '50px', borderRadius: '12px', display: 'grid', placeItems: 'center', fontSize: '22px' }}>💧</button>
+                  <button style={{ background: 'var(--app-border)', border: '1px solid var(--app-border)', width: '50px', height: '50px', borderRadius: '12px', display: 'grid', placeItems: 'center', fontSize: '22px' }}>😴</button>
                 </div>
               </div>
             </div>

@@ -18,6 +18,17 @@ __pycache__/
 .env.production.local
 .env.test
 .env.test.local
+.envrc
+.credentials/
+.secrets/
+secrets.*
+*.secret
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
 
 # ==========================================
 # BUILD & DIST

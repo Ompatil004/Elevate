@@ -1,54 +1,55 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useNotification } from "../components/NotificationProvider";
-import Navbar from "../components/Navbar";
-import { getProfile, getWeeklyWorkoutPlan, generateNutritionPlan, getNutritionSwapOptions, saveUserMealToNode, getMealHistory, saveMealHistory, saveTrends } from "../api";
+import { useTheme } from "../context/ThemeContext";
+import { getProfile, PYTHON_API_URL, generateWorkout, saveUserMealToNode, getMealHistory, saveMealHistory, saveTrends } from "../api";
 import { StorageKeys, getFromStorage, setToStorage, logoutSafe, getLocalDateStr, safeJSONParse } from "../utils/storage";
 import ConfirmDialog from "../components/ConfirmDialog";
+import axios from "axios";
 import { syncBridge, SyncTypes } from "../utils/syncBridge";
-import { pythonBackendCB } from "../utils/circuitBreaker";
+import AuroraBackground from "../components/AuroraBackground";
 
 // Local-timezone date string helper is now imported from storage.js
 
 const styles = {
-  page: { background: "#09090b", minHeight: "100dvh", color: "#e4e4e7", fontFamily: "'Inter', sans-serif", position: "relative", overflowX: "hidden", backgroundImage: "radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.06), transparent 25%), radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.06), transparent 25%)" },
-  navbar: { display: "flex", alignItems: "center", padding: "0 clamp(12px, 4vw, 40px)", height: "clamp(64px, 9vw, 80px)", gap: "clamp(8px, 2vw, 18px)", borderBottom: "1px solid rgba(255,255,255,0.08)", background: "rgba(9, 9, 11, 0.6)", backdropFilter: "blur(16px)", position: "sticky", top: 0, zIndex: 1000, overflowX: "auto" },
-  brand: { flex: 1, fontSize: "22px", fontWeight: "900", letterSpacing: "-1px", background: "linear-gradient(to right, #fff, #a5b4fc)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", display: "flex", alignItems: "center", gap: "10px" },
+  page: { background: "transparent", minHeight: "100dvh", color: "var(--app-text)", fontFamily: "'Inter', sans-serif", overflowX: "hidden", position: "relative", zIndex: 1, paddingTop: "clamp(64px, 9vw, 80px)" },
+  navbar: { display: "flex", alignItems: "center", padding: "0 clamp(12px, 4vw, 40px)", height: "clamp(64px, 9vw, 80px)", gap: "clamp(8px, 2vw, 18px)", borderBottom: "1px solid var(--app-border)", background: 'var(--app-nav-bg, rgba(9, 9, 11, 0.6))', backdropFilter: "blur(16px)", position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, overflowX: "auto" },
+  brand: { flex: 1, fontSize: "22px", fontWeight: "900", letterSpacing: "-1px", background: "var(--brand-grad, linear-gradient(to right, #ffffff, #a5b4fc))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", display: "flex", alignItems: "center", gap: "10px" },
   navCenter: { display: "flex", gap: "clamp(4px, 1.5vw, 8px)", height: "100%", alignItems: "center", justifyContent: "center" },
-  navLink: { display: "flex", alignItems: "center", padding: "8px clamp(10px, 2vw, 20px)", fontSize: "clamp(11px, 1.7vw, 13px)", fontWeight: "600", color: "#a1a1aa", cursor: "pointer", borderRadius: "20px", transition: "all 0.2s", textTransform: "uppercase", letterSpacing: "0.5px", border: "1px solid transparent" },
-  navLinkActive: { background: "rgba(255,255,255,0.1)", color: "#fff", boxShadow: "0 0 20px rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.05)" },
+  navLink: { display: "flex", alignItems: "center", padding: "8px clamp(10px, 2vw, 20px)", fontSize: "clamp(11px, 1.7vw, 13px)", fontWeight: "600", color: "var(--app-text-muted)", cursor: "pointer", borderRadius: "20px", transition: "all 0.2s", textTransform: "uppercase", letterSpacing: "0.5px", border: "1px solid transparent" },
+  navLinkActive: { background: "var(--app-border)", color: "var(--app-text)", boxShadow: "0 0 20px var(--app-border)", border: "1px solid var(--app-border)" },
   navRight: { flex: 1, display: "flex", alignItems: "center", gap: "clamp(8px, 2vw, 24px)", justifyContent: "flex-end" },
   brandDot: { width: "8px", height: "8px", background: "#6366f1", borderRadius: "50%", boxShadow: "0 0 15px #6366f1" },
-  iconButton: { width: "clamp(36px, 6vw, 42px)", height: "clamp(36px, 6vw, 42px)", borderRadius: "12px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: "18px", transition: "all 0.2s" },
+  iconButton: { width: "clamp(36px, 6vw, 42px)", height: "clamp(36px, 6vw, 42px)", borderRadius: "12px", background: "var(--quote-bg)", border: "1px solid var(--app-border)", color: "var(--app-text)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: "18px", transition: "all 0.2s" },
   logoutBtn: { display: "flex", alignItems: "center", gap: "8px", padding: "0 clamp(10px, 2vw, 20px)", borderRadius: "12px", background: "rgba(239, 68, 68, 0.1)", border: "1px solid rgba(239, 68, 68, 0.2)", color: "#ef4444", cursor: "pointer", transition: "all 0.2s ease", height: "clamp(36px, 6vw, 42px)" },
   logoutText: { fontSize: "12px", fontWeight: "700", letterSpacing: "0.5px", textTransform: "uppercase" },
   container: { maxWidth: "1400px", margin: "0 auto", padding: "clamp(12px, 4vw, 40px)" },
-  header: { fontSize: "clamp(28px, 5vw, 42px)", fontWeight: "800", color: "#fff", marginBottom: "clamp(18px, 3vw, 40px)", letterSpacing: "-1px", background: "linear-gradient(to right, #ffffff 0%, #a5b4fc 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", filter: "drop-shadow(0 4px 20px rgba(99, 102, 241, 0.3))" },
-  daySelectorBar: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))", gap: "12px", marginBottom: "24px" },
-  dayCard: { background: "#18181b", border: "1px solid rgba(255,255,255,0.05)", borderRadius: "20px", padding: "clamp(10px, 2.2vw, 16px)", cursor: "pointer", transition: "all 0.3s ease", textAlign: "center", position: "relative", overflow: "hidden" },
-  dayCardSelected: { background: "linear-gradient(145deg, #1e1b4b 0%, #312e81 100%)", border: "2px solid #6366f1", transform: "scale(1.05)", boxShadow: "0 0 30px rgba(99, 102, 241, 0.2)" },
+  header: { fontSize: "clamp(28px, 5vw, 42px)", fontWeight: "800", color: "var(--app-text)", marginBottom: "clamp(18px, 3vw, 40px)", letterSpacing: "-1px", background: "var(--h1-grad)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", filter: "drop-shadow(0 4px 20px rgba(99, 102, 241, 0.3))" },
+  daySelectorBar: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(90px, 1fr))", gap: "10px", marginBottom: "20px" },
+  dayCard: { background: "var(--app-surface)", border: "1px solid var(--app-border)", borderRadius: "16px", padding: "clamp(8px, 1.8vw, 12px)", cursor: "pointer", transition: "all 0.3s ease", textAlign: "center", position: "relative", overflow: "hidden" },
+  dayCardSelected: { background: 'var(--day-card-selected-bg, linear-gradient(145deg, #1e1b4b 0%, #312e81 100%))', border: "2px solid #6366f1", transform: "scale(1.05)", boxShadow: "0 0 30px rgba(99, 102, 241, 0.2)" },
   dayCardToday: { borderColor: "#10b981", boxShadow: "0 0 15px rgba(16, 185, 129, 0.15)" },
-  dayName: { fontSize: "13px", fontWeight: "700", color: "#a1a1aa", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "1px" },
-  dailySummaryCard: { background: "#18181b", borderRadius: "24px", padding: "clamp(16px, 3vw, 32px)", marginBottom: "24px", border: "1px solid rgba(255,255,255,0.05)", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "clamp(12px, 2.6vw, 24px)", position: "relative", overflow: "hidden" },
-  macroStat: { textAlign: "center", padding: "12px", borderRadius: "16px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)", transition: "all 0.2s ease" },
-  macroValue: { fontSize: "clamp(22px, 4vw, 32px)", fontWeight: "800", color: "#fff", marginBottom: "4px", fontFamily: "'Inter', sans-serif" },
-  macroLabel: { fontSize: "13px", color: "#71717a", textTransform: "uppercase", letterSpacing: "1px", fontWeight: "700" },
+  dayName: { fontSize: "12px", fontWeight: "700", color: "var(--app-text-muted)", marginBottom: "4px", textTransform: "uppercase", letterSpacing: "1px" },
+  dailySummaryCard: { background: "var(--app-surface)", borderRadius: "20px", padding: "clamp(12px, 2vw, 20px)", marginBottom: "20px", border: "1px solid var(--app-border)", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: "clamp(10px, 2vw, 16px)", position: "relative", overflow: "hidden" },
+  macroStat: { textAlign: "center", padding: "10px", borderRadius: "14px", background: 'var(--app-surface-hover, rgba(255,255,255,0.02))', border: "1px solid rgba(255,255,255,0.04)", transition: "all 0.2s ease" },
+  macroValue: { fontSize: "clamp(18px, 3vw, 26px)", fontWeight: "800", color: "var(--app-text)", marginBottom: "2px", fontFamily: "'Inter', sans-serif" },
+  macroLabel: { fontSize: "11px", color: "#71717a", textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: "700" },
   mealList: { display: "grid", gap: "20px" },
-  mealCard: { background: "#18181b", borderRadius: "20px", padding: "clamp(14px, 2.8vw, 28px)", border: "1px solid rgba(255,255,255,0.05)", transition: "all 0.3s ease", position: "relative", overflowX: "auto", overflowY: "hidden" },
-  mealCardCompleted: { border: "1px solid rgba(34, 197, 94, 0.4)", background: "linear-gradient(145deg, #18181b 0%, rgba(34, 197, 94, 0.03) 100%)" },
+  mealCard: { background: "var(--app-surface)", borderRadius: "20px", padding: "clamp(14px, 2.8vw, 28px)", border: "1px solid var(--app-border)", transition: "all 0.3s ease", position: "relative", overflowX: "auto", overflowY: "hidden" },
+  mealCardCompleted: { border: "1px solid rgba(34, 197, 94, 0.4)", background: "var(--app-card-bg)" },
   completedBadge: { position: "absolute", top: "15px", right: "15px", background: "rgba(34, 197, 94, 0.1)", color: "#22c55e", padding: "6px 14px", borderRadius: "20px", fontSize: "11px", fontWeight: "800", border: "1px solid rgba(34, 197, 94, 0.3)" },
-  mealHeader: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", paddingBottom: "16px", borderBottom: "1px solid rgba(255,255,255,0.06)", gap: "12px", flexWrap: "wrap" },
-  mealName: { fontSize: "20px", fontWeight: "800", color: "#fff", letterSpacing: "-0.5px" },
-  foodTableHeader: { display: "grid", gridTemplateColumns: "30px minmax(160px, 2fr) repeat(4, minmax(68px, 1fr)) 50px", gap: "12px", minWidth: "620px", padding: "0 16px 12px", fontSize: "11px", fontWeight: "700", color: "#52525b", textTransform: "uppercase", letterSpacing: "1px" },
+  mealHeader: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", paddingBottom: "16px", borderBottom: '1px solid var(--app-border)', gap: "12px", flexWrap: "wrap" },
+  mealName: { fontSize: "20px", fontWeight: "800", color: "var(--app-text)", letterSpacing: "-0.5px" },
+  foodTableHeader: { display: "grid", gridTemplateColumns: "30px minmax(140px, 2fr) minmax(80px, 1fr) repeat(4, minmax(54px, 1fr)) 44px", gap: "10px", minWidth: "660px", padding: "0 16px 12px", fontSize: "11px", fontWeight: "700", color: "#52525b", textTransform: "uppercase", letterSpacing: "1px" },
   foodList: { display: "grid", gap: "8px" },
-  foodItemRow: { display: "grid", gridTemplateColumns: "30px minmax(160px, 2fr) repeat(4, minmax(68px, 1fr)) 50px", gap: "12px", minWidth: "620px", padding: "14px 16px", background: "rgba(255,255,255,0.02)", borderRadius: "14px", alignItems: "center", fontSize: "14px", border: "1px solid rgba(255,255,255,0.03)", transition: "all 0.2s ease" },
-  checkbox: { width: "22px", height: "22px", borderRadius: "8px", border: "2px solid #3f3f46", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s", background: "transparent", fontSize: "12px" },
-  checkboxChecked: { background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)", borderColor: "#22c55e", boxShadow: "0 0 10px rgba(34, 197, 94, 0.3)" },
+  foodItemRow: { display: "grid", gridTemplateColumns: "30px minmax(140px, 2fr) minmax(80px, 1fr) repeat(4, minmax(54px, 1fr)) 44px", gap: "10px", minWidth: "660px", padding: "14px 16px", background: 'var(--app-surface-hover, rgba(255,255,255,0.02))', borderRadius: "14px", alignItems: "center", fontSize: "14px", border: '1px solid var(--app-border)', transition: "all 0.2s ease" },
+  checkbox: { width: "22px", height: "22px", borderRadius: "8px", border: "2px solid var(--app-border)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s", background: "transparent", fontSize: "12px" },
+  checkboxChecked: { background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)", borderColor: "#22c55e", boxShadow: "0 0 10px rgba(34, 197, 94, 0.3)", color: "#ffffff" },
   swapBtn: { background: "rgba(99, 102, 241, 0.1)", border: "1px solid rgba(99, 102, 241, 0.2)", color: "#818cf8", cursor: "pointer", fontSize: "16px", padding: "6px", borderRadius: "10px", transition: "all 0.2s", width: "34px", height: "34px", display: "flex", alignItems: "center", justifyContent: "center" },
-  mealMacroTotal: { display: "flex", justifyContent: "flex-end", gap: "24px", marginTop: "16px", paddingTop: "16px", borderTop: "1px solid rgba(255,255,255,0.06)", flexWrap: "wrap" },
-  historyPanel: { position: "fixed", top: "80px", right: "0", width: "min(96vw, 480px)", height: "calc(100dvh - 80px)", background: "#09090b", borderLeft: "1px solid rgba(255,255,255,0.1)", zIndex: 1500, padding: "clamp(14px, 2.5vw, 24px)", overflowY: "auto", animation: "slideInRight 0.3s ease-out", boxShadow: "-20px 0 50px rgba(0,0,0,0.5)" },
+  mealMacroTotal: { display: "flex", justifyContent: "flex-end", gap: "24px", marginTop: "16px", paddingTop: "16px", borderTop: '1px solid var(--app-border)', flexWrap: "wrap" },
+  historyPanel: { position: "fixed", top: "80px", right: "0", width: "min(96vw, 480px)", height: "calc(100dvh - 80px)", background: "var(--app-bg)", borderLeft: "1px solid var(--app-border)", zIndex: 1500, padding: "clamp(14px, 2.5vw, 24px)", overflowY: "auto", animation: "slideInRight 0.3s ease-out", boxShadow: "-20px 0 50px rgba(0,0,0,0.5)" },
   swapModal: { position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(0,0,0,0.75)", backdropFilter: "blur(12px)", zIndex: 3000, display: "flex", alignItems: "center", justifyContent: "center", transition: "opacity 0.3s ease" },
-  swapModalCard: { background: "#18181b", padding: "clamp(16px, 3vw, 32px)", borderRadius: "24px", width: "min(96vw, 480px)", maxWidth: "480px", border: "1px solid rgba(99, 102, 241, 0.2)", boxShadow: "0 20px 60px rgba(0,0,0,0.6), 0 0 40px rgba(99, 102, 241, 0.1)", animation: "scaleIn 0.3s ease-out", maxHeight: "84dvh", display: "flex", flexDirection: "column" },
+  swapModalCard: { background: "var(--app-surface)", padding: "clamp(16px, 3vw, 32px)", borderRadius: "24px", width: "min(96vw, 480px)", maxWidth: "480px", border: "1px solid rgba(99, 102, 241, 0.2)", boxShadow: "0 20px 60px rgba(0,0,0,0.6), 0 0 40px rgba(99, 102, 241, 0.1)", animation: "scaleIn 0.3s ease-out", maxHeight: "84dvh", display: "flex", flexDirection: "column" },
   optionalBadge: { background: "rgba(245, 158, 11, 0.1)", color: "#f59e0b", padding: "4px 10px", borderRadius: "12px", fontSize: "10px", fontWeight: "800", border: "1px solid rgba(245, 158, 11, 0.3)", marginLeft: "10px", textTransform: "uppercase" },
 };
 
@@ -59,59 +60,12 @@ const nutritionAnimations = `
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.08); } 100% { transform: scale(1); } }
   .day-card-hover:hover { transform: translateY(-3px) !important; border-color: rgba(99, 102, 241, 0.3) !important; box-shadow: 0 8px 25px rgba(0,0,0,0.3) !important; }
-  .food-row-hover:hover { background: rgba(255,255,255,0.04) !important; border-color: rgba(255,255,255,0.08) !important; }
+  .food-row-hover:hover { background: rgba(255,255,255,0.04) !important; border-color: var(--app-border) !important; }
   .meal-card-hover:hover { border-color: rgba(99, 102, 241, 0.15) !important; box-shadow: 0 8px 30px rgba(0,0,0,0.2) !important; }
   .swap-btn-hover:hover { background: rgba(99, 102, 241, 0.2) !important; transform: scale(1.1); box-shadow: 0 0 12px rgba(99, 102, 241, 0.3); }
   .macro-stat-hover:hover { background: rgba(255,255,255,0.04) !important; transform: scale(1.03); }
-  .icon-hover:hover { background: rgba(255,255,255,0.1) !important; }
+  .icon-hover:hover { background: var(--app-border) !important; }
   .logout-btn:hover { background: rgba(239, 68, 68, 0.2) !important; }
-
-  @media (max-width: 768px) {
-    .food-table-header { display: none !important; }
-    .food-item-row { 
-      display: flex !important; 
-      flex-direction: column !important; 
-      gap: 12px !important; 
-      min-width: 0 !important; 
-      padding: 16px !important; 
-    }
-    .food-item-top {
-      display: flex !important;
-      align-items: flex-start !important;
-      gap: 12px !important;
-      width: 100% !important;
-    }
-    .food-item-macros {
-      display: flex !important;
-      justify-content: space-between !important;
-      width: 100% !important;
-      background: rgba(0,0,0,0.2);
-      padding: 10px;
-      border-radius: 10px;
-      margin-top: 4px;
-    }
-    .food-macro-block {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-    }
-    .food-macro-label {
-      display: block !important;
-      font-size: 10px;
-      color: #71717a;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .meal-macro-total {
-      justify-content: space-between !important;
-      gap: 8px !important;
-    }
-    .history-panel { width: 100% !important; }
-    .swap-modal-card { width: 100% !important; max-height: 90dvh !important; border-radius: 20px 20px 0 0 !important; align-self: flex-end; animation: slideUp 0.3s ease-out !important; }
-    .swap-modal { align-items: flex-end !important; }
-  }
-  .food-macro-label { display: none; }
 `;
 
 function Nutrition() {
@@ -135,8 +89,6 @@ function Nutrition() {
   const [swapOptions, setSwapOptions] = useState([]);
   const [swapLoading, setSwapLoading] = useState(false);
   const [selectedSwap, setSelectedSwap] = useState(null);
-  // Track backend availability for retry UI
-  const [backendDown, setBackendDown] = useState(false);
 
   const [expandedDates, setExpandedDates] = useState({});
   const [expandedMeals, setExpandedMeals] = useState({});
@@ -212,7 +164,8 @@ function Nutrition() {
           updated = true;
         }
 
-        if (Array.isArray(mealData.foods)) {
+        if (Array.isArray(mealData.foods) && mealData.foods.length > 0) {
+          // Backend saved individual food items — match by name
           mealData.foods.forEach((food) => {
             const planFood = planMeal.foods.find((f) => f.name === food.name);
             if (!planFood) return;
@@ -225,6 +178,16 @@ function Nutrition() {
               updated = true;
             }
           });
+        } else {
+          // ✅ FIX: Backend only saves meal totals (foods: []), but the meal IS locked.
+          // Synthetically mark ALL plan foods for this meal as checked to restore tick UI.
+          planMeal.foods.forEach((planFood) => {
+            const checkKey = `${dayEntry.date}-${planFood.id}`;
+            if (!localChecked[checkKey]) {
+              localChecked[checkKey] = true;
+              updated = true;
+            }
+          });
         }
       });
     });
@@ -234,33 +197,17 @@ function Nutrition() {
       setTickTimes(localTickTimes);
       setLockedMeals(localLocked);
 
-      sessionStorage.setItem("checkedFoods", JSON.stringify(localChecked));
-      sessionStorage.setItem("tickTimes", JSON.stringify(localTickTimes));
-      sessionStorage.setItem("lockedMeals", JSON.stringify(localLocked));
-      localStorage.removeItem("checkedFoods");
-      localStorage.removeItem("tickTimes");
-      localStorage.removeItem("lockedMeals");
+      localStorage.setItem("checkedFoods", JSON.stringify(localChecked));
+      localStorage.setItem("tickTimes", JSON.stringify(localTickTimes));
+      localStorage.setItem("lockedMeals", JSON.stringify(localLocked));
     }
   }, [weeklyPlan, mealHistory]);
-
-  // Bug #36 fixed: use IST to match Workout.jsx and backend day-index calculation.
-  const getISTTodayIdx = () => {
-    try {
-      const weekday = new Intl.DateTimeFormat('en-US', {
-        timeZone: 'Asia/Kolkata',
-        weekday: 'short',
-      }).format(new Date());
-      const map = { Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6 };
-      return map[weekday] ?? ((new Date().getDay() + 6) % 7);
-    } catch {
-      return (new Date().getDay() + 6) % 7; // safe JS fallback
-    }
-  };
 
   const getTodayWorkoutIntensity = (workoutPlan = []) => {
     if (!Array.isArray(workoutPlan) || workoutPlan.length === 0) return "moderate";
 
-    const todayIdx = getISTTodayIdx(); // Bug #36: was new Date().getDay() + local-TZ math
+    const jsDay = new Date().getDay();
+    const todayIdx = (jsDay + 6) % 7; // Monday=0 ... Sunday=6
     const todayPlan = workoutPlan.find((d) => (d?.day_of_week ?? -1) === todayIdx) || workoutPlan[todayIdx];
 
     if (!todayPlan) return "moderate";
@@ -280,31 +227,23 @@ function Nutrition() {
     return "light";
   };
 
-  const getWorkoutPlanForNutrition = async () => {
+  const getWorkoutPlanForNutrition = async (profile) => {
     const cachedPlan = safeJSONParse("workoutPlan", null);
     if (Array.isArray(cachedPlan)) {
       return cachedPlan;
     }
 
-    // Avoid creating a new workout generation job from Nutrition page.
-    // Read persisted weekly plan generated by backend, then fall back to empty.
-    try {
-      const weeklyRes = await getWeeklyWorkoutPlan();
-      const generatedPlan =
-        weeklyRes?.data?.plan ||
-        weeklyRes?.data?.data?.plan ||
-        [];
-
-      if (Array.isArray(generatedPlan) && generatedPlan.length > 0) {
-        sessionStorage.setItem("workoutPlan", JSON.stringify(generatedPlan));
-        sessionStorage.setItem("workoutPlanTimestamp", new Date().toISOString());
-        localStorage.removeItem("workoutPlan");
-        localStorage.removeItem("workoutPlanTimestamp");
-        return generatedPlan;
+    // Do not block nutrition load on workout generation when cache is missing.
+    // Use moderate intensity now; warm workout cache in background for next visit.
+    generateWorkout(profile).then((workoutResponse) => {
+      const generatedPlan = Array.isArray(workoutResponse?.data?.workout) ? workoutResponse.data.workout : [];
+      if (generatedPlan.length > 0) {
+        localStorage.setItem("workoutPlan", JSON.stringify(generatedPlan));
+        localStorage.setItem("workoutPlanTimestamp", new Date().toISOString());
       }
-    } catch (err) {
-      console.warn('Weekly workout fetch for nutrition failed:', err?.message || err);
-    }
+    }).catch((err) => {
+      console.warn('Background workout cache warmup failed:', err?.message || err);
+    });
 
     return [];
   };
@@ -314,7 +253,8 @@ function Nutrition() {
       const workoutPlan = safeJSONParse("workoutPlan", []);
       if (!Array.isArray(workoutPlan) || workoutPlan.length === 0) return false;
 
-      const todayIdx = getISTTodayIdx(); // Bug #36: IST-aligned index
+      const jsDay = new Date().getDay();
+      const todayIdx = (jsDay + 6) % 7;
       const todayPlan = workoutPlan.find((d) => (d?.day_of_week ?? -1) === todayIdx) || workoutPlan[todayIdx];
       if (!todayPlan) return false;
       // 1. Explicit type from backend engine
@@ -364,10 +304,10 @@ function Nutrition() {
       // Clear invalidation flag since we're fetching fresh
       setToStorage(StorageKeys.NUTRITION_CACHE_INVALID, 'false');
 
-      const workoutPlan = await getWorkoutPlanForNutrition();
+      const workoutPlan = await getWorkoutPlanForNutrition(profile);
       const workoutIntensity = getTodayWorkoutIntensity(workoutPlan);
 
-      const response = await generateNutritionPlan({
+      const response = await axios.post(`${PYTHON_API_URL}/nutrition`, {
         age: profile.age,
         weight: profile.weight,
         height: profile.height,
@@ -377,6 +317,8 @@ function Nutrition() {
         allergies: profile.allergies || [],
         workout_intensity: workoutIntensity,
         weekly_workout_plan: workoutPlan,
+      }, {
+        timeout: 30000,
       });
 
       if (response.data.success && response.data.nutrition) {
@@ -386,31 +328,7 @@ function Nutrition() {
         setDailyTarget(nutrition.daily_target || {});
 
         // Build 7-day display from weekly_plan the backend now returns
-        let weekPlan = nutrition.weekly_plan;
-        if (!weekPlan || typeof weekPlan !== 'object') {
-          const synthesized = { breakfast: [], lunch: [], dinner: [], snack: [] };
-          (nutrition.meals || []).forEach((item) => {
-            const mealType = String(item?.meal_type || 'snack').toLowerCase();
-            if (!synthesized[mealType]) synthesized[mealType] = [];
-            synthesized[mealType].push({
-              name: item.name,
-              calories: Number(item.calories) || 0,
-              protein: Number(item.protein) || 0,
-              carbs: Number(item.carbs) || 0,
-              fat: Number(item.fat) || 0,
-              swap_group: item.swap_group || mealType,
-            });
-          });
-          weekPlan = {
-            Monday: synthesized,
-            Tuesday: synthesized,
-            Wednesday: synthesized,
-            Thursday: synthesized,
-            Friday: synthesized,
-            Saturday: synthesized,
-            Sunday: synthesized,
-          };
-        }
+        const weekPlan = nutrition.weekly_plan;
         const dayNames = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
         const today = new Date();
 
@@ -469,7 +387,6 @@ function Nutrition() {
         setWeeklyPlan({ week_start: getLocalDateStr(today), days });
         setSelectedDayIndex(0);
 
-        // ✅ FIX 9: Sync daily_target to localStorage for Dashboard macro targets
         setToStorage(StorageKeys.NUTRITION_CACHE, {
           days,
           daily_target: nutrition.daily_target || {},
@@ -478,45 +395,19 @@ function Nutrition() {
         setToStorage(StorageKeys.NUTRITION_CACHE_DATE, todayStr);
 
         showSuccess("Nutrition plan loaded from dataset!", 3000);
+        
+        // ✅ FIX: Re-run loadHistory to tick off the newly generated food items 
+        // using the backend completed meal history (in case the plan regenerated).
+        loadHistory();
       } else {
         throw new Error(response.data.error || "Failed to load nutrition plan");
       }
     } catch (error) {
       console.error("Nutrition error:", error);
-
-      // Detect circuit breaker errors — backend is unreachable
-      if (error?.isCircuitOpen || error?.name === 'CircuitOpenError') {
-        setBackendDown(true);
-        showError(
-          "Backend service is temporarily unavailable. Please wait a moment and try the Retry button.",
-          8000
-        );
-      } else if (!error?.response) {
-        // Network error (ECONNREFUSED, timeout, etc.)
-        setBackendDown(true);
-        showError(
-          "Cannot reach the backend server. Make sure the Python backend is running on port 8000.",
-          8000
-        );
-      } else {
-        setBackendDown(false);
-        showError(
-          error.response?.data?.detail ||
-            error.response?.data?.error ||
-            "Failed to load nutrition plan.",
-          5000
-        );
-      }
+      showError(error.response?.data?.detail || error.response?.data?.error || "Failed to load nutrition plan.", 5000);
     } finally {
       setLoading(false);
     }
-  };
-
-  // Manual retry handler — resets circuit breaker and fetches fresh
-  const handleManualRetry = () => {
-    pythonBackendCB.reset();
-    setBackendDown(false);
-    fetchNutritionPlan();
   };
 
   /* ──────────────────────────────────────────
@@ -530,6 +421,7 @@ function Nutrition() {
       
       // ✅ Populate lockedMeals directly from backed up daily history
       const localLocked = safeJSONParse("lockedMeals", {});
+      const localChecked = safeJSONParse("checkedFoods", {});
       const todayDate = getLocalDateStr();
       const todayEntry = historyData.find(d => d.date === todayDate);
       
@@ -541,10 +433,38 @@ function Nutrition() {
             const mealTypeKey = String(mealData.meal_type || '').toLowerCase();
             if (mealTypeKey) {
               localLocked[`${todayDate}-${mealTypeKey}`] = true;
+
+              // ✅ FIX: Backfill checkedFoods for this locked meal using the current
+              // nutrition plan from localStorage cache. The backend only stores meal totals
+              // (not individual food items), so we reconstruct from the local plan.
+              try {
+                // StorageKeys.NUTRITION_CACHE = 'nutritionPlan'
+                const cachedNutrition = safeJSONParse("nutritionPlan", null);
+                const cachedDays = cachedNutrition?.days || [];
+                const todayPlanDay = cachedDays[0]; // index 0 = today
+                if (todayPlanDay) {
+                  const planMeal = todayPlanDay.meals?.find(
+                    (m) => String(m.meal_type || '').toLowerCase() === mealTypeKey
+                  );
+                  if (planMeal) {
+                    planMeal.foods.forEach((food) => {
+                      const checkKey = `${todayDate}-${food.id}`;
+                      if (!localChecked[checkKey]) {
+                        localChecked[checkKey] = true;
+                      }
+                    });
+                  }
+                }
+              } catch {
+                // Non-critical — checkedFoods will remain partially populated
+              }
             }
           }
         });
       }
+
+      setCheckedFoods(localChecked);
+      localStorage.setItem("checkedFoods", JSON.stringify(localChecked));
       setLockedMeals(localLocked);
     } catch (err) {
       console.error("Failed to load meal history from db:", err);
@@ -579,15 +499,13 @@ function Nutrition() {
     const nowTicked = !checkedFoods[checkKey];
     const newChecked = { ...checkedFoods, [checkKey]: nowTicked };
     setCheckedFoods(newChecked);
-    sessionStorage.setItem("checkedFoods", JSON.stringify(newChecked));
-    localStorage.removeItem("checkedFoods");
+    localStorage.setItem("checkedFoods", JSON.stringify(newChecked));
 
     const newTickTimes = { ...tickTimes };
     if (nowTicked) newTickTimes[checkKey] = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     else delete newTickTimes[checkKey];
     setTickTimes(newTickTimes);
-    sessionStorage.setItem("tickTimes", JSON.stringify(newTickTimes));
-    localStorage.removeItem("tickTimes");
+    localStorage.setItem("tickTimes", JSON.stringify(newTickTimes));
 
     // Check if ALL items in this meal are now ticked
     const selectedDay = weeklyPlan?.days?.[dayIdx];
@@ -605,8 +523,7 @@ function Nutrition() {
             ...(mealTypeKey ? { [`${today}-${mealTypeKey}`]: true } : {}),
           };
           setLockedMeals(newLocked);
-          sessionStorage.setItem("lockedMeals", JSON.stringify(newLocked));
-          localStorage.removeItem("lockedMeals");
+          localStorage.setItem("lockedMeals", JSON.stringify(newLocked));
 
           const completedTimeStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
           const mealData = {
@@ -632,7 +549,7 @@ function Nutrition() {
           updatedHistory.sort((a, b) => b.date.localeCompare(a.date));
           setMealHistory(updatedHistory);
           
-          saveMealHistory(dateEntry)
+          saveMealHistory(updatedHistory)
             .catch(err => console.error("Error saving meal history to db", err));
           
           setExpandedDates(prev => ({ ...prev, [today]: true }));
@@ -688,7 +605,7 @@ function Nutrition() {
           const requiredMeals = ["breakfast", "lunch", "dinner"];
           const allMealsDone = requiredMeals.every((mealType) => Boolean(dateEntry.meals?.[mealType]));
 
-          const water = parseInt(String(getFromStorage(StorageKeys.WATER_INTAKE, 0) || 0), 10) || 0;
+          const water = parseFloat(String(getFromStorage(StorageKeys.WATER_INTAKE, 0) || 0)) || 0;
           const sleep = parseFloat(String(getFromStorage(StorageKeys.SLEEP_HOURS, 0) || 0)) || 0;
           const restDay = isTodayRestDay();
           const workoutDone = getFromStorage(StorageKeys.TODAY_WORKOUT_DONE) === "true";
@@ -733,7 +650,7 @@ function Nutrition() {
     setSelectedSwap(null);
     setSwapLoading(true);
     try {
-      const res = await getNutritionSwapOptions({
+      const res = await axios.post(`${PYTHON_API_URL}/nutrition/swap`, {
         food_name: food.name,
         meal_type: mealType,
         age: userProfile?.age, weight: userProfile?.weight,
@@ -810,31 +727,58 @@ function Nutrition() {
   const today = getLocalDateStr();
   const selectedDayConsumedTotals = (() => {
     if (!selectedDay?.date) return { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 };
-    const dayEntry = mealHistory.find((e) => e.date === selectedDay.date);
+
+    // Build a local fallback from current tick/lock state so refresh/relogin does not
+    // temporarily show 0 before backend history sync completes.
+    let localCalories = 0;
+    let localProtein = 0;
+    let localCarbs = 0;
+    let localFat = 0;
+
+    (selectedDay.meals || []).forEach((meal) => {
+      const mealType = String(meal?.meal_type || '').toLowerCase();
+      const mealLocked =
+        Boolean(lockedMeals[`${selectedDay.date}-${meal?.name}`])
+        || Boolean(mealType && lockedMeals[`${selectedDay.date}-${mealType}`]);
+
+      if (mealLocked) {
+        localCalories += Number(meal?.totals?.calories) || 0;
+        localProtein += Number(meal?.totals?.protein_g) || 0;
+        localCarbs += Number(meal?.totals?.carbs_g) || 0;
+        localFat += Number(meal?.totals?.fat_g) || 0;
+        return;
+      }
+
+      (meal?.foods || []).forEach((food) => {
+        if (checkedFoods[`${selectedDay.date}-${food.id}`]) {
+          localCalories += Number(food?.calories) || 0;
+          localProtein += Number(food?.protein_g) || 0;
+          localCarbs += Number(food?.carbs_g) || 0;
+          localFat += Number(food?.fat_g) || 0;
+        }
+      });
+    });
+
+    // Removed unused history variables to pass lint
+
     return {
-      calories: Math.round(Number(dayEntry?.total_calories || 0)),
-      protein_g: Math.round(Number(dayEntry?.total_protein || 0) * 10) / 10,
-      carbs_g: Math.round(Number(dayEntry?.total_carbs || 0) * 10) / 10,
-      fat_g: Math.round(Number(dayEntry?.total_fat || 0) * 10) / 10,
+      calories: Math.round(localCalories),
+      protein_g: Math.round(localProtein * 10) / 10,
+      carbs_g: Math.round(localCarbs * 10) / 10,
+      fat_g: Math.round(localFat * 10) / 10,
     };
   })();
 
   if (loading) {
     return (
       <div style={styles.page}>
+        <AuroraBackground />
         <style>{nutritionAnimations}</style>
-                <Navbar
-          navigate={navigate}
-          activePage="nutrition"
-          onLogout={handleLogout}
-          rightContent={
-            <div style={styles.iconButton} className="icon-hover" onClick={() => setShowHistory(true)}>📊</div>
-          }
-        />
+        <Navbar navigate={navigate} setShowHistory={setShowHistory} onLogout={handleLogout} />
         <div style={styles.container}>
           <div style={{ textAlign: "center", padding: "100px 20px" }}>
             <div style={{ fontSize: "48px", marginBottom: "16px", animation: "pulse 1.5s infinite" }}>⏳</div>
-            <div style={{ fontSize: "18px", fontWeight: "700", color: "#fff" }}>Loading Your Nutrition Plan...</div>
+            <div style={{ fontSize: "18px", fontWeight: "700", color: "var(--app-text)" }}>Loading Your Nutrition Plan...</div>
             <div style={{ fontSize: "13px", color: "#71717a", marginTop: "8px" }}>Optimizing meals from dataset</div>
           </div>
         </div>
@@ -855,39 +799,15 @@ function Nutrition() {
   if (!weeklyPlan) {
     return (
       <div style={styles.page}>
+        <AuroraBackground />
         <style>{nutritionAnimations}</style>
-        <Navbar
-          navigate={navigate}
-          activePage="nutrition"
-          onLogout={handleLogout}
-          rightContent={
-            <div style={styles.iconButton} className="icon-hover" onClick={() => setShowHistory(true)}>📊</div>
-          }
-        />
+        <Navbar navigate={navigate} setShowHistory={setShowHistory} onLogout={handleLogout} />
         <div style={styles.container}>
           <div style={{ textAlign: "center", padding: "100px 20px" }}>
-            {backendDown ? (
-              <>
-                <div style={{ fontSize: "64px", marginBottom: "24px" }}>🔌</div>
-                <div style={{ fontSize: "24px", fontWeight: "800", color: "#fff", marginBottom: "12px" }}>Backend Unavailable</div>
-                <div style={{ fontSize: "14px", color: "#f59e0b", marginBottom: "12px", maxWidth: "400px", margin: "0 auto 24px" }}>
-                  The Python backend server is not responding. Make sure it is running on port 8000.
-                </div>
-                <div style={{ fontSize: "12px", color: "#71717a", marginBottom: "24px" }}>
-                  Circuit breaker status: <strong style={{ color: "#ef4444" }}>{pythonBackendCB.state}</strong>
-                </div>
-                <button onClick={handleManualRetry} disabled={loading} style={{ padding: "16px 40px", background: loading ? "#374151" : "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)", color: "#fff", border: "none", borderRadius: "16px", fontSize: "16px", fontWeight: "700", cursor: loading ? "not-allowed" : "pointer", boxShadow: "0 4px 20px rgba(245, 158, 11, 0.4)" }}>
-                  {loading ? "Retrying..." : "🔄 Retry Connection"}
-                </button>
-              </>
-            ) : (
-              <>
-                <div style={{ fontSize: "64px", marginBottom: "24px" }}>🍽️</div>
-                <div style={{ fontSize: "24px", fontWeight: "800", color: "#fff", marginBottom: "12px" }}>No Nutrition Plan</div>
-                <div style={{ fontSize: "14px", color: "#71717a", marginBottom: "32px" }}>Generate a personalized meal plan based on your profile</div>
-                <button onClick={fetchNutritionPlan} disabled={loading} style={{ padding: "16px 40px", background: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)", color: "#fff", border: "none", borderRadius: "16px", fontSize: "16px", fontWeight: "700", cursor: "pointer", boxShadow: "0 4px 20px rgba(99, 102, 241, 0.4)" }}>Generate Plan</button>
-              </>
-            )}
+            <div style={{ fontSize: "64px", marginBottom: "24px" }}>🍽️</div>
+            <div style={{ fontSize: "24px", fontWeight: "800", color: "var(--app-text)", marginBottom: "12px" }}>No Nutrition Plan</div>
+            <div style={{ fontSize: "14px", color: "#71717a", marginBottom: "32px" }}>Generate a personalized meal plan based on your profile</div>
+            <button onClick={fetchNutritionPlan} style={{ padding: "16px 40px", background: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)", color: "var(--app-text)", border: "none", borderRadius: "16px", fontSize: "16px", fontWeight: "700", cursor: "pointer", boxShadow: "0 4px 20px rgba(99, 102, 241, 0.4)" }}>Generate Plan</button>
           </div>
         </div>
         <ConfirmDialog
@@ -906,15 +826,9 @@ function Nutrition() {
 
   return (
     <div style={styles.page}>
+      <AuroraBackground />
       <style>{nutritionAnimations}</style>
-      <Navbar
-        navigate={navigate}
-        activePage="nutrition"
-        onLogout={handleLogout}
-        rightContent={
-          <div style={styles.iconButton} className="icon-hover" onClick={() => setShowHistory(true)}>📊</div>
-        }
-      />
+      <Navbar navigate={navigate} setShowHistory={setShowHistory} onLogout={handleLogout} />
 
       <div style={styles.container}>
         <h1 style={styles.header}>Weekly Nutrition Plan</h1>
@@ -925,7 +839,7 @@ function Nutrition() {
             <div key={day.date} onClick={() => setSelectedDayIndex(index)} className="day-card-hover" style={{ ...styles.dayCard, ...(selectedDayIndex === index ? styles.dayCardSelected : {}), ...(day.is_today ? styles.dayCardToday : {}), opacity: day.is_future && selectedDayIndex !== index ? 0.6 : 1 }}>
               {selectedDayIndex === index && <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "3px", background: "linear-gradient(90deg, #6366f1, #a78bfa)", borderRadius: "20px 20px 0 0" }} />}
               <div style={styles.dayName}>{day.day_name?.slice(0, 3)}</div>
-              <div style={{ fontSize: "22px", fontWeight: "800", color: selectedDayIndex === index ? "#fff" : "#71717a", marginBottom: "8px", fontFamily: "monospace" }}>{parseInt((day.date || '').split('-')[2] || '0', 10)}</div>
+              <div style={{ fontSize: "22px", fontWeight: "800", color: selectedDayIndex === index ? "var(--app-text)" : "#71717a", marginBottom: "8px", fontFamily: "monospace" }}>{new Date(day.date).getDate()}</div>
               {day.is_today && <div style={{ fontSize: "9px", color: "#10b981", fontWeight: "800", marginTop: "6px", textTransform: "uppercase", letterSpacing: "1px" }}>Today</div>}
             </div>
           ))}
@@ -935,10 +849,11 @@ function Nutrition() {
         {selectedDay && (
           <div style={styles.dailySummaryCard}>
             <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: "linear-gradient(90deg, #6366f1, #a78bfa, #6366f1)", opacity: 0.6 }} />
-            <MacroStat value={selectedDay.daily_totals.calories} label="Calories" color="#fff" icon="🔥" />
+            <MacroStat value={selectedDay.daily_totals.calories} label="Calories" color="var(--app-text)" icon="🔥" />
             <MacroStat value={`${selectedDay.daily_totals.protein_g}g`} label="Protein" color="#10b981" icon="💪" />
             <MacroStat value={`${selectedDay.daily_totals.carbs_g}g`} label="Carbs" color="#3b82f6" icon="⚡" />
             <MacroStat value={`${selectedDay.daily_totals.fat_g}g`} label="Fats" color="#f59e0b" icon="🥑" />
+
             <MacroStat
               value={`${selectedDayConsumedTotals.calories} cal`}
               label={selectedDay.date === today ? "Consumed Today" : "Consumed"}
@@ -990,14 +905,14 @@ function Nutrition() {
 
       {/* Swap Modal — backend driven */}
       {swapModal.show && (
-        <div style={styles.swapModal} className="swap-modal" onClick={() => setSwapModal({ show: false, food: null, mealType: null, dayIndex: null })}>
-          <div style={styles.swapModalCard} className="swap-modal-card" onClick={e => e.stopPropagation()}>
+        <div style={styles.swapModal} onClick={() => setSwapModal({ show: false, food: null, mealType: null, dayIndex: null })}>
+          <div style={styles.swapModalCard} onClick={e => e.stopPropagation()}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-              <div style={{ fontSize: "28px", fontWeight: "800", color: "#fff", letterSpacing: "-0.5px" }}>Swap Food</div>
-              <button onClick={() => setSwapModal({ show: false, food: null, mealType: null, dayIndex: null })} style={{ background: "rgba(255,255,255,0.05)", borderRadius: "50%", width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", color: "#a1a1aa", border: "1px solid rgba(255,255,255,0.1)", fontSize: "16px", cursor: "pointer", transition: "all 0.2s ease" }} className="icon-hover">✕</button>
+              <div style={{ fontSize: "28px", fontWeight: "800", color: "var(--app-text)", letterSpacing: "-0.5px" }}>Swap Food</div>
+              <button onClick={() => setSwapModal({ show: false, food: null, mealType: null, dayIndex: null })} style={{ background: "var(--app-border)", borderRadius: "50%", width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--app-text-muted)", border: "1px solid var(--app-border)", fontSize: "16px", cursor: "pointer", transition: "all 0.2s ease" }} className="icon-hover">✕</button>
             </div>
-            <div style={{ fontSize: "15px", color: "#a1a1aa", marginBottom: "24px", lineHeight: "1.5" }}>
-              Looking for alternatives to <strong style={{ color: "#fff" }}>{swapModal.food?.name}</strong>? Choose an option below.
+            <div style={{ fontSize: "15px", color: "var(--app-text-muted)", marginBottom: "24px", lineHeight: "1.5" }}>
+              Looking for alternatives to <strong style={{ color: "var(--app-text)" }}>{swapModal.food?.name}</strong>? Choose an option below.
             </div>
 
             {swapLoading ? (
@@ -1008,26 +923,26 @@ function Nutrition() {
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "24px", overflowY: "auto", flex: 1, paddingRight: "8px" }} className="custom-scroll">
                 {swapOptions.length === 0 ? (
-                  <div style={{ textAlign: "center", padding: "40px", color: "#52525b", fontSize: "15px", background: "rgba(255,255,255,0.02)", borderRadius: "16px" }}>No similar swap options found.</div>
+                  <div style={{ textAlign: "center", padding: "40px", color: "#52525b", fontSize: "15px", background: 'var(--app-surface-hover, rgba(255,255,255,0.02))', borderRadius: "16px" }}>No similar swap options found.</div>
                 ) : (
                   swapOptions.map((option, i) => (
                     <div key={i} onClick={() => setSelectedSwap(option)} style={{
                       display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 20px",
-                      background: selectedSwap?.name === option.name ? "rgba(99, 102, 241, 0.15)" : "rgba(255,255,255,0.03)",
+                      background: selectedSwap?.name === option.name ? "rgba(99, 102, 241, 0.15)" : "var(--quote-bg)",
                       borderRadius: "16px",
-                      border: selectedSwap?.name === option.name ? "2px solid #6366f1" : "1px solid rgba(255,255,255,0.06)",
+                      border: selectedSwap?.name === option.name ? "2px solid #6366f1" : "1px solid var(--app-border)",
                       cursor: "pointer", transition: "all 0.2s ease",
                       boxShadow: selectedSwap?.name === option.name ? "0 4px 15px rgba(99, 102, 241, 0.2)" : "none"
                     }}>
                       <div>
-                        <div style={{ fontSize: "16px", fontWeight: "700", color: selectedSwap?.name === option.name ? "#fff" : "#e4e4e7" }}>{option.name}</div>
+                        <div style={{ fontSize: "16px", fontWeight: "700", color: selectedSwap?.name === option.name ? "var(--app-text)" : "var(--app-text)" }}>{option.name}</div>
                         <div style={{ display: "flex", gap: "12px", marginTop: "8px" }}>
                           <span style={{ fontSize: "12px", color: "#10b981", fontWeight: "600", fontFamily: "monospace" }}>P: {option.protein}g</span>
                           <span style={{ fontSize: "12px", color: "#3b82f6", fontWeight: "600", fontFamily: "monospace" }}>C: {option.carbs}g</span>
                           <span style={{ fontSize: "12px", color: "#f59e0b", fontWeight: "600", fontFamily: "monospace" }}>F: {option.fat}g</span>
                         </div>
                       </div>
-                      <div style={{ fontSize: "16px", fontWeight: "800", color: "#fff", fontFamily: "monospace", background: "rgba(255,255,255,0.05)", padding: "6px 12px", borderRadius: "12px" }}>
+                      <div style={{ fontSize: "16px", fontWeight: "800", color: "var(--app-text)", fontFamily: "monospace", background: "var(--app-border)", padding: "6px 12px", borderRadius: "12px" }}>
                         {option.calories} cal
                       </div>
                     </div>
@@ -1037,8 +952,8 @@ function Nutrition() {
             )}
 
             <div style={{ display: "flex", gap: "12px" }}>
-              <button onClick={() => setSwapModal({ show: false, food: null, mealType: null, dayIndex: null })} style={{ flex: 1, padding: "14px", borderRadius: "14px", background: "#27272a", color: "#fff", border: "1px solid rgba(255,255,255,0.08)", fontWeight: "700", cursor: "pointer", fontSize: "14px" }}>Cancel</button>
-              <button onClick={confirmSwap} disabled={!selectedSwap} style={{ flex: 1, padding: "14px", borderRadius: "14px", background: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)", color: "#fff", border: "none", fontWeight: "700", cursor: "pointer", fontSize: "14px", opacity: selectedSwap ? 1 : 0.4, boxShadow: selectedSwap ? "0 4px 20px rgba(99, 102, 241, 0.4)" : "none" }}>Swap Food</button>
+              <button onClick={() => setSwapModal({ show: false, food: null, mealType: null, dayIndex: null })} style={{ flex: 1, padding: "14px", borderRadius: "14px", background: "var(--app-surface2)", color: "var(--app-text)", border: "1px solid var(--app-border)", fontWeight: "700", cursor: "pointer", fontSize: "14px" }}>Cancel</button>
+              <button onClick={confirmSwap} disabled={!selectedSwap} style={{ flex: 1, padding: "14px", borderRadius: "14px", background: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)", color: "var(--app-text)", border: "none", fontWeight: "700", cursor: "pointer", fontSize: "14px", opacity: selectedSwap ? 1 : 0.4, boxShadow: selectedSwap ? "0 4px 20px rgba(99, 102, 241, 0.4)" : "none" }}>Swap Food</button>
             </div>
           </div>
         </div>
@@ -1067,6 +982,34 @@ function Nutrition() {
  *  CHILD COMPONENTS
  * ═══════════════════════════════════════════ */
 
+function Navbar({ navigate, setShowHistory, onLogout }) {
+  const { theme, toggleTheme } = useTheme();
+  return (
+    <div style={styles.navbar}>
+      <div style={styles.brand}><div style={styles.brandDot}></div>ELEVATE</div>
+      <div style={styles.navCenter}>
+        <div style={styles.navLink} onClick={() => navigate("/dashboard")}>Dashboard</div>
+        <div style={styles.navLink} onClick={() => navigate("/workout")}>Workout</div>
+        <div style={{ ...styles.navLink, ...styles.navLinkActive }}>Nutrition</div>
+        <div style={styles.navLink} onClick={() => navigate("/chatbot")}>ChatBot</div>
+      </div>
+      <div style={styles.navRight}>
+        <div style={styles.iconButton} className="icon-hover" onClick={() => setShowHistory(true)}>📊</div>
+        <button
+          className="theme-toggle-btn"
+          onClick={toggleTheme}
+          title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          aria-label="Toggle theme"
+        >
+          {theme === 'dark' ? '☀️' : '🌙'}
+        </button>
+        <div style={styles.logoutBtn} className="logout-btn" onClick={onLogout}>
+          <span style={styles.logoutText}>Logout</span>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function MacroStat({ value, label, color, icon }) {
   return (
@@ -1102,7 +1045,7 @@ function MealCard({ meal, isLocked, isSequenceLocked, unlockMessage, checkedFood
           top: "15px",
           right: "15px",
           background: "rgba(113, 113, 122, 0.22)",
-          color: "#a1a1aa",
+          color: "var(--app-text-muted)",
           padding: "6px 14px",
           borderRadius: "20px",
           fontSize: "11px",
@@ -1122,7 +1065,7 @@ function MealCard({ meal, isLocked, isSequenceLocked, unlockMessage, checkedFood
             </div>
             <div style={{ fontSize: "13px", color: isLocked ? "#22c55e" : "#6366f1", fontWeight: "700", textTransform: "uppercase", marginTop: "4px", letterSpacing: "1px" }}>{meal.meal_type}</div>
             {isSequenceLocked && unlockMessage && (
-              <div style={{ fontSize: "12px", color: "#a1a1aa", marginTop: "6px" }}>{unlockMessage}</div>
+              <div style={{ fontSize: "12px", color: "var(--app-text-muted)", marginTop: "6px" }}>{unlockMessage}</div>
             )}
           </div>
         </div>
@@ -1130,14 +1073,14 @@ function MealCard({ meal, isLocked, isSequenceLocked, unlockMessage, checkedFood
           <div style={{ fontSize: "13px", fontWeight: "700", fontFamily: "monospace", color: isLocked ? "#22c55e" : checkedCount > 0 ? "#818cf8" : "#52525b" }}>
             {isLocked ? "✓ All" : `${checkedCount}/${totalCount}`}
           </div>
-          <div style={{ width: "60px", height: "4px", background: "#27272a", borderRadius: "4px", overflow: "hidden" }}>
+          <div style={{ width: "60px", height: "4px", background: "var(--app-surface2)", borderRadius: "4px", overflow: "hidden" }}>
             <div style={{ width: `${totalCount > 0 ? (checkedCount / totalCount) * 100 : 0}%`, height: "100%", background: isLocked ? "#22c55e" : "#6366f1", borderRadius: "4px", transition: "width 0.3s ease" }} />
           </div>
         </div>
       </div>
 
-      <div style={styles.foodTableHeader} className="food-table-header">
-        <div></div><div>Food</div><div style={{ textAlign: "center" }}>Cal</div>
+      <div style={styles.foodTableHeader}>
+        <div></div><div>Food</div><div style={{ textAlign: "center", color: "#a78bfa" }}>Portion</div><div style={{ textAlign: "center" }}>Cal</div>
         <div style={{ textAlign: "center" }}>Pro</div><div style={{ textAlign: "center" }}>Carb</div>
         <div style={{ textAlign: "center" }}>Fat</div><div></div>
       </div>
@@ -1148,51 +1091,54 @@ function MealCard({ meal, isLocked, isSequenceLocked, unlockMessage, checkedFood
           const isChecked = !!checkedFoods[checkKey] || isLocked;
           const itemTickTime = tickTimes[checkKey];
           return (
-            <div key={food.id} className="food-row-hover food-item-row" style={{
+            <div key={food.id} className="food-row-hover" style={{
               ...styles.foodItemRow,
               opacity: isChecked ? (isLocked ? 0.5 : 0.7) : 1,
               background: isChecked ? "rgba(34, 197, 94, 0.04)" : "rgba(255,255,255,0.02)",
               ...(isSequenceLocked ? { pointerEvents: "none", opacity: 0.5 } : {}),
             }}>
-              <div className="food-item-top">
-                <div onClick={() => !isDisabled && onCheckFood(food.id, meal.name, meal.meal_type, dayIndex)} style={{
-                  ...styles.checkbox, ...(isChecked ? styles.checkboxChecked : {}), flexShrink: 0,
-                  ...(isDisabled && !isChecked ? { opacity: 0.3, cursor: "not-allowed" } : {}),
+              <div onClick={() => !isDisabled && onCheckFood(food.id, meal.name, meal.meal_type, dayIndex)} style={{
+                ...styles.checkbox, ...(isChecked ? styles.checkboxChecked : {}),
+                ...(isDisabled && !isChecked ? { opacity: 0.3, cursor: "not-allowed" } : {}),
+              }}>
+                {isChecked && "✓"}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <span style={{ fontWeight: "600", color: isChecked ? "var(--app-text-muted)" : "var(--app-text)", textDecoration: isChecked ? "line-through" : "none" }}>{food.name}</span>
+                {isChecked && itemTickTime && <span style={{ fontSize: "10px", color: "#22c55e", fontFamily: "monospace", marginTop: "2px" }}>✓ {itemTickTime}</span>}
+              </div>
+              <div style={{ textAlign: "center" }}>
+                <span style={{
+                  fontSize: "12px", fontWeight: "700", color: "#a78bfa",
+                  background: "rgba(167,139,250,0.10)", borderRadius: "8px",
+                  padding: "3px 7px", fontFamily: "monospace",
+                  whiteSpace: "nowrap",
                 }}>
-                  {isChecked && "✓"}
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
-                  <span style={{ fontWeight: "600", color: isChecked ? "#3f3f46" : "#e4e4e7", textDecoration: isChecked ? "line-through" : "none", lineHeight: 1.3 }}>{food.name}</span>
-                  {isChecked && itemTickTime && <span style={{ fontSize: "10px", color: "#22c55e", fontFamily: "monospace", marginTop: "4px" }}>✓ {itemTickTime}</span>}
-                </div>
-                <button className="swap-btn-hover" onClick={() => !isDisabled && onSwapFood(food, meal.meal_type, dayIndex)} disabled={isDisabled} style={{ ...styles.swapBtn, flexShrink: 0, ...(isDisabled ? { opacity: 0.3, cursor: "not-allowed" } : {}) }}>🔄</button>
+                  {(() => {
+                    const cal = food.calories || 0;
+                    const name = (food.name || '').toLowerCase();
+                    const isLiquid = /juice|milk|smoothie|drink|shake|tea|coffee|water|lassi|soup|broth/.test(name);
+                    if (isLiquid) {
+                      const ml = Math.round((cal / 60) * 200 / 50) * 50;
+                      return `~${Math.max(100, Math.min(500, ml))}ml`;
+                    }
+                    const g = Math.round((cal / 250) * 200 / 25) * 25;
+                    return `~${Math.max(50, Math.min(400, g))}g`;
+                  })()}
+                </span>
               </div>
-
-              <div className="food-item-macros">
-                <div className="food-macro-block">
-                  <span className="food-macro-label">Cal</span>
-                  <div style={{ textAlign: "center", color: "#e4e4e7", fontWeight: "600", fontFamily: "monospace", fontSize: "13px" }}>{food.calories}</div>
-                </div>
-                <div className="food-macro-block">
-                  <span className="food-macro-label">Pro</span>
-                  <div style={{ textAlign: "center", color: "#10b981", fontFamily: "monospace", fontSize: "13px" }}>{food.protein_g}g</div>
-                </div>
-                <div className="food-macro-block">
-                  <span className="food-macro-label">Carb</span>
-                  <div style={{ textAlign: "center", color: "#3b82f6", fontFamily: "monospace", fontSize: "13px" }}>{food.carbs_g}g</div>
-                </div>
-                <div className="food-macro-block">
-                  <span className="food-macro-label">Fat</span>
-                  <div style={{ textAlign: "center", color: "#f59e0b", fontFamily: "monospace", fontSize: "13px" }}>{food.fat_g}g</div>
-                </div>
-              </div>
+              <div style={{ textAlign: "center", color: "var(--app-text)", fontWeight: "600", fontFamily: "monospace", fontSize: "13px" }}>{food.calories}</div>
+              <div style={{ textAlign: "center", color: "#10b981", fontFamily: "monospace", fontSize: "13px" }}>{food.protein_g}g</div>
+              <div style={{ textAlign: "center", color: "#3b82f6", fontFamily: "monospace", fontSize: "13px" }}>{food.carbs_g}g</div>
+              <div style={{ textAlign: "center", color: "#f59e0b", fontFamily: "monospace", fontSize: "13px" }}>{food.fat_g}g</div>
+              <button className="swap-btn-hover" onClick={() => !isDisabled && onSwapFood(food, meal.meal_type, dayIndex)} disabled={isDisabled} style={{ ...styles.swapBtn, ...(isDisabled ? { opacity: 0.3, cursor: "not-allowed" } : {}) }}>🔄</button>
             </div>
           );
         })}
       </div>
 
-      <div style={styles.mealMacroTotal} className="meal-macro-total">
-        <div style={{ fontSize: "13px", fontWeight: "800", color: "#fff", fontFamily: "monospace" }}>{meal.totals.calories} cal</div>
+      <div style={styles.mealMacroTotal}>
+        <div style={{ fontSize: "13px", fontWeight: "800", color: "var(--app-text)", fontFamily: "monospace" }}>{meal.totals.calories} cal</div>
         <div style={{ fontSize: "13px", fontWeight: "700", color: "#10b981", fontFamily: "monospace" }}>{meal.totals.protein_g}g pro</div>
         <div style={{ fontSize: "13px", fontWeight: "700", color: "#3b82f6", fontFamily: "monospace" }}>{meal.totals.carbs_g}g carb</div>
         <div style={{ fontSize: "13px", fontWeight: "700", color: "#f59e0b", fontFamily: "monospace" }}>{meal.totals.fat_g}g fat</div>
@@ -1209,10 +1155,10 @@ function HistoryPanel({ mealHistory, expandedDates, setExpandedDates, expandedMe
     <div style={styles.historyPanel}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
         <div>
-          <div style={{ fontSize: "20px", fontWeight: "800", color: "#fff" }}>Meal History</div>
+          <div style={{ fontSize: "20px", fontWeight: "800", color: "var(--app-text)" }}>Meal History</div>
           <div style={{ fontSize: "12px", color: "#71717a", marginTop: "4px" }}>{mealHistory.length} day{mealHistory.length !== 1 ? "s" : ""} tracked</div>
         </div>
-        <button onClick={onClose} style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", fontSize: "16px", cursor: "pointer", width: "36px", height: "36px", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
+        <button onClick={onClose} style={{ background: "var(--app-border)", border: "1px solid var(--app-border)", color: "var(--app-text)", fontSize: "16px", cursor: "pointer", width: "36px", height: "36px", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
       </div>
 
       {mealHistory.length === 0 ? (
@@ -1233,18 +1179,18 @@ function HistoryPanel({ mealHistory, expandedDates, setExpandedDates, expandedMe
           return (
             <div key={dayEntry.date} style={{ marginBottom: "12px", borderRadius: "16px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)" }}>
               <div onClick={() => setExpandedDates(prev => ({ ...prev, [dayEntry.date]: !prev[dayEntry.date] }))} style={{
-                background: isToday ? "linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.15) 100%)" : "rgba(255,255,255,0.03)",
+                background: isToday ? "linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.15) 100%)" : "var(--quote-bg)",
                 padding: "16px 20px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center",
                 borderBottom: isExpanded ? "1px solid rgba(255,255,255,0.06)" : "none",
               }}>
                 <div>
                   <div style={{ fontSize: "11px", fontWeight: "800", color: isToday ? "#818cf8" : "#71717a", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "4px" }}>{isToday ? "⭐ Today" : dayName}</div>
-                  <div style={{ fontSize: "15px", fontWeight: "700", color: "#fff" }}>{dateText}</div>
+                  <div style={{ fontSize: "15px", fontWeight: "700", color: "var(--app-text)" }}>{dateText}</div>
                   <div style={{ fontSize: "11px", color: "#52525b", marginTop: "4px" }}>{mealCount} meal{mealCount !== 1 ? "s" : ""} completed</div>
                 </div>
                 <div style={{ textAlign: "right", display: "flex", alignItems: "center", gap: "16px" }}>
                   <div>
-                    <div style={{ fontSize: "20px", fontWeight: "800", color: "#fff", fontFamily: "monospace" }}>{dayEntry.total_calories}</div>
+                    <div style={{ fontSize: "20px", fontWeight: "800", color: "var(--app-text)", fontFamily: "monospace" }}>{dayEntry.total_calories}</div>
                     <div style={{ fontSize: "10px", color: "#71717a", textTransform: "uppercase", letterSpacing: "1px" }}>calories</div>
                   </div>
                   <div style={{ fontSize: "14px", color: "#52525b", transition: "transform 0.3s", transform: isExpanded ? "rotate(0deg)" : "rotate(-90deg)" }}>▼</div>
@@ -1268,7 +1214,7 @@ function HistoryPanel({ mealHistory, expandedDates, setExpandedDates, expandedMe
                               {mealTypeIcons[mealType] || "🍽️"}
                             </div>
                             <div>
-                              <div style={{ fontSize: "13px", fontWeight: "700", color: "#e4e4e7", textTransform: "capitalize" }}>{mealType}</div>
+                              <div style={{ fontSize: "13px", fontWeight: "700", color: "var(--app-text)", textTransform: "capitalize" }}>{mealType}</div>
                             </div>
                           </div>
                           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
@@ -1278,14 +1224,14 @@ function HistoryPanel({ mealHistory, expandedDates, setExpandedDates, expandedMe
                         </div>
                         {isMealExpanded && (
                           <div style={{ padding: "0 20px 14px 68px" }}>
-                            <div style={{ display: "flex", gap: "16px", marginBottom: "10px", padding: "8px 12px", background: "rgba(255,255,255,0.02)", borderRadius: "10px" }}>
+                            <div style={{ display: "flex", gap: "16px", marginBottom: "10px", padding: "8px 12px", background: 'var(--app-surface-hover, rgba(255,255,255,0.02))', borderRadius: "10px" }}>
                               <span style={{ fontSize: "11px", color: "#10b981", fontWeight: "700", fontFamily: "monospace" }}>P: {meal.protein}g</span>
                               <span style={{ fontSize: "11px", color: "#3b82f6", fontWeight: "700", fontFamily: "monospace" }}>C: {meal.carbs}g</span>
                               <span style={{ fontSize: "11px", color: "#f59e0b", fontWeight: "700", fontFamily: "monospace" }}>F: {meal.fat}g</span>
                             </div>
                             {(meal.foods || []).map((food, fIdx) => (
                               <div key={fIdx} style={{ display: "flex", alignItems: "center", padding: "8px 0", borderBottom: fIdx < (meal.foods || []).length - 1 ? "1px solid rgba(255,255,255,0.03)" : "none" }}>
-                                <div style={{ width: "20px", height: "20px", borderRadius: "6px", background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)", display: "flex", alignItems: "center", justifyContent: "center", marginRight: "10px", fontSize: "10px", color: "#fff", flexShrink: 0 }}>✓</div>
+                                <div style={{ width: "20px", height: "20px", borderRadius: "6px", background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)", display: "flex", alignItems: "center", justifyContent: "center", marginRight: "10px", fontSize: "10px", color: "var(--app-text)", flexShrink: 0 }}>✓</div>
                                 <div style={{ flex: 1 }}>
                                   <div style={{ fontSize: "13px", fontWeight: "600", color: "#d4d4d8" }}>{food.name}</div>
                                   <div style={{ fontSize: "11px", color: "#52525b" }}>{food.calories} cal</div>

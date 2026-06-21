@@ -1,28 +1,7 @@
-# PERF-5 fix: cv2 (OpenCV) is lazy-imported inside a try/except so that
-# importing pose_tracker.py at module level does not force full OpenCV / GPU
-# initialisation when pose tracking is not actually in use.
+import cv2
 import numpy as np
 import pandas as pd
 from datetime import datetime
-from datetime import timezone
-
-cv2 = None  # will be set on first real use
-
-
-def _utcnow() -> datetime:
-    return datetime.now(timezone.utc)
-
-def _ensure_cv2():
-    """Lazy-load cv2 on first access. Returns True if available."""
-    global cv2
-    if cv2 is not None:
-        return True
-    try:
-        import cv2 as _cv2
-        cv2 = _cv2
-        return True
-    except ImportError:
-        return False
 
 # --- Import MediaPipe safely ---
 try:
@@ -33,6 +12,10 @@ try:
     AI_AVAILABLE = True
 except ImportError:
     AI_AVAILABLE = False
+
+
+def _ensure_cv2() -> bool:
+    return hasattr(cv2, "cvtColor") and hasattr(cv2, "putText")
 
 class PoseTracker:
     def __init__(self):
@@ -56,210 +39,137 @@ class PoseTracker:
         self.total_workouts_completed = 0  # Track total workouts completed
         self.total_workouts_skipped = 0  # Track total workouts skipped
         self.form_accuracy_scores = []  # Track form accuracy scores
+        self.confidence_history = []  # Track recent frame confidence values
+        self.frame_count = 0  # Track how many frames have been processed
         self.current_experience_level = "Beginner"  # Track current experience level
         self.upgrade_suggested = False  # Track if upgrade has been suggested
         self.upgrade_readiness_score = 0  # Track readiness score for upgrade
+        self.detector = None
+        self.detector_config = {}
+        self.detector_state = {"counter": 0, "stage": None, "min_angle": 180.0}
 
-        self.detector_state = {
-            "counter": 0,
-            "stage": None,
-            "min_angle": 180.0,
-            "max_angle": 0.0,
-            "hold_start_time": 0.0
-        }
-        self.confidence_history = []
-        self.detector_cache = {}
-        self.frame_count = 0
+        self._configure_detector(self.current_exercise)
 
         if AI_AVAILABLE:
             self.pose = mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5)
         else:
             self.pose = None
 
+    def _configure_detector(self, exercise_name):
+        try:
+            from app.detectors import DetectorFactory
+
+            self.detector = DetectorFactory.get_detector(exercise_name)
+            self.detector_config = DetectorFactory.get_exercise_config(exercise_name)
+        except Exception:
+            self.detector = None
+            self.detector_config = {}
+        self.detector_state = {"counter": 0, "stage": None, "min_angle": 180.0}
+
     def process_frame(self, frame):
-        if not _ensure_cv2():
-            return frame, None
-            
         # Handle case where AI is not available
         if not AI_AVAILABLE or self.pose is None:
             # Return original frame with error message if AI is not available
             cv2.putText(frame, 'AI Not Available', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
             return frame, None
 
-        # Check trackability
-        from app.detectors import DetectorFactory
-        mapping = DetectorFactory.get_mapping()
-        exercise_cfg = mapping.get(self.current_exercise, {})
-        trackable = exercise_cfg.get("trackable", True)
-
-        height, width = frame.shape[:2]
-        gif_width = width // 3
-        new_width = width + gif_width
-        combined_frame = np.zeros((height, new_width, 3), dtype=np.uint8)
-        combined_frame[:, gif_width:new_width] = frame
-        cv2.rectangle(combined_frame, (gif_width, 0), (gif_width, height), (200, 200, 200), 2)
-
-        exercise_title = self.current_exercise.replace('_', ' ').title()
-        cv2.putText(combined_frame, f"Current Exercise: {exercise_title}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
-
-        if not trackable:
-            cv2.putText(combined_frame, "Not Trackable", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 1)
-            cv2.putText(combined_frame, "This exercise cannot be reliably tracked using MediaPipe landmarks.", (gif_width + 20, height // 2), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
-            self.status = "not_trackable"
-            self.feedback = "This exercise cannot be reliably tracked using MediaPipe landmarks."
-            self.feedback_list = [self.feedback]
-            return combined_frame, None
-
-        instruction_text = "Perform the exercise"
-        cv2.putText(combined_frame, instruction_text, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (200, 200, 200), 1)
-
         try:
-            image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            results = self.pose.process(image_rgb)
-
-            if not results.pose_landmarks:
-                self.handle_no_pose_landmarks(combined_frame, gif_width)
-                return combined_frame, results
+            image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            image.flags.writeable = False
+            results = self.pose.process(image)
+            image.flags.writeable = True
+            image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         except Exception as e:
             print(f"Error processing frame: {e}")
-            cv2.putText(combined_frame, 'Camera Error - Check Permissions', (gif_width + 50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-            return combined_frame, None
+            # Return original frame with error indication
+            cv2.putText(frame, 'Pose Detection Error', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+            return frame, None
 
-        if results.pose_landmarks:
+        try:
             landmarks = results.pose_landmarks.landmark
-            detector = self.get_cached_detector(self.current_exercise)
-            
-            # Confidence Scoring
-            self.current_confidence = detector.get_confidence(landmarks)
-            
-            self.confidence_history.append(self.current_confidence)
-            self.confidence_history = self.confidence_history[-10:]
-            smoothed_confidence = sum(self.confidence_history) / len(self.confidence_history)
-            
-            # Check form and count reps only if confidence is high enough (e.g. > 0.3)
-            if smoothed_confidence >= 0.3:
-                # Form checking
-                self.feedback_list = detector.check_form(landmarks)
-                self.feedback = self.feedback_list[0] if self.feedback_list else "Good Form!"
-                self.current_form_score = detector.calculate_form_score(landmarks)
-                
-                self.frame_count = getattr(self, 'frame_count', 0) + 1
-                if self.frame_count % 30 == 0:
-                    self.add_form_accuracy_score(self.current_form_score)
-                
-                # Check color based on form score
-                form_correct = self.current_form_score > 70
-                if form_correct:
-                    landmark_color = (0, 255, 0)
-                    connection_color = (0, 255, 0)
-                else:
-                    landmark_color = (0, 0, 255)
-                    connection_color = (0, 0, 255)
-                    
-                self.draw_styled_landmarks(combined_frame[:, gif_width:new_width], results.pose_landmarks, landmark_color, connection_color)
-                
-                # Rep counting
-                if not self.exercise_completed:
-                    self.counter, self.stage = detector.count_reps(landmarks, self.detector_state)
-            else:
-                self.draw_styled_landmarks(combined_frame[:, gif_width:new_width], results.pose_landmarks, (128, 128, 128), (128, 128, 128))
-                self.feedback = "Low visibility - adjust camera"
-                self.feedback_list = [self.feedback]
-                self.current_form_score = 0
 
-            # UI rendering
-            target_reps = getattr(self, 'target_reps', 10)
-            if self.counter >= target_reps:
-                overlay = combined_frame[:, gif_width:new_width].copy()
-                cv2.rectangle(overlay, (0, 0), (combined_frame.shape[1] - gif_width, combined_frame.shape[0]), (0, 100, 0), -1)
-                cv2.addWeighted(overlay, 0.4, combined_frame[:, gif_width:new_width], 0.6, 0, combined_frame[:, gif_width:new_width])
+            # --- 1. BICEP CURL (Arms) ---
+            if self.current_exercise == "bicep_curl":
+                shoulder = [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x, landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
+                elbow = [landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].x, landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].y]
+                wrist = [landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].x, landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].y]
 
-                center_x = (combined_frame.shape[1] - gif_width) // 2
-                center_y = combined_frame.shape[0] // 2
+                angle = self.calculate_angle(shoulder, elbow, wrist)
 
-                tick_points = np.array([
-                    [center_x - 50, center_y],
-                    [center_x - 20, center_y + 30],
-                    [center_x + 30, center_y - 30]
-                ], np.int32)
+                if angle > 160:
+                    self.stage = "down"
+                    self.feedback = "Up!"
+                if angle < 30 and self.stage == 'down':
+                    self.stage = "up"
+                    self.counter += 1
+                    self.feedback = "Good!"
 
-                cv2.polylines(combined_frame, [tick_points], False, (0, 255, 0), 8)
-                cv2.putText(combined_frame, "EXERCISE COMPLETED!", (center_x - 150, center_y - 80), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), 3)
-                cv2.putText(combined_frame, f"{self.counter}/{target_reps} Reps", (center_x - 80, center_y + 100), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2)
+            # --- 2. SQUAT (Legs) ---
+            elif self.current_exercise == "squat":
+                hip = [landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].x, landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].y]
+                knee = [landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].x, landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].y]
+                ankle = [landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].x, landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].y]
 
+                angle = self.calculate_angle(hip, knee, ankle)
+
+                if angle > 170:
+                    self.stage = "up"
+                    self.feedback = "Sit Back!"
+                if angle < 90 and self.stage == 'up':
+                    self.stage = "down"
+                    self.counter += 1
+                    self.feedback = "Rise!"
+
+            # --- 3. PUSH-UP (Chest) ---
+            elif self.current_exercise == "pushup":
+                # Calculate Elbow Angle
+                shoulder = [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x, landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
+                elbow = [landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].x, landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].y]
+                wrist = [landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].x, landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].y]
+
+                angle = self.calculate_angle(shoulder, elbow, wrist)
+
+                # Push-up Logic (Check if body is horizontal roughly)
+                if angle > 160:
+                    self.stage = "up"
+                    self.feedback = "Go Down!"
+                if angle < 90 and self.stage == 'up':
+                    self.stage = "down"
+                    self.counter += 1
+                    self.feedback = "Push Up!"
+
+            # --- CHECK COMPLETION ---
+            if self.counter >= self.target_reps:
                 self.exercise_completed = True
-                self.draw_styled_landmarks(combined_frame[:, gif_width:new_width], results.pose_landmarks, (200, 200, 200), (200, 200, 200))
-            else:
-                cv2.rectangle(combined_frame[:, gif_width:new_width], (0, 0), (300, 85), (245, 117, 16), -1)
-                cv2.putText(combined_frame[:, gif_width:new_width], self.current_exercise.upper(), (15, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv2.LINE_AA)
-                cv2.putText(combined_frame[:, gif_width:new_width], str(self.counter), (10, 75), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 2, cv2.LINE_AA)
-                if self.stage:
-                    cv2.putText(combined_frame[:, gif_width:new_width], self.stage, (100, 75), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255, 255, 255), 2, cv2.LINE_AA)
+                self.feedback = " SET COMPLETE!"
 
-        return combined_frame, results
+        except Exception as e:
+            pass
+
+        # ... (Drawing code remains the same)
+        mp_drawing = mp.solutions.drawing_utils # type: ignore
+
+        # Draw Scoreboard
+        cv2.rectangle(image, (0,0), (225,73), (245,117,16), -1)
+        cv2.putText(image, 'REPS', (15,12), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,0), 1, cv2.LINE_AA)
+        cv2.putText(image, str(self.counter), (10,60), cv2.FONT_HERSHEY_SIMPLEX, 2, (255,255,255), 2, cv2.LINE_AA)
+        cv2.putText(image, self.stage if self.stage else "-", (60,60), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 1, cv2.LINE_AA)
+
+        return image, self.counter
 
     def set_exercise(self, exercise_name):
         """Switch the tracking logic based on user selection"""
         # Reset the exercise state before setting a new exercise
         self.reset_exercise_state()
+
         self.current_exercise = exercise_name
+        self._configure_detector(exercise_name)
+        # Set target reps based on exercise type (could be customized per exercise)
         self.target_reps = 10  # Default to 10 reps
-        
-        # Instantiate detector and reset state dictionary
-        self.detector = self.get_cached_detector(exercise_name)
-        self.detector_state = {
-            "counter": 0,
-            "stage": None,
-            "min_angle": 180.0,
-            "max_angle": 0.0,
-            "hold_start_time": 0.0
-        }
         print(f"Switched to: {self.current_exercise}")
-
-    def reset_exercise_state(self):
-        """Reset the exercise state to allow a new exercise"""
-        self.counter = 0
-        self.stage = None
-        self.exercise_completed = False
-        self.exercise_skipped = False
-        self.feedback = ""
-        self.feedback_list = []
-        self.current_confidence = 1.0
-        self.current_form_score = 100
-        self.detector_state = {
-            "counter": 0,
-            "stage": None,
-            "min_angle": 180.0,
-            "max_angle": 0.0,
-            "hold_start_time": 0.0
-        }
-        if hasattr(self, 'skipped_exercise'):
-            delattr(self, 'skipped_exercise')
-
-    def get_exercise_stats(self):
-        """Retrieve current exercise tracking metrics for API compatibility"""
-        from app.detectors import DetectorFactory
-        exercise_cfg = DetectorFactory.get_exercise_config(self.current_exercise)
-        trackable = exercise_cfg.get("trackable", True)
-
-        if not trackable:
-            return {
-                "status": "not_trackable",
-                "message": "This exercise cannot be reliably tracked using MediaPipe landmarks."
-            }
-
-        return {
-            "counter": self.counter,
-            "stage": self.stage,
-            "exercise_completed": self.exercise_completed,
-            "feedback": getattr(self, 'feedback_list', []),
-            "confidence": round(getattr(self, 'current_confidence', 1.0), 2),
-            "form_score": int(getattr(self, 'current_form_score', 100))
-        }
 
     def calculate_angle(self, a, b, c):
         """Calculate angle between three points"""
-        import numpy as np
         a = np.array(a)
         b = np.array(b)
         c = np.array(c)
@@ -267,6 +177,405 @@ class PoseTracker:
         angle = np.abs(radians*180.0/np.pi)
         if angle > 180.0: angle = 360-angle
         return angle
+
+    def get_confidence(self, landmarks):
+        """Return an average visibility score for the current landmarks."""
+        if not landmarks:
+            return 0.0
+
+        visibilities = []
+        for landmark in landmarks:
+            visibility = getattr(landmark, "visibility", None)
+            if visibility is not None:
+                visibilities.append(float(visibility))
+
+        if not visibilities:
+            return 0.0
+        return float(sum(visibilities) / len(visibilities))
+
+    def check_form_correctness(self, pose_landmarks):
+        """Check if the current pose matches the expected form for the exercise"""
+        if not pose_landmarks or not AI_AVAILABLE:
+            return False
+
+        try:
+            landmarks = pose_landmarks.landmark
+
+            # Define exercise-specific form checks
+            if self.current_exercise == "bicep_curl":
+                # For bicep curl, check if shoulders are stable and not swinging
+                l_shoulder = [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x, landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
+                r_shoulder = [landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value].x, landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value].y]
+
+                # Check if shoulders are relatively stable (not moving excessively)
+                shoulder_distance = abs(l_shoulder[1] - r_shoulder[1])  # Vertical distance
+                if shoulder_distance > 0.1:  # If shoulders are moving too much
+                    return False
+
+                # Check if the elbow is moving in the correct plane
+                l_elbow = [landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].x, landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].y]
+                l_wrist = [landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].x, landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].y]
+
+                # Check if the movement is primarily in the sagittal plane (front-back)
+                # For bicep curls, the wrist should stay relatively in line with the shoulder
+                horizontal_deviation = abs(l_wrist[0] - l_shoulder[0])
+                if horizontal_deviation > 0.2:  # If wrist moves too far horizontally
+                    return False
+
+                return True  # Form looks correct for bicep curl
+
+            elif self.current_exercise == "squat":
+                # For squat, check if knees track over toes and back stays straight
+                l_hip = [landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].x, landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].y]
+                l_knee = [landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].x, landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].y]
+                l_ankle = [landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].x, landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].y]
+
+                # Check if knee tracks over ankle (not collapsing inward)
+                knee_ankle_alignment = abs(l_knee[0] - l_ankle[0])
+                if knee_ankle_alignment > 0.1:  # If knee collapses inward too much
+                    return False
+
+                # Check if hips and shoulders stay aligned
+                l_shoulder = [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x, landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
+                hip_shoulder_alignment = abs(l_hip[1] - l_shoulder[1])
+                if hip_shoulder_alignment > 0.15:  # If torso leans too far forward/back
+                    return False
+
+                return True  # Form looks correct for squat
+
+            elif self.current_exercise == "pushup":
+                # For pushup, check if body stays in straight line
+                l_shoulder = [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x, landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
+                l_hip = [landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].x, landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].y]
+                l_ankle = [landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].x, landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].y]
+
+                # Check if body is in straight line (shoulder-hip-ankle alignment)
+                body_alignment = abs((l_shoulder[1] - l_hip[1]) - (l_hip[1] - l_ankle[1]))
+                if body_alignment > 0.15:  # If body sags or arches too much
+                    return False
+
+                return True  # Form looks correct for pushup
+
+            elif self.current_exercise == "shoulder_press":
+                # For shoulder press, check if core stays engaged and movement is vertical
+                l_hip = [landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].x, landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].y]
+                l_shoulder = [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x, landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
+
+                # Check if torso remains relatively vertical (not leaning back excessively)
+                torso_angle = abs(l_hip[1] - l_shoulder[1])
+                if torso_angle > 0.15:  # If torso leans back too much
+                    return False
+
+                return True  # Form looks correct for shoulder press
+
+            elif self.current_exercise == "lunge":
+                # For lunge, check if front knee tracks over toe and back leg is stable
+                l_hip = [landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].x, landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].y]
+                l_knee = [landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].x, landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].y]
+                l_ankle = [landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].x, landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].y]
+
+                # Check if knee tracks over ankle (not collapsing inward)
+                knee_ankle_alignment = abs(l_knee[0] - l_ankle[0])
+                if knee_ankle_alignment > 0.1:  # If knee collapses inward too much
+                    return False
+
+                return True  # Form looks correct for lunge
+
+            # Default to True if exercise not recognized
+            return True
+
+        except Exception as e:
+            print(f"Error checking form correctness: {e}")
+            return False
+
+    def process_frame(self, frame):
+        if not AI_AVAILABLE or self.pose is None:
+            return frame, None
+
+        self.frame_count += 1
+
+        # Create space for exercise GIF on the left side of the frame
+        # Assuming the original frame dimensions
+        height, width = frame.shape[:2]
+
+        # Create a new frame with extra space on the left for the GIF
+        gif_width = width // 3  # Reserve 1/3 of the width for the GIF
+        new_width = width + gif_width
+        combined_frame = np.zeros((height, new_width, 3), dtype=np.uint8)
+
+        # Place the original camera frame on the right side
+        combined_frame[:, gif_width:new_width] = frame
+
+        # Draw a border to separate the GIF area from the camera feed
+        cv2.rectangle(combined_frame, (gif_width, 0), (gif_width, height), (200, 200, 200), 2)
+
+        # Add exercise name in the GIF area
+        exercise_text = f"Current Exercise: {self.current_exercise.replace('_', ' ').title()}"
+        cv2.putText(combined_frame, exercise_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+
+        # Add instruction text in the GIF area
+        instruction_text = "Perform the exercise"
+        cv2.putText(combined_frame, instruction_text, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (200, 200, 200), 1)
+
+        try:
+            image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # Use original frame for pose detection
+            results = self.pose.process(image_rgb)
+
+            # Check if pose detection was successful
+            if not results.pose_landmarks:
+                # Handle case where no pose landmarks were detected
+                self.handle_no_pose_landmarks(combined_frame, gif_width)
+                # Return early since there are no landmarks to process
+                return combined_frame, results
+        except Exception as e:
+            print(f"Error processing frame: {e}")
+            # Show error message on the frame
+            cv2.putText(combined_frame, 'Camera Error - Check Permissions', (gif_width + 50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+            return combined_frame, None
+
+        current_confidence = 0.0
+
+        if results.pose_landmarks:
+            current_confidence = float(self.get_confidence(results.pose_landmarks.landmark))
+
+            # Determine if the form is correct based on the exercise and current stage
+            form_correct = self.check_form_correctness(results.pose_landmarks)
+
+            # Define colors based on form correctness
+            if form_correct:
+                # Green for correct form
+                landmark_color = (0, 255, 0)  # BGR: Green
+                connection_color = (0, 255, 0)  # BGR: Green
+            else:
+                # Red for incorrect form
+                landmark_color = (0, 0, 255)  # BGR: Red
+                connection_color = (0, 0, 255)  # BGR: Red
+
+            # Draw Skeleton with color based on form correctness
+            # We need to draw each connection individually to control colors
+            self.draw_styled_landmarks(combined_frame[:, gif_width:new_width], results.pose_landmarks, landmark_color, connection_color)
+
+            try:
+                landmarks = results.pose_landmarks.landmark
+
+                # --- GET KEY BODY POINTS ---
+                # Left Side
+                l_shoulder = [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x, landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
+                l_elbow    = [landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].x,    landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].y]
+                l_wrist    = [landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].x,    landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].y]
+                l_hip      = [landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].x,      landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].y]
+                l_knee     = [landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].x,     landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].y]
+                l_ankle    = [landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].x,    landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].y]
+
+                # --- EXERCISE LOGIC SWITCHER ---
+
+                # Define exercise-specific thresholds
+                exercise_thresholds = {
+                    "bicep_curl": {
+                        "down_threshold": 160,
+                        "up_threshold": 45,
+                        "rep_trigger": lambda angle, stage: angle < 45 and stage == 'down'
+                    },
+                    "squat": {
+                        "up_threshold": 160,
+                        "down_threshold": 90,
+                        "rep_trigger": lambda angle, stage: angle < 90 and stage == 'up'
+                    },
+                    "pushup": {
+                        "up_threshold": 160,
+                        "down_threshold": 90,
+                        "rep_trigger": lambda angle, stage: angle < 90 and stage == 'up'
+                    },
+                    "shoulder_press": {
+                        "down_threshold": 110,
+                        "up_threshold": 160,
+                        "rep_trigger": lambda angle, stage: angle > 160 and stage == 'down'
+                    },
+                    "lunge": {
+                        "up_threshold": 160,
+                        "down_threshold": 100,
+                        "rep_trigger": lambda angle, stage: angle < 100 and stage == 'up'
+                    }
+                }
+
+                # Only update rep counting if exercise is not completed
+                if not self.exercise_completed:
+                    # 1. BICEP CURL (Arm Angle)
+                    if self.current_exercise == "bicep_curl":
+                        angle = self.calculate_angle(l_shoulder, l_elbow, l_wrist)
+                        thresholds = exercise_thresholds["bicep_curl"]
+
+                        if angle > thresholds["down_threshold"]:
+                            self.stage = "down"
+                        if thresholds["rep_trigger"](angle, self.stage):
+                            self.stage = "up"
+                            self.counter += 1
+
+                    # 2. SQUAT (Knee Angle)
+                    elif self.current_exercise == "squat":
+                        # Angle between Hip, Knee, Ankle
+                        angle = self.calculate_angle(l_hip, l_knee, l_ankle)
+                        thresholds = exercise_thresholds["squat"]
+
+                        if angle > thresholds["up_threshold"]:
+                            self.stage = "up"
+                        if thresholds["rep_trigger"](angle, self.stage):
+                            self.stage = "down"
+                            self.counter += 1
+
+                    # 3. PUSHUP (Elbow Angle + Body Alignment)
+                    elif self.current_exercise == "pushup":
+                        elbow_angle = self.calculate_angle(l_shoulder, l_elbow, l_wrist)
+                        thresholds = exercise_thresholds["pushup"]
+
+                        if elbow_angle > thresholds["up_threshold"]:
+                            self.stage = "up"
+                        if thresholds["rep_trigger"](elbow_angle, self.stage):
+                            self.stage = "down"
+                            self.counter += 1
+
+                    # 4. SHOULDER PRESS (Shoulder-Elbow-Wrist, but vertical)
+                    elif self.current_exercise == "shoulder_press":
+                        angle = self.calculate_angle(l_shoulder, l_elbow, l_wrist)
+                        thresholds = exercise_thresholds["shoulder_press"]
+
+                        if angle < thresholds["down_threshold"]:
+                            self.stage = "down"
+                        if thresholds["rep_trigger"](angle, self.stage):
+                            self.stage = "up"
+                            self.counter += 1
+
+                    # 5. LUNGE (Hip-Knee-Ankle like squat, but different threshold)
+                    elif self.current_exercise == "lunge":
+                        angle = self.calculate_angle(l_hip, l_knee, l_ankle)
+                        thresholds = exercise_thresholds["lunge"]
+
+                        if angle > thresholds["up_threshold"]:
+                            self.stage = "up"
+                        if thresholds["rep_trigger"](angle, self.stage):
+                            self.stage = "down"
+                            self.counter += 1
+
+                # Check if exercise is completed (after all sets)
+                # Assuming target reps are set elsewhere - default to 10 for demo purposes
+                target_reps = getattr(self, 'target_reps', 10)
+
+                if self.counter >= target_reps:
+                    # Exercise completed - show green tick and disable interaction
+                    # Keep the skeleton visible but prevent rep counting
+
+                    # Draw a semi-transparent overlay to indicate completion
+                    overlay = combined_frame[gif_width:new_width].copy()
+                    cv2.rectangle(overlay, (0, 0), (combined_frame.shape[1] - gif_width, combined_frame.shape[0]), (0, 100, 0), -1)
+                    cv2.addWeighted(overlay, 0.4, combined_frame[gif_width:new_width], 0.6, 0, combined_frame[gif_width:new_width])
+
+                    # Draw green tick symbol
+                    center_x = (combined_frame.shape[1] - gif_width) // 2
+                    center_y = combined_frame.shape[0] // 2
+
+                    # Draw a large green tick mark
+                    tick_points = np.array([
+                        [center_x - 50, center_y],
+                        [center_x - 20, center_y + 30],
+                        [center_x + 30, center_y - 30]
+                    ], np.int32)
+
+                    cv2.polylines(combined_frame, [tick_points], False, (0, 255, 0), 8)
+
+                    # Add completion text
+                    cv2.putText(combined_frame, "EXERCISE COMPLETED!", (center_x - 150, center_y - 80),
+                               cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), 3)
+
+                    # Add rep count
+                    cv2.putText(combined_frame, f"{self.counter}/{target_reps} Reps", (center_x - 80, center_y + 100),
+                               cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2)
+
+                    # Mark as completed to prevent further interaction
+                    self.exercise_completed = True
+
+                    # Still draw the skeleton but don't update rep count
+                    # We'll draw the skeleton with a neutral color since the exercise is done
+                    self.draw_styled_landmarks(combined_frame[:, gif_width:new_width], results.pose_landmarks, (200, 200, 200), (200, 200, 200))
+                else:
+                    # Regular UI when exercise is ongoing
+                    # Draw Blue Box for text on the camera feed side
+                    cv2.rectangle(combined_frame[:, gif_width:new_width], (0,0), (300, 85), (245,117,16), -1)
+
+                    # Exercise Name
+                    cv2.putText(combined_frame[:, gif_width:new_width], self.current_exercise.upper(), (15,25),
+                               cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,0), 1, cv2.LINE_AA)
+
+                    # Counter
+                    cv2.putText(combined_frame[:, gif_width:new_width], str(self.counter), (10,75),
+                               cv2.FONT_HERSHEY_SIMPLEX, 2, (255,255,255), 2, cv2.LINE_AA)
+
+                    # Stage
+                    if self.stage:
+                        cv2.putText(combined_frame[:, gif_width:new_width], self.stage, (100,75),
+                                   cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255,255,255), 2, cv2.LINE_AA)
+
+            except Exception as e:
+                pass
+
+        self.confidence_history.append(current_confidence)
+        if len(self.confidence_history) > 120:
+            self.confidence_history = self.confidence_history[-120:]
+        if self.frame_count % 30 == 0:
+            self.add_form_accuracy_score(round(current_confidence * 100, 2))
+
+        return combined_frame, results
+
+    def handle_camera_error(self, frame, error_message):
+        """Handle camera-related errors gracefully"""
+        if frame is not None:
+            # Show error message on the frame
+            cv2.putText(frame, error_message, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+            cv2.putText(frame, 'Please check camera permissions', (50, 80), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 1)
+        return frame
+
+    def handle_pose_detection_failure(self, frame):
+        """Handle pose detection failures gracefully"""
+        if frame is not None:
+            # Show message indicating pose detection is not working
+            cv2.putText(frame, 'Pose Detection Unavailable', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 165, 255), 2)
+            cv2.putText(frame, 'Ensure good lighting and clear view', (50, 80), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 165, 255), 1)
+        return frame
+
+    def handle_no_pose_landmarks(self, combined_frame, gif_width):
+        """Handle case where no pose landmarks are detected"""
+        # Show message in the camera area that pose is not detected
+        cv2.putText(combined_frame, 'No Pose Detected', (gif_width + 50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 165, 255), 2)
+        cv2.putText(combined_frame, 'Ensure full body is visible in camera', (gif_width + 50, 80), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 165, 255), 1)
+        return combined_frame
+
+    def is_exercise_finished(self):
+        """Check if the exercise is completed"""
+        return self.exercise_completed
+
+    def skip_current_exercise(self):
+        """Mark the current exercise as skipped"""
+        self.skipped_exercise = {
+            "exercise_name": self.current_exercise,
+            "skipped_at": datetime.now(),
+            "reps_completed": self.counter,
+            "status": "skipped"
+        }
+        self.exercise_skipped = True
+        return self.skipped_exercise
+
+    def is_exercise_skipped_flag(self):
+        """Check if the current exercise was skipped"""
+        return self.exercise_skipped
+
+    def reset_exercise_state(self):
+        """Reset the exercise state to allow a new exercise"""
+        self.counter = 0
+        self.stage = None
+        self.exercise_completed = False
+        self.exercise_skipped = False
+        self.detector_state = {"counter": 0, "stage": None, "min_angle": 180.0}
+        if hasattr(self, 'skipped_exercise'):
+            delattr(self, 'skipped_exercise')
 
     def start_workout_session(self, workout_plan):
         """Initialize a new workout session with the given plan"""
@@ -929,7 +1238,7 @@ class PoseTracker:
                 "total_activities": len(getattr(self, 'activity_log', [])),
                 "recent_activities": getattr(self, 'activity_log', [])[-5:]  # Last 5 activities
             },
-            "timestamp": _utcnow().isoformat()
+            "timestamp": datetime.datetime.utcnow().isoformat()
         }
 
         return analytics_data
@@ -1135,7 +1444,7 @@ class PoseTracker:
 
         activity_entry = {
             "type": activity_type,
-            "timestamp": _utcnow().isoformat(),
+            "timestamp": datetime.datetime.utcnow().isoformat(),
             "details": details or {},
             "streak_days": self.streak_days,
             "current_level": self.current_experience_level
@@ -1159,7 +1468,7 @@ class PoseTracker:
 
         meal_entry = {
             "type": "meal_logged",
-            "timestamp": _utcnow().isoformat(),
+            "timestamp": datetime.datetime.utcnow().isoformat(),
             "meal_info": meal_info,
             "calories_consumed": calories_consumed,
             "current_level": self.current_experience_level
@@ -1196,6 +1505,50 @@ class PoseTracker:
         if len(self.form_accuracy_scores) >= 20:
             self.form_accuracy_scores.pop(0)
         self.form_accuracy_scores.append(score)
+
+    def get_exercise_stats(self):
+        """Return a compatibility summary used by the refactored tests/UI."""
+        from app.detectors import DetectorFactory
+
+        config = self.detector_config or DetectorFactory.get_exercise_config(self.current_exercise)
+        if config.get("trackable") is False:
+            return {
+                "status": "not_trackable",
+                "message": f"{self.current_exercise} cannot be reliably tracked with pose landmarks.",
+                "counter": self.counter,
+                "stage": self.stage,
+                "exercise_completed": self.exercise_completed,
+                "feedback": getattr(self, "feedback", ""),
+                "confidence": self.confidence_history[-1] if self.confidence_history else 0.0,
+                "form_score": self.calculate_average_form_accuracy(),
+            }
+
+        return {
+            "status": "trackable",
+            "counter": self.counter,
+            "stage": self.stage,
+            "exercise_completed": self.exercise_completed,
+            "feedback": getattr(self, "feedback", ""),
+            "confidence": self.confidence_history[-1] if self.confidence_history else 0.0,
+            "form_score": self.calculate_average_form_accuracy(),
+        }
+
+    def get_tracking_statistics(self):
+        """Return the tracking coverage summary expected by the regression tests."""
+        from app.detectors import DetectorFactory
+
+        mapping = DetectorFactory.get_mapping()
+        total_exercises = len(mapping)
+        trackable_exercises = sum(1 for cfg in mapping.values() if cfg.get("trackable", True) is not False)
+        non_trackable_exercises = max(total_exercises - trackable_exercises, 0)
+        coverage_percentage = round((trackable_exercises / total_exercises) * 100, 2) if total_exercises else 0.0
+
+        return {
+            "total_exercises": total_exercises,
+            "trackable_exercises": trackable_exercises,
+            "non_trackable_exercises": non_trackable_exercises,
+            "coverage_percentage": coverage_percentage,
+        }
 
     def evaluate_upgrade_readiness(self):
         """Evaluate if user is ready to upgrade from Beginner to Intermediate or Intermediate to Advanced"""
@@ -1385,39 +1738,3 @@ class PoseTracker:
             point = (int(landmark.x * image.shape[1]), int(landmark.y * image.shape[0]))
             # Draw landmark point with specified landmark color
             cv2.circle(image, point, 4, landmark_color, -1)
-
-    def get_cached_detector(self, exercise_name):
-        from app.detectors import DetectorFactory
-        if getattr(self, 'detector_cache', None) is None:
-            self.detector_cache = {}
-        if exercise_name not in self.detector_cache:
-            self.detector_cache[exercise_name] = DetectorFactory.get_detector(exercise_name)
-        return self.detector_cache[exercise_name]
-
-    def handle_no_pose_landmarks(self, frame, gif_width):
-        if not _ensure_cv2(): return
-        cv2.putText(
-            frame,
-            "No Person Detected",
-            (gif_width + 50, 50),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            1,
-            (0, 0, 255),
-            2
-        )
-        self.feedback = "No person detected"
-        self.feedback_list = [self.feedback]
-
-    def get_tracking_statistics(self):
-        from app.detectors import DetectorFactory
-        mapping = DetectorFactory.get_mapping()
-        total_count = len(mapping)
-        trackable_count = sum(1 for cfg in mapping.values() if cfg.get("trackable", True))
-        non_trackable_count = total_count - trackable_count
-        coverage = (trackable_count / total_count * 100) if total_count > 0 else 0
-        return {
-            "total_exercises": total_count,
-            "trackable_exercises": trackable_count,
-            "non_trackable_exercises": non_trackable_count,
-            "coverage_percentage": round(coverage, 2)
-        }

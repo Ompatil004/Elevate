@@ -4,7 +4,6 @@ import { useNotification } from '../components/NotificationProvider';
 import { saveProfile, getProfile } from '../api';
 import { updateProfileWithRegeneration, classifyError } from '../services/profileApi';
 import { removeFromStorage, setToStorage, logoutSafe, StorageKeys, getTodayStr, safeJSONParse } from '../utils/storage';
-import { buildSessionUser, persistSessionUser } from '../utils/sessionUtils';
 import ConfirmDialog from '../components/ConfirmDialog';
 import '../App.css';
 
@@ -137,7 +136,8 @@ const MultiSelect = ({ name, options, value, onChange, isOpen, onToggle, isNoneC
         <div style={styles.multiSelectDropdown}>
           {options.map((option, index) => {
             const isChecked = value.includes(option);
-            const isOptionDisabled = isNoneChecked && option !== 'None';
+            const isNoneTypeOption = option === 'None' || option === 'None (Bodyweight Only)';
+            const isOptionDisabled = isNoneChecked && !isNoneTypeOption;
             return (
               <label 
                 key={option} 
@@ -218,9 +218,7 @@ function ProfileSetup() {
       removeFromStorage('workout_plan_cache');
       removeFromStorage('current_workout_plan');
       removeFromStorage('weekly_workout_plan');
-      if (import.meta.env.DEV) {
-        console.log('✅ Workout plan cache cleared successfully');
-      }
+      console.log("✅ Workout plan cache cleared successfully");
     } catch (error) {
       console.error("❌ Error clearing workout plan cache:", error);
     }
@@ -245,9 +243,7 @@ function ProfileSetup() {
       removeFromStorage('nutrition_cache');
       removeFromStorage('mealPlan');
       removeFromStorage('mealPlanProfile');
-      if (import.meta.env.DEV) {
-        console.log('✅ Meal plan cache cleared successfully');
-      }
+      console.log("✅ Meal plan cache cleared successfully");
     } catch (error) {
       console.error("❌ Error clearing meal plan cache:", error);
     }
@@ -307,7 +303,6 @@ function ProfileSetup() {
     const loadData = async () => {
         try {
             const { data } = await getProfile();
-            persistSessionUser(data);
             if(data.name) {
                 const parts = data.name.split(' ');
                 setFirstName(parts[0]);
@@ -338,14 +333,17 @@ function ProfileSetup() {
             // Check if user has Google avatar
             if (data.avatar) {
                 setUserAvatar(data.avatar);
+                localStorage.setItem('userAvatar', data.avatar);
             }
         } catch {
-            if (import.meta.env.DEV) {
-              console.log('No existing profile data found.');
-            }
+            console.log("No existing profile data found.");
         }
     };
     loadData();
+
+    // 3. LOAD AVATAR
+    const storedAvatar = localStorage.getItem('userAvatar');
+    if (storedAvatar) setUserAvatar(storedAvatar);
 
     return () => window.removeEventListener('popstate', handlePopState);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -368,6 +366,7 @@ function ProfileSetup() {
       reader.onloadend = () => {
         const base64String = reader.result;
         setUserAvatar(base64String);
+        localStorage.setItem('userAvatar', base64String);
       };
       reader.readAsDataURL(file);
     }
@@ -377,6 +376,7 @@ function ProfileSetup() {
     e.stopPropagation();
     if (window.confirm("Remove profile picture?")) {
       setUserAvatar(null);
+      localStorage.removeItem('userAvatar');
     }
   };
 
@@ -389,10 +389,14 @@ function ProfileSetup() {
     const value = e.target.value; 
     const checked = e.target.checked;
     let updatedList = [...formData[type]];
-    if (value === 'None') {
-      updatedList = checked ? ['None'] : updatedList.filter(item => item !== 'None');
+    // Treat 'None (Bodyweight Only)' and 'None' as mutually-exclusive "none" options
+    const isNoneValue = value === 'None' || value === 'None (Bodyweight Only)';
+    const noneValues = ['None', 'None (Bodyweight Only)'];
+    if (isNoneValue) {
+      updatedList = checked ? [value] : updatedList.filter(item => !noneValues.includes(item));
     } else {
-      if (updatedList.includes('None')) updatedList = updatedList.filter(item => item !== 'None');
+      // Remove any "none" selection when a real equipment item is checked
+      updatedList = updatedList.filter(item => !noneValues.includes(item));
       updatedList = checked ? [...updatedList, value] : updatedList.filter(item => item !== value);
     }
     setFormData({ ...formData, [type]: updatedList });
@@ -401,20 +405,11 @@ function ProfileSetup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const parsedAge = Number.parseInt(formData.age, 10);
-    const parsedWeight = Number.parseFloat(formData.weight);
-    const parsedHeight = Number.parseFloat(formData.height);
-
-    if (!Number.isFinite(parsedAge) || !Number.isFinite(parsedWeight) || !Number.isFinite(parsedHeight)) {
-      showError('Please enter valid age, weight, and height values before saving.');
-      return;
-    }
-
     // Build profile update payload
     const profileUpdate = {
-      age: parsedAge,
-      weight: parsedWeight,
-      height: parsedHeight,
+      age: parseInt(formData.age) || 25,
+      weight: parseFloat(formData.weight) || 70,
+      height: parseFloat(formData.height) || 170,
       gender: formData.gender || 'Male',
       goal: formData.goal || 'Muscle Gain',
       experience: formData.experience || 'Beginner',
@@ -435,23 +430,32 @@ function ProfileSetup() {
     const sortedAllergiesOld = [...(compareSource.allergies || [])].sort();
 
     // Check what changes affect workout regeneration
-    const changesAffectWorkout = 
+    // Priority 0 Bug 4 Fix: Use delta thresholds instead of naive equality.
+    // Weight changes < 10 kg don't change exercise selection — only TDEE/meal plan.
+    // Age changes < 5 years don't meaningfully change volume prescription.
+    const weightDelta = Math.abs(
+      parseFloat(profileUpdate.weight) - parseFloat(compareSource.weight || 0)
+    );
+    const ageDelta = Math.abs(
+      parseInt(profileUpdate.age) - parseInt(compareSource.age || 0)
+    );
+
+    const changesAffectWorkout =
       String(profileUpdate.goal) !== String(compareSource.goal) ||
       String(profileUpdate.experience) !== String(compareSource.experience) ||
       JSON.stringify(sortedEqNew) !== JSON.stringify(sortedEqOld) ||
       JSON.stringify(sortedIssNew) !== JSON.stringify(sortedIssOld) ||
-      String(profileUpdate.age) !== String(compareSource.age) ||
-      String(profileUpdate.weight) !== String(compareSource.weight) ||
-      String(profileUpdate.height) !== String(compareSource.height) ||
-      String(profileUpdate.gender) !== String(compareSource.gender);
+      String(profileUpdate.gender) !== String(compareSource.gender) ||
+      weightDelta >= 10 ||    // Only regenerate workout if weight changed by ≥10 kg
+      ageDelta >= 5;          // Only regenerate workout if age changed by ≥5 years
     
-    const changesAffectMeal = 
+    const changesAffectMeal =
       String(profileUpdate.goal) !== String(compareSource.goal) ||
       String(profileUpdate.dietary_preference) !== String(compareSource.dietary_preference) ||
       JSON.stringify(sortedAllergiesNew) !== JSON.stringify(sortedAllergiesOld) ||
-      String(profileUpdate.weight) !== String(compareSource.weight) ||
+      weightDelta >= 1 ||     // Meal regenerates on any weight change (TDEE-sensitive)
       String(profileUpdate.height) !== String(compareSource.height) ||
-      String(profileUpdate.age) !== String(compareSource.age) ||
+      ageDelta >= 1 ||
       String(profileUpdate.gender) !== String(compareSource.gender);
 
     const profileAffectsPlans = changesAffectWorkout || changesAffectMeal;
@@ -493,16 +497,16 @@ function ProfileSetup() {
     const { skipPlanRegeneration = false } = options;
     setLoading(true);
 
-    try {
-      if (import.meta.env.DEV) {
-        console.log('📝 Performing profile update:', { timing });
-      }
-
-      // Bug fix: Clear ALL cached plans BEFORE making API call
-      // This ensures Workout.jsx and Nutrition.jsx cannot serve stale data
-      // while the backend regenerates new plans
+    // Priority 0 Bug 3 Fix: Clear localStorage caches BEFORE the API call.
+    // Without this, Workout.jsx and Nutrition.jsx read the old 24-hr cached plan
+    // even after the server has regenerated a new one.
+    if (!skipPlanRegeneration) {
       _clearWorkoutPlanCache();
       _clearMealPlanCache();
+    }
+
+    try {
+      console.log('📝 Performing profile update:', { profileUpdate, timing });
 
       // ✅ CRITICAL FIX: Save profile to Node backend (port 5000 / MongoDB) FIRST.
       // The Dashboard reads from Node via getProfile(). If we skip this step,
@@ -513,16 +517,12 @@ function ProfileSetup() {
         ...(fullName && { name: fullName }),
         ...(userAvatar !== undefined ? { avatar: userAvatar } : {}),
       };
-      await saveProfile(nodeProfilePayload);
-      if (import.meta.env.DEV) {
+      try {
+        await saveProfile(nodeProfilePayload);
         console.log('✅ Profile saved to Node backend (MongoDB)');
-      }
-
-      // Re-read canonical profile from Node backend so we only proceed with persisted data.
-      const canonicalProfileRes = await getProfile();
-      const canonicalProfile = canonicalProfileRes?.data || {};
-      if (!canonicalProfile || !canonicalProfile.goal || !canonicalProfile.age || !canonicalProfile.weight) {
-        throw new Error('Profile save verification failed. Please try again.');
+      } catch (nodeErr) {
+        console.error('❌ Could not save to Node backend:', nodeErr?.message || nodeErr);
+        throw new Error('Unable to save profile to main database. Please ensure Node backend (port 5000) is running and try again.');
       }
 
       let response = {
@@ -543,15 +543,11 @@ function ProfileSetup() {
         });
       }
 
-      if (import.meta.env.DEV) {
-        console.log('✅ Profile update response:', response);
-      }
+      console.log('✅ Profile update response:', response);
 
       if (response.success) {
         // ✅ FIX 10: Invalidate nutrition cache so Nutrition page fetches fresh plan
-        if (import.meta.env.DEV) {
-          console.log('🗑️ Invalidating nutrition cache and syncing regenerated workout plan...');
-        }
+        console.log('🗑️ Invalidating nutrition cache and syncing regenerated workout plan...');
         setToStorage(StorageKeys.NUTRITION_CACHE_INVALID, 'true');
         removeFromStorage(StorageKeys.NUTRITION_CACHE);
         removeFromStorage(StorageKeys.NUTRITION_CACHE_DATE);
@@ -564,9 +560,9 @@ function ProfileSetup() {
             ? mergeWorkoutPlanFromToday(currentWorkoutPlan, response.regenerated_workout.plan)
             : response.regenerated_workout.plan;
 
-          sessionStorage.setItem('workoutPlan', JSON.stringify(mergedWorkoutPlan));
-          sessionStorage.setItem('workoutPlanTimestamp', new Date().toISOString());
-          sessionStorage.setItem('workoutPlanProfile', JSON.stringify({
+          localStorage.setItem('workoutPlan', JSON.stringify(mergedWorkoutPlan));
+          localStorage.setItem('workoutPlanTimestamp', new Date().toISOString());
+          localStorage.setItem('workoutPlanProfile', JSON.stringify({
             goal: profileUpdate.goal,
             experience: profileUpdate.experience,
             equipment: Array.isArray(profileUpdate.equipment) ? [...profileUpdate.equipment].sort() : [],
@@ -577,12 +573,7 @@ function ProfileSetup() {
             age: profileUpdate.age,
             gender: profileUpdate.gender,
           }));
-          localStorage.removeItem('workoutPlan');
-          localStorage.removeItem('workoutPlanTimestamp');
-          localStorage.removeItem('workoutPlanProfile');
-          if (import.meta.env.DEV) {
-            console.log('✅ Regenerated workout plan synced (past days preserved, future days updated)');
-          }
+          console.log('✅ Regenerated workout plan synced (past days preserved, future days updated)');
         }
 
         // ✅ Persist regenerated nutrition plan with proper StorageKeys
@@ -667,24 +658,18 @@ function ProfileSetup() {
           const localToday = getTodayStr();
           setToStorage(StorageKeys.NUTRITION_CACHE_DATE, localToday);
           setToStorage(StorageKeys.NUTRITION_CACHE_INVALID, 'false');
-          if (import.meta.env.DEV) {
-            console.log('✅ Regenerated nutrition plan saved in cache-compatible format');
-          }
+          console.log('✅ Regenerated nutrition plan saved in cache-compatible format');
           }
         }
 
-        // Persist canonical server profile to keep session data consistent after re-login.
+        // Update user data in localStorage
         const currentUser = safeJSONParse('user', {});
-        persistSessionUser({
-          ...buildSessionUser(currentUser),
-          ...canonicalProfile,
-          firstWorkoutDay: canonicalProfile.firstWorkoutDay ?? currentUser.firstWorkoutDay ?? null,
-          registrationDate: canonicalProfile.registrationDate ?? currentUser.registrationDate ?? null,
-          profileComplete: true,
-        });
-        if (import.meta.env.DEV) {
-          console.log('✅ Session user synced from persisted profile data');
-        }
+        localStorage.setItem('user', JSON.stringify({
+          ...currentUser,
+          ...nodeProfilePayload,
+          profileComplete: true
+        }));
+        console.log('✅ User data updated in localStorage');
 
         // Show success notification
         let successMsg = 'Profile updated successfully!';
@@ -738,7 +723,7 @@ function ProfileSetup() {
     }
   };
 
-  const isNoneEquipmentChecked = formData.equipment.includes('None');
+  const isNoneEquipmentChecked = formData.equipment.includes('None (Bodyweight Only)') || formData.equipment.includes('None');
   const isNoneAllergiesChecked = formData.allergies.includes('None');
   const isNoneIssuesChecked = formData.body_issues.includes('None');
 
@@ -925,34 +910,22 @@ function ProfileSetup() {
                   <MultiSelect 
                     name="equipment" 
                     options={[
-                      'None',
+                      // ── Essential (bodyweight baseline) ────────────────
+                      'None (Bodyweight Only)',
                       'Dumbbells',
-                      'Barbell',
-                      'Olympic Barbell',
-                      'Kettlebell',
-                      'Cable Machine',
-                      'Weight Machine',
-                      'Smith Machine',
                       'Resistance Bands',
-                      'Resistance Bands (Light)',
-                      'EZ Curl Bar',
-                      'Trap Bar',
+                      'Kettlebell',
+                      // ── Upgrade Kit ────────────────────────────────────
+                      'Weighted Vest',
                       'Medicine Ball',
                       'Stability / Yoga Ball',
-                      'Bosu Ball',
+                      'Pull-up Bar',
+                      // ── Accessories ────────────────────────────────────
                       'Foam Roller',
-                      'Battle Rope / Jump Rope',
-                      'Weighted Vest',
-                      'Hammer / Sledgehammer',
-                      'Tire',
-                      'Elliptical',
-                      'Stationary Bike',
-                      'SkiErg Machine',
-                      'Sled',
-                      'Stepmill',
-                      'Upper Body Ergometer',
                       'Ab Wheel',
-                      'Assisted Machine',
+                      'Jump Rope',
+                      'Bosu Ball',
+                      'Resistance Bands (Light)',
                     ]}
                     value={formData.equipment} 
                     onChange={handleCheckbox}

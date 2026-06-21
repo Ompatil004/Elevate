@@ -1,16 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { confirmPasswordReset, requestPasswordReset } from '../api';
 import '../App.css';
 
-const SUBMIT_COOLDOWN_MS = 1200;
-
 function ForgotPassword() {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
 
   const [step, setStep] = useState('request');
   const [requestEmail, setRequestEmail] = useState('');
+  const [accountEmail, setAccountEmail] = useState('');
   const [requestLoading, setRequestLoading] = useState(false);
   const [requestError, setRequestError] = useState('');
   const [requestMessage, setRequestMessage] = useState('');
@@ -25,35 +23,9 @@ function ForgotPassword() {
   const [confirmError, setConfirmError] = useState('');
   const [confirmMessage, setConfirmMessage] = useState('');
   const [showPasswords, setShowPasswords] = useState(false);
-  const lastRequestSubmitAtRef = useRef(0);
-  const lastConfirmSubmitAtRef = useRef(0);
-
-  // SEC-3: If the user arrived via an email reset link (/reset-password?token=X&email=Y),
-  // auto-populate the confirm step so they don't have to copy-paste the token.
-  useEffect(() => {
-    const urlToken = searchParams.get('token');
-    const urlEmail = searchParams.get('email');
-    if (urlToken && urlEmail) {
-      setRequestEmail(urlEmail);
-      setConfirmData((prev) => ({ ...prev, resetToken: urlToken }));
-      setStep('confirm');
-      setRequestMessage('Use the form below to set your new password.');
-
-      // Remove sensitive reset params from the URL immediately after bootstrapping.
-      setSearchParams({}, { replace: true });
-    }
-  }, [searchParams, setSearchParams]);
 
   const handleRequest = async (event) => {
     event.preventDefault();
-
-    const now = Date.now();
-    if (now - lastRequestSubmitAtRef.current < SUBMIT_COOLDOWN_MS) {
-      setRequestError('Please wait a moment before requesting again');
-      return;
-    }
-    lastRequestSubmitAtRef.current = now;
-
     const normalizedEmail = requestEmail.trim();
 
     if (!normalizedEmail) {
@@ -72,7 +44,7 @@ function ForgotPassword() {
       const response = await requestPasswordReset({ email: normalizedEmail });
       const message = response.data?.message || 'Reset instructions sent if the account exists.';
       setRequestMessage(message);
-      // Use requestEmail directly — no need for redundant accountEmail state
+      setAccountEmail(normalizedEmail);
       setStep('confirm');
 
       const returnedToken = response.data?.resetToken || '';
@@ -102,18 +74,10 @@ function ForgotPassword() {
 
   const handleConfirm = async (event) => {
     event.preventDefault();
-
-    const now = Date.now();
-    if (now - lastConfirmSubmitAtRef.current < SUBMIT_COOLDOWN_MS) {
-      setConfirmError('Please wait a moment before submitting again');
-      return;
-    }
-    lastConfirmSubmitAtRef.current = now;
-
     setConfirmError('');
     setConfirmMessage('');
 
-    const email = requestEmail.trim();
+    const email = accountEmail.trim();
     const resetToken = confirmData.resetToken.trim();
     const newPassword = confirmData.newPassword;
     const confirmPassword = confirmData.confirmPassword;
@@ -124,7 +88,7 @@ function ForgotPassword() {
       return;
     }
 
-    if (!resetToken || !newPassword || !confirmPassword) {
+    if (!email || !resetToken || !newPassword || !confirmPassword) {
       setConfirmError('All fields are required');
       return;
     }
@@ -249,10 +213,10 @@ function ForgotPassword() {
                     color: '#1f2937'
                   }}
                 >
-                  Resetting password for: <strong>{requestEmail}</strong>
+                  Resetting password for: <strong>{accountEmail}</strong>
                 </div>
 
-                {import.meta.env.DEV && devResetToken ? (
+                {devResetToken ? (
                   <div
                     className="stat-box"
                     style={{

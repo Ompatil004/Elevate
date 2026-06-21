@@ -1,8 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
 
 const NotificationContext = createContext();
-const MAX_NOTIFICATIONS = 5;
 
 export const useNotification = () => {
   const context = useContext(NotificationContext);
@@ -14,16 +13,6 @@ export const useNotification = () => {
 
 export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
-  // Bug #35 fixed: track all active timer IDs so they can be cancelled on unmount
-  const timerMapRef = useRef({});
-
-  // Clean up all pending timers when the provider unmounts
-  useEffect(() => {
-    const timerMap = timerMapRef.current;
-    return () => {
-      Object.values(timerMap).forEach(clearTimeout);
-    };
-  }, []);
 
   const showNotification = useCallback((message, type = 'info', duration = 4000) => {
     const id = Date.now() + Math.random();
@@ -33,28 +22,12 @@ export const NotificationProvider = ({ children }) => {
       type, // 'info', 'success', 'warning', 'error'
     };
 
-    setNotifications(prev => {
-      // Keep notification stack bounded to avoid viewport overflow.
-      if (prev.length >= MAX_NOTIFICATIONS) {
-        const overflow = prev.length - MAX_NOTIFICATIONS + 1;
-        const dropped = prev.slice(0, overflow);
-        dropped.forEach((n) => {
-          if (timerMapRef.current[n.id]) {
-            clearTimeout(timerMapRef.current[n.id]);
-            delete timerMapRef.current[n.id];
-          }
-        });
-        return [...prev.slice(overflow), notification];
-      }
-      return [...prev, notification];
-    });
+    setNotifications(prev => [...prev, notification]);
 
-    // Bug #35 fixed: store timer ID so we can cancel it on early dismiss or unmount
-    const timerId = setTimeout(() => {
+    // Auto-remove notification after duration
+    setTimeout(() => {
       setNotifications(prev => prev.filter(n => n.id !== id));
-      delete timerMapRef.current[id];
     }, duration);
-    timerMapRef.current[id] = timerId;
   }, []);
 
   const showError = useCallback((message, duration = 5000) => {
@@ -74,11 +47,6 @@ export const NotificationProvider = ({ children }) => {
   }, [showNotification]);
 
   const removeNotification = useCallback((id) => {
-    // Bug #35 fixed: cancel the pending auto-remove timer when manually dismissed
-    if (timerMapRef.current[id]) {
-      clearTimeout(timerMapRef.current[id]);
-      delete timerMapRef.current[id];
-    }
     setNotifications(prev => prev.filter(n => n.id !== id));
   }, []);
 

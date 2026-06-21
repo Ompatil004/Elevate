@@ -141,7 +141,7 @@ class TestChatbotEndpoints:
             assert response.status_code == 200
             body = response.json()
             assert body["data"]["offline_mode"] is True
-            assert "AI service is temporarily unavailable" in body["data"]["reply"]
+            assert "offline mode" in body["data"]["reply"]
 
     def test_fallback_reply_offline_mode_flag(self, client):
         token = jwt.encode({"user": {"id": "user_123"}}, "test_secret_pytest_placeholder_32c", algorithm="HS256")

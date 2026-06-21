@@ -242,6 +242,48 @@ def _get_fallback_response(message: str) -> str:
     return FALLBACK_RESPONSES['default']
 
 
+def _build_contextual_offline_response(user_message: str, profile: Dict[str, Any], chat_history: list = None) -> str:
+    """Return a deterministic offline reply that reflects the current conversation context."""
+    summary_bits = []
+    prefix = "AI service is temporarily unavailable. "
+
+    experience = str(profile.get("experience", "")).strip()
+    goal = str(profile.get("goal", "")).strip()
+    equipment = profile.get("equipment")
+    workout_days = profile.get("workout_days") or profile.get("days_per_week")
+
+    if experience:
+        summary_bits.append(f"you are a {experience.lower()} lifter")
+    if goal:
+        summary_bits.append(f"your goal is {goal.replace('_', ' ')}")
+    if isinstance(equipment, list):
+        if not equipment:
+            summary_bits.append("you have no equipment")
+        else:
+            summary_bits.append(f"your equipment includes {', '.join(str(item) for item in equipment[:4])}")
+    if workout_days:
+        summary_bits.append(f"you want to train {workout_days} days per week")
+
+    if chat_history:
+        recent_text = " ".join(_extract_message_text(msg).lower() for msg in _trim_history(chat_history))
+        history_hits = []
+        for keyword in ["beginner", "muscle", "equipment", "days", "train", "workout", "squat", "push-up", "push up", "shape"]:
+            if keyword in recent_text:
+                history_hits.append(keyword)
+        if history_hits:
+            unique_hits = ", ".join(dict.fromkeys(history_hits))
+            summary_bits.append(f"our recent chat focused on {unique_hits}")
+
+    if not summary_bits:
+        return prefix + _get_fallback_response(user_message)
+
+    summary = "; ".join(summary_bits)
+    return (
+        f"{prefix}Offline coach note: I remember that {summary}. "
+        f"Based on that, I’d keep things simple: build around the basics, stay consistent, and progress gradually."
+    )
+
+
 def _extract_message_text(msg: Dict[str, Any]) -> str:
     for key in ("text", "content", "message", "body"):
         value = msg.get(key)
@@ -325,7 +367,7 @@ def get_chatbot_response(user_message: str, profile: Dict[str, Any], chat_histor
 
     # If model is unavailable, use smart offline fallback
     if not model:
-        return _get_fallback_response(user_message)
+        return _build_contextual_offline_response(user_message, profile, chat_history)
 
     # Build conversation context from history
     history_context = ""
@@ -374,18 +416,18 @@ RESPONSE (be concise, helpful, and motivating):"""
 
     except CircuitBreakerOpen as cbo:
         print(f"[Gemini] {cbo}")
-        return _get_fallback_response(user_message)
+        return _build_contextual_offline_response(user_message, profile, chat_history)
     except Exception as e:
         error_str = str(e).lower()
         print(f"[Gemini] Chatbot error: {e}")
 
         # If quota exhausted, use fallback
         if '429' in error_str or 'quota' in error_str or 'exhausted' in error_str or 'rate' in error_str:
-            return _get_fallback_response(user_message)
+            return _build_contextual_offline_response(user_message, profile, chat_history)
         elif 'safety' in error_str or 'blocked' in error_str:
             return "I can't respond to that particular question. Let's keep our chat focused on fitness and nutrition! 💪"
         elif 'invalid' in error_str and 'key' in error_str:
-            return "There's an issue with my AI configuration. Please contact support."
+            return _build_contextual_offline_response(user_message, profile, chat_history)
         else:
-            return _get_fallback_response(user_message)
+            return _build_contextual_offline_response(user_message, profile, chat_history)
 

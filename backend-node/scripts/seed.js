@@ -17,6 +17,7 @@
 require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI;
 
@@ -61,12 +62,16 @@ async function main() {
   // -----------------------------------------------------------------------
   const now = new Date();
 
+  const ownerPassword = process.env.SEED_OWNER_PASSWORD || crypto.randomBytes(8).toString('hex');
+  const userAPassword = process.env.SEED_USER_A_PASSWORD || crypto.randomBytes(8).toString('hex');
+  const userBPassword = process.env.SEED_USER_B_PASSWORD || crypto.randomBytes(8).toString('hex');
+
   const seedUsers = [
     {
       __seed: true,
       name: 'Seed Owner',
-      email: 'owner@seed.local',
-      password: await hashPassword('SeedOwner123!'),
+      email: process.env.SEED_OWNER_EMAIL || 'owner@seed.local',
+      password: await hashPassword(ownerPassword),
       role: 'owner',
       age: 30,
       gender: 'male',
@@ -84,8 +89,8 @@ async function main() {
     {
       __seed: true,
       name: 'Seed User A',
-      email: 'user_a@seed.local',
-      password: await hashPassword('SeedUserA123!'),
+      email: process.env.SEED_USER_A_EMAIL || 'user_a@seed.local',
+      password: await hashPassword(userAPassword),
       role: 'user',
       age: 25,
       gender: 'female',
@@ -103,8 +108,8 @@ async function main() {
     {
       __seed: true,
       name: 'Seed User B',
-      email: 'user_b@seed.local',
-      password: await hashPassword('SeedUserB123!'),
+      email: process.env.SEED_USER_B_EMAIL || 'user_b@seed.local',
+      password: await hashPassword(userBPassword),
       role: 'user',
       age: 35,
       gender: 'male',
@@ -123,10 +128,18 @@ async function main() {
 
   const insertedUsers = await UserModel.insertMany(seedUsers, { ordered: true });
   console.log(`✅ Created ${insertedUsers.length} seed users:`);
+
+  // Map to safely print passwords only during seed script execution
+  const userPasswords = {
+    [seedUsers[0].email]: ownerPassword,
+    [seedUsers[1].email]: userAPassword,
+    [seedUsers[2].email]: userBPassword
+  };
+
   insertedUsers.forEach((u) =>
-    console.log(`   ${u.role.padEnd(6)} | ${u.email.padEnd(25)} | password: [REDACTED]`)
+    console.log(`   ${u.role.padEnd(6)} | ${u.email.padEnd(25)} | password: ${userPasswords[u.email]}`)
   );
-  console.log('ℹ️ Seed user passwords are intentionally not printed to logs.');
+  console.log('ℹ️ Seed user passwords are dynamically generated unless provided in environment variables.');
 
   // -----------------------------------------------------------------------
   // Create sample exercises

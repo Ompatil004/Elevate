@@ -14,6 +14,14 @@ from app.biometric_normalizer import BiometricNormalizer
 from app.utils.activity_logger import log_user_activity, ActivityType
 from app.utils.db_safe_write import safe_update_one, safe_find_one
 
+# Priority 3 — Adaptive modifier: adjust intensity/volume based on last 7 daily check-ins
+try:
+    from app.adaptive_modifier import compute_adaptive_modifiers, apply_modifiers_to_workout_stats
+except Exception as _am_err:
+    logger.warning(f"adaptive_modifier import failed ({_am_err}); adaptive plan adjustments disabled")
+    compute_adaptive_modifiers = None
+    apply_modifiers_to_workout_stats = None
+
 logger = logging.getLogger(__name__)
 
 
@@ -223,15 +231,45 @@ def _build_user_filter(user_id: str) -> Dict[str, Any]:
     return {'_id': user_id}
 
 
-def _generate_workout_plan(user_profile: Dict[str, Any], request_id: str) -> Dict[str, Any]:
+async def _load_adaptive_modifiers(user_id: str) -> Dict[str, Any]:
+    """Fetch last 7 daily check-ins and compute adaptive modifiers."""
+    if not callable(compute_adaptive_modifiers):
+        return {}
+    try:
+        db = get_database()
+        cursor = db.daily_logs.find(
+            {'user_id': user_id},
+            {'_id': 0, 'sleep_hours': 1, 'water_ml': 1, 'workout_completed': 1}
+        ).sort('date', -1).limit(7)
+        logs = [doc async for doc in cursor]
+        if not logs:
+            return {}
+        mods = compute_adaptive_modifiers(logs)
+        logger.info(f"Adaptive modifiers for {user_id}: {mods.get('reason', '')}")
+        return mods
+    except Exception as exc:
+        logger.warning(f"Adaptive modifier load failed: {exc}")
+        return {}
+
+
+def _generate_workout_plan(user_profile: Dict[str, Any], request_id: str, adaptive_mods: Dict[str, Any] = None) -> Dict[str, Any]:
     workout_engine = get_workout_engine() if callable(get_workout_engine) else None
     if workout_engine is None:
         logger.warning(f"[{request_id}] WorkoutEngine not available")
         return {'status': 'skipped', 'reason': 'engine_not_available'}
 
     try:
+        # Build workout_stats enriched with adaptive modifiers so the
+        # progression engine can apply sleep/hydration-based adjustments.
+        workout_stats: Dict[str, Any] = {}
+        if adaptive_mods and callable(apply_modifiers_to_workout_stats):
+            workout_stats = apply_modifiers_to_workout_stats({}, adaptive_mods)
+
+        user_profile_copy = dict(user_profile)
+        user_profile_copy['workout_stats'] = workout_stats
+
         new_workout_plan = workout_engine.generate_weekly_plan(
-            profile=user_profile,
+            profile=user_profile_copy,
             workout_history=None,
         )
         workout_days = sum(1 for day in new_workout_plan if day.get('type') == 'workout')
@@ -240,6 +278,8 @@ def _generate_workout_plan(user_profile: Dict[str, Any], request_id: str) -> Dic
             'plan': new_workout_plan,
             'workout_days': workout_days,
             'requested_days': user_profile.get('days_per_week', 4),
+            'adaptive_applied': bool(adaptive_mods),
+            'adaptive_reason': (adaptive_mods or {}).get('reason', ''),
         }
     except Exception as exc:
         logger.error(f"[{request_id}] Workout regeneration failed: {exc}")
@@ -390,11 +430,21 @@ async def update_profile(
             except Exception as cache_exc:
                 logger.warning(f"[{request_id}] Cache invalidation failed: {cache_exc}")
 
+        # Priority 3: Load adaptive modifiers from last 7 daily check-ins.
+        # Done once and passed to both plan generators so they share the same
+        # adjustment context for this profile update.
+        adaptive_mods: Dict[str, Any] = {}
+        if needs_workout_regen:
+            try:
+                adaptive_mods = await _load_adaptive_modifiers(user_id)
+            except Exception as am_exc:
+                logger.warning(f"[{request_id}] Adaptive modifier load error: {am_exc}")
+
         workout_plan_result = None
         nutrition_plan_result = None
 
         if needs_workout_regen:
-            workout_plan_result = _generate_workout_plan(plan_profile, request_id)
+            workout_plan_result = _generate_workout_plan(plan_profile, request_id, adaptive_mods)
             response_data['regenerated_workout'] = workout_plan_result
             if workout_plan_result.get('status') == 'error':
                 response_data['errors'].append({

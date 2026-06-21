@@ -52,6 +52,23 @@
   100% { transform: translateY(0); opacity: 1; }
 }
 
+/* ─── Project-wide Smooth Animations ─── */
+
+/* GPU hint for lift-on-hover elements — never affects visibility */
+.hover-card { will-change: transform; }
+
+/* Smooth transitions on interactive elements (no opacity — avoids hiding bugs) */
+button, [role="button"] {
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+/* Focus ring — accessible & indigo-tinted */
+:focus-visible {
+  outline: 2px solid rgba(99, 102, 241, 0.7);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -64,14 +81,253 @@ html,
   min-height: 100%;
 }
 
+/* ─── Theme Variables ─── */
+:root {
+  /* Dark theme (default) */
+  --app-bg:         #09090b;
+  --app-bg-grad:    linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  --app-surface:    #18181b;
+  --app-surface2:   #27272a;
+  --app-surface-glass: rgba(24, 24, 27, 0.78);
+  --app-hero-glass: linear-gradient(135deg, rgba(15, 23, 42, 0.76) 0%, rgba(30, 41, 59, 0.66) 50%, rgba(15, 23, 42, 0.76) 100%);
+  --app-border:     rgba(255,255,255,0.08);
+  --app-text:       #e4e4e7;
+  --app-text-muted: #a1a1aa;
+  --app-text-dim:   #71717a;
+  --app-accent:     #6366f1;
+  --app-card-bg:    #18181b;
+  --h1-grad:        linear-gradient(to right, #ffffff 0%, #a5b4fc 100%);
+  --quote-bg:       rgba(255,255,255,0.03);
+  --app-nav-bg:     rgba(9, 9, 11, 0.6);
+  --day-card-selected-bg: linear-gradient(145deg, #1e1b4b 0%, #312e81 100%);
+  --workout-banner-bg: linear-gradient(145deg, #0f0f14 0%, #13131a 100%);
+  --overlay-bg:     rgba(0,0,0,0.8);
+  --btn-skip-bg:    #3f3f46;
+  --btn-skip-text:  #ffffff;
+  --brand-grad:     linear-gradient(to right, #ffffff, #a5b4fc);
+  --theme-transition: 0.3s ease;
+}
+
+[data-theme="light"] {
+  --app-bg:         #fcfbf9;
+  --app-bg-grad:    linear-gradient(135deg, #fffcf9 0%, #f0ede6 100%);
+  --app-surface:    #ffffff;
+  --app-surface2:   #f5f4f1;
+  --app-surface-glass: rgba(255, 255, 255, 0.78);
+  --app-hero-glass: linear-gradient(135deg, rgba(255, 252, 249, 0.92) 0%, rgba(240, 237, 230, 0.88) 100%);
+  --app-border:     rgba(0, 0, 0, 0.08);
+  --app-text:       #18181b;
+  --app-text-muted: #6b7280;
+  --app-text-dim:   #9ca3af;
+  --app-accent:     #6366f1;
+  --app-card-bg:    #ffffff;
+  --h1-grad:        linear-gradient(to right, #18181b 0%, #4f46e5 100%);
+  --quote-bg:       rgba(0,0,0,0.04);
+  --app-nav-bg:     rgba(240, 240, 248, 0.82);
+  --day-card-selected-bg: linear-gradient(145deg, #e0e7ff 0%, #c7d2fe 100%);
+  --workout-banner-bg: linear-gradient(145deg, #f8fafc 0%, #e2e8f0 100%);
+  --overlay-bg:     rgba(255,255,255,0.85);
+  --btn-skip-bg:    #e4e4e7;
+  --btn-skip-text:  #18181b;
+  --brand-grad:     linear-gradient(to right, #18181b, #4f46e5);
+}
+
+/* Smooth theme transitions for key properties */
+body, .theme-transition-target {
+  transition:
+    background-color var(--theme-transition),
+    color var(--theme-transition),
+    border-color var(--theme-transition),
+    box-shadow var(--theme-transition);
+}
+
+/* Theme toggle button (used in all navbars) */
+.theme-toggle-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+[data-theme="light"] .theme-toggle-btn {
+  background: rgba(0,0,0,0.04);
+  border-color: rgba(0,0,0,0.10);
+  color: #18181b;
+}
+
+.theme-toggle-btn:hover {
+  background: rgba(255,255,255,0.08) !important;
+  transform: scale(1.08);
+}
+
+[data-theme="light"] .theme-toggle-btn:hover {
+  background: rgba(0,0,0,0.08) !important;
+}
+
 body {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-  color: #1a1a1a;
+  background: var(--app-bg);
+  color: var(--app-text);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   min-height: 100dvh;
   overflow-x: hidden;
   overflow-y: auto;
+  transition: background 0.3s ease, color 0.3s ease;
 }
+
+/* ─── LIGHT THEME: Global overrides ────────────────────────────────────────
+   Strategy: Use body[data-theme="light"] element/class selectors.
+   The old [style*="color: #fff"] approach was broken — React renders
+   inline styles as computed CSS, not raw string values.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Body background — warm off-white, not pure white */
+body[data-theme="light"] {
+  background: var(--app-bg);
+  color: var(--app-text);
+}
+
+/* ── Light mode: fix every page root ─── */
+/* All pages set background: transparent so the AuroraBackground shows through.
+   In light mode, AuroraBackground renders the warm pastel gradient — so this is fine. */
+body[data-theme="light"] #root {
+  color: #18181b;
+}
+
+/* ── Navbar glassmorphism in light mode ── */
+body[data-theme="light"] nav,
+body[data-theme="light"] [class*="navbar"],
+body[data-theme="light"] [id*="navbar"] {
+  background: rgba(240, 240, 248, 0.82) !important;
+  border-bottom-color: rgba(0, 0, 0, 0.08) !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+/* ── All card / bento box surfaces ──
+   Replace the very dark #18181b surfaces with warm stone-glass cards.
+   Warm stone tones — not harsh white — feel premium in light mode. */
+body[data-theme="light"] .bento-card,
+body[data-theme="light"] .card,
+body[data-theme="light"] .glass-card {
+  background: rgba(255, 255, 255, 0.70) !important;
+  border-color: rgba(0, 0, 0, 0.07) !important;
+  color: #18181b !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07), 0 1px 4px rgba(0, 0, 0, 0.05) !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+/* ── Force all inline-styled elements to use light colors ──
+   These use the CSS custom property fallback chain, so we set them globally. */
+body[data-theme="light"] * {
+  --inline-bg-override: transparent;
+  --card-shadow-light: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* ── Specific text element overrides ── */
+body[data-theme="light"] p,
+body[data-theme="light"] span,
+body[data-theme="light"] div,
+body[data-theme="light"] h1,
+body[data-theme="light"] h2,
+body[data-theme="light"] h3,
+body[data-theme="light"] h4,
+body[data-theme="light"] label,
+body[data-theme="light"] li,
+body[data-theme="light"] td,
+body[data-theme="light"] th {
+  /* Only override COLOR if the element has a hardcoded dark text —
+     we do this via the color-scheme hint so browser can inherit correctly */
+  color-scheme: light;
+}
+
+/* ── Input fields ── */
+body[data-theme="light"] input,
+body[data-theme="light"] textarea,
+body[data-theme="light"] select {
+  background: rgba(255, 255, 255, 0.90) !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  color: #18181b !important;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+}
+body[data-theme="light"] input::placeholder,
+body[data-theme="light"] textarea::placeholder {
+  color: #9ca3af !important;
+}
+body[data-theme="light"] input:focus,
+body[data-theme="light"] textarea:focus {
+  border-color: rgba(99, 102, 241, 0.40) !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12) !important;
+}
+
+/* ── Scrollbars ── */
+body[data-theme="light"] ::-webkit-scrollbar-track { background: rgba(0,0,0,0.03); }
+body[data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.14); border-radius: 8px; }
+body[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.22); }
+
+/* ── ConfirmDialog ── */
+body[data-theme="light"] .confirm-modal-overlay {
+  background: rgba(0, 0, 0, 0.30) !important;
+  backdrop-filter: blur(8px) !important;
+}
+body[data-theme="light"] .confirm-modal-card {
+  background: rgba(255, 255, 255, 0.96) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18) !important;
+}
+body[data-theme="light"] .confirm-modal-title { color: #18181b !important; }
+body[data-theme="light"] .confirm-modal-text  { color: #52525b !important; }
+body[data-theme="light"] .confirm-modal-btn-cancel {
+  background: rgba(0, 0, 0, 0.06) !important;
+  color: #3f3f46 !important;
+  border-color: rgba(0,0,0,0.10) !important;
+}
+body[data-theme="light"] .confirm-modal-btn-cancel:hover {
+  background: rgba(0, 0, 0, 0.10) !important;
+}
+
+/* ── Notification / Dropdown panels ── */
+body[data-theme="light"] .notification-item,
+body[data-theme="light"] [class*="notif-dropdown"],
+body[data-theme="light"] [class*="dropdown"] {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  color: #18181b !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.14) !important;
+}
+
+/* ── Override inline dark backgrounds using a filter approach ──
+   React renders style="background: rgb(24, 24, 27)" — browsers compute this.
+   We cannot match with [style*="#18181b"] but we CAN use a light-mode
+   global color-scheme that tells the browser to render form controls light. */
+body[data-theme="light"] {
+  color-scheme: light;
+}
+
+/* ── Force page containers to be transparent so light bg shows ── */
+body[data-theme="light"] [class*="page"],
+body[data-theme="light"] [id*="page"] {
+  background: transparent !important;
+}
+
+/* ── Hover interaction improvements in light mode ── */
+body[data-theme="light"] .hover-card:hover {
+  border-color: rgba(99, 102, 241, 0.20) !important;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.10) !important;
+}
+body[data-theme="light"] .activity-row:hover {
+  background: rgba(99, 102, 241, 0.05) !important;
+  border-left-color: #6366f1 !important;
+}
+
+
 
 .login-container {
   min-height: 100dvh;
@@ -729,8 +985,8 @@ body {
   .login-card {
     flex-direction: column;
     border-radius: 12px;
-    max-width: 100%;
-    margin: 0;
+    max-width: 98%;
+    margin: 10px;
   }
 
   .login-left {
@@ -1108,3 +1364,89 @@ body {
   from { opacity: 0; transform: scale(0.9); }
   to { opacity: 1; transform: scale(1); }
 }
+
+/* ========================================================= */
+/* GLOBAL RESPONSIVE LAYOUT CLASSES FOR DASHBOARD/DIET/WORKOUT */
+/* ========================================================= */
+
+.responsive-grid-12 {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: clamp(10px, 1.6vw, 16px) !important;
+}
+
+.responsive-grid-span-12 {
+  grid-column: span 12 !important;
+}
+
+.responsive-grid-span-8 {
+  grid-column: span 8 !important;
+}
+
+.responsive-grid-span-4 {
+  grid-column: span 4 !important;
+}
+
+.responsive-flex-row {
+  display: flex !important;
+  flex-direction: row !important;
+}
+
+.responsive-flex-1 {
+  flex: 1 !important;
+}
+
+.responsive-flex-4 {
+  flex: 4 !important;
+}
+
+.responsive-stats-row {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 24px !important;
+}
+
+.responsive-focus-container {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 20px !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* TABLET AND MOBILE RESPONSIVENESS */
+@media (max-width: 1024px) {
+  .responsive-grid-span-8,
+  .responsive-grid-span-4 {
+    grid-column: span 12 !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .responsive-grid-12 {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  
+  .responsive-flex-row {
+    flex-direction: column !important;
+  }
+  
+  .responsive-stats-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  .responsive-focus-container {
+    flex-direction: column !important;
+    overflow-y: auto !important;
+  }
+  
+  .workout-camera-wrapper {
+    min-height: 40vh !important;
+    max-height: 50vh !important;
+  }
+  
+  .workout-timer-wrapper {
+    flex: none !important;
+  }
+}

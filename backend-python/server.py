@@ -3355,6 +3355,10 @@ async def get_weekly_logs(
             avg_water = 0
             completed = 0
 
+        # Calculate biometrics adaptive modifier reasoning
+        from app.adaptive_modifier import compute_adaptive_modifiers
+        adaptive_mods = compute_adaptive_modifiers(logs) if logs else {}
+
         return {
             "success": True,
             "request_id": req_id,
@@ -3364,6 +3368,10 @@ async def get_weekly_logs(
                 "avg_sleep_hours": round(avg_sleep, 1),
                 "avg_water_ml": round(avg_water),
                 "workout_completion_rate": round(completed / max(len(logs), 1), 2),
+                "adaptive_reason": adaptive_mods.get('reason', 'Baseline — all biometrics normal.'),
+                "deload_flag": adaptive_mods.get('deload_flag', False),
+                "dehydration_flag": adaptive_mods.get('dehydration_flag', False),
+                "intensity_delta": adaptive_mods.get('intensity_delta', 0.0),
             },
         }
 

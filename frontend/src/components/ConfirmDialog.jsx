@@ -19,7 +19,7 @@ const ConfirmDialog = ({ show, message, onConfirm, onCancel }) => {
   if (!show) return null;
 
   return (
-    <div className="confirm-modal-backdrop" onClick={() => onCancel && onCancel(false)}>
+    <div className="confirm-modal-backdrop" onClick={onCancel}>
       <div className="confirm-modal-card" onClick={(e) => e.stopPropagation()}>
         <div style={{fontSize:'40px', marginBottom:'15px'}}>❓</div>
         <div className="confirm-modal-title">Confirm Action</div>
@@ -27,8 +27,8 @@ const ConfirmDialog = ({ show, message, onConfirm, onCancel }) => {
           {message}
         </div>
         <div className="confirm-modal-btn-row">
-          <button className="confirm-modal-btn-cancel" onClick={() => onCancel && onCancel(false)}>Cancel</button>
-          <button className="confirm-modal-btn-confirm" onClick={() => onConfirm && onConfirm(true)}>Confirm</button>
+          <button className="confirm-modal-btn-cancel" onClick={onCancel}>Cancel</button>
+          <button className="confirm-modal-btn-confirm" onClick={onConfirm}>Confirm</button>
         </div>
       </div>
     </div>
