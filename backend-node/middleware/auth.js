@@ -23,6 +23,8 @@ module.exports = async function(req, res, next) {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         req.user = decoded.user || decoded;
 
+        // Session expiration check commented out as requested so sessions do not expire.
+        /*
         const sessionMaxMs = Number(process.env.SESSION_MAX_MS || 4 * 60 * 60 * 1000);
         const issuedAtMs = Number(decoded?.iat) * 1000;
         if (Number.isFinite(sessionMaxMs) && Number.isFinite(issuedAtMs) && sessionMaxMs > 0) {
@@ -38,6 +40,7 @@ module.exports = async function(req, res, next) {
                 });
             }
         }
+        */
 
         // PERF-4: isSuspended is now embedded in the JWT payload, so we can
         // avoid a DB round-trip on every request.
