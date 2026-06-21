@@ -4,7 +4,7 @@
     "check_type": "hip_angle",
     "trackable": true
   },
-  "45\u00b0 Side Bend": {
+  "45° Side Bend": {
     "movement_pattern": "crunch",
     "check_type": "hip_angle",
     "trackable": true
@@ -5759,27 +5759,27 @@
     "check_type": "knee_angle",
     "trackable": false
   },
-  "Sled 45\u0412\u00b0 Calf Press": {
+  "Sled 45В° Calf Press": {
     "movement_pattern": "squat",
     "check_type": "knee_angle",
     "trackable": false
   },
-  "Sled 45\u0412\u00b0 Leg Press": {
+  "Sled 45В° Leg Press": {
     "movement_pattern": "squat",
     "check_type": "knee_angle",
     "trackable": false
   },
-  "Sled 45\u0412\u00b0 Leg Press (Back Pov)": {
+  "Sled 45В° Leg Press (Back Pov)": {
     "movement_pattern": "squat",
     "check_type": "knee_angle",
     "trackable": false
   },
-  "Sled 45\u00b0 Leg Press (Side Pov)": {
+  "Sled 45° Leg Press (Side Pov)": {
     "movement_pattern": "squat",
     "check_type": "knee_angle",
     "trackable": false
   },
-  "Sled 45\u0412\u00b0 Leg Wide Press": {
+  "Sled 45В° Leg Wide Press": {
     "movement_pattern": "squat",
     "check_type": "knee_angle",
     "trackable": false
@@ -6587,6 +6587,41 @@
   "Wrist Rollerer": {
     "movement_pattern": "generic",
     "check_type": "general_logic",
+    "trackable": true
+  },
+  "Barbell Back Squat": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Pull Up": {
+    "movement_pattern": "vertical_pull",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Lateral Raise": {
+    "movement_pattern": "lateral_raise",
+    "check_type": "shoulder_angle",
+    "trackable": true
+  },
+  "Plank": {
+    "movement_pattern": "plank",
+    "check_type": "hip_angle",
+    "trackable": true
+  },
+  "Push-ups": {
+    "movement_pattern": "horizontal_push",
+    "check_type": "elbow_angle",
+    "trackable": true
+  },
+  "Bodyweight Squats": {
+    "movement_pattern": "squat",
+    "check_type": "knee_angle",
+    "trackable": true
+  },
+  "Lunges": {
+    "movement_pattern": "lunge",
+    "check_type": "knee_angle",
     "trackable": true
   }
 }

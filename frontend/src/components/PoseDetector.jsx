@@ -21,12 +21,39 @@ const MOVEMENT_PATTERNS = {
   CALF:   ['calf', 'heel raise'],
 };
 
-const getMovementPattern = (name) => {
+const getLegacyFallback = (name) => {
   const lower = (name || '').toLowerCase();
-  for (const [pat, kws] of Object.entries(MOVEMENT_PATTERNS)) {
+  for (const [pat, kws] of Object.entries(LEGACY_MOVEMENT_PATTERNS)) {
     if (kws.some(kw => lower.includes(kw))) return pat;
   }
   return 'GENERIC';
+};
+
+const PATTERN_MAP = {
+  curl: "CURL",
+
+  horizontal_push: "PRESS",
+  vertical_push: "PRESS",
+  dip: "PRESS",
+  tricep_extension: "PRESS",
+
+  squat: "SQUAT",
+  lunge: "LUNGE",
+
+  hinge: "HINGE",
+  row: "HINGE",
+  horizontal_pull: "HINGE",
+  vertical_pull: "HINGE",   // temporary
+
+  crunch: "CORE",
+  plank: "CORE",
+
+  lateral_raise: "RAISE",
+
+  calf: "CALF",
+  cardio: "CARDIO",
+
+  generic: "GENERIC"
 };
 
 // ─── Speed category for adaptive smoothing & frame skip ──
@@ -186,11 +213,12 @@ const HYSTERESIS = 8;
 export default function PoseDetector({
   videoRef,
   isActive,
-  exerciseName,
+  exercise,
   onRepUpdate,
   onFormFeedback,
   onLoadingChange, // Bug #2 Fix: Callback to notify parent about loading status
 }) {
+  const exerciseName = exercise?.name || '';
   const canvasRef = useRef(null);
   const requestRef = useRef(null);
   const landmarkerRef = useRef(null);
@@ -305,7 +333,12 @@ export default function PoseDetector({
 
   // ─── Reset state on exercise change ──
   useEffect(() => {
-    const p = getMovementPattern(exerciseName || '');
+    const p = exercise?.movement_pattern
+      ? (PATTERN_MAP[exercise.movement_pattern] || "GENERIC")
+      : getLegacyFallback(exerciseName);
+
+    console.log(`[PoseDetector] Routing exercise: "${exerciseName}" | backend pattern: "${exercise?.movement_pattern || 'none'}" -> resolved detector: "${p}"`);
+
     stateRef.current = {
       stage: 'rest',
       reps: 0,
@@ -755,3 +788,6 @@ export default function PoseDetector({
     />
   );
 }
+
+export { getLegacyFallback, PATTERN_MAP };
+

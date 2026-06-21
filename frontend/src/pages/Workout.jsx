@@ -2713,7 +2713,7 @@ const Workout = () => {
                           <PoseDetector
                             videoRef={videoRef}
                             isActive={isCameraOn && !isResting}
-                            exerciseName={activeExercise?.name || ''}
+                            exercise={activeExercise}
                             onRepUpdate={handleRepUpdate}
                             onFormFeedback={setFormFeedback}
                             onLoadingChange={setPoseLoadingStatus}
