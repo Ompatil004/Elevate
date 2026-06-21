@@ -9,7 +9,7 @@ import {
 
 // ─── COMPREHENSIVE MOVEMENT PATTERNS ──
 // Pattern mapping for 1300+ exercise dataset via keyword matching
-const MOVEMENT_PATTERNS = {
+const LEGACY_MOVEMENT_PATTERNS = {
   CURL:   ['curl', 'bicep', 'hammer', 'preacher', 'concentration'],
   PRESS:  ['press', 'push', 'extension', 'tricep', 'dip', 'punch', 'bench press', 'overhead'],
   SQUAT:  ['squat', 'leg press', 'wall sit', 'box jump', 'goblet', 'hack', 'sissy'],

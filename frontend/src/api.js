@@ -489,5 +489,15 @@ export const saveDailyLog = (payload) =>
 export const getWeeklyLogs = () =>
     FitnessAPI.get('/api/daily-log/week', { timeout: 10000 });
 
+// Legacy compatibility exports for activity tracking
+export const logActivityToBackend = (activityData) =>
+    AuthAPI.post('/profile/activities/log', activityData);
+
+export const getRecentActivities = (limit = 20) =>
+    AuthAPI.get('/profile/activities/recent', { params: { limit } });
+
+export const syncActivitiesToBackend = (activities) =>
+    AuthAPI.post('/profile/activities/sync', { activities });
+
 export default AuthAPI;
 

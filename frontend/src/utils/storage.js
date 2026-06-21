@@ -385,3 +385,16 @@ export const safeJSONParse = (key, defaultValue = null) => {
  * safeJSONStringify – write a value to localStorage as JSON, silently handles quota errors.
  */
 export const safeJSONStringify = (key, value) => setToStorage(key, value);
+
+// Legacy compatibility exports
+export const markSessionStart = () => {
+  try {
+    localStorage.setItem("session_start", String(Date.now()));
+  } catch (err) {
+    // no-op
+  }
+};
+
+export const isSessionExpired = () => {
+  return false;
+};
