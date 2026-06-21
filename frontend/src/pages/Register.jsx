@@ -1,25 +1,41 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { registerUser, loginWithGoogle } from '../api'; // Import API bridge
+import { StorageKeys, markSessionStart } from '../utils/storage';
 import { loadGoogleSDK } from "../utils/googleAuth";
 import '../App.css';
 
-import { syncUserSession, persistSessionUser } from '../utils/sessionUtils';
-
-const SUBMIT_COOLDOWN_MS = 1200;
-
-const getRegisterErrorMessage = (err) => {
-    const validationErrors = err?.response?.data?.errors;
-    if (Array.isArray(validationErrors) && validationErrors.length > 0) {
-        return validationErrors
-            .map((item) => item?.message || item?.msg || 'Invalid input')
-            .filter(Boolean)
-            .join(' ');
-    }
-
-    return err?.response?.data?.message || 'Registration failed';
+const clearUserScopedCache = () => {
+    const scopedKeys = [
+        StorageKeys.NUTRITION_CACHE,
+        StorageKeys.NUTRITION_CACHE_DATE,
+        StorageKeys.NUTRITION_CACHE_INVALID,
+        StorageKeys.TODAY_WORKOUT_DONE,
+        StorageKeys.TODAY_MEALS_DONE,
+        StorageKeys.WATER_INTAKE,
+        StorageKeys.SLEEP_HOURS,
+        StorageKeys.ACTIVITY_HISTORY,
+        StorageKeys.USER_AVATAR,
+        'workoutPlan',
+        'workoutPlanTimestamp',
+        'workoutPlanProfile',
+        'checkedFoods',
+        'lockedMeals',
+        'tickTimes',
+        'todayProgressStatus',
+        '_macroSync'
+    ];
+    scopedKeys.forEach((k) => localStorage.removeItem(k));
 };
 
+const syncUserSession = (newUser) => {
+    const prev = JSON.parse(localStorage.getItem('user') || '{}');
+    const prevIdentity = prev?.id || prev?.email || '';
+    const nextIdentity = newUser?.id || newUser?.email || '';
+    if (prevIdentity && nextIdentity && prevIdentity !== nextIdentity) {
+        clearUserScopedCache();
+    }
+};
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -34,27 +50,23 @@ const Register = () => {
     const [loading, setLoading] = useState(false);
     const [, setFocused] = useState(null);
     const [showPassword, setShowPassword] = useState(false);
-    const lastSubmitAtRef = useRef(0);
     const navigate = useNavigate();
-    const googleAuthEnabled = String(import.meta.env.VITE_ENABLE_GOOGLE_AUTH || 'true').toLowerCase() === 'true';
 
     // Initialize Google SDK after component mounts
     useEffect(() => {
-        if (googleAuthEnabled) {
-            loadGoogleSDK('google-signup-button', handleGoogleResponse, (errorMessage) => {
-                setNotification({
-                    show: true,
-                    message: errorMessage,
-                    type: 'error'
-                });
-                // Hide notification after 5 seconds
-                setTimeout(() => {
-                    setNotification({ show: false, message: '', type: '' });
-                }, 5000);
+        loadGoogleSDK('google-signup-button', handleGoogleResponse, (errorMessage) => {
+            setNotification({
+                show: true,
+                message: errorMessage,
+                type: 'error'
             });
-        }
+            // Hide notification after 5 seconds
+            setTimeout(() => {
+                setNotification({ show: false, message: '', type: '' });
+            }, 5000);
+        });
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [googleAuthEnabled]);
+    }, []);
 
 
     const handleGoogleResponse = async (response) => {
@@ -67,7 +79,9 @@ const Register = () => {
 
             // Save token and user info
             syncUserSession(data.user);
-            persistSessionUser(data.user);
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("user", JSON.stringify(data.user));
+            markSessionStart();
 
             // Since Google users are already registered, redirect to profile setup or dashboard
             navigate("/profile-setup", { replace: true });
@@ -87,47 +101,14 @@ const Register = () => {
         e.preventDefault();
         setError('');
         setSuccess('');
-
-        const now = Date.now();
-        if (now - lastSubmitAtRef.current < SUBMIT_COOLDOWN_MS) {
-            setError('Please wait a moment before trying again.');
-            return;
-        }
-        lastSubmitAtRef.current = now;
-
-        const name = formData.full_name.trim();
-        const email = formData.email.trim();
-        const password = formData.password;
-
-        if (name.length < 2 || name.length > 80) {
-            setError('Full name must be between 2 and 80 characters.');
-            return;
-        }
-
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            setError('Please enter a valid email address.');
-            return;
-        }
-
-        if (
-            password.length < 8
-            || !/[a-z]/.test(password)
-            || !/[A-Z]/.test(password)
-            || !/[0-9]/.test(password)
-            || !/[^A-Za-z0-9]/.test(password)
-        ) {
-            setError('Password must be 8+ chars with upper, lower, number, and symbol.');
-            return;
-        }
-
         setLoading(true);
 
         try {
             // 1. Call Node.js Backend
             await registerUser({
-                name,
-                email,
-                password
+                name: formData.full_name,
+                email: formData.email,
+                password: formData.password
             });
 
             // 2. SUCCESS: Show stylish message instead of alert
@@ -140,7 +121,7 @@ const Register = () => {
 
         } catch (err) {
             console.error(err);
-            setError(getRegisterErrorMessage(err));
+            setError(err.response?.data?.message || "Registration failed");
             setLoading(false); // Only stop loading on error (keep loading spinner on success)
         }
     };
@@ -265,7 +246,6 @@ const Register = () => {
                                         onFocus={() => setFocused('fullname')}
                                         onBlur={() => setFocused(null)}
                                         value={formData.full_name}
-                                        maxLength={80}
                                         required
                                     />
                                     <div className="input-underline"></div>
@@ -287,7 +267,6 @@ const Register = () => {
                                         onFocus={() => setFocused('email')}
                                         onBlur={() => setFocused(null)}
                                         value={formData.email}
-                                        maxLength={120}
                                         required
                                     />
                                     <div className="input-underline"></div>
@@ -309,7 +288,6 @@ const Register = () => {
                                         onFocus={() => setFocused('password')}
                                         onBlur={() => setFocused(null)}
                                         value={formData.password}
-                                        maxLength={128}
                                         required
                                     />
                                     <button
@@ -341,7 +319,7 @@ const Register = () => {
                         </div>
 
                         <div className="social-login-google">
-                            {googleAuthEnabled ? <div id="google-signup-button"></div> : null}
+                            <div id="google-signup-button"></div>
                         </div>
 
                         <div className="login-footer">

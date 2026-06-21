@@ -71,27 +71,17 @@ class HybridVolumeOptimizer:
             import os
             
             base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            model_dirs = [
-                os.path.join(base_dir, 'models'),
-                os.path.join(os.path.dirname(base_dir), 'models'),
-            ]
-
-            def _resolve_model_path(filename):
-                for model_dir in model_dirs:
-                    candidate = os.path.join(model_dir, filename)
-                    if os.path.exists(candidate):
-                        return candidate
-                return None
-
-            sets_path = _resolve_model_path('xgboost_sets.pkl')
-            reps_path = _resolve_model_path('xgboost_reps.pkl')
-            volume_path = _resolve_model_path('xgboost_volume.pkl')
+            model_dir = os.path.join(base_dir, 'models')
             
-            if sets_path:
+            sets_path = os.path.join(model_dir, 'xgboost_sets.pkl')
+            reps_path = os.path.join(model_dir, 'xgboost_reps.pkl')
+            volume_path = os.path.join(model_dir, 'xgboost_volume.pkl')
+            
+            if os.path.exists(sets_path):
                 self.sets_model = joblib.load(sets_path)
-            if reps_path:
+            if os.path.exists(reps_path):
                 self.reps_model = joblib.load(reps_path)
-            if volume_path:
+            if os.path.exists(volume_path):
                 self.volume_model = joblib.load(volume_path)
                 
         except Exception as e:

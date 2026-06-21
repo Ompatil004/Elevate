@@ -1,32 +1,80 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useNotification } from "../components/NotificationProvider";
 import { loginUser, getProfile, loginWithGoogle } from "../api";
+import { StorageKeys, markSessionStart, isSessionExpired } from "../utils/storage";
 import { loadGoogleSDK } from "../utils/googleAuth";
 import "../App.css";
 
-import { syncUserSession, persistSessionUser } from '../utils/sessionUtils';
+const SESSION_MAX_MS = 4 * 60 * 60 * 1000;
 
-const SUBMIT_COOLDOWN_MS = 1200;
+const clearUserScopedCache = () => {
+  const scopedKeys = [
+    StorageKeys.NUTRITION_CACHE,
+    StorageKeys.NUTRITION_CACHE_DATE,
+    StorageKeys.NUTRITION_CACHE_INVALID,
+    StorageKeys.TODAY_WORKOUT_DONE,
+    StorageKeys.TODAY_MEALS_DONE,
+    StorageKeys.WATER_INTAKE,
+    StorageKeys.SLEEP_HOURS,
+    StorageKeys.ACTIVITY_HISTORY,
+    StorageKeys.USER_AVATAR,
+    'workoutPlan',
+    'workoutPlanTimestamp',
+    'workoutPlanProfile',
+    'checkedFoods',
+    'lockedMeals',
+    'tickTimes',
+    'todayProgressStatus',
+    '_macroSync'
+  ];
+  scopedKeys.forEach((k) => localStorage.removeItem(k));
+};
 
+const syncUserSession = (newUser) => {
+  const prev = JSON.parse(localStorage.getItem('user') || '{}');
+  const prevIdentity = prev?.id || prev?.email || '';
+  const nextIdentity = newUser?.id || newUser?.email || '';
+  if (prevIdentity && nextIdentity && prevIdentity !== nextIdentity) {
+    clearUserScopedCache();
+  }
+};
 
 function Login({ setIsAuthenticated }) {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const lastSubmitAtRef = useRef(0);
   const navigate = useNavigate();
   const { showError } = useNotification();
-  const googleAuthEnabled = String(import.meta.env.VITE_ENABLE_GOOGLE_AUTH || 'true').toLowerCase() === 'true';
 
   useEffect(() => {
-    // Route guards in App.jsx already handle authenticated redirects.
-    if (googleAuthEnabled) {
-      loadGoogleSDK('google-signin-button', handleGoogleResponse, (errorMessage) => showError(errorMessage, 5000));
+    const token = localStorage.getItem("token");
+    if (token) {
+      if (isSessionExpired(SESSION_MAX_MS)) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        return;
+      }
+      // Don't blindly redirect to /dashboard — a new user may have a token
+      // but no profile data yet. Check profile completeness first.
+      getProfile()
+        .then(({ data }) => {
+          if (data.goal && data.age && data.weight) {
+            navigate("/dashboard", { replace: true });
+          } else {
+            navigate("/profile-setup", { replace: true });
+          }
+        })
+        .catch(() => {
+          // Token is invalid/expired — stay on login
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+        });
     }
+    loadGoogleSDK('google-signin-button', handleGoogleResponse, (errorMessage) => showError(errorMessage, 5000));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [navigate, googleAuthEnabled]);
+  }, [navigate]);
 
   const handleGoogleResponse = async (response) => {
     try {
@@ -36,7 +84,9 @@ function Login({ setIsAuthenticated }) {
       const { data } = await loginWithGoogle(response.credential);
 
       syncUserSession(data.user);
-      persistSessionUser(data.user);
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      markSessionStart();
       if (setIsAuthenticated) setIsAuthenticated(true);  
 
       try {
@@ -66,31 +116,24 @@ function Login({ setIsAuthenticated }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
-    const now = Date.now();
-    if (now - lastSubmitAtRef.current < SUBMIT_COOLDOWN_MS) {
-      setError('Please wait a moment before trying again.');
-      return;
-    }
-    lastSubmitAtRef.current = now;
-
     setLoading(true);
 
     try {
-        if (import.meta.env.DEV) console.log('🔵 Attempting login...');
+        console.log('🔵 Attempting login...');
         const { data } = await loginUser({
             email: formData.email,
             password: formData.password
         });
 
-        if (import.meta.env.DEV) {
-          console.log('✅ Login response received');
-        }
+        console.log('✅ Login response:', data);
+        console.log('🔑 Token:', data.token);
         
         syncUserSession(data.user);
-        persistSessionUser(data.user);
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        markSessionStart();
         
-        if (import.meta.env.DEV) console.log('💾 Session data saved');
+        console.log('💾 Token saved to localStorage');
         
         if (setIsAuthenticated) {
             setIsAuthenticated(true);
@@ -217,7 +260,11 @@ function Login({ setIsAuthenticated }) {
                 </div>
               </div>
 
-              <div className="remember-forgot" style={{ justifyContent: 'flex-end' }}>
+              <div className="remember-forgot">
+                <label className="remember-me">
+                  <input type="checkbox" />
+                  <span>Remember me</span>
+                </label>
                 <Link to="/forgot-password" className="forgot-password">Forgot password?</Link>
               </div>
 
@@ -238,7 +285,7 @@ function Login({ setIsAuthenticated }) {
             </div>
 
             <div className="social-login-google">
-              {googleAuthEnabled ? <div id="google-signin-button"></div> : null}
+              <div id="google-signin-button"></div>
             </div>
 
             <div className="login-footer">

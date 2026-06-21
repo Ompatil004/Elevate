@@ -544,7 +544,7 @@ def production_notes():
     
     notes = """
     1. MODEL DEPLOYMENT:
-         - Package and deploy the model with a consistent runtime environment
+       - Containerize the model with Docker for consistent deployment
        - Use model versioning to track changes and enable rollbacks
        - Implement A/B testing when deploying new model versions
     

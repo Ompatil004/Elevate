@@ -641,7 +641,7 @@ class ProgressionEngine:
 
         # Calculate progression state
         prog_state = self.get_progression_state(user_profile, workout_history or [], exercises_df)
-        is_deload = prog_state.get('is_deload', False)
+        is_deload = prog_state.get('is_deload', False) or stats.get('force_deload', False)
         readiness_score = prog_state.get('readiness_score', 70)
         plateaued_movements = prog_state.get('plateaued_movements', {})
 
@@ -698,7 +698,12 @@ class ProgressionEngine:
             method    = select_progression_method(
                 delta, streak, cur_sets, cur_reps_high, experience, recovery
             )
-            reason_str = "Progressive overload applied based on adherence and readiness."
+            # Apply biometrics-based volume gating: skip volume/rep increases if attendance is low
+            if stats.get('skip_volume_increase') and method in (ProgressionMethod.VOLUME_INCREASE, ProgressionMethod.REP_INCREASE):
+                method = ProgressionMethod.MAINTAIN
+                reason_str = "Attendance low: volume increase skipped this week."
+            else:
+                reason_str = "Progressive overload applied based on adherence and readiness."
 
         new_sets      = cur_sets
         new_reps_low  = cur_reps_low
@@ -741,6 +746,10 @@ class ProgressionEngine:
         if is_deload:
             new_sets = max(2, new_sets - 1)
             new_intensity = max(0.3, new_intensity * 0.8)
+
+        # Apply weekly sleep/hydration-based modifiers
+        new_sets += int(stats.get('adaptive_bonus_sets', 0))
+        new_intensity += float(stats.get('intensity_delta', 0.0))
 
         new_sets, new_reps_low, new_reps_high, new_intensity = apply_age_safety_caps(
             age, new_sets, new_reps_low, new_reps_high, new_intensity

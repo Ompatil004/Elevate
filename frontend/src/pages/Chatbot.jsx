@@ -1,39 +1,37 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import DOMPurify from 'dompurify';
 import ConfirmDialog from '../components/ConfirmDialog';
-import Navbar from '../components/Navbar';
 import { sendChatbotMessage, getProfile } from '../api';
 import { logoutSafe } from '../utils/storage';
+import { useTheme } from '../context/ThemeContext';
 
 // ===== STYLES =====
-const styles = {
+const getStyles = (isDark) => ({
   page: {
-    background: '#09090b',
-    height: '100dvh',
-    maxHeight: '100dvh',
-    color: '#e4e4e7',
+    background: 'transparent',
+    minHeight: '100dvh',
+    color: isDark ? '#e4e4e7' : '#18181b',
     fontFamily: "'Inter', sans-serif",
     display: 'flex', flexDirection: 'column',
-    overflow: 'hidden',
-    backgroundImage: `
-      radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.15), transparent 35%),
-      radial-gradient(circle at 100% 100%, rgba(236, 72, 153, 0.1), transparent 35%)
-    `
+    overflowX: 'hidden',
+    position: 'relative',
+    zIndex: 1,
+    paddingTop: 'clamp(64px, 9vw, 80px)'
   },
   navbar: {
     display: 'flex', alignItems: 'center',
     padding: '0 clamp(12px, 4vw, 40px)', height: 'clamp(64px, 9vw, 80px)',
     gap: 'clamp(8px, 2vw, 18px)',
-    borderBottom: '1px solid rgba(255,255,255,0.08)',
-    background: 'rgba(9, 9, 11, 0.6)', backdropFilter: 'blur(16px)',
-    position: 'sticky', top: 0, zIndex: 1000,
+    borderBottom: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.08)',
+    background: isDark ? 'rgba(9, 9, 11, 0.55)' : 'rgba(240,240,248,0.82)',
+    backdropFilter: 'blur(20px)',
+    position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
     overflowX: 'auto'
   },
   brand: {
     flex: 1,
     fontSize: '22px', fontWeight: '900', letterSpacing: '-1px',
-    background: 'linear-gradient(to right, #fff, #a5b4fc)',
+    background: isDark ? 'linear-gradient(to right, #fff, #a5b4fc)' : 'linear-gradient(to right, #18181b, #4f46e5)',
     WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
     display: 'flex', alignItems: 'center', gap: '10px'
   },
@@ -44,15 +42,17 @@ const styles = {
   },
   navLink: {
     display: 'flex', alignItems: 'center', padding: '8px clamp(10px, 2vw, 20px)',
-    fontSize: 'clamp(11px, 1.7vw, 13px)', fontWeight: '600', color: '#a1a1aa',
+    fontSize: 'clamp(11px, 1.7vw, 13px)', fontWeight: '600',
+    color: isDark ? '#a1a1aa' : '#52525b',
     cursor: 'pointer', borderRadius: '20px', transition: 'all 0.2s',
     textTransform: 'uppercase', letterSpacing: '0.5px',
     border: '1px solid transparent'
   },
   navLinkActive: {
-    background: 'rgba(255,255,255,0.1)', color: '#fff',
-    boxShadow: '0 0 20px rgba(255,255,255,0.05)',
-    border: '1px solid rgba(255,255,255,0.05)'
+    background: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(79,70,229,0.12)',
+    color: isDark ? '#fff' : '#4f46e5',
+    boxShadow: isDark ? '0 0 20px rgba(255,255,255,0.05)' : '0 0 20px rgba(79,70,229,0.1)',
+    border: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(79,70,229,0.2)'
   },
   navRight: {
     flex: 1,
@@ -61,7 +61,7 @@ const styles = {
   },
   dateDisplay: {
     fontSize: '13px', fontWeight: '600',
-    color: '#a1a1aa', fontFamily: 'sans-serif',
+    color: isDark ? '#a1a1aa' : '#52525b', fontFamily: 'sans-serif',
     letterSpacing: '0.5px', marginRight: '8px'
   },
   logoutBtn: {
@@ -77,10 +77,13 @@ const styles = {
     padding: 'clamp(10px, 3vw, 20px)', display: 'flex', flexDirection: 'column', minHeight: 0
   },
   chatWindow: {
-    flex: 1, background: '#18181b', borderRadius: 'clamp(14px, 2vw, 24px)',
-    border: '1px solid rgba(255,255,255,0.06)',
+    flex: 1,
+    background: isDark ? 'rgba(24,24,27,0.72)' : 'rgba(252,252,255,0.68)',
+    backdropFilter: 'blur(24px)',
+    borderRadius: 'clamp(14px, 2vw, 24px)',
+    border: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.08)',
     display: 'flex', flexDirection: 'column', overflow: 'hidden',
-    boxShadow: '0 20px 60px rgba(0,0,0,0.4)',
+    boxShadow: isDark ? '0 20px 60px rgba(0,0,0,0.35)' : '0 8px 32px rgba(99,102,241,0.08), 0 2px 8px rgba(0,0,0,0.06)',
     position: 'relative'
   },
 
@@ -89,8 +92,8 @@ const styles = {
     padding: 'clamp(12px, 2vw, 16px) clamp(12px, 2.4vw, 24px)',
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
     gap: '10px',
-    borderBottom: '1px solid rgba(255,255,255,0.06)',
-    background: 'rgba(24, 24, 27, 0.95)',
+    borderBottom: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)',
+    background: isDark ? 'rgba(24,24,27,0.80)' : 'rgba(248,248,254,0.90)',
     backdropFilter: 'blur(10px)'
   },
   chatHeaderLeft: {
@@ -106,7 +109,7 @@ const styles = {
     display: 'flex', flexDirection: 'column'
   },
   chatHeaderName: {
-    fontSize: '15px', fontWeight: '700', color: '#fff'
+    fontSize: '15px', fontWeight: '700', color: isDark ? '#fff' : '#18181b'
   },
   chatHeaderStatus: {
     fontSize: '11px', fontWeight: '600', color: '#22c55e',
@@ -119,9 +122,9 @@ const styles = {
   },
   clearBtn: {
     padding: '6px 14px', borderRadius: '10px',
-    background: 'rgba(255,255,255,0.06)',
-    border: '1px solid rgba(255,255,255,0.08)',
-    color: '#a1a1aa', fontSize: '11px', fontWeight: '700',
+    background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
+    border: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.08)',
+    color: isDark ? '#a1a1aa' : '#52525b', fontSize: '11px', fontWeight: '700',
     cursor: 'pointer', transition: 'all 0.2s',
     textTransform: 'uppercase', letterSpacing: '0.5px'
   },
@@ -146,10 +149,11 @@ const styles = {
     boxShadow: '0 4px 20px rgba(99, 102, 241, 0.25)'
   },
   bubbleBot: {
-    background: '#27272a', color: '#e4e4e7',
-    border: '1px solid rgba(255,255,255,0.06)',
+    background: isDark ? 'rgba(39,39,42,0.90)' : 'rgba(242,242,252,0.96)',
+    color: isDark ? '#e4e4e7' : '#18181b',
+    border: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)',
     borderRadius: '18px 18px 18px 4px',
-    boxShadow: '0 2px 10px rgba(0,0,0,0.15)'
+    boxShadow: isDark ? '0 2px 10px rgba(0,0,0,0.15)' : '0 2px 10px rgba(0,0,0,0.06)'
   },
   botAvatarSmall: {
     width: '32px', height: '32px', borderRadius: '10px',
@@ -177,11 +181,11 @@ const styles = {
     animation: 'floatBounce 3s ease-in-out infinite'
   },
   welcomeTitle: {
-    fontSize: '24px', fontWeight: '800', color: '#fff',
+    fontSize: '24px', fontWeight: '800', color: isDark ? '#fff' : '#18181b',
     letterSpacing: '-0.5px'
   },
   welcomeSub: {
-    fontSize: 'clamp(13px, 1.8vw, 14px)', color: '#a1a1aa', maxWidth: 'min(100%, 400px)',
+    fontSize: 'clamp(13px, 1.8vw, 14px)', color: isDark ? '#a1a1aa' : '#52525b', maxWidth: 'min(100%, 400px)',
     lineHeight: '1.6'
   },
   suggestionsGrid: {
@@ -190,9 +194,9 @@ const styles = {
   },
   suggestionChip: {
     padding: '12px 16px', borderRadius: '14px',
-    background: 'rgba(255,255,255,0.04)',
-    border: '1px solid rgba(255,255,255,0.08)',
-    color: '#d4d4d8', fontSize: '13px', fontWeight: '500',
+    background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(99,102,241,0.06)',
+    border: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(99,102,241,0.12)',
+    color: isDark ? '#d4d4d8' : '#3f3f46', fontSize: '13px', fontWeight: '500',
     cursor: 'pointer', transition: 'all 0.25s ease',
     textAlign: 'left', lineHeight: '1.4',
     display: 'flex', alignItems: 'center', gap: '8px'
@@ -200,9 +204,10 @@ const styles = {
 
   // --- INPUT AREA ---
   inputArea: {
-    padding: 'clamp(10px, 2vw, 16px) clamp(10px, 2.4vw, 20px)', background: 'rgba(24, 24, 27, 0.95)',
+    padding: 'clamp(10px, 2vw, 16px) clamp(10px, 2.4vw, 20px)',
+    background: isDark ? 'rgba(24,24,27,0.80)' : 'rgba(248,248,254,0.90)',
     backdropFilter: 'blur(10px)',
-    borderTop: '1px solid rgba(255,255,255,0.06)',
+    borderTop: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)',
     display: 'flex', gap: '12px', alignItems: 'flex-end', flexWrap: 'wrap'
   },
   inputWrapper: {
@@ -210,8 +215,9 @@ const styles = {
   },
   input: {
     width: '100%', padding: '14px 20px', borderRadius: '16px',
-    background: '#09090b', border: '1px solid rgba(255,255,255,0.1)',
-    color: '#fff', fontSize: '14px', fontFamily: 'inherit',
+    background: isDark ? 'rgba(9,9,11,0.85)' : 'rgba(240,240,252,0.92)',
+    border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.10)',
+    color: isDark ? '#fff' : '#18181b', fontSize: '14px', fontFamily: 'inherit',
     outline: 'none', transition: 'all 0.2s', resize: 'none',
     minHeight: '48px', maxHeight: '120px', lineHeight: '1.5'
   },
@@ -242,7 +248,7 @@ const styles = {
     border: '1px solid rgba(239, 68, 68, 0.2)',
     borderRadius: '12px', fontSize: '12px', color: '#fca5a5'
   }
-};
+});
 
 // ===== QUICK SUGGESTION CHIPS =====
 const SUGGESTIONS = [
@@ -258,14 +264,8 @@ const MAX_INPUT_LENGTH = 2000;
 function renderMarkdown(text) {
   if (!text) return text;
 
-  // SEC-40: sanitize inbound content before rendering markdown-like text.
-  const sanitizedText = DOMPurify.sanitize(String(text), {
-    ALLOWED_TAGS: [],
-    ALLOWED_ATTR: [],
-  });
-
   // Split into lines and process
-  const lines = sanitizedText.split('\n');
+  const lines = text.split('\n');
   const elements = [];
   let inList = false;
   let listItems = [];
@@ -321,7 +321,7 @@ function renderMarkdown(text) {
     // Heading-like (### or **)
     if (/^#{1,3}\s/.test(trimmed)) {
       elements.push(
-        <div key={i} style={{ fontWeight: '700', fontSize: '15px', marginTop: '8px', marginBottom: '4px', color: '#f4f4f5' }}>
+        <div key={i} style={{ fontWeight: '700', fontSize: '15px', marginTop: '8px', marginBottom: '4px', color: 'inherit' }}>
           {processInline(trimmed.replace(/^#{1,3}\s/, ''))}
         </div>
       );
@@ -344,7 +344,7 @@ function renderMarkdown(text) {
 
 
 // ===== TYPING INDICATOR =====
-function TypingIndicator() {
+function TypingIndicator({ styles }) {
   return (
     <div style={{ ...styles.messageRow, ...styles.rowBot }}>
       <div style={styles.botAvatarSmall}>🧠</div>
@@ -368,12 +368,14 @@ function TypingIndicator() {
 // ===== MAIN COMPONENT =====
 function Chatbot() {
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const styles = getStyles(isDark);
   const [confirmDialog, setConfirmDialog] = useState({ show: false, message: '', onConfirm: null });
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [profile, setProfile] = useState({});
-  const [shareHealthContext, setShareHealthContext] = useState(false);
   const [error, setError] = useState(null);
   const [cooldown, setCooldown] = useState(false);
   
@@ -397,10 +399,28 @@ function Chatbot() {
     };
     loadProfile();
 
+    // Load saved chat from sessionStorage (persists within tab)
+    const savedChat = sessionStorage.getItem('elevate_chat');
+    if (savedChat) {
+      try {
+        const parsed = JSON.parse(savedChat);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setMessages(parsed);
+        }
+      } catch { /* ignore */ }
+    }
+
     return () => {
       if (cooldownTimerRef.current) clearTimeout(cooldownTimerRef.current);
     };
   }, []);
+
+  // Save chat to sessionStorage whenever messages change
+  useEffect(() => {
+    if (messages.length > 0) {
+      sessionStorage.setItem('elevate_chat', JSON.stringify(messages));
+    }
+  }, [messages]);
 
   // Auto-scroll
   useEffect(() => {
@@ -439,9 +459,7 @@ function Chatbot() {
     cooldownTimerRef.current = setTimeout(() => setCooldown(false), 1500);
 
     try {
-      const chatResponse = await sendChatbotMessage(trimmed, profile, updatedMessages, {
-        includeSensitive: shareHealthContext,
-      });
+      const chatResponse = await sendChatbotMessage(trimmed, profile, updatedMessages);
 
       const replyText = chatResponse.data?.reply || chatResponse.data?.message || "I couldn't generate a response. Please try again.";
       
@@ -464,16 +482,10 @@ function Chatbot() {
       setMessages(prev => [...prev, botMsg]);
     } catch (err) {
       console.error('Chat error:', err);
-      if (err.response?.data?.detail) {
-        console.error('Validation detail:', JSON.stringify(err.response.data.detail));
-      }
 
       let errorMsg = "I'm having trouble connecting right now. Please check that the Python backend is running.";
 
-      if (err.response?.status === 422) {
-        errorMsg = "There was a problem with the message format. Please try again or clear the chat. 🔧";
-        console.warn('422 validation details:', err.response.data?.detail);
-      } else if (err.response?.status === 429) {
+      if (err.response?.status === 429) {
         errorMsg = "You're sending messages too fast! Please wait a moment. 😅";
       } else if (err.code === 'ERR_NETWORK' || err.code === 'ECONNREFUSED') {
         errorMsg = "Can't reach the AI server. Make sure the Python backend (port 8000) is running.";
@@ -491,7 +503,7 @@ function Chatbot() {
       // Focus input after response
       setTimeout(() => inputRef.current?.focus(), 100);
     }
-  }, [messages, profile, isTyping, cooldown, shareHealthContext]);
+  }, [messages, profile, isTyping, cooldown]);
 
 
   const handleSubmit = (e) => {
@@ -508,6 +520,7 @@ function Chatbot() {
 
   const clearChat = () => {
     setMessages([]);
+    sessionStorage.removeItem('elevate_chat');
     setError(null);
   };
 
@@ -590,10 +603,7 @@ function Chatbot() {
           .chat-container { padding: 10px !important; }
           .chat-header { padding: 12px 16px !important; }
           .messages-area { padding: 16px !important; }
-          .input-area { 
-            padding: 12px !important; 
-            padding-bottom: calc(12px + env(safe-area-inset-bottom)) !important;
-          }
+          .input-area { padding: 12px !important; }
           .suggestion-grid { grid-template-columns: 1fr !important; }
           .bubble-msg { max-width: 85% !important; }
           .navbar-pad { padding: 0 16px !important; }
@@ -602,15 +612,19 @@ function Chatbot() {
 
       <div style={styles.page}>
         {/* NAVBAR */}
-        {/* BUG-F3/F13: Replaced inline nav with shared Navbar component */}
-        <Navbar
-          navigate={navigate}
-          activePage="chatbot"
-          onLogout={handleLogout}
-          rightContent={
+        <nav style={styles.navbar} className="navbar-pad">
+          <div style={styles.brand}><div style={styles.brandDot}></div> ELEVATE</div>
+          <div style={styles.navCenter} className="nav-center-hide">
+            <div style={styles.navLink} className="nav-link-hover" onClick={() => navigate('/dashboard')}>Dashboard</div>
+            <div style={styles.navLink} className="nav-link-hover" onClick={() => navigate('/workout')}>Workout</div>
+            <div style={styles.navLink} className="nav-link-hover" onClick={() => navigate('/nutrition')}>Nutrition</div>
+            <div style={{ ...styles.navLink, ...styles.navLinkActive }}>AI Coach</div>
+          </div>
+          <div style={styles.navRight}>
             <div style={styles.dateDisplay}>{todayDate}</div>
-          }
-        />
+            <button style={styles.logoutBtn} onClick={handleLogout}>LOGOUT</button>
+          </div>
+        </nav>
 
         {/* CHAT CONTAINER */}
         <div style={styles.container} className="chat-container">
@@ -713,34 +727,13 @@ function Chatbot() {
                   </div>
                 ))}
 
-                {isTyping && <TypingIndicator />}
+                {isTyping && <TypingIndicator styles={styles} />}
                 <div ref={messagesEndRef} />
               </div>
             )}
 
             {/* INPUT AREA */}
             <form style={styles.inputArea} className="input-area" onSubmit={handleSubmit}>
-              <div style={{ width: '100%', marginBottom: '4px' }}>
-                <label
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    fontSize: '12px',
-                    color: '#a1a1aa',
-                    cursor: 'pointer',
-                    userSelect: 'none',
-                  }}
-                >
-                  <input
-                    type="checkbox"
-                    checked={shareHealthContext}
-                    onChange={(event) => setShareHealthContext(event.target.checked)}
-                    style={{ accentColor: '#6366f1' }}
-                  />
-                  Share health context (age, body metrics, allergies) to improve response quality.
-                </label>
-              </div>
               <div style={styles.inputWrapper}>
                 <textarea
                   ref={inputRef}

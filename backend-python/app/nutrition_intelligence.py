@@ -1,13 +1,6 @@
 """
 Nutrition Intelligence Engine for Elevate Fitness
 
-.. deprecated::
-    ARCH-4: This module is DEPRECATED. ``DeterministicMealEngine``
-    (``backend-python/app/deterministic_meal_engine.py``) is now the
-    canonical meal-planning engine. Do NOT add new features here.
-    This file is retained only for backward-compatibility until the
-    remaining call-sites in server.py are migrated.
-
 This module handles intelligent meal planning with hard constraints,
 macro balancing, and dietary restrictions compliance.
 """

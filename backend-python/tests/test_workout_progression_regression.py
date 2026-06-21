@@ -87,3 +87,49 @@ async def test_history_truncation(monkeypatch):
         {"_id": ObjectId(user_id)},
         {"workouts": {"$slice": -50}}
     )
+
+# 5. Home Workout Only & Warm-up Separation Test
+def test_home_workout_only_and_warmup_separation():
+    """Verify that only home equipment exercises are loaded, and that weekly plans separate warm-ups from main exercises."""
+    engine = WorkoutEngine()
+    
+    # 1. Verify only home equipment exercises are in the database
+    allowed_equipments = {
+        'body weight', 'bodyweight', 'dumbbell', 'band', 'resistance band',
+        'kettlebell', 'medicine ball', 'stability ball', 'bosu ball', 'roller',
+        'wheel roller', 'rope', 'weighted', 'none', 'no equipment', 'assisted'
+    }
+    
+    for eq in engine.exercises_df['Equipment'].unique():
+        assert eq.lower().strip() in allowed_equipments, f"Forbidden gym equipment '{eq}' found in loaded database!"
+        
+    # 2. Generate weekly plan and verify separate warm-up count
+    profile = {
+        'goal': 'Muscle Gain',
+        'experience': 'Beginner',
+        'equipment': ['Dumbbells', 'Resistance Bands'],
+        'body_issues': [],
+        'days_per_week': 3,
+        'age': 25,
+        'streak': 0,
+        'weight': 70,
+        'height': 175,
+        'gender': 'male'
+    }
+    
+    plan = engine.generate_weekly_plan(profile)
+    assert len(plan) == 7
+    
+    for day in plan:
+        if day['type'] == 'workout':
+            # Check warmups are populated
+            assert 'warmup' in day
+            assert len(day['warmup']) > 0
+            
+            # Check exercises list has only main exercises (no warmup exercises should be in 'exercises' list)
+            for ex in day['exercises']:
+                assert not ex.get('is_warmup'), f"Warm-up exercise '{ex['name']}' found in 'exercises' list!"
+                
+            # Check that exercises_total is correct and only counts main exercises
+            assert day['exercises_total'] == len(day['exercises'])
+

@@ -151,25 +151,24 @@ class FoodClassifier:
         r'\b(thali|meal|combo|platter)\b',
         r'\b(ladoo|halwa|kheer|payasam)\b',
     ]
-    
-    # Beverage indicators — items matching these should NEVER be a meal slot
+
+    # Beverage indicators - items matching these should NEVER be a meal slot
     BEVERAGE_PATTERNS = [
         r'\bdrink\b', r'\bjuice\b', r'\bcooler\b', r'\blemonade\b',
-        r'\bsherbet\b', r'\bsharbat\b', r'\baam panna\b', r'\bfruit punch\b',
-        r'\binfused water\b', r'\biced tea\b', r'\bespresso\b',
-        r'\bcold coffee\b', r'\bhot cocoa\b', r'\bchaas\b',
-        r'\bmilkshake\b', r'\bshake\b', r'\bnog\b',
-        r'\bsummer cooler\b', r'\bcoco pine\b', r'\bnimbu pani\b',
-        r'\bsquash\b', r'\bcordial\b',
+        r'\bnimbu pani\b', r'\bsherbet\b', r'\bsharbat\b',
+        r'\baam panna\b', r'\bfruit punch\b', r'\binfused water\b',
+        r'\biced tea\b', r'\bespresso\b', r'\bcold coffee\b',
+        r'\bhot cocoa\b', r'\bchaas\b', r'\bmilkshake\b',
+        r'\bshake\b', r'\bnog\b', r'\bsummer cooler\b',
+        r'\blassi\b', r'\bcoco pine\b', r'\bsquash\b',
     ]
-    
+
     # ==================================================================
     # NUTRITION THRESHOLDS
     # ==================================================================
     MIN_MEAL_CALORIES = 80  # Below this is likely a condiment
     MAX_SINGLE_ITEM_CALORIES = 700   # Single food item should never exceed 700 cal
-                                      # Items above this (Poori=1844, Pulao=1454) are
-                                      # full batch recipes, not per-serving values
+                                      # Poori=1844, Pulao=1454 etc. are full batches not servings
     
     # Fat-based ingredient detection
     HIGH_FAT_THRESHOLD = 80  # grams
@@ -179,17 +178,18 @@ class FoodClassifier:
     def __init__(self):
         """Initialize classifier with compiled regex patterns."""
         self.ingredient_regex = re.compile(
-            '|'.join(self.INGREDIENT_PATTERNS), 
+            '|'.join(self.INGREDIENT_PATTERNS),
             re.IGNORECASE
         )
         self.side_dish_regex = re.compile(
-            '|'.join(self.SIDE_DISH_PATTERNS), 
+            '|'.join(self.SIDE_DISH_PATTERNS),
             re.IGNORECASE
         )
         self.main_meal_regex = re.compile(
-            '|'.join(self.MAIN_MEAL_PATTERNS), 
+            '|'.join(self.MAIN_MEAL_PATTERNS),
             re.IGNORECASE
         )
+        # M2 Fix: Compile beverage regex — beverages must never appear as meal slots
         self.beverage_regex = re.compile(
             '|'.join(self.BEVERAGE_PATTERNS),
             re.IGNORECASE
@@ -211,29 +211,31 @@ class FoodClassifier:
             FoodCategory enum value
         """
         name_lower = name.lower().strip()
-        
+
         # STEP 0: Check for beverages FIRST — these are never a standalone meal
+        # M2 Fix: Beverages (lassi, lemonade, milkshake, etc.) were appearing as
+        # breakfast/lunch because FoodCategory.BEVERAGE was never returned before.
         if self.beverage_regex.search(name_lower):
             return FoodCategory.BEVERAGE
-        
+
         # STEP 1: Check for raw ingredients FIRST (strict filtering)
         # This catches ingredients like "sambar powder" even though "sambar" is whitelisted
         if self._is_ingredient(name_lower):
             return FoodCategory.INGREDIENT
-        
+
         # STEP 2: Check whitelist (but only for non-ingredients)
         if self._is_whitelisted(name_lower):
             # Whitelisted items need nutrition validation
             return self._validate_by_nutrition(nutrition, FoodCategory.MAIN_MEAL)
-        
+
         # STEP 3: Check for side dishes
         if self._is_side_dish(name_lower):
             return FoodCategory.SIDE_DISH
-        
+
         # STEP 4: Check for main meals by pattern
         if self._is_main_meal_by_pattern(name_lower):
             return self._validate_by_nutrition(nutrition, FoodCategory.MAIN_MEAL)
-        
+
         # STEP 5: Fallback to nutrition-based classification
         return self._classify_by_nutrition_only(nutrition)
     
@@ -395,8 +397,12 @@ class FoodClassifier:
         )
         
         # Filter to valid meals only
+        # M2 Fix: Explicitly exclude beverages — they must never appear in any meal slot
         valid_categories = ['main_meal', 'side_dish']
-        df_clean = df[df['food_category'].isin(valid_categories)].copy()
+        df_clean = df[
+            df['food_category'].isin(valid_categories) &
+            (df['food_category'] != 'beverage')
+        ].copy()
         
         # Additional nutrition-based filtering
         df_clean = self._apply_nutrition_filters(df_clean)
@@ -415,24 +421,7 @@ class FoodClassifier:
             # Must have some substance (not just water/liquid)
             ((df['protein'].fillna(0) >= 1) | (df['carbs'].fillna(0) >= 5))
         )
-        df_filtered = df[mask].copy()
-        
-        # Data quality: Flag suspiciously high protein relative to calories
-        # e.g. "Consomme au vermicelli" claims 45.7g protein in 89 cal
-        # (45.7g protein = 183 cal from protein alone, but total is 89 cal)
-        # These are likely data entry errors
-        protein_cal = df_filtered['protein'].fillna(0) * 4  # cal from protein
-        total_cal = df_filtered['calories'].fillna(1)
-        protein_ratio = protein_cal / total_cal.clip(lower=1)
-        # If protein calories exceed total calories, the data is wrong
-        # Allow up to 80% protein ratio (e.g. grilled chicken breast is ~75%)
-        suspicious = protein_ratio > 0.80
-        if suspicious.any():
-            flagged = df_filtered[suspicious]['name'].tolist()
-            print(f"  [FoodClassifier] Flagged {len(flagged)} items with suspicious protein data")
-            df_filtered = df_filtered[~suspicious]
-        
-        return df_filtered
+        return df[mask].copy()
     
     # ==================================================================
     # MEAL COMBINATION SUGGESTIONS
@@ -855,8 +844,7 @@ class MealEngine:
         self.nutrition_df = self.classifier.clean_dataset(self.nutrition_df)
         print(f" [MealEngine] Final dataset: {len(self.nutrition_df)} valid meals")
 
-        # Load food blacklist — 300+ items that should never appear in a fitness app
-        # (ice cream, alcohol, Christmas biscuits, cooking sauces, cakes, etc.)
+        # Load food blacklist — items that should never appear in a fitness app
         blacklist_path = os.path.join(base_dir, 'data', 'food_blacklist.json')
         if os.path.exists(blacklist_path):
             with open(blacklist_path, encoding='utf-8') as _bl_file:
@@ -1081,9 +1069,8 @@ class MealEngine:
                 df = df[~df['allergens'].str.lower().str.contains(pattern, na=False, regex=True)]
 
         # Goal-match preference: prefer goal-matching foods, but fall back to all
-        # NOTE: The goal tag in the dataset is unreliable (only 606/1900 are Weight Loss).
-        # We apply this filter ONLY when it leaves a substantial pool (50+ items).
-        # Otherwise the per-meal-type split creates tiny pools (e.g. 5 lunch items).
+        # NOTE: The goal tag in the dataset is unreliable.
+        # We apply this filter ONLY when it leaves a substantial pool.
         goal = profile.get('goal', 'Maintenance')
         goal_map = {
             'Weight Loss': 'Weight Loss',
@@ -1097,7 +1084,6 @@ class MealEngine:
         mapped_goal = goal_map.get(goal, 'Maintain')
         goal_df = df[df['goal_tag'].str.strip().str.lower() == mapped_goal.lower()]
         # Only apply goal filter if it leaves enough items per meal type
-        # Check that we'd still have >= 10 items in each major meal type
         if len(goal_df) >= 50:
             mt_counts = goal_df['meal_type'].value_counts()
             has_enough = all(mt_counts.get(mt, 0) >= 8 for mt in ['breakfast', 'lunch', 'dinner'])
@@ -1107,7 +1093,7 @@ class MealEngine:
         if df.empty:
             df = self.nutrition_df.copy()
             # Re-apply blacklist + side dish filter even on fallback
-            if self.food_blacklist:
+            if hasattr(self, 'food_blacklist') and self.food_blacklist:
                 df = df[~df['name'].isin(self.food_blacklist)]
             if 'food_category' in df.columns:
                 df = df[df['food_category'].isin(['main_meal'])]
@@ -1267,27 +1253,13 @@ class MealEngine:
         daily_cal = targets['daily_calories']
         macros_g  = targets['macro_targets_g']
 
-        print(f"\n[DeterministicMealEngine] Generating weekly plan...")
-        print(f"  - Daily calories target: {daily_cal}")
-        print(f"  - Macro targets (g): {macros_g}")
-
-        now = _utcnow()
+        now = datetime.utcnow()
         iso_year, iso_week, _ = now.isocalendar()
-        _raw_offset = profile.get('week_offset')
-        week_offset = int(_raw_offset if _raw_offset is not None else ((iso_year * 100) + iso_week))
+        week_offset = int(profile.get('week_offset') or ((iso_year * 100) + iso_week))
         user_entropy = self._create_user_entropy(profile)
         profile_fingerprint = self._create_profile_fingerprint(profile)
 
-        print(f"  - Filtering foods for profile: goal={profile.get('goal')}, dietary={profile.get('dietary_preference')}")
         filtered = self._filter_foods(profile)
-        print(f"  - Foods after filtering: {len(filtered)}")
-        if len(filtered) > 0:
-            print(f"  - Sample foods: {filtered['name'].head(10).tolist()}")
-            # Show meal_type distribution
-            meal_type_dist = filtered['meal_type'].value_counts()
-            print(f"  - Meal type distribution: {meal_type_dist.to_dict()}")
-        else:
-            print(f"  [WARNING] No foods after filtering! This will cause empty meal plans.")
 
         # Bug #4 Fix: Split pool by meal type, ensuring side dishes don't appear as mains
         # Snack pool gets additional filtering to remove heavy meals mislabelled as snacks
@@ -1303,11 +1275,11 @@ class MealEngine:
         pools = {}
         for mt in ('breakfast', 'lunch', 'dinner', 'snack'):
             mp = filtered[filtered['meal_type'] == mt].copy()
-
+            
             # Additional safety: Ensure no side dishes slip through
             if 'food_category' in mp.columns:
                 mp = mp[mp['food_category'] == 'main_meal']
-
+            
             if mt == 'snack':
                 # M1 Fix: Remove heavy meal items that are mislabelled as snacks in dataset
                 for pattern in SNACK_MEAL_BLACKLIST_PATTERNS:
@@ -1315,8 +1287,16 @@ class MealEngine:
                 # M3 Fix: Hard calorie cap — snack items must be under 250 cal per row
                 mp = mp[mp['calories'] <= MAX_SNACK_CALORIES]
 
-            pools[mt] = mp if not mp.empty else filtered
-            print(f"  - {mt} pool: {len(mp)} items")
+            if mt == 'snack' and mp.empty:
+                # Fallback for snack: use the full filtered set but STILL apply blacklist+cap
+                # so heavy meals can't slip in via the fallback path
+                mp = filtered.copy()
+                for pattern in SNACK_MEAL_BLACKLIST_PATTERNS:
+                    mp = mp[~mp['name'].str.lower().str.contains(pattern, na=False)]
+                mp = mp[mp['calories'] <= MAX_SNACK_CALORIES]
+                pools[mt] = mp if not mp.empty else pd.DataFrame()
+            else:
+                pools[mt] = mp if not mp.empty else filtered
 
         weekly_plan = {}
         day_names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday',
@@ -1345,8 +1325,6 @@ class MealEngine:
                     used_names_today, seed=seed, meal_type=mt
                 )
                 day_plan[mt] = items
-                if day_idx == 0:  # Only log for first day to avoid spam
-                    print(f"    - {day_name} {mt}: picked {len(items)} items")
 
             weekly_plan[day_name] = day_plan
 
@@ -1367,7 +1345,7 @@ class MealEngine:
                 'user_entropy': user_entropy,
                 'profile_fingerprint': profile_fingerprint,
             },
-            'generation_timestamp': datetime.now().isoformat(),
+            'generation_timestamp': _utcnow().isoformat(),
         }
 
     # ─────────────────────────────────────────────

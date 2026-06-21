@@ -81,63 +81,83 @@ class WorkoutEngine:
         
         # Get base directory
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        exercises_home_v1    = os.path.join(base_dir, 'data', 'exercises_home_v1.csv')
         exercises_processed_repaired = os.path.join(base_dir, 'data', 'exercises_processed_repaired.csv')
         exercises_processed = os.path.join(base_dir, 'data', 'exercises_processed.csv')
         exercises_raw = os.path.join(base_dir, 'data', 'exercises.csv')
 
+        # HOME_WORKOUT_ONLY mode: load home dataset first (fail-fast if missing)
+        _home_only_mode = str(os.environ.get('HOME_WORKOUT_ONLY', 'true')).strip().lower() in ('1', 'true', 'yes', 'on')
+
         # Load exercises from CSV or create fallback
         try:
-            if os.path.exists(exercises_processed_repaired):
-                self.exercises_df = pd.read_csv(exercises_processed_repaired)
-                print(f" Loaded {len(self.exercises_df)} exercises from repaired processed CSV")
-                # Standardize column names to TitleCase format to match expected format
-                self.exercises_df.columns = self.exercises_df.columns.str.strip().str.title().str.replace(' ', '_')
-            elif os.path.exists(exercises_processed):
-                self.exercises_df = pd.read_csv(exercises_processed)
-                print(f" Loaded {len(self.exercises_df)} exercises from processed CSV")
-                # Standardize column names to TitleCase format to match expected format
-                self.exercises_df.columns = self.exercises_df.columns.str.strip().str.title().str.replace(' ', '_')
-            elif os.path.exists(exercises_raw):
-                self.exercises_df = pd.read_csv(exercises_raw)
-                print(f" Loaded {len(self.exercises_df)} exercises from raw CSV")
+            if _home_only_mode and os.path.exists(exercises_home_v1):
+                self.exercises_df = pd.read_csv(exercises_home_v1)
+                print(f" [HOME MODE] Loaded {len(self.exercises_df)} exercises from home-only CSV (exercises_home_v1.csv)")
                 # Standardize column names to TitleCase format to match expected format
                 self.exercises_df.columns = self.exercises_df.columns.str.strip().str.title().str.replace(' ', '_')
             else:
-                # Fallback exercises
-                print(" CSV files not found, using fallback exercises")
-                self.exercises_df = pd.DataFrame({
-                    'Name': [
-                        'Push-ups', 'Squats', 'Deadlifts', 'Bench Press',
-                        'Dumbbell Rows', 'Pull-ups', 'Lunges', 'Plank',
-                        'Bicep Curls', 'Tricep Dips', 'Shoulder Press', 'Leg Press',
-                        'Lat Pulldown', 'Chest Fly', 'Leg Curl', 'Calf Raises'
-                    ],
-                    'Target_Muscle': [
-                        'Chest', 'Legs', 'Back', 'Chest',
-                        'Back', 'Back', 'Legs', 'Core',
-                        'Arms', 'Arms', 'Shoulders', 'Legs',
-                        'Back', 'Chest', 'Legs', 'Legs'
-                    ],
-                    'Equipment': [
-                        'Body Weight', 'Body Weight', 'Barbell', 'Barbell',
-                        'Dumbbell', 'Body Weight', 'Body Weight', 'Body Weight',
-                        'Dumbbell', 'Body Weight', 'Dumbbell', 'Machine',
-                        'Machine', 'Dumbbell', 'Machine', 'Body Weight'
-                    ],
-                    'Avoid_If': [
-                        'None', 'Knee Issues', 'Back Issues', 'Shoulder Issues',
-                        'None', 'Shoulder Issues', 'Knee Issues', 'None',
-                        'None', 'Shoulder Issues', 'Shoulder Issues', 'Knee Issues',
-                        'None', 'Shoulder Issues', 'None', 'None'
-                    ],
-                    'Check_Type': ['strength'] * 16,
-                    'Risk_Level': ['Low', 'Medium', 'High', 'High', 'Medium', 'Medium', 'Medium', 'Low', 'Low', 'Low', 'Medium', 'Medium', 'Medium', 'Low', 'Low', 'Low'],
-                    'Progression_Next': [''] * 16,
-                    'Alternative_Swap': [''] * 16
-                })
+                # If _home_only_mode is True but exercises_home_v1.csv is missing, OR if _home_only_mode is False,
+                # load the standard processed/raw files and filter them in memory if _home_only_mode is True.
+                if os.path.exists(exercises_processed_repaired):
+                    self.exercises_df = pd.read_csv(exercises_processed_repaired)
+                    print(f" Loaded {len(self.exercises_df)} exercises from repaired processed CSV")
+                elif os.path.exists(exercises_processed):
+                    self.exercises_df = pd.read_csv(exercises_processed)
+                    print(f" Loaded {len(self.exercises_df)} exercises from processed CSV")
+                elif os.path.exists(exercises_raw):
+                    self.exercises_df = pd.read_csv(exercises_raw)
+                    print(f" Loaded {len(self.exercises_df)} exercises from raw CSV")
+                else:
+                    # Fallback exercises
+                    print(" CSV files not found, using fallback exercises")
+                    self.exercises_df = pd.DataFrame({
+                        'Name': [
+                            'Push-ups', 'Squats', 'Deadlifts', 'Bench Press',
+                            'Dumbbell Rows', 'Pull-ups', 'Lunges', 'Plank',
+                            'Bicep Curls', 'Tricep Dips', 'Shoulder Press', 'Leg Press',
+                            'Lat Pulldown', 'Chest Fly', 'Leg Curl', 'Calf Raises'
+                        ],
+                        'Target_Muscle': [
+                            'Chest', 'Legs', 'Back', 'Chest',
+                            'Back', 'Back', 'Legs', 'Core',
+                            'Arms', 'Arms', 'Shoulders', 'Legs',
+                            'Back', 'Chest', 'Legs', 'Legs'
+                        ],
+                        'Equipment': [
+                            'Body Weight', 'Body Weight', 'Barbell', 'Barbell',
+                            'Dumbbell', 'Body Weight', 'Body Weight', 'Body Weight',
+                            'Dumbbell', 'Body Weight', 'Dumbbell', 'Machine',
+                            'Machine', 'Dumbbell', 'Machine', 'Body Weight'
+                        ],
+                        'Avoid_If': [
+                            'None', 'Knee Issues', 'Back Issues', 'Shoulder Issues',
+                            'None', 'Shoulder Issues', 'Knee Issues', 'None',
+                            'None', 'Shoulder Issues', 'Shoulder Issues', 'Knee Issues',
+                            'None', 'Shoulder Issues', 'None', 'None'
+                        ],
+                        'Check_Type': ['strength'] * 16,
+                        'Risk_Level': ['Low', 'Medium', 'High', 'High', 'Medium', 'Medium', 'Medium', 'Low', 'Low', 'Low', 'Medium', 'Medium', 'Medium', 'Low', 'Low', 'Low'],
+                        'Progression_Next': [''] * 16,
+                        'Alternative_Swap': [''] * 16
+                    })
 
-                # Standardize column names for fallback DataFrame too
+                # Standardize column names
                 self.exercises_df.columns = self.exercises_df.columns.str.strip().str.title().str.replace(' ', '_')
+
+                # Apply home equipment filter in memory if in home-only mode and loaded full CSV
+                if _home_only_mode:
+                    HOME_EQUIPMENT_VALUES = {
+                        'body weight', 'bodyweight', 'dumbbell', 'band', 'resistance band',
+                        'kettlebell', 'medicine ball', 'stability ball', 'bosu ball', 'roller',
+                        'wheel roller', 'rope', 'weighted', 'none', 'no equipment', 'assisted'
+                    }
+                    if 'Equipment' in self.exercises_df.columns:
+                        before_cnt = len(self.exercises_df)
+                        self.exercises_df = self.exercises_df[
+                            self.exercises_df['Equipment'].str.lower().str.strip().isin(HOME_EQUIPMENT_VALUES)
+                        ]
+                        print(f" [HOME MODE FILTER] Filtered dataset from {before_cnt} to {len(self.exercises_df)} home-friendly exercises.")
 
             # Fill missing values
             fill_values = {
@@ -197,39 +217,14 @@ class WorkoutEngine:
         # Load GIF blacklist — exercises with no valid exercise-specific media.
         self._load_gif_blacklist(base_dir)
 
-        # Centralised dynamic registry population
-        try:
-            import app.utils.movement_mapper as mm
-            for idx, row in self.exercises_df.iterrows():
-                name = str(row.get('Name', '')).strip()
-                target_muscle = str(row.get('Target_Muscle', '')).strip()
-                equip = str(row.get('Equipment', '')).strip()
-                meta = mm.get_movement_metadata(name, target_muscle)
-                mm.EXERCISE_METADATA[name] = {
-                    "pattern": meta["pattern"],
-                    "mechanic": meta["mechanic"],
-                    "equipment": [e.strip().lower() for e in equip.split(',')] if equip else []
-                }
-            print(f" Registered {len(mm.EXERCISE_METADATA)} exercises in EXERCISE_METADATA registry.")
-        except Exception as e:
-            print(f" Failed to build EXERCISE_METADATA registry: {e}")
-
         print(f" WorkoutEngine initialized successfully!\n")
 
     def _lazy_load_wger(self):
-        """Background thread: build WGER media index without blocking startup.
-
-        BUG-P8 fix: signals _wger_ready_event after completion (or failure) so
-        callers can safely wait with a timeout instead of reading an empty map.
-        """
+        """Background thread: build WGER media index without blocking startup."""
         try:
             self._initialize_wger_media_index()
         except Exception as e:
             print(f" [WGER-bg] Media index load failed: {e}")
-        finally:
-            # Always signal — even on failure — so waiters are never blocked forever.
-            self._wger_index_ready = True
-            self._wger_ready_event.set()
 
     def _normalize_exercise_name(self, name: str) -> str:
         if not name:
@@ -241,19 +236,6 @@ class WorkoutEngine:
         stop_words = {'with', 'and', 'the', 'a', 'an'}
         parts = [p for p in value.split(' ') if p and p not in stop_words]
         return ' '.join(parts)
-
-    def _normalize_body_issues(self, body_issues: Optional[List[str]]) -> List[str]:
-        """Drop placeholder values so injury filters only use real issues."""
-        if not body_issues:
-            return []
-        skip = {'none', 'no issue', 'no issues', 'n/a', 'na', 'nil', 'null', 'undefined'}
-        cleaned: List[str] = []
-        for issue in body_issues:
-            label = str(issue or '').strip().lower()
-            if not label or label in skip:
-                continue
-            cleaned.append(str(issue).strip())
-        return cleaned
 
     def _create_user_entropy(self, profile: dict) -> str:
         parts = [
@@ -1356,42 +1338,14 @@ class WorkoutEngine:
     def _load_ml_models(self):
         """Load pre-trained ML models (optional)"""
         try:
-            import glob
-
             base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            # Canonical location: backend-python/app/models
-            # Legacy fallback:   backend-python/models
-            model_dirs = [
-                os.path.join(base_dir, 'models'),
-                os.path.join(os.path.dirname(base_dir), 'models'),
-            ]
-
-            def _resolve_model_path(*filenames):
-                for filename in filenames:
-                    if not filename:
-                        continue
-                    if os.path.isabs(filename) and os.path.exists(filename):
-                        return filename
-                    for model_dir in model_dirs:
-                        candidate = os.path.join(model_dir, filename)
-                        if os.path.exists(candidate):
-                            return candidate
-                return None
+            model_dir = os.path.join(base_dir, 'models')
 
             # Try loading the multi-output model first
-            versioned_multi_output_paths = []
-            for model_dir in model_dirs:
-                versioned_multi_output_paths.extend(
-                    glob.glob(os.path.join(model_dir, 'xgboost_multi_output_model_v*.joblib'))
-                )
-
-            multi_output_path = _resolve_model_path(
-                'multi_output_xgboost_model.joblib',
-                sorted(versioned_multi_output_paths)[-1] if versioned_multi_output_paths else None,
-            )
+            multi_output_path = os.path.join(model_dir, 'multi_output_xgboost_model.joblib')
             multi_output_loaded = False
             
-            if multi_output_path:
+            if os.path.exists(multi_output_path):
                 try:
                     self.multi_output_model.load_model(multi_output_path)
                     print(" Multi-Output ML model loaded successfully")
@@ -1399,74 +1353,74 @@ class WorkoutEngine:
                 except Exception as e:
                     print(f" Failed to load Multi-Output ML model: {e}")
 
-            # Load models for different aspects (canonical names first, legacy aliases second)
-            volume_path = _resolve_model_path('xgboost_volume.pkl')
-            intensity_path = _resolve_model_path('xgboost_intensity.pkl')
-            split_path = _resolve_model_path('xgboost_split.pkl')
-            frequency_path = _resolve_model_path('xgboost_frequency.pkl')
-            sets_path = _resolve_model_path('xgboost_sets.pkl')
-            reps_path = _resolve_model_path('xgboost_reps.pkl')
-            rest_path = _resolve_model_path('xgboost_rest.pkl')
-            progression_path = _resolve_model_path('xgboost_progression.pkl')
-            le_goal_path = _resolve_model_path('le_goal.pkl', 'goal_encoder.pkl')
-            le_exp_path = _resolve_model_path('label_encoder_experience.pkl')
+            # Load multiple models for different aspects
+            volume_path = os.path.join(model_dir, 'xgboost_volume.pkl')
+            intensity_path = os.path.join(model_dir, 'xgboost_intensity.pkl')
+            split_path = os.path.join(model_dir, 'xgboost_split.pkl')
+            frequency_path = os.path.join(model_dir, 'xgboost_frequency.pkl')
+            sets_path = os.path.join(model_dir, 'xgboost_sets.pkl')
+            reps_path = os.path.join(model_dir, 'xgboost_reps.pkl')
+            rest_path = os.path.join(model_dir, 'xgboost_rest.pkl')
+            progression_path = os.path.join(model_dir, 'xgboost_progression.pkl')
+            le_goal_path = os.path.join(model_dir, 'goal_encoder.pkl')  # match train.py
+            le_exp_path = os.path.join(model_dir, 'label_encoder_experience.pkl')
 
             # Only print missing model warnings if the multi-output model wasn't loaded
-            if volume_path:
+            if os.path.exists(volume_path):
                 self.xgb_volume_model = joblib.load(volume_path)
                 if not multi_output_loaded: print(" Volume ML model loaded successfully")
             else:
                 if not multi_output_loaded: print(" Volume ML model not found, using rule-based system")
 
-            if intensity_path:
+            if os.path.exists(intensity_path):
                 self.xgb_intensity_model = joblib.load(intensity_path)
                 if not multi_output_loaded: print(" Intensity ML model loaded successfully")
             else:
                 if not multi_output_loaded: print(" Intensity ML model not found, using rule-based system")
 
-            if split_path:
+            if os.path.exists(split_path):
                 self.xgb_split_model = joblib.load(split_path)
                 if not multi_output_loaded: print(" Split ML model loaded successfully")
             else:
                 if not multi_output_loaded: print(" Split ML model not found, using rule-based system")
 
-            if frequency_path:
+            if os.path.exists(frequency_path):
                 self.xgb_frequency_model = joblib.load(frequency_path)
                 if not multi_output_loaded: print(" Frequency ML model loaded successfully")
             else:
                 if not multi_output_loaded: print(" Frequency ML model not found, using rule-based system")
 
-            if sets_path:
+            if os.path.exists(sets_path):
                 self.xgb_sets_model = joblib.load(sets_path)
                 if not multi_output_loaded: print(" Sets ML model loaded successfully")
             else:
                 if not multi_output_loaded: print(" Sets ML model not found, using rule-based system")
 
-            if reps_path:
+            if os.path.exists(reps_path):
                 self.xgb_reps_model = joblib.load(reps_path)
                 if not multi_output_loaded: print(" Reps ML model loaded successfully")
             else:
                 if not multi_output_loaded: print(" Reps ML model not found, using rule-based system")
 
-            if rest_path:
+            if os.path.exists(rest_path):
                 self.xgb_rest_model = joblib.load(rest_path)
                 if not multi_output_loaded: print(" Rest ML model loaded successfully")
             else:
                 if not multi_output_loaded: print(" Rest ML model not found, using rule-based system")
 
-            if progression_path:
+            if os.path.exists(progression_path):
                 self.xgb_progression_model = joblib.load(progression_path)
                 if not multi_output_loaded: print(" Progression ML model loaded successfully")
             else:
                 if not multi_output_loaded: print(" Progression ML model not found, using rule-based system")
 
-            if le_goal_path:
+            if os.path.exists(le_goal_path):
                 self.le_goal = joblib.load(le_goal_path)
                 if not multi_output_loaded: print(" Goal label encoder loaded successfully")
             else:
                 if not multi_output_loaded: print(" Goal label encoder not found")
 
-            if le_exp_path:
+            if os.path.exists(le_exp_path):
                 self.le_experience = joblib.load(le_exp_path)
                 if not multi_output_loaded: print(" Experience label encoder loaded successfully")
             else:
@@ -1486,7 +1440,13 @@ class WorkoutEngine:
             self.le_experience = None
 
     def filter_by_equipment(self, exercises: pd.DataFrame, available_equipment: List[str]) -> pd.DataFrame:
-        """Filter exercises by available equipment - RULE-BASED SAFETY LOGIC"""
+        """Filter exercises by available equipment - HOME-V1 POLICY ENFORCEMENT.
+
+        Loads equipment_synonyms_home_v1.json to translate frontend display labels
+        to their canonical CSV Equipment column values, then filters the dataset.
+        Includes Rope split logic: Jump Rope is allowed, Battling Ropes is blocked.
+        Body Weight exercises are ALWAYS included regardless of profile.
+        """
         if not available_equipment or exercises.empty:
             return exercises
 
@@ -1495,27 +1455,87 @@ class WorkoutEngine:
                 print(" 'Equipment' column not found")
                 return exercises
 
-            equipment_lower = [str(e).lower().strip() for e in available_equipment]
+            # ── Load home-v1 synonym + policy files ───────────────────────
+            import json as _json
+            _data_dir = os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data'
+            )
+            _synonyms_path = os.path.join(_data_dir, 'equipment_synonyms_home_v1.json')
+            _policy_path   = os.path.join(_data_dir, 'equipment_policy_home_v1.json')
 
-            # Add variations
-            if 'dumbbell' in equipment_lower:
-                equipment_lower.append('dumbbells')
-            if 'barbell' in equipment_lower:
-                equipment_lower.append('barbells')
+            _frontend_to_csv: dict = {}
+            _always_include: List[str] = ['body weight', 'bodyweight', 'none', 'no equipment']
+            _rope_allowed_pats: List[str] = ['jump rope', 'skipping rope']
+            _rope_blocked_pats: List[str] = ['battling rope', 'battle rope']
 
-            # Always include bodyweight
-            bodyweight_terms = ['body weight', 'bodyweight', 'none', 'no equipment']
-            equipment_lower.extend(bodyweight_terms)
+            if os.path.exists(_synonyms_path):
+                with open(_synonyms_path, 'r', encoding='utf-8') as _f:
+                    _synonyms = _json.load(_f)
+                _frontend_to_csv = _synonyms.get('frontend_to_csv', {})
+                _always_include  = [v.lower() for v in _synonyms.get('always_include_csv', _always_include)]
 
-            filtered = exercises[
-                exercises['Equipment'].str.lower().str.strip().isin(equipment_lower)
+            if os.path.exists(_policy_path):
+                with open(_policy_path, 'r', encoding='utf-8') as _f:
+                    _policy = _json.load(_f)
+                _rsplit = _policy.get('policy', {}).get('rope_split', {})
+                _rope_allowed_pats = [p.lower() for p in _rsplit.get('allowed_name_patterns', _rope_allowed_pats)]
+                _rope_blocked_pats = [p.lower() for p in _rsplit.get('blocked_name_patterns', _rope_blocked_pats)]
+
+            # ── Build allowed CSV value set from profile equipment labels ──
+            allowed_csv: set = set(_always_include)
+            _rope_in_profile = False
+
+            for label in available_equipment:
+                label_str = str(label).strip()
+                if label_str in _frontend_to_csv:
+                    for csv_val in _frontend_to_csv[label_str]:
+                        allowed_csv.add(csv_val.lower())
+                        if csv_val.lower() == 'rope':
+                            _rope_in_profile = True
+                else:
+                    lower_label = label_str.lower()
+                    allowed_csv.add(lower_label)
+                    if lower_label == 'dumbbell':
+                        allowed_csv.add('dumbbells')
+                    if lower_label == 'barbell':
+                        allowed_csv.add('barbells')
+                # Handle "Jump Rope" label directly
+                if 'jump rope' in label_str.lower():
+                    allowed_csv.add('rope')
+                    _rope_in_profile = True
+
+            # ── Row-level filter with Rope split logic ─────────────────────
+            eq_series   = exercises['Equipment'].str.lower().str.strip()
+            name_col    = 'Name' if 'Name' in exercises.columns else ('name' if 'name' in exercises.columns else None)
+            name_series = exercises[name_col].str.lower().str.strip() if name_col else pd.Series([''] * len(exercises))
+
+            def _is_allowed(eq_lc: str, nm_lc: str) -> bool:
+                if eq_lc in _always_include or eq_lc == '':
+                    return True
+                if eq_lc == 'rope':
+                    if not _rope_in_profile:
+                        return False
+                    for pat in _rope_blocked_pats:
+                        if pat in nm_lc:
+                            return False
+                    for pat in _rope_allowed_pats:
+                        if pat in nm_lc:
+                            return True
+                    return False  # Unknown rope name → block by default
+                return eq_lc in allowed_csv
+
+            mask = [
+                _is_allowed(eq, nm)
+                for eq, nm in zip(eq_series.tolist(), name_series.tolist())
             ]
+
+            filtered = exercises[mask]
 
             if filtered.empty:
                 print(f" No exercises for equipment: {available_equipment}, returning all")
                 return exercises
 
-            print(f" Filtered to {len(filtered)} exercises")
+            print(f" Filtered to {len(filtered)} exercises (home-safe policy)")
             return filtered
 
         except Exception as e:
@@ -1524,17 +1544,8 @@ class WorkoutEngine:
 
     def filter_by_injuries(self, exercises: pd.DataFrame, body_issues: List[str]) -> pd.DataFrame:
         """Filter exercises to avoid injuries - RULE-BASED SAFETY LOGIC"""
-        body_issues = self._normalize_body_issues(body_issues)
         if not body_issues or exercises.empty:
             return exercises
-
-        # Name-based contraindications for robust injury protection
-        NAME_CONTRAINDICATIONS = {
-            "shoulder": ["pull-up", "pullup", "overhead press", "pike push", "handstand", "shoulder press", "military press", "neck press", "lateral raise", "front raise", "rear delt"],
-            "knee": ["squat", "lunge", "leg extension"],
-            "back": ["deadlift", "good morning"],
-            "wrist": ["push-up", "pushup", "bench press", "dip"]
-        }
 
         try:
             if 'Avoid_If' not in exercises.columns:
@@ -1544,18 +1555,9 @@ class WorkoutEngine:
             filtered = exercises.copy()
 
             for issue in body_issues:
-                # 1. DB Avoid_If column check
                 filtered = filtered[
                     ~filtered['Avoid_If'].str.contains(issue, case=False, na=False)
                 ]
-                
-                # 2. Hardcoded contraindicated name keywords check
-                issue_lower = issue.lower().strip()
-                if issue_lower in NAME_CONTRAINDICATIONS:
-                    for kw in NAME_CONTRAINDICATIONS[issue_lower]:
-                        filtered = filtered[
-                            ~filtered['Name'].str.lower().str.contains(kw, na=False)
-                        ]
 
             if filtered.empty:
                 print(f" All exercises filtered out by injuries, returning safe defaults")
@@ -2307,7 +2309,7 @@ class WorkoutEngine:
                 except Exception:
                     return False
 
-        now_year, now_week, _ = _utcnow().isocalendar()
+        now_year, now_week, _ = datetime.utcnow().isocalendar()
         reg_year, reg_week, _ = reg_dt.isocalendar()
         return now_year == reg_year and now_week == reg_week
 
@@ -2432,13 +2434,13 @@ class WorkoutEngine:
         return self._ensure_non_consecutive_rests(positions, available_indices)
 
     def _build_new_user_plan(self, profile: dict, split: List[str],
-                              user_start_day: int, history_memory: dict = None) -> List[Dict]:
+                              user_start_day: int) -> List[Dict]:
         """Build an adaptive onboarding week that starts from registration day."""
         day_names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
         goal = profile.get('goal', 'Muscle Gain')
         experience = profile.get('experience', 'Beginner')
-        equipment = profile.get('equipment', ['Dumbbell'])
-        body_issues = self._normalize_body_issues(profile.get('body_issues', []))
+        equipment = profile.get('equipment', ['Body Weight'])
+        body_issues = profile.get('body_issues', [])
 
         user_start_day = max(0, min(6, int(user_start_day or 0)))
         available_indices = list(range(user_start_day, 7))
@@ -2458,7 +2460,6 @@ class WorkoutEngine:
         weekly_plan: List[Dict] = []
         split_idx = 0
         global_used_names: Set[str] = set()
-        global_movement_counts: Dict[str, int] = {}
 
         for day_idx in range(7):
             if day_idx < user_start_day:
@@ -2519,27 +2520,23 @@ class WorkoutEngine:
                 focus, goal, experience, equipment, body_issues, profile,
                 day_seed=day_seed,
                 global_used_names=global_used_names,
-                global_movement_counts=global_movement_counts,
-                history_memory=history_memory
             )
             for ex in exercises:
                 global_used_names.add(ex.get('name', ''))
-                # Update movement counts
-                moves = self._extract_movement_tokens(ex.get('name', ''))
-                for move in moves:
-                    global_movement_counts[move] = global_movement_counts.get(move, 0) + 1
 
-            warmup = self._get_warmup_for_focus(focus)
+            warmup = self._get_warmup_for_focus(focus, exercises=exercises, day_seed=day_seed)
             intensity_metrics = self._calculate_day_intensity(exercises, experience, goal, profile=profile)
-            intensity_score = float(intensity_metrics.get('intensity_score', 0.0))
-            full_session_exercises = self._enforce_unique_media_per_day(warmup + exercises)
+            intensity_score = intensity_metrics.get('intensity_score', 0.0) if isinstance(intensity_metrics, dict) else float(intensity_metrics)
+            full_session = self._enforce_unique_media_per_day(warmup + exercises)
+            warmup_clean = [ex for ex in full_session if ex.get('is_warmup') is True]
+            exercises_clean = [ex for ex in full_session if not ex.get('is_warmup')]
 
             weekly_plan.append({
                 'day_of_week': day_idx,
                 'day': day_names[day_idx],
                 'focus': focus,
-                'warmup': warmup,
-                'exercises': full_session_exercises,
+                'warmup': warmup_clean,
+                'exercises': exercises_clean,
                 'type': 'workout',
                 'is_placeholder': False,
                 'can_access': True,
@@ -2553,33 +2550,11 @@ class WorkoutEngine:
                 'is_swappable': True,
                 'is_completed': False,
                 'exercises_completed': 0,
-                'exercises_total': len(full_session_exercises),
+                'exercises_total': len(exercises_clean),
                 'intensity_metrics': self._build_intensity_metrics(intensity_metrics),
             })
 
         return weekly_plan
-
-    def _validate_workout(self, day_plan: dict) -> bool:
-        """
-        Validates workout structural quality (e.g. score > 80, required movements met).
-        Returns True if valid, False if it needs regeneration.
-        """
-        exercises = day_plan.get('exercises', [])
-        if not exercises:
-            return False
-            
-        focus = day_plan.get('focus', '').lower()
-        
-        # Check volume
-        if len(exercises) < 3 or len(exercises) > 12:
-            return False
-            
-        # Ensure we have at least one compound movement if not an arms/core day
-        has_compound = any(ex.get('mechanic') == 'compound' for ex in exercises)
-        if 'arms' not in focus and 'core' not in focus and not has_compound:
-            return False
-            
-        return True
 
     def generate_weekly_plan(self, profile: dict, workout_history: List[Dict] = None,
                               user_start_day: Optional[int] = None,
@@ -2613,7 +2588,7 @@ class WorkoutEngine:
         # If caller does not provide week_offset, derive one from ISO year/week.
         # This keeps generation deterministic within a week while rotating weekly.
         if profile.get('week_offset') is None:
-            iso_year, iso_week, _ = _utcnow().isocalendar()
+            iso_year, iso_week, _ = datetime.utcnow().isocalendar()
             profile['week_offset'] = (iso_year * 100) + iso_week
 
         experience = profile.get('experience', 'Beginner')
@@ -2701,17 +2676,6 @@ class WorkoutEngine:
         if is_new_user and user_start_day is not None:
             print(f"  New user – week starts at day index {user_start_day}")
 
-
-        from app.progression_engine import get_progression_engine
-        prog_engine = get_progression_engine()
-        history_memory = prog_engine.parse_history(workout_history) if workout_history else {}
-        
-        # Phase 3: compute and inject progression state
-        progression_state = {}
-        if prog_engine:
-            progression_state = prog_engine.get_progression_state(profile, workout_history, self.exercises_df)
-        profile['_progression_state'] = progression_state
-        
         # --- Step 2: Get workout split ---
         split = self._get_split_for_experience(experience, workout_days, profile.get('goal', 'Muscle Gain'), workout_history)
         print(f"  Split: {split}")
@@ -2728,9 +2692,9 @@ class WorkoutEngine:
 
         # --- Step 4: Build the 7-day schedule ---
         if is_new_user and user_start_day is not None:
-            weekly_plan = self._build_new_user_plan(profile, split, user_start_day, history_memory)
+            weekly_plan = self._build_new_user_plan(profile, split, user_start_day)
         else:
-            weekly_plan = self._build_weekly_plan(profile, split, rest_day_positions, history_memory)
+            weekly_plan = self._build_weekly_plan(profile, split, rest_day_positions)
 
         total_exercises = sum(len(day.get('exercises', [])) for day in weekly_plan)
         workout_count = sum(1 for day in weekly_plan if day['type'] == 'workout')
@@ -2747,22 +2711,56 @@ class WorkoutEngine:
 
     def _get_split_for_experience(self, experience: str, workout_days: int, goal: str, workout_history: List[Dict] = None) -> List[str]:
         """
-        Structured templates as requested by the user.
+        Return scientifically balanced muscle-group combinations by experience.
+        Deterministic: same inputs always produce same split, unless history-based rotation applies.
         """
         workout_days = max(1, min(6, int(workout_days or 1)))
 
+        # Stateful rotation: Determine the last workout focus from history
+        last_focus = None
+        if workout_history and len(workout_history) > 0:
+            last_valid = [w for w in workout_history if isinstance(w, dict) and w.get('focus')]
+            if last_valid:
+                last_focus = last_valid[-1].get('focus')
+
+        def _rotate(base: List[str]) -> List[str]:
+            if not last_focus or last_focus not in base:
+                return base
+            idx = base.index(last_focus)
+            shift = (idx + 1) % len(base)
+            return base[shift:] + base[:shift]
+
         if experience == 'Beginner':
-            # Beginner: Full Body, Rest, Full Body, Rest, Full Body
-            template = ['Full Body (Upper Focus)', 'Full Body (Lower Focus)', 'Full Body (Push-Pull)', 'Full Body (Upper Focus)', 'Full Body (Lower Focus)', 'Full Body (Push-Pull)']
-            return template[:workout_days]
+            patterns = {
+                1: ['Full Body (Upper Focus)'],
+                2: ['Full Body (Upper Focus)', 'Full Body (Lower Focus)'],
+                3: ['Full Body (Upper Focus)', 'Full Body (Lower Focus)', 'Full Body (Push-Pull)'],
+                4: ['Full Body (Upper Focus)', 'Full Body (Lower Focus)', 'Full Body (Push Focus)', 'Full Body (Pull Focus)'],
+                5: ['Full Body (Upper Focus)', 'Full Body (Lower Focus)', 'Full Body (Push-Pull)', 'Full Body (Push Focus)', 'Full Body (Pull Focus)'],
+                6: ['Full Body (Upper Focus)', 'Full Body (Lower Focus)', 'Full Body (Push-Pull)', 'Full Body (Push Focus)', 'Full Body (Pull Focus)', 'Full Body (Legs Focus)'],
+            }
+            template = patterns.get(workout_days, patterns[4])
+            return _rotate(template)[:workout_days]
+
         elif experience == 'Intermediate':
-            # Intermediate: Push, Pull, Legs, Upper, Lower
-            template = ['Push Focus', 'Pull Focus', 'Legs Focus', 'Upper Focus', 'Lower Focus', 'Push Focus']
-            return template[:workout_days]
-        else:
-            # Advanced: Chest+Triceps, Back+Biceps, Legs, Shoulders, Arms
-            template = ['Chest & Triceps', 'Back & Biceps', 'Legs (Quads)', 'Shoulders & Traps', 'Arms & Core', 'Legs (Posterior)']
-            return template[:workout_days]
+            patterns = {
+                3: ['Chest & Back', 'Legs & Shoulders', 'Arms & Core'],
+                4: ['Chest & Back', 'Legs & Shoulders', 'Arms & Core', 'Pull & Legs'],
+                5: ['Chest & Back', 'Legs & Shoulders', 'Arms & Core', 'Pull & Legs', 'Push & Pull'],
+                6: ['Chest & Back', 'Legs & Shoulders', 'Arms & Core', 'Pull & Legs', 'Push & Pull', 'Shoulders & Traps'],
+            }
+            template = patterns.get(workout_days, patterns[4])
+            return _rotate(template)[:workout_days]
+
+        else:  # Advanced
+            patterns = {
+                3: ['Chest & Triceps', 'Back & Biceps', 'Legs (Quads)'],
+                4: ['Chest & Triceps', 'Back & Biceps', 'Legs (Quads)', 'Shoulders & Traps'],
+                5: ['Chest & Triceps', 'Back & Biceps', 'Legs (Quads)', 'Shoulders & Traps', 'Legs (Posterior)'],
+                6: ['Chest & Triceps', 'Back & Biceps', 'Legs (Quads)', 'Shoulders & Traps', 'Legs (Posterior)', 'Arms & Core'],
+            }
+            template = patterns.get(workout_days, patterns[5])
+            return _rotate(template)[:workout_days]
 
     def _distribute_rest_days(self, workout_days: int, split: List[str]) -> List[int]:
         """
@@ -2826,32 +2824,6 @@ class WorkoutEngine:
         goal_adj = {'Strength': 0.1, 'Muscle Gain': 0.05, 'Endurance': -0.05}.get(goal, 0.0)
 
         return round(max(0.1, min(1.0, base + intensity_boost + goal_adj)), 3)
-
-    def _allocate_movements(self, focus: str, experience: str) -> List[str]:
-        """
-        Maps a workout focus to a strict list of required movement patterns.
-        """
-        focus_lower = focus.lower()
-        if 'full body' in focus_lower:
-            return ['squat', 'horizontal_push', 'horizontal_pull', 'hinge', 'vertical_push', 'core']
-        elif 'upper' in focus_lower:
-            return ['horizontal_push', 'horizontal_pull', 'vertical_push', 'vertical_pull', 'isolation_upper']
-        elif 'lower' in focus_lower or 'legs' in focus_lower:
-            return ['squat', 'hinge', 'lunge', 'isolation_lower', 'core']
-        elif 'push' in focus_lower and 'pull' not in focus_lower:
-            return ['horizontal_push', 'vertical_push', 'isolation_upper', 'isolation_upper']
-        elif 'pull' in focus_lower and 'push' not in focus_lower:
-            return ['horizontal_pull', 'vertical_pull', 'isolation_upper', 'isolation_upper']
-        elif 'chest & triceps' in focus_lower:
-            return ['horizontal_push', 'horizontal_push', 'isolation_upper', 'isolation_upper']
-        elif 'back & biceps' in focus_lower:
-            return ['horizontal_pull', 'vertical_pull', 'isolation_upper', 'isolation_upper']
-        elif 'shoulders & traps' in focus_lower:
-            return ['vertical_push', 'vertical_push', 'isolation_upper', 'isolation_upper']
-        elif 'arms & core' in focus_lower:
-            return ['isolation_upper', 'isolation_upper', 'isolation_upper', 'core', 'anti_rotation']
-        else:
-            return ['horizontal_push', 'horizontal_pull', 'squat', 'hinge', 'core']
 
     def _get_muscle_group_from_focus(self, focus: str) -> Set[str]:
         """Return a simplified set of primary muscles for overlap detection."""
@@ -3071,7 +3043,7 @@ class WorkoutEngine:
 
         return sorted(adjusted[:rest_count])
 
-    def _build_weekly_plan(self, profile: dict, split: List[str], rest_positions: List[int], history_memory: dict = None) -> List[Dict]:
+    def _build_weekly_plan(self, profile: dict, split: List[str], rest_positions: List[int]) -> List[Dict]:
         """Build the full 7-day plan with exercises for workout days and rest for rest days.
         
         Rest days now include a `restReason` field explaining why that day is a rest day,
@@ -3083,8 +3055,8 @@ class WorkoutEngine:
 
         goal = profile.get('goal', 'Muscle Gain')
         experience = profile.get('experience', 'Beginner')
-        equipment = profile.get('equipment', ['Dumbbell'])
-        body_issues = self._normalize_body_issues(profile.get('body_issues', []))
+        equipment = profile.get('equipment', ['Body Weight'])
+        body_issues = profile.get('body_issues', [])
 
         # First pass: map each non-rest day to its split focus so we can generate rest reasons
         day_to_focus: Dict[int, str] = {}
@@ -3130,7 +3102,6 @@ class WorkoutEngine:
 
         # Cross-day exercise deduplication: no exercise should appear twice in the same week
         global_used_names: Set[str] = set()
-        global_movement_counts: Dict[str, int] = {}
 
         for day_idx in range(7):
             if day_idx in rest_positions or split_idx >= len(split):
@@ -3155,7 +3126,7 @@ class WorkoutEngine:
                     'is_completed': False,
                     'exercises_completed': 0,
                     'exercises_total': 0,
-                    'intensity_metrics': {'intensity_score': 0.0, 'volume_load': 0, 'category': 'rest', 'calorie_multiplier': 0.90},
+                    'intensity_metrics': self._build_intensity_metrics(0.0),
                 })
             else:
                 focus = split[split_idx]
@@ -3167,30 +3138,27 @@ class WorkoutEngine:
                 exercises = self._get_exercises_for_day(
                     focus, goal, experience, equipment, body_issues, profile,
                     day_seed=day_seed,
-                    global_used_names=global_used_names,
-                    global_movement_counts=global_movement_counts,
-                    history_memory=history_memory
+                    global_used_names=global_used_names
                 )
                 # Track which exercises were used this week to prevent cross-day repeats
                 for ex in exercises:
                     global_used_names.add(ex.get('name', ''))
-                    # Update movement counts
-                    moves = self._extract_movement_tokens(ex.get('name', ''))
-                    for move in moves:
-                        global_movement_counts[move] = global_movement_counts.get(move, 0) + 1
 
-                warmup_exercises = self._get_warmup_for_focus(focus)
-                full_session_exercises = self._enforce_unique_media_per_day(warmup_exercises + exercises)
+                warmup_exercises = self._get_warmup_for_focus(focus, exercises=exercises, day_seed=day_seed)
+                full_session = self._enforce_unique_media_per_day(warmup_exercises + exercises)
+                warmup_clean = [ex for ex in full_session if ex.get('is_warmup') is True]
+                exercises_clean = [ex for ex in full_session if not ex.get('is_warmup')]
 
-                intensity_metrics = self._calculate_day_intensity(exercises, experience, goal, profile=profile)
-                intensity_score = float(intensity_metrics.get('intensity_score', 0.0))
+                # Calculate day intensity metrics (returns a dict with intensity_score, category, etc.)
+                intensity_metrics = self._calculate_day_intensity(exercises_clean, experience, goal, profile=profile)
+                intensity_score = intensity_metrics.get('intensity_score', 0.0) if isinstance(intensity_metrics, dict) else float(intensity_metrics)
 
                 weekly_plan.append({
                     'day_of_week': day_idx,
                     'day': day_names[day_idx],
                     'focus': focus,
-                    'warmup': warmup_exercises,
-                    'exercises': full_session_exercises,
+                    'warmup': warmup_clean,
+                    'exercises': exercises_clean,
                     'type': 'workout',
                     'intensity': round(intensity_score, 2),
                     'note': f'{focus} training',
@@ -3204,8 +3172,8 @@ class WorkoutEngine:
                     'is_swappable': True,
                     'is_completed': False,
                     'exercises_completed': 0,
-                    'exercises_total': len(full_session_exercises),
-                    'intensity_metrics': intensity_metrics,
+                    'exercises_total': len(exercises_clean),
+                    'intensity_metrics': self._build_intensity_metrics(intensity_metrics),
                 })
 
         return weekly_plan
@@ -3425,8 +3393,8 @@ class WorkoutEngine:
 
         return plan_copy
 
-    def _get_warmup_for_focus(self, focus: str) -> List[Dict]:
-        """Return a muscle-targeted warm-up block (max 6 drills)."""
+    def _get_warmup_for_focus(self, focus: str, exercises: List[Dict] = None, day_seed: int = 0) -> List[Dict]:
+        """Return a muscle-targeted warm-up block (max 6 drills) dynamically and randomly."""
         focus_lower = str(focus or '').lower()
 
         focus_to_muscles = {
@@ -3452,7 +3420,33 @@ class WorkoutEngine:
             'full body (legs focus)': ['legs', 'calves'],
         }
 
-        target_muscles = list(focus_to_muscles.get(focus_lower, []))
+        target_muscles = []
+        if exercises:
+            for ex in exercises:
+                m_group = str(ex.get('muscle_group') or ex.get('Target_Muscle') or '').strip().lower()
+                if m_group:
+                    if 'chest' in m_group:
+                        target_muscles.append('chest')
+                    elif 'back' in m_group:
+                        target_muscles.append('back')
+                    elif 'shoulder' in m_group:
+                        target_muscles.append('shoulders')
+                    elif 'leg' in m_group or 'quad' in m_group or 'glute' in m_group or 'hamstring' in m_group:
+                        target_muscles.append('legs')
+                    elif 'bicep' in m_group:
+                        target_muscles.append('biceps')
+                    elif 'tricep' in m_group:
+                        target_muscles.append('triceps')
+                    elif 'core' in m_group or 'abs' in m_group or 'abdominal' in m_group:
+                        target_muscles.append('core')
+                    elif 'calf' in m_group or 'calves' in m_group:
+                        target_muscles.append('calves')
+                    elif 'trap' in m_group:
+                        target_muscles.append('traps')
+
+        # Fallback to focus_to_muscles mapping if target_muscles is empty
+        if not target_muscles:
+            target_muscles = list(focus_to_muscles.get(focus_lower, []))
 
         # Fallback parsing for custom focus names.
         if not target_muscles:
@@ -3537,11 +3531,18 @@ class WorkoutEngine:
             ],
         }
 
+        import random
+        rng = random.Random(day_seed)
+
         selected_drills = []
         seen_names = set()
+        
+        # 1. Pick drills from target muscle groups
         for muscle in target_muscles:
-            drills = warmup_drills.get(muscle, warmup_drills['general'])
-            for drill in drills[:2]:
+            drills = list(warmup_drills.get(muscle, warmup_drills['general']))
+            rng.shuffle(drills)
+            muscle_picked = 0
+            for drill in drills:
                 drill_name = str(drill.get('name', '')).strip()
                 if not drill_name or drill_name in seen_names:
                     continue
@@ -3552,10 +3553,29 @@ class WorkoutEngine:
                     'rest': '20 seconds',
                     'is_warmup': True,
                 })
-                if len(selected_drills) >= 5:
+                muscle_picked += 1
+                if muscle_picked >= 2 or len(selected_drills) >= 5:
                     break
             if len(selected_drills) >= 5:
                 break
+
+        # 2. If we need more drills to reach a minimum of 4, fill from 'general' category
+        if len(selected_drills) < 4:
+            general_drills = list(warmup_drills['general'])
+            rng.shuffle(general_drills)
+            for drill in general_drills:
+                drill_name = str(drill.get('name', '')).strip()
+                if not drill_name or drill_name in seen_names:
+                    continue
+                seen_names.add(drill_name)
+                selected_drills.append({
+                    **drill,
+                    'sets': 1,
+                    'rest': '20 seconds',
+                    'is_warmup': True,
+                })
+                if len(selected_drills) >= 4:
+                    break
 
         warmups = []
         for drill in selected_drills:
@@ -3595,237 +3615,438 @@ class WorkoutEngine:
 
         return warmups
 
-    def _score_exercises(self, candidates: pd.DataFrame, target_muscle: str, goal: str, experience: str, effective_equipment: List[str], global_movement_counts: Dict[str, int], day_seed: int, history_memory: dict = None) -> pd.DataFrame:
-        """Score and rank exercise candidates based on multiple factors."""
-        if candidates.empty:
-            return candidates
-
-        scored = candidates.copy()
-        scores = []
-        
-        import random
-        rng = random.Random(day_seed)
-
-        equip_set = set([str(e).lower().strip() for e in effective_equipment])
-        
-        for _, row in scored.iterrows():
-            score = 0.0
-            
-            name = str(row.get('Name', '')).strip()
-            row_equip = str(row.get('Equipment', '')).lower().strip()
-            row_diff = str(row.get('Difficulty', '')).strip()
-            row_type = str(row.get('Type', '')).strip()
-            
-            # 1. Experience Match
-            if row_diff == experience:
-                score += 3.0
-            elif (experience == 'Beginner' and row_diff == 'Intermediate') or \
-                 (experience == 'Intermediate' and row_diff in ('Beginner', 'Advanced')) or \
-                 (experience == 'Advanced' and row_diff == 'Intermediate'):
-                score += 1.0
-            elif experience == 'Beginner' and row_diff == 'Advanced':
-                score -= 5.0  # Penalize heavy mismatch
-            elif experience == 'Advanced' and row_diff == 'Beginner':
-                score -= 2.0
-            
-            # 2. Equipment Match
-            if equip_set:
-                if row_equip in equip_set:
-                    score += 2.0
-            
-            # 3. Goal & Type Match
-            is_compound = any(kw in name.lower() for kw in ['press', 'squat', 'deadlift', 'row', 'pull-up', 'push-up', 'lunge', 'clean', 'snatch', 'dip', 'bench', 'overhead']) or row_type == 'Compound'
-            
-            if is_compound:
-                if goal in ('Strength', 'Muscle Gain'):
-                    score += 2.0
-                else:
-                    score += 1.0
-            else:
-                if goal == 'Muscle Gain':
-                    score += 1.0
-                    
-            # 4. Diversity/Movement frequency penalty
-            if global_movement_counts:
-                moves = self._extract_movement_tokens(name)
-                penalty = 0.0
-                for move in moves:
-                    count = global_movement_counts.get(move, 0)
-                    if count >= 2:
-                        penalty -= 5.0 * (count - 1)
-                score += penalty
-            
-            # Tie breaker: small random noise to ensure diversity between days
-            score += rng.uniform(0.0, 0.8)
-            
-            scores.append(score)
-            
-        scored['_score'] = scores
-        return scored.sort_values(by='_score', ascending=False)
-
     def _get_exercises_for_day(self, focus: str, goal: str, experience: str,
                                 equipment: List[str], body_issues: List[str],
                                 profile: dict, day_seed: int = 0,
-                                global_used_names: Set[str] = None,
-                                global_movement_counts: Dict[str, int] = None,
-                                history_memory: dict = None) -> List[Dict]:
+                                global_used_names: Set[str] = None) -> List[Dict]:
         """
-        New Intelligence Layer Pipeline:
-        1. Allocates strict movement patterns based on the day's focus.
-        2. Tags all exercises with heuristic movement patterns.
-        3. Scores exercises based on history, fatigue, and progression.
-        4. Selects the highest scoring exercise for each required pattern.
+        Select exercises deterministically for a given focus day.
+
+        day_seed: unique per-day offset so different days (even with the same
+                  focus category) get different exercises from the pool.
         """
-        import random
-        from app.utils.movement_mapper import get_movement_metadata
+        # --- Muscle group mapping ---
+        muscle_map = {
+            'Full Body': ['Chest', 'Back', 'Legs', 'Shoulders', 'Arms', 'Core'],
+            'Upper Body': ['Chest', 'Back', 'Shoulders', 'Arms'],
+            'Upper Body (Volume)': ['Chest', 'Back', 'Shoulders', 'Arms'],
+            'Lower Body': ['Legs', 'Core'],
+            'Lower Body (Volume)': ['Legs', 'Core'],
+            'Push': ['Chest', 'Shoulders', 'Arms'],
+            'Push (Heavy)': ['Chest', 'Shoulders'],
+            'Push (Volume)': ['Chest', 'Shoulders', 'Arms'],
+            'Pull': ['Back', 'Arms'],
+            'Pull (Heavy)': ['Back'],
+            'Pull (Volume)': ['Back', 'Arms'],
+            'Legs': ['Legs'],
+            'Legs (Heavy)': ['Legs'],
+            'Legs (Volume)': ['Legs', 'Core'],
+            'Legs (Accessory)': ['Legs', 'Core'],
+            'Chest': ['Chest'],
+            'Back': ['Back'],
+            'Shoulders': ['Shoulders'],
+            'Arms': ['Arms'],
+            'Core': ['Core'],
+            'Chest & Back': ['Chest', 'Back'],
+            'Legs & Shoulders': ['Legs', 'Shoulders'],
+            'Legs & Arms': ['Legs', 'Arms'],
+            'Pull & Legs': ['Back', 'Arms', 'Legs'],
+            'Push & Pull': ['Chest', 'Back', 'Shoulders', 'Arms'],
+            'Back & Arms': ['Back', 'Arms'],
+            'Chest & Shoulders': ['Chest', 'Shoulders'],
+            'Arms (Bi/Tri)': ['Arms'],
+            'Chest & Triceps': ['Chest', 'Arms'],
+            'Back & Biceps': ['Back', 'Arms'],
+            'Arms & Core': ['Arms', 'Core'],
+            'Shoulders & Traps': ['Shoulders', 'Traps'],
+            'Legs (Quads)': ['Legs', 'Calves'],
+            'Legs (Posterior)': ['Legs', 'Calves'],
+            'Full Body (Upper Focus)': ['Chest', 'Back', 'Shoulders'],
+            'Full Body (Lower Focus)': ['Legs', 'Core'],
+            'Full Body (Push-Pull)': ['Chest', 'Back'],
+            'Full Body (Push Focus)': ['Chest', 'Shoulders'],
+            'Full Body (Pull Focus)': ['Back', 'Arms'],
+            'Full Body (Legs Focus)': ['Legs', 'Calves'],
+        }        
+        # Bug #1a Fix: Map beginner sub-focus variants to standard muscle groups
+        # so the existing muscle_map lookup still works correctly.
+        beginner_focus_to_standard = {
+            'Full Body (Upper Focus)': 'Upper Body',
+            'Full Body (Lower Focus)': 'Lower Body',
+            'Full Body (Push-Pull)': 'Chest & Back',
+            'Full Body (Push Focus)': 'Push',
+            'Full Body (Pull Focus)': 'Pull',
+            'Full Body (Legs Focus)': 'Legs',
+            'Full Body (Core & Conditioning)': 'Full Body',
+            'Full Body (Conditioning)': 'Full Body',
+        }
+        effective_focus = beginner_focus_to_standard.get(focus, focus)
+        target_muscles = muscle_map.get(effective_focus, muscle_map.get(focus, ['Chest', 'Back', 'Legs']))
+
+        # Focus-specific distribution: keep two primary muscles loaded and
+        # use additional mapped muscles as accessories where applicable.
+        focus_distribution = {
+            'Chest & Back': {'primary': ['Chest', 'Back']},
+            'Legs & Shoulders': {'primary': ['Legs', 'Shoulders']},
+            'Arms & Core': {'primary': ['Arms', 'Core']},
+            'Pull & Legs': {'primary': ['Back', 'Legs'], 'accessory': ['Arms']},
+            'Push & Pull': {'primary': ['Chest', 'Back'], 'accessory': ['Shoulders']},
+            'Shoulders & Traps': {'primary': ['Shoulders', 'Traps']},
+            'Chest & Triceps': {'primary': ['Chest', 'Arms']},
+            'Back & Biceps': {'primary': ['Back', 'Arms']},
+            'Legs (Quads)': {'primary': ['Legs', 'Calves']},
+            'Legs (Posterior)': {'primary': ['Legs', 'Calves']},
+            'Full Body (Upper Focus)': {'primary': ['Chest', 'Back'], 'accessory': ['Shoulders']},
+            'Full Body (Lower Focus)': {'primary': ['Legs', 'Core']},
+            'Full Body (Push-Pull)': {'primary': ['Chest', 'Back']},
+            'Full Body (Push Focus)': {'primary': ['Chest', 'Shoulders']},
+            'Full Body (Pull Focus)': {'primary': ['Back', 'Arms']},
+            'Full Body (Legs Focus)': {'primary': ['Legs', 'Calves']},
+        }
+
+        distribution = focus_distribution.get(effective_focus, focus_distribution.get(focus, {}))
+        primary_muscles = [m for m in distribution.get('primary', []) if m in target_muscles]
+        if not primary_muscles:
+            primary_muscles = list(target_muscles)
+
+        accessory_muscles = [m for m in distribution.get('accessory', []) if m in target_muscles and m not in primary_muscles]
+        for muscle in target_muscles:
+            if muscle not in primary_muscles and muscle not in accessory_muscles:
+                accessory_muscles.append(muscle)
+
+        # Compound exercise indicators (multi-joint movements)
+        compound_keywords = [
+            'press', 'squat', 'deadlift', 'row', 'pull-up', 'pullup',
+            'push-up', 'pushup', 'lunge', 'clean', 'snatch', 'dip',
+            'bench', 'overhead', 'thrust', 'chin-up', 'chinup'
+        ]
+
+        # --- Exercise count by experience ---
+        count_ranges = {
+            'Beginner': (5, 7),
+            'Intermediate': (6, 8),
+            'Advanced': (7, 10),
+        }
+        min_count, max_count = count_ranges.get(experience, (5, 7))
+
+        # For Full Body days, use the higher end; for isolation days, use the lower end
+        if len(target_muscles) >= 4:
+            target_count = max_count
+        elif len(target_muscles) >= 2:
+            target_count = (min_count + max_count) // 2
+        else:
+            target_count = min_count
         
-        if global_used_names is None: global_used_names = set()
-        if global_movement_counts is None: global_movement_counts = {}
-        
-        # Determine strict movement patterns required for this day
-        required_patterns = self._allocate_movements(focus, experience)
-        
+        # Bug #1 Fix: Gender-based volume adjustment
+        # Research: Women have lower absolute strength but similar relative strength
+        # and better recovery capacity. Reduce volume by 1-2 exercises for safety.
+        gender = profile.get('gender', 'Male')
+        if gender and gender.lower() in ('female', 'f', 'woman', 'women'):
+            # Reduce exercise count by 1 for female users (lower absolute volume)
+            target_count = max(4, target_count - 1)
+        elif gender and gender.lower() not in ('male', 'm', 'man'):
+            # Minimal adjustment for "Other" gender
+            target_count = max(4, target_count - 0)  # No change, keep standard
+
+        if goal in ('Muscle Gain', 'Strength', 'Fat Loss', 'Weight Loss', 'Endurance'):
+            target_count = min(max_count, target_count + 1)
+
+        # Experience-based volume targets per muscle group.
+        volume_targets = {
+            'Beginner': {'primary': (2, 3), 'accessory': (1, 1)},
+            'Intermediate': {'primary': (3, 4), 'accessory': (1, 2)},
+            'Advanced': {'primary': (4, 5), 'accessory': (1, 2)},
+        }
+        profile_targets = volume_targets.get(experience, volume_targets['Beginner'])
+        p_min, p_max = profile_targets['primary']
+        a_min, a_max = profile_targets['accessory']
+
+        desired_minimum = len(primary_muscles) * p_min + len(accessory_muscles) * a_min
+        target_count = max(min_count, min(max_count, max(target_count, min(desired_minimum, max_count))))
+
+        # Build per-muscle quotas with priority for primary muscles.
+        muscle_targets = {muscle: 0 for muscle in target_muscles}
+
+        def _assign_round_robin(targets: Dict[str, int], muscles: List[str], cap: int,
+                                total_limit: int, current_total: int) -> int:
+            if not muscles:
+                return current_total
+            changed = True
+            while current_total < total_limit and changed:
+                changed = False
+                for m in muscles:
+                    if current_total >= total_limit:
+                        break
+                    if targets[m] < cap:
+                        targets[m] += 1
+                        current_total += 1
+                        changed = True
+            return current_total
+
+        allocated = 0
+        allocated = _assign_round_robin(muscle_targets, primary_muscles, p_min, target_count, allocated)
+        allocated = _assign_round_robin(muscle_targets, accessory_muscles, a_min, target_count, allocated)
+        allocated = _assign_round_robin(muscle_targets, primary_muscles, p_max, target_count, allocated)
+        allocated = _assign_round_robin(muscle_targets, accessory_muscles, a_max, target_count, allocated)
+        allocated = _assign_round_robin(muscle_targets, target_muscles, target_count, target_count, allocated)
+
+        allocation_order = list(primary_muscles) + [m for m in target_muscles if m not in primary_muscles]
+
         # --- Get exercise parameters based on goal + experience ---
         params = self._get_exercise_params(goal, experience, profile)
-        
+
         # --- Filter exercise pool ---
         pool = self.exercises_df.copy()
-        
+
+        # Bodyweight-always terms (always allowed regardless of equipment selection)
         BODYWEIGHT_TERMS = ['body weight', 'bodyweight', 'assisted']
-        effective_equipment = [str(e).lower().strip() for e in (equipment or []) if str(e).lower().strip() not in ('none', 'no equipment', '')]
-        
+
+        # Equipment filter
+        # IMPORTANT: empty equipment list = bodyweight ONLY (not "show everything")
+        effective_equipment = [str(e).lower().strip() for e in (equipment or [])]
+        # Strip sentinel values the frontend may send
+        effective_equipment = [e for e in effective_equipment if e not in ('none', 'no equipment', '')]
+
         if not effective_equipment:
+            # User has no equipment — restrict to bodyweight exercises only
             pool = pool[pool['Equipment'].str.lower().str.strip().isin(BODYWEIGHT_TERMS)]
         else:
             equip_lower = list(effective_equipment)
+            # Expand equipment synonyms: bridge ALL frontend UI labels → dataset Equipment column values.
+            # Dataset values: 'Assisted','Band','Barbell','Body Weight','Bosu Ball','Cable',
+            # 'Dumbbell','Elliptical Machine','Ez Barbell','Hammer','Kettlebell',
+            # 'Leverage Machine','Medicine Ball','Olympic Barbell','Resistance Band','Roller',
+            # 'Rope','Skierg Machine','Sled Machine','Smith Machine','Stability Ball',
+            # 'Stationary Bike','Stepmill Machine','Tire','Trap Bar',
+            # 'Upper Body Ergometer','Weighted','Wheel Roller'
             SYNONYM_MAP = {
-                'dumbbells': ['dumbbell'], 'dumbbell': ['dumbbell'],
-                'barbell': ['barbell'], 'olympic barbell': ['olympic barbell', 'barbell'],
-                'kettlebell': ['kettlebell'], 'cable': ['cable', 'rope'],
-                'resistance bands': ['resistance band', 'band'], 'band': ['resistance band', 'band'],
-                'medicine ball': ['medicine ball'], 'stability / yoga ball': ['stability ball', 'bosu ball'],
-                'bosu ball': ['bosu ball'], 'foam roller': ['roller'],
-                'ab wheel': ['wheel roller'], 'yoga mat': ['roller', 'stability ball']
+                # Dumbbells
+                'dumbbells': ['dumbbell'],
+                'dumbbell': ['dumbbell'],
+                # Barbells
+                'barbell': ['barbell'],
+                'olympic barbell': ['olympic barbell', 'barbell'],
+                'ez curl bar': ['ez barbell'],
+                'trap bar': ['trap bar'],
+                # Kettlebell
+                'kettlebell': ['kettlebell'],
+                'kettlebells': ['kettlebell'],
+                # Cable
+                'cable machine': ['cable', 'rope'],
+                'cable': ['cable', 'rope'],
+                # Machines
+                'weight machine': ['leverage machine'],
+                'smith machine': ['smith machine'],
+                'assisted machine': ['assisted'],
+                # Resistance/bands
+                'resistance bands': ['resistance band', 'band'],
+                'resistance band': ['resistance band', 'band'],
+                'resistance bands (light)': ['band', 'resistance band'],
+                # Cardio/specialty machines
+                'elliptical': ['elliptical machine'],
+                'stationary bike': ['stationary bike'],
+                'skierg machine': ['skierg machine'],
+                'sled': ['sled machine'],
+                'stepmill': ['stepmill machine'],
+                'upper body ergometer': ['upper body ergometer'],
+                # Free accessories
+                'medicine ball': ['medicine ball'],
+                'stability / yoga ball': ['stability ball'],   # bosu ball is a separate option
+                'bosu ball': ['bosu ball'],
+                'foam roller': ['roller'],
+                'jump rope': ['rope'],                         # home-safe subset of Rope
+                'battle rope / jump rope': ['rope'],           # legacy label kept for compat
+                'weighted vest': ['weighted'],
+                'ab wheel': ['wheel roller'],
+                'hammer / sledgehammer': ['hammer'],
+                'tire': ['tire'],
+                # Catch-all labels (legacy / user typed values)
+                'pull-up bar': ['body weight'],   # plan §5.2 Rule 4: maps to Body Weight, NOT Weighted
+                'pull up bar': ['body weight'],   # plan §5.2 Rule 4
+                'yoga mat': ['roller', 'stability ball'],
+                'gym': ['dumbbell', 'barbell', 'cable', 'leverage machine', 'smith machine',
+                        'kettlebell', 'ez barbell', 'olympic barbell', 'trap bar', 'weighted',
+                        'band', 'resistance band', 'rope', 'medicine ball'],
+                'full gym': ['dumbbell', 'barbell', 'cable', 'leverage machine', 'smith machine',
+                             'kettlebell', 'ez barbell', 'olympic barbell', 'trap bar', 'weighted',
+                             'band', 'resistance band', 'rope', 'medicine ball'],
             }
-            expanded = set(equip_lower)
-            for eq in equip_lower:
-                if eq in SYNONYM_MAP:
-                    expanded.update(SYNONYM_MAP[eq])
-            
-            allowed = list(expanded) + BODYWEIGHT_TERMS
-            pool = pool[
-                pool['Equipment'].str.lower().str.strip().isin(allowed) |
-                pool['Equipment'].str.lower().str.strip().apply(
-                    lambda eq_str: any(term in eq_str for term in allowed)
-                )
-            ]
-            
-        # Filter by injuries
-        pool = self.filter_by_injuries(pool, body_issues)
-            
-        # Tag the pool with movement patterns dynamically
-        if '_pattern' not in pool.columns:
-            def _tag(row):
-                return get_movement_metadata(str(row.get('Name', '')), str(row.get('Target_Muscle', '')))['pattern']
-            pool['_pattern'] = pool.apply(_tag, axis=1)
+            synonyms_to_add = []
+            for label in equip_lower:
+                mapped = SYNONYM_MAP.get(label, [label])  # fallback: use label as-is
+                synonyms_to_add.extend(mapped)
+            equip_lower = list(set(equip_lower + synonyms_to_add + BODYWEIGHT_TERMS))
 
+            pool = pool[pool['Equipment'].str.lower().str.strip().isin(equip_lower)]
+
+        # Injury filter
+        if body_issues:
+            for issue in body_issues:
+                if 'Avoid_If' in pool.columns:
+                    pool = pool[~pool['Avoid_If'].str.contains(issue, case=False, na=False)]
+
+        # Biomechanical safety filter
+        pool = self._filter_biomechanics(pool, profile)
+
+        if pool.empty:
+            print(f"    WARNING: No exercises after filtering for {focus}, using fallback")
+            return self._get_fallback_exercises(params)
+
+        # --- Select exercises per target muscle, compound first ---
         selected = []
-        used_names = set(global_used_names)
-        
-        for idx, pattern in enumerate(required_patterns):
-            candidates = pool[pool['_pattern'] == pattern].copy()
-            
-            if candidates.empty:
-                candidates = pool[pool['_pattern'].isin(['core', 'cardio'])].copy()
-                
+        # Merge local + cross-day used names to prevent any repetition
+        used_names: Set[str] = set(global_used_names) if global_used_names else set()
+
+        for muscle in allocation_order:
+            target_for_muscle = int(muscle_targets.get(muscle, 1) or 0)
+            if target_for_muscle <= 0:
+                continue
+
+            # Get candidates for this muscle
+            candidates = pool[pool['Target_Muscle'].str.contains(muscle, case=False, na=False)].copy()
+
             if candidates.empty:
                 continue
-                
-            # Score candidates
-            scored = self._score_exercises(
-                candidates,
-                target_muscle=pattern,
-                goal=goal,
-                experience=experience,
-                effective_equipment=effective_equipment,
-                global_movement_counts=global_movement_counts,
-                day_seed=day_seed + idx,
-                history_memory=history_memory
-            )
-            
-            scored_unused = scored[~scored['Name'].isin(used_names)]
-            if scored_unused.empty:
-                scored_unused = scored.copy()
-            
-            scored_unused = scored_unused.sort_values(by='_score', ascending=False)
-            best_row = scored_unused.iloc[0]
-            
-            # Plateau swap logic: if this movement pattern is currently plateaued,
-            # swap with Progression_Next or Alternative_Swap from candidates to break it
-            prog_state = profile.get('_progression_state', {})
-            plateaued_movements = prog_state.get('plateaued_movements', {})
-            if pattern in plateaued_movements:
-                next_ex = str(best_row.get('Progression_Next', '')).strip()
-                alt_ex = str(best_row.get('Alternative_Swap', '')).strip()
-                
-                swap_candidate = None
-                for candidate_name in [next_ex, alt_ex]:
-                    if candidate_name and candidate_name.lower() not in ('', 'nan', 'none'):
-                        matching_rows = candidates[candidates['Name'].str.lower().str.strip() == candidate_name.lower().strip()]
-                        if not matching_rows.empty:
-                            matching_unused = matching_rows[~matching_rows['Name'].isin(used_names)]
-                            if not matching_unused.empty:
-                                swap_candidate = matching_unused.iloc[0]
-                                break
-                            else:
-                                swap_candidate = matching_rows.iloc[0]
-                                break
-                # Fallback: if no matching progression/alternative swap is available in the candidates pool,
-                # select the next highest scoring exercise in the pool that has a different name to break the plateau
-                if swap_candidate is None:
-                    other_candidates = scored_unused[scored_unused['Name'].str.lower().str.strip() != best_row['Name'].lower().strip()]
-                    if not other_candidates.empty:
-                        swap_candidate = other_candidates.iloc[0]
 
-                if swap_candidate is not None:
-                    best_row = swap_candidate
-            
-            name = best_row.get('Name', 'Exercise')
-            
-            used_names.add(name)
-            global_used_names.add(name)
-            
-            media = self._resolve_exercise_media(best_row)
-            classification = self._classify_exercise_mode(
-                name,
-                best_row.get('Equipment', ''),
-                params['reps'],
+            # Mark compound vs isolation
+            candidates['_is_compound'] = candidates['Name'].str.lower().apply(
+                lambda name: any(kw in name for kw in compound_keywords)
             )
-            
-            selected.append({
-                'name': name,
-                'sets': params['sets'],
-                'reps': params['reps'],
-                'rest': params['rest'],
-                'muscle_group': str(best_row.get('Target_Muscle', '')),
-                'notes': f'Pattern: {pattern.replace("_", " ").title()}',
-                'equipment': str(best_row.get('Equipment', '')).strip(),
-                'gif': media['gif'],
-                'video_url': media['video_url'],
-                'image': media['image'],
-                'media_type': media['media_type'],
-                'trackable': classification['trackable'],
-                'duration_seconds': classification['duration_seconds'],
-                'is_timed': classification['is_timed'],
-                'needs_camera': classification['needs_camera'],
-                'exercise_mode': classification['exercise_mode'],
-                '_is_compound': best_row.get('_is_compound', False),
-            })
-            
-        def _sort_key(ex):
-            return 0 if ex.get('_is_compound') else 1
-        selected.sort(key=_sort_key)
-        
+
+            # --- SEEDED SHUFFLE: true variety per day, stable per (user, day, week) ---
+            # Shuffle within each priority tier so we don't always get A-Z first.
+            # Uses day_seed which is a large hash unique to (user_id, focus, day_index, week).
+            seed_compound = int(day_seed % (2**31))
+            seed_isolation = int((day_seed + 0xDEADBEEF) % (2**31))
+
+            compound_df = candidates[candidates['_is_compound']].sample(
+                frac=1, random_state=seed_compound
+            ).reset_index(drop=True)
+            isolation_df = candidates[~candidates['_is_compound']].sample(
+                frac=1, random_state=seed_isolation
+            ).reset_index(drop=True)
+            # Keep compounds first (better programming order), then isolation
+            candidates = pd.concat([compound_df, isolation_df], ignore_index=True)
+
+            # Pick exercises for this muscle (avoid duplicates across days too)
+            selected_for_muscle = 0
+
+            for _, row in candidates.iterrows():
+                name = row.get('Name', 'Exercise')
+                if name in used_names:
+                    continue
+
+                used_names.add(name)
+                target = row.get('Target_Muscle', muscle)
+                media = self._resolve_exercise_media(row)
+                classification = self._classify_exercise_mode(
+                    name,
+                    row.get('Equipment', ''),
+                    params['reps'],
+                )
+
+                selected.append({
+                    'name': name,
+                    'sets': params['sets'],
+                    'reps': params['reps'],
+                    'rest': params['rest'],
+                    'muscle_group': target,
+                    'notes': f'Target: {target}',
+                    'equipment': str(row.get('Equipment', '')).strip(),  # ✅ pass equipment for UI + test verification
+                    'gif': media['gif'],
+                    'video_url': media['video_url'],
+                    'image': media['image'],
+                    'media_type': media['media_type'],
+                    'trackable': classification['trackable'],
+                    'duration_seconds': classification['duration_seconds'],
+                    'is_timed': classification['is_timed'],
+                    'needs_camera': classification['needs_camera'],
+                    'exercise_mode': classification['exercise_mode'],
+                    '_is_compound': row.get('_is_compound', False),
+                })
+
+                selected_for_muscle += 1
+                if selected_for_muscle >= target_for_muscle:
+                    break
+
+            if len(selected) >= target_count:
+                break
+
+        # If we don't have enough, fill from remaining pool (also shuffled)
+        if len(selected) < min_count:
+            seed_fill = int((day_seed + 0xCAFEBABE) % (2**31))
+            remaining = pool[~pool['Name'].isin(used_names)].sample(
+                frac=1, random_state=seed_fill
+            )
+            for _, row in remaining.iterrows():
+                if len(selected) >= target_count:
+                    break
+                name = row.get('Name', 'Exercise')
+                if name not in used_names:
+                    used_names.add(name)
+                    media = self._resolve_exercise_media(row)
+                    classification = self._classify_exercise_mode(
+                        name,
+                        row.get('Equipment', ''),
+                        params['reps'],
+                    )
+                    selected.append({
+                        'name': name,
+                        'sets': params['sets'],
+                        'reps': params['reps'],
+                        'rest': params['rest'],
+                        'muscle_group': row.get('Target_Muscle', 'General'),
+                        'notes': f'Target: {row.get("Target_Muscle", "General")}',
+                        'equipment': str(row.get('Equipment', '')).strip(),  # ✅ pass equipment for UI + test verification
+                        'gif': media['gif'],
+                        'video_url': media['video_url'],
+                        'image': media['image'],
+                        'media_type': media['media_type'],
+                        'trackable': classification['trackable'],
+                        'duration_seconds': classification['duration_seconds'],
+                        'is_timed': classification['is_timed'],
+                        'needs_camera': classification['needs_camera'],
+                        'exercise_mode': classification['exercise_mode'],
+                        '_is_compound': False,
+                    })
+
+        # Cap at target_count
+        selected = selected[:target_count]
+
+        # Keep compounds first but preserve seeded shuffled order within each tier.
+        selected.sort(key=lambda x: (not x.get('_is_compound', False),))
+
+        # Apply age-based safety caps
+        age = profile.get('age', 25)
+        if age:
+            for ex in selected:
+                # Safely parse rest time
+                rest_str = str(ex.get('rest', '60'))
+                rest_val = 60
+                try:
+                    import re as _re
+                    _nums = _re.findall(r'\d+', rest_str)
+                    if _nums:
+                        rest_val = int(_nums[0])
+                except Exception:
+                    rest_val = 60
+                ex['sets'], ex['reps'], _, _ = self._apply_age_based_caps(
+                    profile, ex['sets'], ex['reps'],
+                    rest_val,
+                    0.8
+                )
+
+        # Clean internal fields
+        for ex in selected:
+            ex.pop('_is_compound', None)
+
+        selected = self._enforce_unique_media_per_day(selected)
+
+        # Fallback if still empty
+        if not selected:
+            return self._get_fallback_exercises(params)
+
+        print(f"    {focus}: {len(selected)} exercises selected (target: {target_count})")
         return selected
 
     def _get_exercise_params(self, goal: str, experience: str, profile: dict) -> Dict:
@@ -3864,6 +4085,7 @@ class WorkoutEngine:
                 result = self.progression_engine.compute_progression(
                     user_profile=profile,
                     current_params=current_params,
+                    workout_stats=profile.get('workout_stats'),
                 )
 
                 prog_sets = result['sets']
@@ -4012,17 +4234,36 @@ class WorkoutEngine:
                     break
 
             # Volume factor (sets × reps)
-            sets = ex.get('sets', 3)
-            reps_str = ex.get('reps', '10')
-            # Parse rep range (e.g., "8-12" → 10)
+            # ── FIX: coerce sets/reps to safe types before arithmetic ──
+            # The ML pipeline can return sets/reps as int, float, str, or dict.
+            # Calling `'-' in int_value` raises TypeError; `dict * int` raises TypeError.
+            raw_sets = ex.get('sets', 3)
+            raw_reps = ex.get('reps', '10')
+
+            # Safely convert sets to int
             try:
-                if '-' in reps_str:
-                    reps = sum(int(x) for x in reps_str.split('-')) / 2
+                if isinstance(raw_sets, dict):
+                    sets = int(raw_sets.get('value', 3))
+                elif isinstance(raw_sets, (int, float)):
+                    sets = max(1, int(raw_sets))
                 else:
-                    reps = int(''.join(filter(str.isdigit, reps_str)) or '10')
-            except:
+                    digits = ''.join(filter(str.isdigit, str(raw_sets)))
+                    sets = int(digits) if digits else 3
+            except Exception:
+                sets = 3
+
+            # Safely convert reps to a numeric value
+            try:
+                reps_str = str(raw_reps) if not isinstance(raw_reps, str) else raw_reps
+                if '-' in reps_str:
+                    parts = reps_str.split('-')
+                    reps = sum(int(''.join(filter(str.isdigit, p)) or '10') for p in parts) / max(len(parts), 1)
+                else:
+                    digits = ''.join(filter(str.isdigit, reps_str))
+                    reps = int(digits) if digits else 10
+            except Exception:
                 reps = 10
-            
+
             volume_factor = (sets * reps) / 30  # Normalize to ~1.0
             total_volume += sets * reps
 
