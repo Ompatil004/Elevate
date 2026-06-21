@@ -34,9 +34,9 @@ export const preloadPoseAssets = async () => {
       console.warn('MediaPipe WASM preload failed:', error?.message || error);
     }
 
-    await Promise.allSettled(
-      POSE_MODEL_CANDIDATES.map(({ model }) => warmFetch(getModelAssetUrl(model)))
-    );
+    // Optimize: Deduplicate and preload only the primary heavy model to save bandwidth.
+    const primaryModel = POSE_MODEL_CANDIDATES[0]?.model || 'pose_landmarker_heavy';
+    await warmFetch(getModelAssetUrl(primaryModel));
   })();
 
   return preloadPromise;

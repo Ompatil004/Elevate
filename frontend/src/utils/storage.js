@@ -390,7 +390,7 @@ export const safeJSONStringify = (key, value) => setToStorage(key, value);
 export const markSessionStart = () => {
   try {
     localStorage.setItem("session_start", String(Date.now()));
-  } catch (err) {
+  } catch {
     // no-op
   }
 };

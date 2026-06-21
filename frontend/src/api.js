@@ -323,7 +323,10 @@ let workoutRequestController = null; // Bug #63 fix: tracks AbortController for 
 export const generateWorkout = (profileData) => {
     if (workoutRequestInFlight) {
         if (import.meta.env.DEV) console.log('[generateWorkout] Reusing in-flight request');
-        return { promise: workoutRequestInFlight, cancel: () => workoutRequestController?.abort() };
+        const wrappedPromise = Promise.resolve(workoutRequestInFlight);
+        wrappedPromise.promise = workoutRequestInFlight;
+        wrappedPromise.cancel = () => workoutRequestController?.abort();
+        return wrappedPromise;
     }
 
     // Bug #63 fix: create a fresh AbortController for each new request
@@ -349,7 +352,11 @@ export const generateWorkout = (profileData) => {
             workoutRequestController = null;
         });
 
-    return { promise: workoutRequestInFlight, cancel: () => workoutRequestController?.abort() };
+    const retPromise = workoutRequestInFlight;
+    retPromise.promise = retPromise;
+    retPromise.cancel = () => workoutRequestController?.abort();
+
+    return retPromise;
 };
 
 /**

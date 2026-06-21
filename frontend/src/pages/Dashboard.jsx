@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useNotification } from '../components/NotificationProvider';
 import { useTheme } from '../context/ThemeContext';
 import ConfirmDialog from '../components/ConfirmDialog';
-import { getProfile, saveTrends, getTrends, logActivityToBackend, getRecentActivities, syncActivitiesToBackend, saveDailyLog, getWeeklyLogs } from '../api';
+import { getProfile, saveTrends, getTrends, logActivityToBackend, getRecentActivities, syncActivitiesToBackend, saveDailyLog, getWeeklyLogs, generateWorkout } from '../api';
+import { preloadPoseAssets } from '../utils/poseModelPreload';
 import { QUOTES } from '../data/quotes';
 import {
   getFromStorage,
@@ -2213,6 +2214,50 @@ function Dashboard({ onLogout }) {
         }
 
         if (data.name) setDisplayName(data.name.split(' ')[0]);
+
+        // Start background preloading of workout cache and pose assets after 3s delay
+        try {
+          const profileData = data;
+          setTimeout(() => {
+            // 1. Warm workout plan cache if missing or expired
+            const cachedPlan = localStorage.getItem('workoutPlan');
+            const cachedTimestamp = localStorage.getItem('workoutPlanTimestamp');
+            const cachedVersion = localStorage.getItem('workoutPlanVersion');
+
+            const WORKOUT_PLAN_CACHE_VERSION = '2026-04-10-workout-fix-6-seeded-shuffle-variety';
+            let needsWarmup = !cachedPlan || cachedVersion !== WORKOUT_PLAN_CACHE_VERSION;
+            if (cachedPlan && cachedTimestamp && !needsWarmup) {
+              const timestamp = new Date(cachedTimestamp);
+              const now = new Date();
+              const hoursSinceCache = (now - timestamp) / (1000 * 60 * 60);
+              if (hoursSinceCache >= 24) {
+                needsWarmup = true;
+              }
+            }
+
+            if (needsWarmup) {
+              console.log('[Dashboard] Warming up workout plan cache in background...');
+              generateWorkout(profileData).then((workoutResponse) => {
+                const generatedPlan = Array.isArray(workoutResponse?.data?.workout) ? workoutResponse.data.workout : [];
+                if (generatedPlan.length > 0) {
+                  localStorage.setItem('workoutPlan', JSON.stringify(generatedPlan));
+                  localStorage.setItem('workoutPlanTimestamp', new Date().toISOString());
+                  localStorage.setItem('workoutPlanVersion', WORKOUT_PLAN_CACHE_VERSION);
+                  console.log('[Dashboard] Background workout cache pre-warmed successfully');
+                }
+              }).catch((err) => {
+                console.warn('[Dashboard] Background workout cache warmup failed:', err?.message || err);
+              });
+            }
+
+            // 2. Preload MediaPipe pose assets in background
+            preloadPoseAssets().catch((err) => {
+              console.warn('[Dashboard] Background pose assets preloading skipped/failed:', err?.message || err);
+            });
+          }, 3000);
+        } catch (preloadErr) {
+          console.warn('[Dashboard] Background preloading setup failed:', preloadErr);
+        }
 
         // ✅ BACKEND SYNC: Parse MongoDB history instead of localStorage
         const todayStr = getTodayStr();
