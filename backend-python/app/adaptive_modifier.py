@@ -23,13 +23,20 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def compute_adaptive_modifiers(weekly_logs: List[Dict[str, Any]]) -> Dict[str, Any]:
+def compute_adaptive_modifiers(
+    weekly_logs: List[Dict[str, Any]],
+    *,
+    water_target_ml: int = 2750,
+    sleep_target_hours: float = 8.0,
+) -> Dict[str, Any]:
     """
     Compute plan modifiers from the last 7 daily check-in logs.
 
     Args:
-        weekly_logs: list of daily_log documents, each with keys:
-            sleep_hours (float), water_ml (float), workout_completed (bool)
+        weekly_logs:       list of daily_log documents, each with keys:
+                           sleep_hours (float), water_ml (float), workout_completed (bool)
+        water_target_ml:   user's personalised daily water target (from prescription_targets)
+        sleep_target_hours: user's optimal sleep target (from prescription_targets)
 
     Returns:
         {
@@ -38,6 +45,8 @@ def compute_adaptive_modifiers(weekly_logs: List[Dict[str, Any]]) -> Dict[str, A
             'skip_volume':      bool,    # True → do not increase volume
             'dehydration_flag': bool,    # True → user is chronically dehydrated
             'deload_flag':      bool,    # True → full deload recommended
+            'hydration_tip':    str,     # user-facing tip (empty when hydration is fine)
+            'sleep_tip':        str,     # user-facing tip (empty when sleep is fine)
             'reason':           str,     # human-readable explanation
             'days_logged':      int,
         }
@@ -48,6 +57,8 @@ def compute_adaptive_modifiers(weekly_logs: List[Dict[str, Any]]) -> Dict[str, A
         'skip_volume': False,
         'dehydration_flag': False,
         'deload_flag': False,
+        'hydration_tip': '',
+        'sleep_tip': '',
         'reason': 'No check-in data available — using baseline plan.',
         'days_logged': 0,
     }
@@ -66,31 +77,63 @@ def compute_adaptive_modifiers(weekly_logs: List[Dict[str, Any]]) -> Dict[str, A
     skip_volume = False
     dehydration_flag = False
     deload_flag = False
+    hydration_tip = ''
+    sleep_tip = ''
     reasons: List[str] = []
 
-    # ── Sleep-based recovery modifier ─────────────────────────────────────────
-    if avg_sleep < 5.0:
+    # ── Sleep-based recovery modifier ────────────────────────────────────────
+    # Compare against the user's personal sleep target, not a fixed 8h cutoff.
+    sleep_deficit = sleep_target_hours - avg_sleep   # positive = under target
+
+    if sleep_deficit > 3.0:                          # severely under target
         intensity_delta -= 0.15
         deload_flag = True
+        sleep_tip = (
+            f'You averaged only {avg_sleep:.1f} h sleep — aim for '
+            f'{sleep_target_hours:.0f} h. A recovery week is recommended.'
+        )
         reasons.append(f'avg sleep {avg_sleep:.1f} h (critical) → full deload')
-    elif avg_sleep < 6.0:
+    elif sleep_deficit > 2.0:                        # meaningfully under target
         intensity_delta -= 0.10
+        sleep_tip = (
+            f'You averaged {avg_sleep:.1f} h sleep — try to reach '
+            f'{sleep_target_hours:.0f} h for better recovery.'
+        )
         reasons.append(f'avg sleep {avg_sleep:.1f} h (low) → -10% intensity')
-    elif avg_sleep >= 8.0:
+    elif sleep_deficit < -0.5:                       # sleeping above target
         intensity_delta += 0.03
         reasons.append(f'avg sleep {avg_sleep:.1f} h (excellent) → +3% intensity')
 
     # ── Hydration-based modifier ───────────────────────────────────────────────
-    if avg_water < 1000:
+    # Ratio-based check against the user's personalised water target.
+    # Plan Section 6: > 30% deficit → reduce cardio; 10-30% deficit → tip only.
+    if avg_water > 0:
+        water_deficit_ratio = (water_target_ml - avg_water) / water_target_ml
+    else:
+        water_deficit_ratio = 1.0  # treat zero as fully dehydrated
+
+    if water_deficit_ratio > 0.30:                   # drank < 70% of target
         intensity_delta -= 0.10
         dehydration_flag = True
-        reasons.append(f'avg water {avg_water:.0f} ml (severe) → -10% intensity')
-    elif avg_water < 1500:
-        intensity_delta -= 0.05
+        hydration_tip = (
+            f'You drank an average of {avg_water:.0f} ml — '
+            f'your target is {water_target_ml} ml/day. '
+            'Reduce cardio intensity and add a hydrating snack (e.g. cucumber raita or coconut water).'
+        )
+        reasons.append(
+            f'avg water {avg_water:.0f} ml ({water_deficit_ratio*100:.0f}% deficit, severe) → -10% intensity'
+        )
+    elif water_deficit_ratio > 0.10:                 # drank < 90% of target
         dehydration_flag = True
-        reasons.append(f'avg water {avg_water:.0f} ml (low) → -5% intensity')
+        hydration_tip = (
+            f'You averaged {avg_water:.0f} ml — try to reach {water_target_ml} ml/day. '
+            'Stay hydrated between sets to maintain performance.'
+        )
+        reasons.append(
+            f'avg water {avg_water:.0f} ml ({water_deficit_ratio*100:.0f}% deficit, moderate) → tip sent'
+        )
 
-    # ── Workout attendance modifier ────────────────────────────────────────────
+    # ── Workout attendance modifier ───────────────────────────────────────────
     attendance_rate = workout_days / n
     if attendance_rate >= (4 / 7):
         bonus_sets = 1
@@ -99,7 +142,7 @@ def compute_adaptive_modifiers(weekly_logs: List[Dict[str, Any]]) -> Dict[str, A
         skip_volume = True
         reasons.append(f'only {workout_days}/{n} workouts — skip volume increase this week')
 
-    # ── Clamp intensity delta to reasonable bounds ─────────────────────────────
+    # ── Clamp intensity delta to reasonable bounds ────────────────────────────
     intensity_delta = max(-0.25, min(0.10, round(intensity_delta, 3)))
 
     return {
@@ -108,10 +151,15 @@ def compute_adaptive_modifiers(weekly_logs: List[Dict[str, Any]]) -> Dict[str, A
         'skip_volume': skip_volume,
         'dehydration_flag': dehydration_flag,
         'deload_flag': deload_flag,
+        'hydration_tip': hydration_tip,
+        'sleep_tip': sleep_tip,
         'reason': '; '.join(reasons) if reasons else 'Baseline — all biometrics normal.',
         'days_logged': n,
         'avg_sleep_hours': round(avg_sleep, 1),
         'avg_water_ml': round(avg_water),
+        'water_target_ml': water_target_ml,
+        'sleep_target_hours': sleep_target_hours,
+        'water_deficit_ratio': round(water_deficit_ratio, 3),
         'workout_completion_rate': round(attendance_rate, 2),
     }
 
