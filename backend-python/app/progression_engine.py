@@ -47,7 +47,9 @@ MIN_REPS               = 3
 MIN_INTENSITY          = 0.30
 
 AGE_CAPS = {
-    'senior': {'age_min': 65, 'max_intensity': 0.70, 'max_sets': 3, 'rep_range': (8, 15)},
+    'senior': {'age_min': 65, 'max_intensity': 0.70, 'max_sets': 3, 'max_exercises': 6, 'rep_range': (10, 12), 'rest_min': 90},
+    'mature': {'age_min': 51, 'age_max': 60, 'max_intensity': 0.80, 'exercise_reduce': 2, 'rest_min': 60, 'avoid_high_impact': True},
+    'middle': {'age_min': 36, 'age_max': 50, 'max_intensity': 0.85, 'max_exercises': 8, 'rep_min': 8, 'rest_multiplier': 1.2},
     'youth':  {'age_max': 18, 'max_intensity': 0.80, 'max_sets': 4, 'rep_range': (10, 20)},
 }
 
@@ -112,18 +114,41 @@ def apply_age_safety_caps(
     reps_low: int,
     reps_high: int,
     intensity: float,
+    current_exercises: int = 6,
+    current_rest: int = 60,
 ) -> Tuple[int, int, int, float]:
     """
-    Age >= 65 -> max intensity 0.70, max 3 sets, reps 8-15
-    Age <  18 -> max intensity 0.80, max 4 sets, reps 10-20
+    Apply age-based safety caps on all prescription parameters.
+
+    Five bands (per plan Section 3):
+      <  18  : youth  — max 4 sets, max intensity 0.80, reps 10-20
+      18–35  : baseline — no change
+      36–50  : middle  — max exercises 8, rest × 1.2, min 8 reps, max intensity 0.85
+      51–60  : mature  — exercises –2, min 60s rest, avoid high-impact, max intensity 0.80
+      60+    : senior  — max 6 exercises, max 3 sets, reps 10-12, min 90s rest, max intensity 0.70
+
+    Returns:
+        (sets, reps_low, reps_high, intensity)
+        Callers can inspect AGE_CAPS directly for avoid_high_impact / exercise limits.
     """
-    if age >= AGE_CAPS['senior']['age_min']:
+    if age >= AGE_CAPS['senior']['age_min']:          # 65+ (strict senior)
         cap = AGE_CAPS['senior']
         intensity = min(intensity, cap['max_intensity'])
         sets      = min(sets, cap['max_sets'])
         reps_low  = max(reps_low, cap['rep_range'][0])
         reps_high = min(reps_high, cap['rep_range'][1])
-    elif age < AGE_CAPS['youth'].get('age_max', 18):
+
+    elif age >= AGE_CAPS['mature']['age_min']:         # 51–60
+        cap = AGE_CAPS['mature']
+        intensity = min(intensity, cap['max_intensity'])
+        # rest is advisory — returned via get_age_modifiers, not changed here
+
+    elif age >= AGE_CAPS['middle']['age_min']:         # 36–50
+        cap = AGE_CAPS['middle']
+        intensity = min(intensity, cap['max_intensity'])
+        reps_low  = max(reps_low, cap.get('rep_min', 8))
+
+    elif age < AGE_CAPS['youth'].get('age_max', 18):  # Under 18
         cap = AGE_CAPS['youth']
         intensity = min(intensity, cap['max_intensity'])
         sets      = min(sets, cap['max_sets'])
@@ -137,7 +162,143 @@ def apply_age_safety_caps(
     return sets, reps_low, reps_high, round(intensity, 3)
 
 
-# ── STREAK ADJUSTMENTS ──
+def get_age_modifiers(age: int, base_exercises: int = 6, base_rest: int = 60) -> Dict:
+    """
+    Return a complete age-modifier dict used by the workout engine and meal engine.
+
+    Keys:
+        exercises       : adjusted exercise count
+        rest_seconds    : adjusted rest time
+        avoid_high_impact: bool — True for 51+ users
+        level_cap       : 'beginner' | None — forced level for 60+
+        meal_note       : user-facing nutrition tip for this age group
+        age_group       : label string
+    """
+    if age >= 60:
+        return {
+            'exercises': min(base_exercises, AGE_CAPS['senior'].get('max_exercises', 6)),
+            'rest_seconds': max(AGE_CAPS['senior']['rest_min'], base_rest),
+            'avoid_high_impact': True,
+            'level_cap': 'beginner',
+            'meal_note': 'Prioritise calcium and protein-rich items. Reduce snack count by 1.',
+            'age_group': '60+',
+        }
+    elif age >= 51:
+        return {
+            'exercises': max(4, base_exercises - AGE_CAPS['mature']['exercise_reduce']),
+            'rest_seconds': max(AGE_CAPS['mature']['rest_min'], base_rest),
+            'avoid_high_impact': True,
+            'level_cap': None,
+            'meal_note': 'Add 1 extra protein item per meal slot.',
+            'age_group': '51-60',
+        }
+    elif age >= 36:
+        return {
+            'exercises': min(base_exercises, AGE_CAPS['middle']['max_exercises']),
+            'rest_seconds': int(base_rest * AGE_CAPS['middle']['rest_multiplier']),
+            'avoid_high_impact': False,
+            'level_cap': None,
+            'meal_note': 'Swap 1 carb item for a fibre-rich sabzi or dal per meal.',
+            'age_group': '36-50',
+        }
+    elif age < 18:
+        return {
+            'exercises': base_exercises,
+            'rest_seconds': base_rest + 15,
+            'avoid_high_impact': False,
+            'level_cap': None,
+            'meal_note': 'No supplements. Add 1 milk or fruit item per meal.',
+            'age_group': 'under-18',
+        }
+    else:  # 18–35 baseline
+        return {
+            'exercises': base_exercises,
+            'rest_seconds': base_rest,
+            'avoid_high_impact': False,
+            'level_cap': None,
+            'meal_note': '',
+            'age_group': '18-35',
+        }
+
+
+def build_form_feedback(form_score: float, exercise_name: str = '') -> Dict:
+    """
+    Build a user-facing form feedback dict for a given exercise form score.
+
+    Per plan Section 7 / pose_tracker logic:
+        form_score < 0.50   → poor form: reduce reps to min, reduce weight
+        0.50 ≤ score < 0.75 → acceptable: maintain, specific cues
+        0.75 ≤ score < 0.90 → good: maintain weight
+        score ≥ 0.90        → excellent: increase weight suggestion
+
+    Args:
+        form_score:    Float 0.0–1.0 (fraction of correct reps / total reps).
+                       Detectors return 0–100 int; pass as float 0.0–1.0 here.
+        exercise_name: Optional exercise name for personalised messages.
+
+    Returns:
+        {
+            'form_score_used':     float,
+            'form_band':           str,   # 'poor' | 'acceptable' | 'good' | 'excellent'
+            'weight_suggestion':   str,   # 'reduce' | 'maintain' | 'increase'
+            'weight_change_pct':   int,   # suggested % change (negative = reduce)
+            'form_message':        str,   # user-facing message shown in the UI
+            'form_emoji':          str,
+        }
+    """
+    score = float(form_score or 0.75)
+    name_hint = f' on {exercise_name}' if exercise_name else ''
+
+    if score < 0.50:
+        return {
+            'form_score_used': round(score, 2),
+            'form_band': 'poor',
+            'weight_suggestion': 'reduce',
+            'weight_change_pct': -10,
+            'form_message': (
+                f'Form needs improvement{name_hint} ({int(score * 100)}%). '
+                'Reduce weight by 10% and focus on full range of motion before progressing.'
+            ),
+            'form_emoji': '⚠️',
+        }
+    elif score < 0.75:
+        return {
+            'form_score_used': round(score, 2),
+            'form_band': 'acceptable',
+            'weight_suggestion': 'maintain',
+            'weight_change_pct': 0,
+            'form_message': (
+                f'Acceptable form{name_hint} ({int(score * 100)}%). '
+                'Maintain current weight and focus on tempo and control.'
+            ),
+            'form_emoji': '🟡',
+        }
+    elif score < 0.90:
+        return {
+            'form_score_used': round(score, 2),
+            'form_band': 'good',
+            'weight_suggestion': 'maintain',
+            'weight_change_pct': 0,
+            'form_message': (
+                f'Good form{name_hint} ({int(score * 100)}%). '
+                'Keep it up — when you hit the top rep range consistently, consider progressing.'
+            ),
+            'form_emoji': '🟢',
+        }
+    else:  # score >= 0.90
+        return {
+            'form_score_used': round(score, 2),
+            'form_band': 'excellent',
+            'weight_suggestion': 'increase',
+            'weight_change_pct': 5,
+            'form_message': (
+                f'Excellent form{name_hint} ({int(score * 100)}%)! '
+                'You are ready to increase weight by ~5% next session.'
+            ),
+            'form_emoji': '🌟',
+        }
+
+
 
 def get_streak_adjustments(
     streak_days: int,
