@@ -672,7 +672,7 @@ class WorkoutEngine:
         best_match = ''
         best_key = ''
         best_score = 0.0
-        for mapped_key, media_url in self._wger_name_to_media.items():
+        for mapped_key, media_url in list(self._wger_name_to_media.items()):
             score = self._name_similarity_score(key, mapped_key)
             if score > best_score:
                 best_score = score
@@ -708,7 +708,7 @@ class WorkoutEngine:
         best_key = ''
         best_score = 0.0
 
-        for mapped_key, media_url in self._wger_name_to_media.items():
+        for mapped_key, media_url in list(self._wger_name_to_media.items()):
             score = self._name_similarity_score(key, mapped_key)
             if score > best_score:
                 best_score = score
@@ -736,7 +736,7 @@ class WorkoutEngine:
         scored = []
         video_exts = ('.mp4', '.webm', '.ogg', '.mov', '.m3u8')
 
-        for mapped_key, media_url in self._wger_name_to_media.items():
+        for mapped_key, media_url in list(self._wger_name_to_media.items()):
             if not media_url:
                 continue
 
@@ -3966,6 +3966,7 @@ class WorkoutEngine:
                     'is_timed': classification['is_timed'],
                     'needs_camera': classification['needs_camera'],
                     'exercise_mode': classification['exercise_mode'],
+                    'movement_pattern': classification['movement_pattern'],
                     '_is_compound': row.get('_is_compound', False),
                 })
 
@@ -4011,6 +4012,7 @@ class WorkoutEngine:
                         'is_timed': classification['is_timed'],
                         'needs_camera': classification['needs_camera'],
                         'exercise_mode': classification['exercise_mode'],
+                        'movement_pattern': classification['movement_pattern'],
                         '_is_compound': False,
                     })
 
