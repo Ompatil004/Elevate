@@ -46,6 +46,8 @@ except ImportError:
 
 def _utcnow() -> datetime:
     return datetime.now(timezone.utc)
+from .services.exercise_metadata import get_movement_pattern
+
 
 
 class WorkoutEngine:
@@ -863,11 +865,15 @@ class WorkoutEngine:
         is_timed = duration_seconds > 0 or keyword_cardio or equipment_cardio
         needs_camera = bool(trackable and not is_timed and not keyword_cardio and not equipment_cardio)
 
+        # Look up movement pattern from global mapping service
+        movement_pattern = get_movement_pattern(name)
+
         return {
             'trackable': bool(trackable),
             'duration_seconds': int(duration_seconds),
             'is_timed': bool(is_timed),
             'needs_camera': bool(needs_camera),
+            'movement_pattern': movement_pattern,
             'exercise_mode': 'cardio' if (keyword_cardio or equipment_cardio or is_timed) else 'strength',
         }
 
@@ -3586,9 +3592,7 @@ class WorkoutEngine:
                 drill.get('reps', ''),
                 explicit_trackable=False,
             )
-            drill['trackable'] = classification['trackable']
-            drill['duration_seconds'] = classification['duration_seconds']
-            drill['is_timed'] = classification['is_timed']
+            drill.update(classification)
             drill['needs_camera'] = False
             drill['exercise_mode'] = 'warmup'
             warmups.append(drill)
@@ -3802,7 +3806,7 @@ class WorkoutEngine:
                 params['reps'],
             )
             
-            selected.append({
+            ex_obj = {
                 'name': name,
                 'sets': params['sets'],
                 'reps': params['reps'],
@@ -3814,13 +3818,10 @@ class WorkoutEngine:
                 'video_url': media['video_url'],
                 'image': media['image'],
                 'media_type': media['media_type'],
-                'trackable': classification['trackable'],
-                'duration_seconds': classification['duration_seconds'],
-                'is_timed': classification['is_timed'],
-                'needs_camera': classification['needs_camera'],
-                'exercise_mode': classification['exercise_mode'],
                 '_is_compound': best_row.get('_is_compound', False),
-            })
+            }
+            ex_obj.update(classification)
+            selected.append(ex_obj)
             
         def _sort_key(ex):
             return 0 if ex.get('_is_compound') else 1
@@ -4086,11 +4087,7 @@ class WorkoutEngine:
                 ex.get('equipment', ''),
                 ex.get('reps', ''),
             )
-            ex['trackable'] = classification['trackable']
-            ex['duration_seconds'] = classification['duration_seconds']
-            ex['is_timed'] = classification['is_timed']
-            ex['needs_camera'] = classification['needs_camera']
-            ex['exercise_mode'] = classification['exercise_mode']
+            ex.update(classification)
 
         return fallback
 
