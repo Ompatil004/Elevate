@@ -2,10 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useNotification } from "../components/NotificationProvider";
 import { useTheme } from "../context/ThemeContext";
-import { getProfile, PYTHON_API_URL, generateWorkout, saveUserMealToNode, getMealHistory, saveMealHistory, saveTrends } from "../api";
+import { getProfile, generateNutritionPlan, getNutritionSwapOptions, generateWorkout, saveUserMealToNode, getMealHistory, saveMealHistory, saveTrends } from "../api";
 import { StorageKeys, getFromStorage, setToStorage, logoutSafe, getLocalDateStr, safeJSONParse } from "../utils/storage";
 import ConfirmDialog from "../components/ConfirmDialog";
-import axios from "axios";
 import { syncBridge, SyncTypes } from "../utils/syncBridge";
 import AuroraBackground from "../components/AuroraBackground";
 
@@ -307,7 +306,7 @@ function Nutrition() {
       const workoutPlan = await getWorkoutPlanForNutrition(profile);
       const workoutIntensity = getTodayWorkoutIntensity(workoutPlan);
 
-      const response = await axios.post(`${PYTHON_API_URL}/nutrition`, {
+      const response = await generateNutritionPlan({
         age: profile.age,
         weight: profile.weight,
         height: profile.height,
@@ -317,8 +316,6 @@ function Nutrition() {
         allergies: profile.allergies || [],
         workout_intensity: workoutIntensity,
         weekly_workout_plan: workoutPlan,
-      }, {
-        timeout: 30000,
       });
 
       if (response.data.success && response.data.nutrition) {
@@ -650,7 +647,7 @@ function Nutrition() {
     setSelectedSwap(null);
     setSwapLoading(true);
     try {
-      const res = await axios.post(`${PYTHON_API_URL}/nutrition/swap`, {
+      const res = await getNutritionSwapOptions({
         food_name: food.name,
         meal_type: mealType,
         age: userProfile?.age, weight: userProfile?.weight,
