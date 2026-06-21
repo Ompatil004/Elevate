@@ -91,4 +91,14 @@ describe('auth middleware', () => {
       .set('Cookie', `elevate_token=${token}`);
     expect(res.status).toBe(403);
   });
+
+  it('allows a valid token sent via x-auth-token header (200)', async () => {
+    const token = makeToken({ id: 'user_xyz', isSuspended: false });
+    const res = await request(app)
+      .get('/protected')
+      .set('x-auth-token', token);
+    expect(res.status).toBe(200);
+    expect(res.body.ok).toBe(true);
+    expect(res.body.userId).toBe('user_xyz');
+  });
 });

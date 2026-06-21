@@ -51,7 +51,7 @@ const setAuthCookie = (res, token) => {
 };
 
 const getSessionSnapshot = async (req) => {
-  const token = req.cookies?.elevate_token;
+  const token = req.cookies?.elevate_token || req.header('x-auth-token');
   if (!token) {
     return { authenticated: false };
   }

@@ -12,8 +12,8 @@ const User = require('../models/User');
  * client), re-add: `|| req.header('x-auth-token')` to line 19.
  */
 module.exports = async function(req, res, next) {
-    // SEC-1: only accept the HttpOnly cookie — no header fallback.
-    const token = req.cookies?.elevate_token;
+    // SEC-1 (modified): accept HttpOnly cookie, fall back to x-auth-token header for cross-site deployments (e.g. Render)
+    const token = req.cookies?.elevate_token || req.header('x-auth-token');
 
     if (!token) {
         return res.status(401).json({ message: 'No token, authorization denied' });
@@ -22,6 +22,7 @@ module.exports = async function(req, res, next) {
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         req.user = decoded.user || decoded;
+        req.token = token;
 
         // Session expiration check commented out as requested so sessions do not expire.
         /*

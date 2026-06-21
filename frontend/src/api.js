@@ -58,6 +58,11 @@ AuthAPI.interceptors.request.use(
     async (config) => {
         // SEC-1 (complete): user auth is fully HttpOnly cookie — no x-auth-token header needed.
         // withCredentials: true on the instance handles cookie sending automatically.
+        // Fallback for cross-site deployments (e.g. Render): send token header if stored in localStorage
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers['x-auth-token'] = token;
+        }
 
         // SEC-12: attach CSRF token for state-mutating requests
         if (!CSRF_SAFE_METHODS.has((config.method || 'get').toLowerCase())) {
@@ -96,6 +101,12 @@ FitnessAPI.interceptors.request.use(
         // ARCH-7: Use circuit-breaker preflight so OPEN can transition to HALF_OPEN probe.
         pythonBackendCB.beforeRequest();
         // Auth cookie is sent to Node; Node forwards the JWT to Python as x-auth-token.
+        // Fallback for cross-site deployments (e.g. Render): send token header if stored in localStorage
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers['x-auth-token'] = token;
+        }
+
         if (!CSRF_SAFE_METHODS.has((config.method || 'get').toLowerCase())) {
             const csrf = await getCsrfToken();
             if (csrf) config.headers['x-csrf-token'] = csrf;

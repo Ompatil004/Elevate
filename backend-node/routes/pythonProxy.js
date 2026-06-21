@@ -33,7 +33,7 @@ const buildTargetUrl = (req) => {
 const buildForwardHeaders = (req) => {
   const headers = {
     accept: req.headers.accept || 'application/json',
-    'x-auth-token': req.cookies.elevate_token,
+    'x-auth-token': req.token || req.cookies?.elevate_token || req.header('x-auth-token'),
   };
 
   if (req.headers['content-type']) {
