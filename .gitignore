@@ -130,6 +130,13 @@ backend-python/.venv/
 __pycache__/
 *.pyc
 
+# Machine Learning Models & Data
+*.pkl
+*.joblib
+*.model
+backend-python/data/*_processed*.csv
+backend-python/data/gif_link_audit_*.csv
+
 # MongoDB local data
 mongodb_data/
 

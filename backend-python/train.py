@@ -5,7 +5,7 @@ import os
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.tree import DecisionTreeClassifier
-from xgboost import XGBClassifier
+from xgboost import XGBClassifier, XGBRegressor
 from app.feature_pipeline import FeaturePipeline
 from app.nutrition_intelligence import NutritionIntelligenceEngine
 from app.multi_output_xgboost_model import MultiOutputXGBoostModel
@@ -56,51 +56,8 @@ def train_models():
         # Create synthetic training data based on exercise properties
         # This simulates having historical workout data
         n_samples = len(df_ex)
-        
-        # Create synthetic user profiles (these would come from real user data in production)
-        synthetic_profiles = []
-        for i in range(n_samples):
-            profile = {
-                'age': 20 + (i % 40),  # Vary age from 20-60
-                'weight': 50 + (i % 80),  # Vary weight
-                'height': 150 + (i % 50),  # Vary height
-                'gender': 'Male' if i % 2 == 0 else 'Female',
-                'experience': ['Beginner', 'Intermediate', 'Advanced'][i % 3],
-                'goal': ['Muscle Gain', 'Weight Loss', 'Maintenance', 'Strength'][i % 4],
-                'equipment': ['Dumbbell', 'Barbell', 'Machine', 'Body Weight'][:((i % 4) + 1)],
-                'injuries': ['Knee', 'Shoulder'] if i % 5 == 0 else [],
-                'days_per_week': 3 + (i % 4),  # 3-6 days
-                'session_time': 30 + (i % 90),  # 30-120 minutes
-                'workout_history_count': i,
-                'streak_count': i % 10,
-                'consistency': 0.5 + (i % 50) / 100,  # 0.5-1.0
-                'sleep_score': 5 + (i % 5),  # 5-10
-                'hydration_score': 5 + (i % 5),  # 5-10
-                'stress_level': 3 + (i % 7)  # 3-10
-            }
-            synthetic_profiles.append(profile)
-        
-        # Process synthetic profiles through the feature pipeline
-        processed_features = []
-        for profile in synthetic_profiles:
-            features = feature_pipeline.process_user_profile(profile)
-            processed_features.append(features)
-        
-        # Create synthetic targets based on exercise properties
-        # These would be actual workout outcomes in a real system
-        y_targets = []
-        for i in range(n_samples):
-            target_row = [
-                3 + (i % 4),           # sets: 3-6
-                6 + (i % 7),           # reps_low: 6-12
-                10 + (i % 8),          # reps_high: 10-18
-                60 + (i % 180),        # rest_time: 60-240 sec
-                0.3 + (i % 7) / 10     # intensity: 0.3-1.0
-            ]
-            y_targets.append(target_row)
-        
-        X_synthetic = pd.DataFrame(processed_features)
-        y_synthetic = np.array(y_targets)
+        df_synthetic = multi_output_model._create_synthetic_data(n_samples=n_samples)
+        X_synthetic, y_synthetic = multi_output_model._prepare_features(df_synthetic)
         
         # Split data for training and validation
         split_idx = int(0.8 * len(X_synthetic))
@@ -136,7 +93,6 @@ def train_models():
         y_full = y_synthetic
         
         # Individual XGBoost models for WorkoutEngine (using correct filenames)
-        from xgboost import XGBRegressor
         
         # Volume model (uses sets as proxy for volume level)
         volume_model = XGBRegressor(n_estimators=100, max_depth=4, random_state=42)
@@ -151,7 +107,6 @@ def train_models():
         print("  - xgboost_intensity.pkl")
         
         # Split model (classifier for workout split type)
-        from xgboost import XGBClassifier
         split_targets = (X_full.iloc[:, 0] % 4).astype(int).values  # derive split from days_per_week
         split_model = XGBClassifier(n_estimators=100, max_depth=4, random_state=42)
         split_model.fit(X_full, split_targets)

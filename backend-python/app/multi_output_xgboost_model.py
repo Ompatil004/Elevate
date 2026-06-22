@@ -54,8 +54,7 @@ class MultiOutputXGBoostModel:
             random_state=self.random_state,
             objective='reg:squarederror',
             eval_metric='rmse',
-            early_stopping_rounds=10,
-            verbose=0
+            verbosity=0
         )
         
         # Wrap with MultiOutputRegressor
@@ -177,9 +176,9 @@ class MultiOutputXGBoostModel:
         
         # Prepare training data
         if isinstance(X_train, pd.DataFrame):
-            X_train_processed, y_train_processed = self._prepare_features(
-                pd.concat([X_train, pd.DataFrame(y_train, columns=self.target_names)], axis=1)
-            )
+            temp_df = pd.DataFrame(X_train)
+            temp_df[self.target_names] = pd.DataFrame(y_train, columns=self.target_names, index=temp_df.index)
+            X_train_processed, y_train_processed = self._prepare_features(temp_df)
         else:
             # If X_train is already processed
             X_train_processed = X_train
@@ -189,9 +188,9 @@ class MultiOutputXGBoostModel:
         X_val_processed, y_val_processed = None, None
         if X_val is not None and y_val is not None:
             if isinstance(X_val, pd.DataFrame):
-                X_val_processed, y_val_processed = self._prepare_features(
-                    pd.concat([X_val, pd.DataFrame(y_val, columns=self.target_names)], axis=1)
-                )
+                temp_val_df = pd.DataFrame(X_val)
+                temp_val_df[self.target_names] = pd.DataFrame(y_val, columns=self.target_names, index=temp_val_df.index)
+                X_val_processed, y_val_processed = self._prepare_features(temp_val_df)
             else:
                 X_val_processed = X_val
                 y_val_processed = y_val
@@ -228,11 +227,7 @@ class MultiOutputXGBoostModel:
             
             # Fit the random search
             if X_val_processed is not None:
-                random_search.fit(
-                    X_train_processed, y_train_processed,
-                    estimator__eval_set=[(X_val_processed, y_val_processed)],
-                    estimator__verbose=0
-                )
+                random_search.fit(X_train_processed, y_train_processed)
             else:
                 random_search.fit(X_train_processed, y_train_processed)
             
@@ -243,11 +238,7 @@ class MultiOutputXGBoostModel:
         else:
             # Train with default parameters
             if X_val_processed is not None:
-                self.model.fit(
-                    X_train_processed, y_train_processed,
-                    estimator__eval_set=[(X_val_processed, y_val_processed)],
-                    estimator__verbose=0
-                )
+                self.model.fit(X_train_processed, y_train_processed)
             else:
                 self.model.fit(X_train_processed, y_train_processed)
         
