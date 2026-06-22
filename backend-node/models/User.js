@@ -114,6 +114,7 @@ const UserSchema = new Schema({
   trends:          [TrendEntrySchema],
   workouts:        [{ type: Schema.Types.Mixed }],
   meals:           [{ type: Schema.Types.Mixed }],
+  activities:      [{ type: Schema.Types.Mixed }],
 
   // ── Workout Schedule Preferences ───────────────────────────────────────────
   workoutPatterns: {

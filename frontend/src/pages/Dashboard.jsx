@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useNotification } from '../components/NotificationProvider';
 import { useTheme } from '../context/ThemeContext';
 import ConfirmDialog from '../components/ConfirmDialog';
-import { getProfile, saveTrends, getTrends, logActivityToBackend, getRecentActivities, syncActivitiesToBackend, saveDailyLog, getWeeklyLogs, generateWorkout } from '../api';
+import { getProfile, saveTrends, getTrends, logActivityToBackend, getRecentActivities, syncActivitiesToBackend, saveDailyLog, getWeeklyLogs, generateWorkout, getMealHistory } from '../api';
 import Navbar from '../components/Navbar';
 import { preloadPoseAssets } from '../utils/poseModelPreload';
 import { QUOTES } from '../data/quotes';
@@ -2092,7 +2092,8 @@ function Dashboard({ onLogout }) {
 
       // 3. Water (25 pts) — intake vs personal goal (weight × 0.033 L), updates per glass
       const userWeight = parseFloat(safeJSONParse('user', {})?.weight || '70');
-      const waterGoal = parseFloat((userWeight * 0.033).toFixed(2)) || 2.3;
+      const _isWkDone = (typeof status !== "undefined" && (status === "done" || status === "meal")) || (typeof workoutProgress !== "undefined" && workoutProgress === 1);
+    const waterGoal = getDynamicWaterGoal(typeof userWeight !== "undefined" ? userWeight : 70, typeof sleep !== "undefined" ? sleep : 0, _isWkDone);
       const waterRatio = Math.min(1, water / waterGoal);
       const waterPts = Math.round(waterRatio * 25);
 
@@ -2251,11 +2252,40 @@ function Dashboard({ onLogout }) {
               });
             }
 
-            // 2. Preload MediaPipe pose assets in background
+            
+            // 2. Warm nutrition plan cache
+            const cachedNutrition = localStorage.getItem('nutritionCache');
+            const cachedNutritionDate = localStorage.getItem('nutritionCacheDate');
+            const todayStr = new Date().toLocaleDateString('en-CA');
+            const cacheInvalid = localStorage.getItem('nutritionCacheInvalid') === 'true';
+            
+            if (cacheInvalid || !cachedNutrition || cachedNutritionDate !== todayStr) {
+              console.log('[Dashboard] Warming up nutrition plan cache in background...');
+              import('../api').then(({ generateNutritionPlan }) => {
+                generateNutritionPlan(profileData).then((response) => {
+                  if (response?.data?.plan) {
+                    const planToCache = response.data.plan;
+                    // Add profile hash for cache validation in Nutrition.jsx
+                    const profileHash = [
+                      profileData.weight, profileData.goal, profileData.dietary_preference,
+                      profileData.allergies?.join(','), profileData.days_per_week
+                    ].join('|');
+                    planToCache._profileHash = profileHash;
+                    localStorage.setItem('nutritionCache', JSON.stringify(planToCache));
+                    localStorage.setItem('nutritionCacheDate', todayStr);
+                    localStorage.setItem('nutritionCacheInvalid', 'false');
+                    console.log('[Dashboard] Background nutrition cache pre-warmed successfully');
+                  }
+                }).catch(err => console.warn('[Dashboard] Background nutrition cache warmup failed:', err));
+              });
+            }
+
+
+            // 3. Preload MediaPipe pose assets in background
             preloadPoseAssets().catch((err) => {
               console.warn('[Dashboard] Background pose assets preloading skipped/failed:', err?.message || err);
             });
-          }, 3000);
+          }, 500);
         } catch (preloadErr) {
           console.warn('[Dashboard] Background preloading setup failed:', preloadErr);
         }
@@ -2481,6 +2511,22 @@ function Dashboard({ onLogout }) {
              // stored in the DB (e.g. add 0→0.25 then remove 0.25→0: if lastSaved were the
              // DB value 0 the diff would be 0===0 and the save would be silently skipped).
              lastSaved.current = { water: syncedWater, sleep: syncedSleep, workout_completed: !!todayRecord?.workout_completed };
+
+            // Sync to Python AI coach on load
+            try {
+              await saveDailyLog({
+                sleep_hours: syncedSleep,
+                water_ml: syncedWater * 1000,
+                workout_completed: !!todayRecord?.workout_completed
+              });
+              const weeklyRes = await getWeeklyLogs();
+              if (weeklyRes?.data?.success && weeklyRes?.data?.summary) {
+                setWeeklyAverages(weeklyRes.data.summary);
+              }
+            } catch (pyErr) {
+              console.warn('Initial Python sync failed', pyErr);
+            }
+
            }
 
            // ✅ FIX: Advanced Streak Calculation incorporating Rest Days
@@ -2510,8 +2556,9 @@ function Dashboard({ onLogout }) {
 
              const mealDone = !!entry.meal_completed;
              const workoutDone = !!entry.workout_completed;
-             const restDay = isRestDayForDate(dateCursor);
-             const dayCompleted = mealDone && (workoutDone || restDay);
+             const waterDone = (entry.water_glasses || entry.water_intake || 0) > 0;
+             const sleepDone = (entry.sleep_hours || 0) > 0;
+             const dayCompleted = workoutDone || mealDone || waterDone || sleepDone;
 
              if (dayCompleted) {
                currentStreak++;
@@ -2964,7 +3011,8 @@ function Dashboard({ onLogout }) {
   const checkWaterThresholdNotifications = useCallback((oldWater, newWater) => {
     try {
       const userWeight = parseFloat(safeJSONParse('user', {})?.weight || '70');
-      const waterGoal = parseFloat((userWeight * 0.033).toFixed(1));
+      const _isWkDone = (typeof status !== "undefined" && (status === "done" || status === "meal")) || (typeof workoutProgress !== "undefined" && workoutProgress === 1);
+    const waterGoal = getDynamicWaterGoal(typeof userWeight !== "undefined" ? userWeight : 70, typeof sleep !== "undefined" ? sleep : 0, _isWkDone);
       const halfGoal = parseFloat((waterGoal / 2).toFixed(1));
 
       if (
@@ -3070,7 +3118,8 @@ function Dashboard({ onLogout }) {
       // Morning hydration reminder
       if (currentHour < 10 && !hasDailyReminderBeenShown('water')) {
         const userWeight = parseFloat(safeJSONParse('user', {})?.weight || '70');
-        const waterGoal = parseFloat((userWeight * 0.033).toFixed(1));
+        const _isWkDone = (typeof status !== "undefined" && (status === "done" || status === "meal")) || (typeof workoutProgress !== "undefined" && workoutProgress === 1);
+    const waterGoal = getDynamicWaterGoal(typeof userWeight !== "undefined" ? userWeight : 70, typeof sleep !== "undefined" ? sleep : 0, _isWkDone);
         if (water < 0.5) {
           const newNotification = {
             id: `water-reminder-${todayStr}`,
@@ -3092,7 +3141,8 @@ function Dashboard({ onLogout }) {
       // Afternoon hydration check
       if (currentHour >= 14 && currentHour < 16 && !hasDailyReminderBeenShown('water-afternoon')) {
         const userWeight = parseFloat(safeJSONParse('user', {})?.weight || '70');
-        const waterGoal = parseFloat((userWeight * 0.033).toFixed(1));
+        const _isWkDone = (typeof status !== "undefined" && (status === "done" || status === "meal")) || (typeof workoutProgress !== "undefined" && workoutProgress === 1);
+    const waterGoal = getDynamicWaterGoal(typeof userWeight !== "undefined" ? userWeight : 70, typeof sleep !== "undefined" ? sleep : 0, _isWkDone);
         if (water < waterGoal * 0.5) {
           const newNotification = {
             id: `water-afternoon-${todayStr}`,
@@ -3259,7 +3309,8 @@ function Dashboard({ onLogout }) {
 
   const updateRecoveryScore = (currentWater, currentSleep) => {
     const userWeight = parseFloat(safeJSONParse('user', {})?.weight || '70');
-    const waterGoal = parseFloat((userWeight * 0.033).toFixed(1));
+    const _isWkDone = (typeof status !== "undefined" && (status === "done" || status === "meal")) || (typeof workoutProgress !== "undefined" && workoutProgress === 1);
+    const waterGoal = getDynamicWaterGoal(typeof userWeight !== "undefined" ? userWeight : 70, typeof sleep !== "undefined" ? sleep : 0, _isWkDone);
     const waterScore = Math.min(100, (currentWater / waterGoal) * 100);
     const sleepScore = Math.min(100, (currentSleep / 9.0) * 100);
     const newRecoveryScore = Math.round((waterScore + sleepScore) / 2);
@@ -3280,7 +3331,8 @@ function Dashboard({ onLogout }) {
     setWater(newWaterValue);
     setToStorage(StorageKeys.WATER_INTAKE, String(newWaterValue));
       const userWeight = parseFloat(safeJSONParse('user', {})?.weight || '70');
-      const waterGoal = parseFloat((userWeight * 0.033).toFixed(1)) || 2.3;
+      const _isWkDone = (typeof status !== "undefined" && (status === "done" || status === "meal")) || (typeof workoutProgress !== "undefined" && workoutProgress === 1);
+    const waterGoal = getDynamicWaterGoal(typeof userWeight !== "undefined" ? userWeight : 70, typeof sleep !== "undefined" ? sleep : 0, _isWkDone);
       const percentage = Math.min(100, (newWaterValue / waterGoal) * 100);
       syncBridge.emit(SyncTypes.WATER_ADDED, {
         amount: newWaterValue,
@@ -3299,7 +3351,8 @@ function Dashboard({ onLogout }) {
       setWater(newWaterValue);
       setToStorage(StorageKeys.WATER_INTAKE, String(newWaterValue));
       const userWeight = parseFloat(safeJSONParse('user', {})?.weight || '70');
-      const waterGoal = parseFloat((userWeight * 0.033).toFixed(1)) || 2.3;
+      const _isWkDone = (typeof status !== "undefined" && (status === "done" || status === "meal")) || (typeof workoutProgress !== "undefined" && workoutProgress === 1);
+    const waterGoal = getDynamicWaterGoal(typeof userWeight !== "undefined" ? userWeight : 70, typeof sleep !== "undefined" ? sleep : 0, _isWkDone);
       const percentage = Math.min(100, (newWaterValue / waterGoal) * 100);
       syncBridge.emit(SyncTypes.WATER_ADDED, {
         amount: newWaterValue,
@@ -3614,7 +3667,8 @@ function Dashboard({ onLogout }) {
       const trendsResponse = await getTrends(period);
       const trends = Array.isArray(trendsResponse?.data) ? trendsResponse.data : [];
       const userWeight = parseFloat(safeJSONParse('user', {})?.weight || '70');
-      const waterGoal = parseFloat((userWeight * 0.033).toFixed(2)) || 2.3;
+      const _isWkDone = (typeof status !== "undefined" && (status === "done" || status === "meal")) || (typeof workoutProgress !== "undefined" && workoutProgress === 1);
+    const waterGoal = getDynamicWaterGoal(typeof userWeight !== "undefined" ? userWeight : 70, typeof sleep !== "undefined" ? sleep : 0, _isWkDone);
       const calorieGoal = Math.max(1, Number(macros.calMax) || 2200);
 
       if (period === 'month') {
@@ -3638,7 +3692,10 @@ function Dashboard({ onLogout }) {
             const avg = scores.reduce((sum, score) => sum + score, 0) / Math.max(1, scores.length);
             return Math.round(avg);
           }
-          if (mode === 'workout') return bucket.filter(e => e?.workout_completed).length;
+          if (mode === 'workout') {
+            const scoreSum = bucket.reduce((sum, e) => sum + (e?.workout_completed ? 100 : (e?.workout_partial ? 50 : 0)), 0);
+            return bucket.length > 0 ? Math.round(scoreSum / bucket.length) : 0;
+          }
           if (mode === 'meal') {
             const totalCal = bucket.reduce((s, e) => s + (e?.calories || 0), 0);
             return bucket.length > 0 ? Math.round(totalCal / bucket.length) : 0;
@@ -3670,7 +3727,7 @@ function Dashboard({ onLogout }) {
             const score = calculateOverallTrendScore(entry, calorieGoal, waterGoal);
             series[idx] = Math.max(series[idx], score);
           }
-          else if (mode === 'workout') series[idx] = entry?.workout_completed ? 1 : 0;
+          else if (mode === 'workout') series[idx] = Math.max(series[idx], entry?.workout_completed ? 100 : (entry?.workout_partial ? 50 : 0));
           else if (mode === 'meal') series[idx] = entry?.calories || (entry?.meal_completed ? 1 : 0);
           else if (mode === 'water') series[idx] = entry?.water_intake || entry?.water_glasses || 0;
           else if (mode === 'sleep') series[idx] = entry?.sleep_duration || entry?.sleep_hours || 0;
@@ -3777,7 +3834,8 @@ function Dashboard({ onLogout }) {
       else if (chartMode === 'sleep') newChartData[adjustedIndex] = trendData.sleep_duration;
       else if (chartMode === 'all') {
         const userWeight = parseFloat(safeJSONParse('user', {})?.weight || '70');
-        const waterGoal = parseFloat((userWeight * 0.033).toFixed(2)) || 2.3;
+        const _isWkDone = (typeof status !== "undefined" && (status === "done" || status === "meal")) || (typeof workoutProgress !== "undefined" && workoutProgress === 1);
+    const waterGoal = getDynamicWaterGoal(typeof userWeight !== "undefined" ? userWeight : 70, typeof sleep !== "undefined" ? sleep : 0, _isWkDone);
         const calorieGoal = Math.max(1, Number(macros.calMax) || 2200);
         newChartData[adjustedIndex] = calculateOverallTrendScore(trendData, calorieGoal, waterGoal);
       }
@@ -4458,7 +4516,8 @@ function Dashboard({ onLogout }) {
             {/* HYDRATION BOX */}
             {(() => {
               const userWeight = parseFloat(safeJSONParse('user', {})?.weight || localStorage.getItem('userWeight') || '70');
-              const waterGoal = parseFloat((userWeight * 0.033).toFixed(1));
+              const _isWkDone = (typeof status !== "undefined" && (status === "done" || status === "meal")) || (typeof workoutProgress !== "undefined" && workoutProgress === 1);
+    const waterGoal = getDynamicWaterGoal(typeof userWeight !== "undefined" ? userWeight : 70, typeof sleep !== "undefined" ? sleep : 0, _isWkDone);
               const waterPercent = Math.min(100, Math.round((water / waterGoal) * 100));
               return (
               <div
@@ -4826,5 +4885,19 @@ function Dashboard({ onLogout }) {
     </>
   );
 }
+
+// Helper function to calculate dynamic water goal in Liters
+const getDynamicWaterGoal = (weightKg = 70, sleepHours = 0, workoutCompleted = false) => {
+  // Base requirement: 33ml per kg
+  let targetLiters = weightKg * 0.033;
+  
+  // +500ml on workout days
+  if (workoutCompleted) targetLiters += 0.5;
+  
+  // +250ml if sleep is poor (< 7 hours)
+  if (sleepHours > 0 && sleepHours < 7) targetLiters += 0.25;
+  
+  return Math.min(5.0, Math.max(2.0, targetLiters));
+};
 
 export default Dashboard;
