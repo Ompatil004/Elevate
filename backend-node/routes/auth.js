@@ -26,8 +26,7 @@ const generateToken = (userId, isSuspended = false) => {
   }
   return jwt.sign(
     { user: { id: userId.toString(), isSuspended: Boolean(isSuspended) } },
-    process.env.JWT_SECRET,
-    { expiresIn: '7d' }
+    process.env.JWT_SECRET
   );
 };
 
@@ -45,7 +44,7 @@ const setAuthCookie = (res, token) => {
     httpOnly: true,                                              // not readable by JS
     secure: isProd,                                             // HTTPS-only in prod
     sameSite: isProd ? 'none' : 'lax',
-    maxAge: 7 * 24 * 60 * 60 * 1000,                           // 7 days, mirrors JWT
+    maxAge: 100 * 365 * 24 * 60 * 60 * 1000,                           // 100 years
     path: '/',
   });
 };

@@ -4,6 +4,7 @@ import ConfirmDialog from '../components/ConfirmDialog';
 import { sendChatbotMessage, getProfile } from '../api';
 import { logoutSafe } from '../utils/storage';
 import { useTheme } from '../context/ThemeContext';
+import Navbar from '../components/Navbar';
 
 // ===== STYLES =====
 const getStyles = (isDark) => ({
@@ -18,60 +19,6 @@ const getStyles = (isDark) => ({
     zIndex: 1,
     paddingTop: 'clamp(64px, 9vw, 80px)'
   },
-  navbar: {
-    display: 'flex', alignItems: 'center',
-    padding: '0 clamp(12px, 4vw, 40px)', height: 'clamp(64px, 9vw, 80px)',
-    gap: 'clamp(8px, 2vw, 18px)',
-    borderBottom: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.08)',
-    background: isDark ? 'rgba(9, 9, 11, 0.55)' : 'rgba(240,240,248,0.82)',
-    backdropFilter: 'blur(20px)',
-    position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
-    overflowX: 'auto'
-  },
-  brand: {
-    flex: 1,
-    fontSize: '22px', fontWeight: '900', letterSpacing: '-1px',
-    background: isDark ? 'linear-gradient(to right, #fff, #a5b4fc)' : 'linear-gradient(to right, #18181b, #4f46e5)',
-    WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-    display: 'flex', alignItems: 'center', gap: '10px'
-  },
-  brandDot: { width: '8px', height: '8px', background: '#6366f1', borderRadius: '50%', boxShadow: '0 0 15px #6366f1' },
-  navCenter: {
-    display: 'flex', gap: 'clamp(4px, 1.5vw, 8px)', height: '100%', alignItems: 'center',
-    justifyContent: 'center'
-  },
-  navLink: {
-    display: 'flex', alignItems: 'center', padding: '8px clamp(10px, 2vw, 20px)',
-    fontSize: 'clamp(11px, 1.7vw, 13px)', fontWeight: '600',
-    color: isDark ? '#a1a1aa' : '#52525b',
-    cursor: 'pointer', borderRadius: '20px', transition: 'all 0.2s',
-    textTransform: 'uppercase', letterSpacing: '0.5px',
-    border: '1px solid transparent'
-  },
-  navLinkActive: {
-    background: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(79,70,229,0.12)',
-    color: isDark ? '#fff' : '#4f46e5',
-    boxShadow: isDark ? '0 0 20px rgba(255,255,255,0.05)' : '0 0 20px rgba(79,70,229,0.1)',
-    border: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(79,70,229,0.2)'
-  },
-  navRight: {
-    flex: 1,
-    display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2vw, 24px)',
-    justifyContent: 'flex-end'
-  },
-  dateDisplay: {
-    fontSize: '13px', fontWeight: '600',
-    color: isDark ? '#a1a1aa' : '#52525b', fontFamily: 'sans-serif',
-    letterSpacing: '0.5px', marginRight: '8px'
-  },
-  logoutBtn: {
-    display: 'flex', alignItems: 'center', gap: '8px', padding: '0 clamp(10px, 2vw, 20px)', borderRadius: '12px',
-    background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)',
-    color: '#ef4444', cursor: 'pointer', transition: 'all 0.2s ease', height: 'clamp(36px, 6vw, 42px)',
-    fontSize: 'clamp(10px, 1.7vw, 12px)', fontWeight: '700', textTransform: 'uppercase'
-  },
-
-  // --- CHAT LAYOUT ---
   container: {
     flex: 1, maxWidth: '900px', width: '100%', margin: '0 auto',
     padding: 'clamp(10px, 3vw, 20px)', display: 'flex', flexDirection: 'column', minHeight: 0
@@ -86,8 +33,6 @@ const getStyles = (isDark) => ({
     boxShadow: isDark ? '0 20px 60px rgba(0,0,0,0.35)' : '0 8px 32px rgba(99,102,241,0.08), 0 2px 8px rgba(0,0,0,0.06)',
     position: 'relative'
   },
-
-  // --- CHAT HEADER ---
   chatHeader: {
     padding: 'clamp(12px, 2vw, 16px) clamp(12px, 2.4vw, 24px)',
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -128,8 +73,6 @@ const getStyles = (isDark) => ({
     cursor: 'pointer', transition: 'all 0.2s',
     textTransform: 'uppercase', letterSpacing: '0.5px'
   },
-
-  // --- MESSAGES ---
   messagesArea: {
     flex: 1, padding: 'clamp(12px, 2.4vw, 24px)', overflowY: 'auto',
     display: 'flex', flexDirection: 'column', gap: '16px'
@@ -137,7 +80,6 @@ const getStyles = (isDark) => ({
   messageRow: { display: 'flex', width: '100%', alignItems: 'flex-end' },
   rowUser: { justifyContent: 'flex-end' },
   rowBot: { justifyContent: 'flex-start' },
-
   bubble: {
     maxWidth: 'min(75%, 780px)', padding: 'clamp(10px, 2vw, 14px) clamp(12px, 2.5vw, 20px)', borderRadius: '18px',
     fontSize: 'clamp(13px, 1.7vw, 14px)', lineHeight: '1.7', position: 'relative',
@@ -166,8 +108,6 @@ const getStyles = (isDark) => ({
     fontSize: '10px', color: '#71717a', marginTop: '6px',
     paddingLeft: '4px'
   },
-
-  // --- WELCOME SCREEN ---
   welcomeContainer: {
     flex: 1, display: 'flex', flexDirection: 'column',
     alignItems: 'center', justifyContent: 'center',
@@ -201,8 +141,6 @@ const getStyles = (isDark) => ({
     textAlign: 'left', lineHeight: '1.4',
     display: 'flex', alignItems: 'center', gap: '8px'
   },
-
-  // --- INPUT AREA ---
   inputArea: {
     padding: 'clamp(10px, 2vw, 16px) clamp(10px, 2.4vw, 20px)',
     background: isDark ? 'rgba(24,24,27,0.80)' : 'rgba(248,248,254,0.90)',
@@ -239,8 +177,6 @@ const getStyles = (isDark) => ({
     opacity: 0.4, cursor: 'not-allowed',
     boxShadow: 'none'
   },
-
-  // --- ERROR BANNER ---
   errorBanner: {
     display: 'flex', alignItems: 'center', gap: '8px',
     padding: '10px 16px', margin: '0 clamp(10px, 2.4vw, 20px) 12px',
@@ -250,7 +186,6 @@ const getStyles = (isDark) => ({
   }
 });
 
-// ===== QUICK SUGGESTION CHIPS =====
 const SUGGESTIONS = [
   { icon: '💪', text: 'Suggest a workout for today' },
   { icon: '🥗', text: 'What should I eat today?' },
@@ -260,11 +195,8 @@ const SUGGESTIONS = [
 
 const MAX_INPUT_LENGTH = 2000;
 
-// ===== SIMPLE MARKDOWN RENDERER =====
 function renderMarkdown(text) {
   if (!text) return text;
-
-  // Split into lines and process
   const lines = text.split('\n');
   const elements = [];
   let inList = false;
@@ -285,7 +217,6 @@ function renderMarkdown(text) {
   };
 
   const processInline = (line) => {
-    // Bold
     let parts = line.split(/\*\*(.*?)\*\*/g);
     return parts.map((part, i) =>
       i % 2 === 1 ? <strong key={i}>{part}</strong> : part
@@ -294,31 +225,21 @@ function renderMarkdown(text) {
 
   lines.forEach((line, i) => {
     const trimmed = line.trim();
-
-    // Bullet list
     if (/^[-*•]\s/.test(trimmed)) {
       inList = true;
       listItems.push(trimmed.replace(/^[-*•]\s/, ''));
       return;
     }
-
-    // Numbered list
     if (/^\d+[.)]\s/.test(trimmed)) {
       inList = true;
       listItems.push(trimmed.replace(/^\d+[.)]\s/, ''));
       return;
     }
-
-    // End of list
     if (inList) flushList();
-
-    // Empty line
     if (!trimmed) {
       elements.push(<br key={`br-${i}`} />);
       return;
     }
-
-    // Heading-like (### or **)
     if (/^#{1,3}\s/.test(trimmed)) {
       elements.push(
         <div key={i} style={{ fontWeight: '700', fontSize: '15px', marginTop: '8px', marginBottom: '4px', color: 'inherit' }}>
@@ -327,23 +248,16 @@ function renderMarkdown(text) {
       );
       return;
     }
-
-    // Normal paragraph
     elements.push(
       <div key={i} style={{ marginBottom: '2px' }}>
         {processInline(trimmed)}
       </div>
     );
   });
-
-  // Flush any remaining list
   flushList();
-
   return elements;
 }
 
-
-// ===== TYPING INDICATOR =====
 function TypingIndicator({ styles }) {
   return (
     <div style={{ ...styles.messageRow, ...styles.rowBot }}>
@@ -364,11 +278,9 @@ function TypingIndicator({ styles }) {
   );
 }
 
-
-// ===== MAIN COMPONENT =====
 function Chatbot() {
   const navigate = useNavigate();
-  const { theme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
   const isDark = theme === 'dark';
   const styles = getStyles(isDark);
   const [confirmDialog, setConfirmDialog] = useState({ show: false, message: '', onConfirm: null });
@@ -378,16 +290,11 @@ function Chatbot() {
   const [profile, setProfile] = useState({});
   const [error, setError] = useState(null);
   const [cooldown, setCooldown] = useState(false);
-  
-  // Bug #5 & #6 Fix: AI connection status tracking
-  const [aiStatus, setAiStatus] = useState('checking'); // 'checking' → 'online' | 'offline'
+  const [aiStatus, setAiStatus] = useState('checking');
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const cooldownTimerRef = useRef(null);
 
-  const todayDate = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-
-  // Load profile on mount
   useEffect(() => {
     const loadProfile = async () => {
       try {
@@ -398,8 +305,6 @@ function Chatbot() {
       }
     };
     loadProfile();
-
-    // Load saved chat from sessionStorage (persists within tab)
     const savedChat = sessionStorage.getItem('elevate_chat');
     if (savedChat) {
       try {
@@ -409,25 +314,21 @@ function Chatbot() {
         }
       } catch { /* ignore */ }
     }
-
     return () => {
       if (cooldownTimerRef.current) clearTimeout(cooldownTimerRef.current);
     };
   }, []);
 
-  // Save chat to sessionStorage whenever messages change
   useEffect(() => {
     if (messages.length > 0) {
       sessionStorage.setItem('elevate_chat', JSON.stringify(messages));
     }
   }, [messages]);
 
-  // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
-  // Clear error after 5s
   useEffect(() => {
     if (error) {
       const timer = setTimeout(() => setError(null), 5000);
@@ -435,15 +336,10 @@ function Chatbot() {
     }
   }, [error]);
 
-
   const sendMessage = useCallback(async (text) => {
     const trimmed = (text || '').trim();
     if (!trimmed || isTyping || cooldown) return;
-
-    // Clear any previous error
     setError(null);
-
-    // Add user message
     const userMsg = {
       role: 'user',
       text: trimmed,
@@ -453,27 +349,16 @@ function Chatbot() {
     setMessages(updatedMessages);
     setInput('');
     setIsTyping(true);
-
-    // Cooldown to prevent spam
     setCooldown(true);
     cooldownTimerRef.current = setTimeout(() => setCooldown(false), 1500);
 
     try {
       const chatResponse = await sendChatbotMessage(trimmed, profile, updatedMessages);
-
       const replyText = chatResponse.data?.reply || chatResponse.data?.message || "I couldn't generate a response. Please try again.";
-      
-      // Bug #5 & #6 Fix: Detect if response is from AI or offline mode
       const isOffline = chatResponse.data?.offline_mode || 
                         replyText.includes('offline mode') ||
                         replyText.includes('AI service temporarily unavailable');
-      
-      if (isOffline) {
-        setAiStatus('offline');
-      } else {
-        setAiStatus('online');
-      }
-
+      setAiStatus(isOffline ? 'offline' : 'online');
       const botMsg = {
         role: 'bot',
         text: replyText,
@@ -481,17 +366,13 @@ function Chatbot() {
       };
       setMessages(prev => [...prev, botMsg]);
     } catch (err) {
-      console.error('Chat error:', err);
-
       let errorMsg = "I'm having trouble connecting right now. Please check that the Python backend is running.";
-
       if (err.response?.status === 429) {
         errorMsg = "You're sending messages too fast! Please wait a moment. 😅";
       } else if (err.code === 'ERR_NETWORK' || err.code === 'ECONNREFUSED') {
         errorMsg = "Can't reach the AI server. Make sure the Python backend (port 8000) is running.";
         setError('Connection failed — is the Python backend running on port 8000?');
       }
-
       setMessages(prev => [...prev, {
         role: 'bot',
         text: errorMsg,
@@ -500,11 +381,9 @@ function Chatbot() {
       }]);
     } finally {
       setIsTyping(false);
-      // Focus input after response
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [messages, profile, isTyping, cooldown]);
-
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -545,7 +424,6 @@ function Chatbot() {
       <style>{`
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
         @keyframes floatBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-
         .typing-container { display: flex; gap: 4px; align-items: center; }
         .typing-dot {
           width: 7px; height: 7px; border-radius: 50%;
@@ -558,26 +436,22 @@ function Chatbot() {
           0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
           40% { opacity: 1; transform: scale(1.1); }
         }
-
         .chat-input:focus {
           border-color: #6366f1 !important;
           box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
         }
         .chat-input::placeholder { color: #52525b; }
-
         .suggestion-chip:hover {
           background: rgba(99, 102, 241, 0.1) !important;
           border-color: rgba(99, 102, 241, 0.3) !important;
           color: #c7d2fe !important;
           transform: translateY(-1px);
         }
-
         .clear-btn:hover {
           background: rgba(239, 68, 68, 0.1) !important;
           border-color: rgba(239, 68, 68, 0.2) !important;
           color: #ef4444 !important;
         }
-
         .send-active:hover:not(:disabled) {
           transform: translateY(-2px);
           box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
@@ -585,51 +459,43 @@ function Chatbot() {
         .send-active:active:not(:disabled) {
           transform: translateY(0);
         }
-
-        .nav-link-hover:hover {
-          background: rgba(255,255,255,0.06) !important;
-          color: #e4e4e7 !important;
+        .theme-toggle-btn {
+          cursor: pointer; background: transparent; border: none; font-size: 18px;
         }
-
-        /* Messages area scrollbar */
         .chat-messages::-webkit-scrollbar { width: 5px; }
         .chat-messages::-webkit-scrollbar-track { background: transparent; }
         .chat-messages::-webkit-scrollbar-thumb { background: #27272a; border-radius: 10px; }
         .chat-messages::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
-
-        /* Mobile responsive */
         @media (max-width: 640px) {
-          .nav-center-hide { display: none !important; }
           .chat-container { padding: 10px !important; }
           .chat-header { padding: 12px 16px !important; }
           .messages-area { padding: 16px !important; }
           .input-area { padding: 12px !important; }
           .suggestion-grid { grid-template-columns: 1fr !important; }
           .bubble-msg { max-width: 85% !important; }
-          .navbar-pad { padding: 0 16px !important; }
         }
       `}</style>
 
-      <div style={styles.page}>
-        {/* NAVBAR */}
-        <nav style={styles.navbar} className="navbar-pad">
-          <div style={styles.brand}><div style={styles.brandDot}></div> ELEVATE</div>
-          <div style={styles.navCenter} className="nav-center-hide">
-            <div style={styles.navLink} className="nav-link-hover" onClick={() => navigate('/dashboard')}>Dashboard</div>
-            <div style={styles.navLink} className="nav-link-hover" onClick={() => navigate('/workout')}>Workout</div>
-            <div style={styles.navLink} className="nav-link-hover" onClick={() => navigate('/nutrition')}>Nutrition</div>
-            <div style={{ ...styles.navLink, ...styles.navLinkActive }}>AI Coach</div>
-          </div>
-          <div style={styles.navRight}>
-            <div style={styles.dateDisplay}>{todayDate}</div>
-            <button style={styles.logoutBtn} onClick={handleLogout}>LOGOUT</button>
-          </div>
-        </nav>
+      <div style={styles.page} className="chatbot-page-wrapper">
+        <Navbar 
+          isDark={isDark}
+          navigate={navigate} 
+          activePage="chatbot" 
+          onLogout={handleLogout}
+          rightContent={
+            <button
+              className="theme-toggle-btn"
+              onClick={toggleTheme}
+              title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              aria-label="Toggle theme"
+            >
+              {theme === 'dark' ? '☀️' : '🌙'}
+            </button>
+          }
+        />
 
-        {/* CHAT CONTAINER */}
         <div style={styles.container} className="chat-container">
           <div style={styles.chatWindow}>
-
             {/* CHAT HEADER */}
             <div style={styles.chatHeader} className="chat-header">
               <div style={styles.chatHeaderLeft}>

@@ -679,7 +679,7 @@ class WorkoutEngine:
         best_match = ''
         best_key = ''
         best_score = 0.0
-        for mapped_key, media_url in self._wger_name_to_media.items():
+        for mapped_key, media_url in list(self._wger_name_to_media.items()):
             score = self._name_similarity_score(key, mapped_key)
             if score > best_score:
                 best_score = score
@@ -715,7 +715,7 @@ class WorkoutEngine:
         best_key = ''
         best_score = 0.0
 
-        for mapped_key, media_url in self._wger_name_to_media.items():
+        for mapped_key, media_url in list(self._wger_name_to_media.items()):
             score = self._name_similarity_score(key, mapped_key)
             if score > best_score:
                 best_score = score
@@ -743,7 +743,7 @@ class WorkoutEngine:
         scored = []
         video_exts = ('.mp4', '.webm', '.ogg', '.mov', '.m3u8')
 
-        for mapped_key, media_url in self._wger_name_to_media.items():
+        for mapped_key, media_url in list(self._wger_name_to_media.items()):
             if not media_url:
                 continue
 
@@ -2712,6 +2712,21 @@ class WorkoutEngine:
         total_exercises = sum(len(day.get('exercises', [])) for day in weekly_plan)
         workout_count = sum(1 for day in weekly_plan if day['type'] == 'workout')
         rest_count = sum(1 for day in weekly_plan if day['type'] == 'rest')
+
+        # --- Inject debug_trace into each day of the plan for transparency and testing ---
+        for day in weekly_plan:
+            day['debug_trace'] = {
+                'experience': experience,
+                'goal': profile.get('goal', 'Muscle Gain'),
+                'gender': profile.get('gender', 'Male'),
+                'days_per_week_requested': user_days,
+                'days_per_week_recommended': recommended_days,
+                'days_per_week_capped': workout_days,
+                'streak': streak,
+                'consistency': consistency,
+                'age': int(float(profile.get('age', 25))),
+                'week_offset': profile.get('week_offset'),
+            }
 
         print(f"\n  Generated: {workout_count} workout days, {rest_count} rest days, {total_exercises} total exercises")
         print(f"{'='*60}\n")

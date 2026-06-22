@@ -384,4 +384,51 @@ router.post('/trends', auth, async (req, res) => {
 });
 
 
+
+// POST /api/profile/activities/sync
+router.post('/activities/sync', auth, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        const { activities } = req.body;
+        if (Array.isArray(activities) && activities.length > 0) {
+            // Deduplicate logic
+            const existingMap = new Map();
+            (user.activities || []).forEach(a => {
+                const ts = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+                existingMap.set(`${a.type}|${a.name}|${a.details}|${ts || a.date}`, true);
+            });
+            const newActs = activities.filter(a => {
+                const ts = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+                return !existingMap.has(`${a.type}|${a.name}|${a.details}|${ts || a.date}`);
+            });
+            if (newActs.length > 0) {
+                user.activities.push(...newActs);
+                await user.save();
+            }
+        }
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
+
+// GET /api/profile/activities/recent
+router.get('/activities/recent', auth, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).select('activities').lean();
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        let acts = user.activities || [];
+        acts.sort((a, b) => {
+            const ta = a.timestamp ? new Date(a.timestamp).getTime() : new Date(a.date).getTime();
+            const tb = b.timestamp ? new Date(b.timestamp).getTime() : new Date(b.date).getTime();
+            return tb - ta;
+        });
+        const limit = parseInt(req.query.limit) || 20;
+        res.json({ success: true, data: acts.slice(0, limit) });
+    } catch (err) {
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
+
 module.exports = router;

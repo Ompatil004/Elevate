@@ -3,7 +3,6 @@ import { useState, useEffect, lazy, Suspense, useCallback } from 'react';
 import { NotificationProvider, useNotification } from './components/NotificationProvider';
 import { logoutSafe } from './utils/storage';
 import { getSessionStatus, logoutUser } from './api';
-import { useInactivityLogout } from './hooks/useInactivityLogout';
 import { ThemeProvider } from './context/ThemeContext';
 import AuroraBackground from './components/AuroraBackground';
 import './App.css';
@@ -75,25 +74,7 @@ function AppInner({ isAuthenticated, setIsAuthenticated }) {
     return () => window.removeEventListener('sessionExpired', onSessionExpired);
   }, [handleLogout]);
 
-  // Warn 10 minutes before the 4-hour inactivity logout kicks in.
-  const INACTIVITY_MS = 4 * 60 * 60 * 1000;       // 4 hours
-  const WARNING_MS    = (4 * 60 - 10) * 60 * 1000; // 10 minutes before
 
-  useInactivityLogout(
-    () => handleLogout('inactivity'),
-    INACTIVITY_MS,
-    isAuthenticated
-  );
-
-  useInactivityLogout(
-    () => {
-      if (isAuthenticated) {
-        showInfo('⏱ You will be logged out in 10 minutes due to inactivity. Move your mouse to stay signed in.', 10000);
-      }
-    },
-    WARNING_MS,
-    isAuthenticated
-  );
 
   return (
     <>

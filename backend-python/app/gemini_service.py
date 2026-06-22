@@ -22,10 +22,12 @@ if _env_model:
     MODEL_CANDIDATES.append(_env_model)
 
 for candidate in [
-    'gemini-2.5-flash',
-    'gemini-2.5-pro',
-    'gemini-2.0-flash',
+    'gemini-flash-latest',
+    'gemini-3.5-flash',
     'gemini-1.5-flash',
+    'gemini-2.5-flash',
+    'gemini-2.0-flash',
+    'gemini-2.5-pro',
 ]:
     if candidate not in MODEL_CANDIDATES:
         MODEL_CANDIDATES.append(candidate)
@@ -91,7 +93,7 @@ def _get_model() -> Optional[genai.GenerativeModel]:
             # Validation call: avoid tiny token limits and ensure we can read text output.
             response = test_model.generate_content(
                 "Reply exactly with: OK",
-                generation_config=genai.types.GenerationConfig(max_output_tokens=32, temperature=0),
+                generation_config=genai.types.GenerationConfig(max_output_tokens=128, temperature=0),
             )
 
             has_text = False

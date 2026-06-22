@@ -1,0 +1,94 @@
+/* 
+  responsive.css
+  All mobile-specific overrides and responsive hacks should go here 
+  to keep component CSS and global App.css clean. 
+*/
+
+/* 
+  Global Responsive Overrides 
+*/
+html, body {
+  overflow-x: hidden;
+}
+
+/* Base utility for charts */
+.chart-container {
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Mobile specific overrides */
+@media (max-width: 575.98px) {
+  /* Extra small devices (phones, less than 576px) */
+  
+}
+
+@media (max-width: 767.98px) {
+  /* Small devices (landscape phones, less than 768px) */
+  
+  /* Convert 100vw to 100% to prevent scrollbar issues */
+  .full-width-mobile {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Chatbot full screen fix */
+  .chatbot-container {
+    height: 100dvh !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 0 !important;
+    bottom: 0 !important;
+    right: 0 !important;
+  }
+}
+
+@media (max-width: 991.98px) {
+  /* Medium devices (tablets, less than 992px) */
+  
+  /* Nutrition Table overrides */
+  .food-table-header {
+    display: none !important;
+  }
+  
+  .food-row-hover {
+    display: flex !important;
+    flex-direction: column !important;
+    min-width: 0 !important;
+    padding: 15px !important;
+    gap: 8px !important;
+    align-items: flex-start !important;
+  }
+
+  .food-row-hover > div {
+    text-align: left !important;
+    width: 100% !important;
+  }
+
+  .food-row-hover > div:first-child {
+    width: auto !important;
+    position: absolute;
+    right: 15px;
+    top: 15px;
+  }
+
+  /* Chatbot Mobile 100dvh Override */
+  .chatbot-page-wrapper {
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    padding-bottom: 0 !important;
+  }
+}
+
+/* 
+  Fix flex columns for mobile 
+  Adding this to elements that use d-flex but need to stack on mobile
+*/
+@media (max-width: 767.98px) {
+  .flex-mobile-column {
+    flex-direction: column !important;
+  }
+}

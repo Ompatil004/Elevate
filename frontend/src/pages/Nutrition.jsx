@@ -4,6 +4,7 @@ import { useNotification } from "../components/NotificationProvider";
 import { useTheme } from "../context/ThemeContext";
 import { getProfile, generateNutritionPlan, getNutritionSwapOptions, generateWorkout, saveUserMealToNode, getMealHistory, saveMealHistory, saveTrends } from "../api";
 import { StorageKeys, getFromStorage, setToStorage, logoutSafe, getLocalDateStr, safeJSONParse } from "../utils/storage";
+import Navbar from "../components/Navbar";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { syncBridge, SyncTypes } from "../utils/syncBridge";
 import AuroraBackground from "../components/AuroraBackground";
@@ -70,6 +71,7 @@ const nutritionAnimations = `
 function Nutrition() {
   const navigate = useNavigate();
   const { showError, showSuccess, showInfo } = useNotification();
+  const { theme, toggleTheme } = useTheme();
   const [confirmDialog, setConfirmDialog] = useState({ show: false, message: "", onConfirm: null });
 
   const [loading, setLoading] = useState(false);
@@ -771,7 +773,32 @@ function Nutrition() {
       <div style={styles.page}>
         <AuroraBackground />
         <style>{nutritionAnimations}</style>
-        <Navbar navigate={navigate} setShowHistory={setShowHistory} onLogout={handleLogout} />
+        <Navbar 
+          isDark={theme === 'dark'}
+          navigate={navigate} 
+          activePage="nutrition" 
+          onLogout={handleLogout}
+          rightContent={
+            <>
+              <div 
+                style={styles.iconButton} 
+                className="icon-hover" 
+                onClick={() => setShowHistory(true)}
+                title="Meal History"
+              >
+                📊
+              </div>
+              <button
+                className="theme-toggle-btn"
+                onClick={toggleTheme}
+                title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                aria-label="Toggle theme"
+              >
+                {theme === 'dark' ? '☀️' : '🌙'}
+              </button>
+            </>
+          }
+        />
         <div style={styles.container}>
           <div style={{ textAlign: "center", padding: "100px 20px" }}>
             <div style={{ fontSize: "48px", marginBottom: "16px", animation: "pulse 1.5s infinite" }}>⏳</div>
@@ -798,7 +825,32 @@ function Nutrition() {
       <div style={styles.page}>
         <AuroraBackground />
         <style>{nutritionAnimations}</style>
-        <Navbar navigate={navigate} setShowHistory={setShowHistory} onLogout={handleLogout} />
+        <Navbar 
+          isDark={theme === 'dark'}
+          navigate={navigate} 
+          activePage="nutrition" 
+          onLogout={handleLogout}
+          rightContent={
+            <>
+              <div 
+                style={styles.iconButton} 
+                className="icon-hover" 
+                onClick={() => setShowHistory(true)}
+                title="Meal History"
+              >
+                📊
+              </div>
+              <button
+                className="theme-toggle-btn"
+                onClick={toggleTheme}
+                title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                aria-label="Toggle theme"
+              >
+                {theme === 'dark' ? '☀️' : '🌙'}
+              </button>
+            </>
+          }
+        />
         <div style={styles.container}>
           <div style={{ textAlign: "center", padding: "100px 20px" }}>
             <div style={{ fontSize: "64px", marginBottom: "24px" }}>🍽️</div>
@@ -825,7 +877,32 @@ function Nutrition() {
     <div style={styles.page}>
       <AuroraBackground />
       <style>{nutritionAnimations}</style>
-      <Navbar navigate={navigate} setShowHistory={setShowHistory} onLogout={handleLogout} />
+      <Navbar 
+        isDark={theme === 'dark'}
+        navigate={navigate} 
+        activePage="nutrition" 
+        onLogout={handleLogout}
+        rightContent={
+          <>
+            <div 
+              style={styles.iconButton} 
+              className="icon-hover" 
+              onClick={() => setShowHistory(true)}
+              title="Meal History"
+            >
+              📊
+            </div>
+            <button
+              className="theme-toggle-btn"
+              onClick={toggleTheme}
+              title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              aria-label="Toggle theme"
+            >
+              {theme === 'dark' ? '☀️' : '🌙'}
+            </button>
+          </>
+        }
+      />
 
       <div style={styles.container}>
         <h1 style={styles.header}>Weekly Nutrition Plan</h1>
@@ -975,38 +1052,7 @@ function Nutrition() {
   );
 }
 
-/* ═══════════════════════════════════════════
- *  CHILD COMPONENTS
- * ═══════════════════════════════════════════ */
 
-function Navbar({ navigate, setShowHistory, onLogout }) {
-  const { theme, toggleTheme } = useTheme();
-  return (
-    <div style={styles.navbar}>
-      <div style={styles.brand}><div style={styles.brandDot}></div>ELEVATE</div>
-      <div style={styles.navCenter}>
-        <div style={styles.navLink} onClick={() => navigate("/dashboard")}>Dashboard</div>
-        <div style={styles.navLink} onClick={() => navigate("/workout")}>Workout</div>
-        <div style={{ ...styles.navLink, ...styles.navLinkActive }}>Nutrition</div>
-        <div style={styles.navLink} onClick={() => navigate("/chatbot")}>ChatBot</div>
-      </div>
-      <div style={styles.navRight}>
-        <div style={styles.iconButton} className="icon-hover" onClick={() => setShowHistory(true)}>📊</div>
-        <button
-          className="theme-toggle-btn"
-          onClick={toggleTheme}
-          title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-          aria-label="Toggle theme"
-        >
-          {theme === 'dark' ? '☀️' : '🌙'}
-        </button>
-        <div style={styles.logoutBtn} className="logout-btn" onClick={onLogout}>
-          <span style={styles.logoutText}>Logout</span>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function MacroStat({ value, label, color, icon }) {
   return (
@@ -1022,7 +1068,7 @@ function MealCard({ meal, isLocked, isSequenceLocked, unlockMessage, checkedFood
   const isDisabled = isFutureDay || isLocked || isSequenceLocked;
   return (
     <div
-      className="meal-card-hover"
+      className="meal-card meal-card-hover"
       style={{
         ...styles.mealCard,
         ...(isLocked ? styles.mealCardCompleted : {}),
@@ -1076,7 +1122,7 @@ function MealCard({ meal, isLocked, isSequenceLocked, unlockMessage, checkedFood
         </div>
       </div>
 
-      <div style={styles.foodTableHeader}>
+      <div style={styles.foodTableHeader} className="food-table-header">
         <div></div><div>Food</div><div style={{ textAlign: "center", color: "#a78bfa" }}>Portion</div><div style={{ textAlign: "center" }}>Cal</div>
         <div style={{ textAlign: "center" }}>Pro</div><div style={{ textAlign: "center" }}>Carb</div>
         <div style={{ textAlign: "center" }}>Fat</div><div></div>

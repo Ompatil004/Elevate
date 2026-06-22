@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
+import './responsive.css'
 
 // Bug #39 fixed: listen for service worker updates so stale content is reloaded
 if (typeof window !== 'undefined' && 'serviceWorker' in navigator && import.meta.env.PROD) {

@@ -1,3 +1,5 @@
+
+
 import pandas as pd
 import numpy as np
 import joblib
@@ -56,7 +58,10 @@ def train_models():
         # Create synthetic training data based on exercise properties
         # This simulates having historical workout data
         n_samples = len(df_ex)
+        
         df_synthetic = multi_output_model._create_synthetic_data(n_samples=n_samples)
+        
+        # Prepare features and targets
         X_synthetic, y_synthetic = multi_output_model._prepare_features(df_synthetic)
         
         # Split data for training and validation
@@ -93,7 +98,6 @@ def train_models():
         y_full = y_synthetic
         
         # Individual XGBoost models for WorkoutEngine (using correct filenames)
-        
         # Volume model (uses sets as proxy for volume level)
         volume_model = XGBRegressor(n_estimators=100, max_depth=4, random_state=42)
         volume_model.fit(X_full, y_full[:, 0])  # sets column

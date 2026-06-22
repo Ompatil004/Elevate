@@ -115,9 +115,9 @@ export const classifyError = (error) => {
   switch (status) {
     case 400:
       errorInfo.type = 'validation';
-      errorInfo.message = error.response.data?.detail?.message || 
-                          error.response.data?.detail?.error || 
-                          'Invalid request data';
+      errorInfo.message = error.response.data?.detail?.message ||
+        error.response.data?.detail?.error ||
+        'Invalid request data';
       break;
     case 401:
       errorInfo.type = 'authentication';
@@ -144,9 +144,9 @@ export const classifyError = (error) => {
       break;
     case 500:
       errorInfo.type = 'server';
-      errorInfo.message = error.response.data?.detail?.message || 
-                          error.response.data?.detail || 
-                          'Internal server error';
+      errorInfo.message = error.response.data?.detail?.message ||
+        error.response.data?.detail ||
+        'Internal server error';
       errorInfo.isRetryable = true;
       break;
     case 502:
