@@ -54,7 +54,7 @@ class MultiOutputXGBoostModel:
             random_state=self.random_state,
             objective='reg:squarederror',
             eval_metric='rmse',
-            verbose=0
+            verbosity=0
         )
         
         # Wrap with MultiOutputRegressor
@@ -227,9 +227,7 @@ class MultiOutputXGBoostModel:
             
             # Fit the random search
             if X_val_processed is not None:
-                random_search.fit(
-                    X_train_processed, y_train_processed
-                )
+                random_search.fit(X_train_processed, y_train_processed)
             else:
                 random_search.fit(X_train_processed, y_train_processed)
             
@@ -240,9 +238,7 @@ class MultiOutputXGBoostModel:
         else:
             # Train with default parameters
             if X_val_processed is not None:
-                self.model.fit(
-                    X_train_processed, y_train_processed
-                )
+                self.model.fit(X_train_processed, y_train_processed)
             else:
                 self.model.fit(X_train_processed, y_train_processed)
         
