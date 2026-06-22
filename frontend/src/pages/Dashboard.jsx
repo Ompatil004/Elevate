@@ -3978,6 +3978,7 @@ function Dashboard({ onLogout }) {
 
         {/* NAVBAR */}
         <Navbar 
+          isDark={theme === 'dark'}
           navigate={navigate} 
           activePage="dashboard" 
           onLogout={handleLogout}
@@ -4555,6 +4556,7 @@ function Dashboard({ onLogout }) {
             <div
               style={{
                 ...styles.bentoBox,
+                gridColumn: 'span 12',
                 background: 'linear-gradient(135deg, rgba(30, 27, 75, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%)',
                 border: '1px solid rgba(139, 92, 246, 0.2)',
                 padding: '20px',
@@ -4579,11 +4581,16 @@ function Dashboard({ onLogout }) {
                   pointerEvents: 'none',
                 }}
               />
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '20px' }}>🤖</span>
-                  <div style={{ fontSize: '15px', fontWeight: '800', color: 'var(--app-text)', letterSpacing: '0.5px' }}>
-                    AI COACH • ADAPTIVE AUTO-REGULATION
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ fontSize: '24px', background: 'rgba(139, 92, 246, 0.2)', padding: '8px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🤖</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                    <span style={{ fontSize: '16px', fontWeight: '900', color: 'var(--app-text)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                      AI Coach
+                    </span>
+                    <span style={{ fontSize: '11px', fontWeight: '700', color: '#c084fc', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                      Adaptive Auto-Regulation
+                    </span>
                   </div>
                 </div>
                 <div
@@ -4602,7 +4609,7 @@ function Dashboard({ onLogout }) {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '15px' }}>
                 {/* Sleep Metrics */}
                 <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
                   <div style={{ fontSize: '11px', color: 'var(--app-text-muted)', marginBottom: '4px' }}>WEEKLY SLEEP AVG</div>

@@ -10,33 +10,38 @@
  */
 import React, { useState, useEffect } from 'react';
 
-const s = {
+const getStyles = (isDark) => ({
   navbar: {
     display: 'flex',
     alignItems: 'center',
     padding: '0 clamp(12px, 4vw, 40px)',
     height: 'clamp(64px, 9vw, 80px)',
     gap: 'clamp(8px, 2vw, 18px)',
-    borderBottom: '1px solid rgba(255,255,255,0.08)',
-    background: 'rgba(9, 9, 11, 0.6)',
+    borderBottom: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.08)',
+    background: isDark ? 'rgba(9, 9, 11, 0.6)' : 'rgba(240,240,248,0.82)',
     backdropFilter: 'blur(16px)',
-    position: 'sticky',
+    position: 'fixed',
     top: 0,
+    left: 0,
+    right: 0,
     zIndex: 1000,
   },
   brand: {
     flex: 1,
-    fontSize: 'clamp(18px, 2.8vw, 22px)',
-    fontWeight: '900',
-    letterSpacing: '-1px',
-    background: 'linear-gradient(to right, #fff, #a5b4fc)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
     display: 'flex',
     alignItems: 'center',
     gap: '10px',
     cursor: 'pointer',
     userSelect: 'none',
+  },
+  brandText: {
+    display: 'inline-block',
+    fontSize: 'clamp(18px, 2.8vw, 22px)',
+    fontWeight: '900',
+    letterSpacing: '-1px',
+    background: isDark ? 'linear-gradient(to right, #fff, #a5b4fc)' : 'linear-gradient(to right, #18181b, #4f46e5)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
   },
   brandDot: {
     width: '8px',
@@ -59,7 +64,7 @@ const s = {
     padding: '8px clamp(10px, 2vw, 20px)',
     fontSize: 'clamp(11px, 1.7vw, 13px)',
     fontWeight: '600',
-    color: '#a1a1aa',
+    color: isDark ? '#a1a1aa' : '#52525b',
     cursor: 'pointer',
     borderRadius: '20px',
     transition: 'all 0.2s',
@@ -69,10 +74,10 @@ const s = {
     userSelect: 'none',
   },
   navLinkActive: {
-    background: 'rgba(255,255,255,0.1)',
-    color: '#fff',
-    boxShadow: '0 0 20px rgba(255,255,255,0.05)',
-    border: '1px solid rgba(255,255,255,0.05)',
+    background: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+    color: isDark ? '#fff' : '#18181b',
+    boxShadow: isDark ? '0 0 20px rgba(255,255,255,0.05)' : 'none',
+    border: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.05)',
   },
   navRight: {
     flex: 1,
@@ -100,7 +105,7 @@ const s = {
     letterSpacing: '0.5px',
     textTransform: 'uppercase',
   },
-};
+});
 
 const responsiveNavbarStyles = `
   .desktop-nav { display: flex; }
@@ -181,7 +186,8 @@ const NAV_ITEMS = [
   { key: 'chatbot',    label: 'ChatBot',    path: '/chatbot'    },
 ];
 
-export default function Navbar({ navigate, activePage, onLogout, rightContent }) {
+export default function Navbar({ navigate, activePage, onLogout, rightContent, isDark = true }) {
+  const s = getStyles(isDark);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Close menu when clicking escape
@@ -231,7 +237,7 @@ export default function Navbar({ navigate, activePage, onLogout, rightContent })
           }}
         >
           <div style={s.brandDot} />
-          ELEVATE
+          <span style={s.brandText}>ELEVATE</span>
         </div>
 
         {/* Centre nav links (Desktop) */}

@@ -478,6 +478,7 @@ function Chatbot() {
 
       <div style={styles.page} className="chatbot-page-wrapper">
         <Navbar 
+          isDark={isDark}
           navigate={navigate} 
           activePage="chatbot" 
           onLogout={handleLogout}

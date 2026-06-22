@@ -2156,6 +2156,7 @@ const Workout = () => {
         `}</style>
 
         <Navbar 
+          isDark={theme === 'dark'}
           navigate={navigate} 
           activePage="workout" 
           onLogout={handleLogout}
