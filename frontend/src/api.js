@@ -233,7 +233,7 @@ export const clearWorkoutPlanCache = () => {
     localStorage.removeItem('workoutPlanProfile');
 };
 
-export const suggestDailyMeals = (profileData, intensityFocus) => 
+export const suggestDailyMeals = (profileData, intensityFocus) =>
     FitnessAPI.post('/nutrition/daily', { profile: profileData, intensity_focus: intensityFocus });
 
 const _pickChatProfile = (profile, includeSensitive = false) => {

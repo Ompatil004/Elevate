@@ -2706,6 +2706,21 @@ class WorkoutEngine:
         workout_count = sum(1 for day in weekly_plan if day['type'] == 'workout')
         rest_count = sum(1 for day in weekly_plan if day['type'] == 'rest')
 
+        # --- Inject debug_trace into each day of the plan for transparency and testing ---
+        for day in weekly_plan:
+            day['debug_trace'] = {
+                'experience': experience,
+                'goal': profile.get('goal', 'Muscle Gain'),
+                'gender': profile.get('gender', 'Male'),
+                'days_per_week_requested': user_days,
+                'days_per_week_recommended': recommended_days,
+                'days_per_week_capped': workout_days,
+                'streak': streak,
+                'consistency': consistency,
+                'age': int(float(profile.get('age', 25))),
+                'week_offset': profile.get('week_offset'),
+            }
+
         print(f"\n  Generated: {workout_count} workout days, {rest_count} rest days, {total_exercises} total exercises")
         print(f"{'='*60}\n")
 

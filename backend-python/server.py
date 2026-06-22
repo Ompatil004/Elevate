@@ -465,17 +465,61 @@ async def _append_swap_audit(user_id: Any, week_metadata: Dict[str, Any], swap_r
 
 
 async def _load_or_generate_user_weekly_plan(user_doc: Dict[str, Any]) -> Dict[str, Any]:
-    """Load user plan from DB; generate and persist if missing/invalid."""
+    """Load user plan from DB; generate and persist if missing/invalid or stale week."""
     weekly_plan = user_doc.get("workoutPlan")
     has_valid_plan = isinstance(weekly_plan, list) and len(weekly_plan) == 7
 
-    if not has_valid_plan:
-        engine = _ensure_workout_engine_ready()
-        profile = _build_workout_profile_from_user(user_doc)
-        weekly_plan = engine.generate_weekly_plan(profile)
+    # Check if the saved plan belongs to a past week
+    saved_metadata = user_doc.get("workoutWeekMetadata") or {}
+    saved_week_start = saved_metadata.get("week_start_date")
+    current_week_start = _current_week_start_date_iso()
+    is_stale_week = bool(saved_week_start and saved_week_start != current_week_start)
 
     registration_day_index = _safe_day_index(user_doc.get("firstWorkoutDay"))
     is_new_user_week = _is_registration_in_current_week(user_doc.get("registrationDate"))
+
+    if not has_valid_plan or is_stale_week:
+        engine = _ensure_workout_engine_ready()
+        profile = _build_workout_profile_from_user(user_doc)
+        
+        # If it's a rolled-over week, ensure is_new_user_week is False
+        if is_stale_week:
+            profile['is_new_user_week'] = False
+            is_new_user_week = False
+            
+        weekly_plan = engine.generate_weekly_plan(profile)
+        has_valid_plan = True
+        
+        # Recalculate nutrition plan to align with the new workout volume/intensity
+        try:
+            from app.nutrition_intelligence import get_meal_runtime
+            meal_runtime = get_meal_runtime()
+            
+            # calculate average exercises and intensity
+            workout_days_count = sum(1 for d in weekly_plan if d.get("type") == "workout")
+            workout_intensity = "moderate"
+            total_exercises = sum(
+                len(d.get("exercises", [])) for d in weekly_plan if d.get("type") == "workout"
+            )
+            avg_exercises = total_exercises / max(workout_days_count, 1)
+            if avg_exercises >= 8:
+                workout_intensity = "very_hard"
+            elif avg_exercises >= 6:
+                workout_intensity = "hard"
+            elif avg_exercises >= 3:
+                workout_intensity = "moderate"
+            else:
+                workout_intensity = "light"
+                
+            meal_plan = meal_runtime.suggest_daily_meals(profile, workout_intensity)
+            db_instance = get_database()
+            await db_instance.users.update_one(
+                {"_id": user_doc["_id"]},
+                {"$set": {"latestNutritionPlan": meal_plan}}
+            )
+            logger.info("Successfully rolled forward nutrition plan with workout plan.")
+        except Exception as meal_err:
+            logger.warning("Could not regenerate nutrition plan during week rollover: %s", meal_err)
 
     week_metadata = _build_week_metadata(
         weekly_plan,
@@ -489,7 +533,7 @@ async def _load_or_generate_user_weekly_plan(user_doc: Dict[str, Any]) -> Dict[s
     def _meta_comparable(m: dict) -> dict:
         return {k: v for k, v in (m or {}).items() if k != "updated_at"}
 
-    needs_persist = (not has_valid_plan) or (
+    needs_persist = (not has_valid_plan) or is_stale_week or (
         _meta_comparable(user_doc.get("workoutWeekMetadata")) != _meta_comparable(week_metadata)
     )
     if needs_persist:
@@ -2838,6 +2882,14 @@ async def update_profile_safe(
         user_id = _require_user_id_from_request(http_request, x_auth_token, request_id)
         logger.info(f"[{request_id}] User ID: {user_id}")
         
+        # Load user document from DB to merge profile updates and support generation
+        user_doc = await _find_user_by_id(user_id)
+        if not user_doc:
+            raise HTTPException(
+                status_code=404,
+                detail={"error": "User not found", "message": "The requested user was not found", "request_id": request_id}
+            )
+        
         # ===== STEP 4: EXTRACT PROFILE DATA =====
         # Keep only valid profile fields
         valid_fields = [
@@ -2855,10 +2907,20 @@ async def update_profile_safe(
                 detail={"error": "No valid profile fields", "message": "Provide at least one valid profile field", "request_id": request_id}
             )
         
-        # If only 'name' was changed, skip regeneration and return success early
+        # Build complete user profile by merging existing DB document with current updates
+        full_profile = _build_workout_profile_from_user(user_doc)
+        for k, v in filtered_profile.items():
+            full_profile[k] = v
+
+        # If only 'name' was changed, update DB and return success early
         plan_affecting_fields = {k for k in filtered_profile if k != 'name'}
         if not plan_affecting_fields:
             logger.info(f"[{request_id}] Name-only update, skipping plan regeneration")
+            db = get_database()
+            await db.users.update_one(
+                {"_id": ObjectId(user_id)},
+                {"$set": filtered_profile}
+            )
             response_data["success"] = True
             response_data["message"] = "Profile updated successfully (name only, no plan changes)"
             response_data["data"] = {"profile": filtered_profile, "user_id": user_id, "updated_at": timestamp}
@@ -2875,7 +2937,7 @@ async def update_profile_safe(
                 print(f"[{request_id}] Regenerating workout plan...")
                 
                 new_workout_plan = workout_runtime.generate_weekly_plan(
-                    profile=filtered_profile,
+                    profile=full_profile,
                     workout_history=None
                 )
                 
@@ -2909,12 +2971,12 @@ async def update_profile_safe(
                 workout_for_nutrition = response_data.get("regenerated_workout", {}).get("plan")
                 if not workout_for_nutrition:
                     workout_for_nutrition = workout_runtime.generate_weekly_plan(
-                        profile=filtered_profile,
+                        profile=full_profile,
                         workout_history=None
                     )
                 
                 new_nutrition_plan = meal_runtime.generate_meal_plan(
-                    profile=filtered_profile,
+                    profile=full_profile,
                     weekly_workout_plan=workout_for_nutrition
                 )
                 
@@ -2937,6 +2999,50 @@ async def update_profile_safe(
                     "error": nutrition_error
                 })
         
+        # ===== STEP 6.5: PERSIST PROFILE AND GENERATED PLANS TO MONGODB =====
+        try:
+            db = get_database()
+            users = db.users
+            
+            # Save profile updates
+            await users.update_one(
+                {"_id": ObjectId(user_id)},
+                {"$set": filtered_profile}
+            )
+            
+            # Save workout plan and week metadata if generated
+            if response_data["regenerated_workout"]:
+                new_workout = response_data["regenerated_workout"]["plan"]
+                week_metadata = _build_week_metadata(
+                    new_workout,
+                    registration_day_index=_safe_day_index(user_doc.get("firstWorkoutDay")),
+                    is_new_user_week=_is_registration_in_current_week(user_doc.get("registrationDate")),
+                    existing_metadata=user_doc.get("workoutWeekMetadata"),
+                )
+                await _persist_workout_plan_and_metadata(
+                    {"_id": ObjectId(user_id)},
+                    new_workout,
+                    week_metadata
+                )
+                
+            # Save nutrition plan if generated
+            if response_data["regenerated_nutrition"]:
+                new_nutrition = response_data["regenerated_nutrition"]["plan"]
+                await users.update_one(
+                    {"_id": ObjectId(user_id)},
+                    {"$set": {"latestNutritionPlan": new_nutrition, "updatedAt": _utcnow()}}
+                )
+                
+            logger.info(f"[{request_id}] Changes successfully persisted to MongoDB")
+            print(f"[{request_id}] Changes successfully persisted to MongoDB")
+        except Exception as persist_err:
+            logger.error(f"[{request_id}] Failed to persist profile/plans: {persist_err}")
+            response_data["errors"].append({
+                "type": "database_persistence",
+                "message": "Failed to persist profile/plans to database",
+                "error": str(persist_err)
+            })
+
         # ===== STEP 7: BUILD SUCCESS RESPONSE =====
         response_data["success"] = True
         response_data["message"] = "Profile updated successfully" if not response_data["errors"] else "Profile updated, but some regenerations failed"
@@ -2953,10 +3059,10 @@ async def update_profile_safe(
         
         # Log final status
         if response_data["errors"]:
-            logger.warning(f"[{request_id}] Profile update succeeded with regeneration errors")
-            print(f"[{request_id}] Profile update succeeded with regeneration errors")
+            logger.warning(f"[{request_id}] Profile update succeeded with errors")
+            print(f"[{request_id}] Profile update succeeded with errors")
         else:
-            logger.info(f"[{request_id}] Profile update completed successfully with full regeneration")
+            logger.info(f"[{request_id}] Profile update completed successfully with full regeneration and persistence")
             print(f"[{request_id}] Profile update completed successfully")
         
         print(
