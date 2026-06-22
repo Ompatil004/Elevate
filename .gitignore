@@ -134,6 +134,7 @@ __pycache__/
 *.pkl
 *.joblib
 *.model
+checksums.sha256
 backend-python/data/*_processed*.csv
 backend-python/data/gif_link_audit_*.csv
 
