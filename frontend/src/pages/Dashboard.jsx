@@ -4,6 +4,7 @@ import { useNotification } from '../components/NotificationProvider';
 import { useTheme } from '../context/ThemeContext';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { getProfile, saveTrends, getTrends, logActivityToBackend, getRecentActivities, syncActivitiesToBackend, saveDailyLog, getWeeklyLogs, generateWorkout } from '../api';
+import Navbar from '../components/Navbar';
 import { preloadPoseAssets } from '../utils/poseModelPreload';
 import { QUOTES } from '../data/quotes';
 import {
@@ -3976,83 +3977,61 @@ function Dashboard({ onLogout }) {
         )}
 
         {/* NAVBAR */}
-        <nav style={styles.navbar}>
-          <div style={styles.brand}>
-            <div style={styles.brandDot}></div> ELEVATE
-          </div>
-          <div style={styles.navCenter}>
-            <div style={{ ...styles.navLink, ...styles.navLinkActive }}>Dashboard</div>
-            <div
-              style={styles.navLink}
-              onClick={() => navigate('/workout')}
-            >
-              Workout
-            </div>
-            <div
-              style={styles.navLink}
-              onClick={() => navigate('/nutrition')}
-            >
-              Nutrition
-            </div>
-            <div
-              style={styles.navLink}
-              onClick={() => navigate('/chatbot')}
-            >
-              ChatBot
-            </div>
-          </div>
-          <div style={styles.navRight}>
-            <div style={styles.dateDisplay}>{todayDate}</div>
-            <div style={{ position: 'relative' }} ref={notifRef}>
-              <button
-                style={styles.iconButton}
-                className="icon-hover"
-                onClick={() => setShowNotif(!showNotif)}
-              >
-                🔔
-              </button>
-              {showNotif && (
-                <div style={styles.notifDropdown}>
-                  <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--app-text)', marginBottom: '12px' }}>
-                    Notifications
-                  </div>
-                  {notifications.length === 0 ? (
-                    <div style={{...styles.notifItem, borderBottom: 'none', color: 'var(--app-text-muted)', fontSize: '12px', justifyContent: 'center', marginTop: '8px'}}>
-                        No new alerts
+        <Navbar 
+          navigate={navigate} 
+          activePage="dashboard" 
+          onLogout={handleLogout}
+          rightContent={
+            <>
+              <div style={styles.dateDisplay} className="desktop-nav">{todayDate}</div>
+              <div style={{ position: 'relative' }} ref={notifRef}>
+                <button
+                  style={styles.iconButton}
+                  className="icon-hover"
+                  onClick={() => setShowNotif(!showNotif)}
+                >
+                  🔔
+                </button>
+                {showNotif && (
+                  <div style={styles.notifDropdown}>
+                    <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--app-text)', marginBottom: '12px' }}>
+                      Notifications
                     </div>
-                  ) : (
-                    notifications.map((n, idx) => (
-                      <div key={n.id} style={{
-                          ...styles.notifItem,
-                          borderBottom: idx === notifications.length - 1 ? 'none' : '1px solid var(--app-border)',
-                          padding: '8px 0',
-                          fontSize: '12px',
-                          color: 'var(--app-text)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px'
-                      }}>
-                          <span>{n.type === 'error' ? '❌' : n.type === 'warning' ? '⚠️' : 'ℹ️'}</span>
-                          <span style={{lineHeight: '1.4'}}>{n.message}</span>
+                    {notifications.length === 0 ? (
+                      <div style={{...styles.notifItem, borderBottom: 'none', color: 'var(--app-text-muted)', fontSize: '12px', justifyContent: 'center', marginTop: '8px'}}>
+                          No new alerts
                       </div>
-                    ))
-                  )}
-                </div>
-              )}
-            </div>
-            <button
-              className="theme-toggle-btn"
-              onClick={toggleTheme}
-              title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-              aria-label="Toggle theme"
-            >
-              {theme === 'dark' ? '☀️' : '🌙'}
-            </button>
-            <button style={styles.logoutBtn} className="logout-btn" onClick={handleLogout}>
-              <span style={styles.logoutText}>LOGOUT</span>
-            </button>
-          </div>
-        </nav>
+                    ) : (
+                      notifications.map((n, idx) => (
+                        <div key={n.id} style={{
+                            ...styles.notifItem,
+                            borderBottom: idx === notifications.length - 1 ? 'none' : '1px solid var(--app-border)',
+                            padding: '8px 0',
+                            fontSize: '12px',
+                            color: 'var(--app-text)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px'
+                        }}>
+                            <span>{n.type === 'error' ? '❌' : n.type === 'warning' ? '⚠️' : 'ℹ️'}</span>
+                            <span style={{lineHeight: '1.4'}}>{n.message}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
+              <button
+                className="theme-toggle-btn"
+                onClick={toggleTheme}
+                title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                aria-label="Toggle theme"
+              >
+                {theme === 'dark' ? '☀️' : '🌙'}
+              </button>
+            </>
+          }
+        />
 
         {/* MAIN CONTAINER */}
         <div style={styles.container} className="container responsive-grid-12">

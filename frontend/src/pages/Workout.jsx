@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import Navbar from '../components/Navbar';
 import { useNotification } from '../components/NotificationProvider';
 import { useTheme } from '../context/ThemeContext';
 import {
@@ -2154,41 +2155,36 @@ const Workout = () => {
           .history-card:hover { border-color: #6366f1 !important; background: var(--app-border) !important; transform: translateX(4px); }
         `}</style>
 
-        <nav style={styles.navbar}>
-          <div style={styles.brand}><div style={styles.brandDot}></div> ELEVATE</div>
-          <div style={styles.navCenter}>
-            <div style={styles.navLink} onClick={() => navigate('/dashboard')}>Dashboard</div>
-            <div style={{...styles.navLink, ...styles.navLinkActive}}>Workout</div>
-            <div style={styles.navLink} onClick={() => navigate('/nutrition')}>Nutrition</div>
-            <div style={styles.navLink} onClick={() => navigate('/chatbot')}>ChatBot</div>
-          </div>
-          <div style={styles.navRight}>
-            <div style={styles.dateDisplay}>{todayDate}</div>
-            <button style={styles.iconButton} className="icon-hover" onClick={() => setShowHistory(!showHistory)} title="Past Workouts">🕒</button>
-            <div style={{position:'relative'}} ref={notifRef}>
-              <button style={styles.iconButton} className="icon-hover" onClick={() => setShowNotif(!showNotif)}>🔔</button>
-              {showNotif && (
-                <div style={styles.notifDropdown}>
-                  <div style={{fontSize:'14px', fontWeight:'700', color:'var(--app-text)', marginBottom:'12px'}}>Notifications</div>
-                  <div style={styles.notifItem}>🔥 You're on a 12-day streak!</div>
-                  <div style={styles.notifItem}>🏋️ Leg Day today!</div>
-                  <div style={{...styles.notifItem, borderBottom:'none', color:'var(--app-text-muted)', fontSize:'12px', justifyContent:'center', marginTop:'8px'}}>No new alerts</div>
-                </div>
-              )}
-            </div>
-            <button
-              className="theme-toggle-btn"
-              onClick={toggleTheme}
-              title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-              aria-label="Toggle theme"
-            >
-              {theme === 'dark' ? '☀️' : '🌙'}
-            </button>
-            <button style={styles.logoutBtn} className="logout-btn" onClick={handleLogout}>
-              <span style={styles.logoutText}>LOGOUT</span>
-            </button>
-          </div>
-        </nav>
+        <Navbar 
+          navigate={navigate} 
+          activePage="workout" 
+          onLogout={handleLogout}
+          rightContent={
+            <>
+              <div style={styles.dateDisplay} className="desktop-nav">{todayDate}</div>
+              <button style={styles.iconButton} className="icon-hover" onClick={() => setShowHistory(!showHistory)} title="Past Workouts">🕒</button>
+              <div style={{position:'relative'}} ref={notifRef}>
+                <button style={styles.iconButton} className="icon-hover" onClick={() => setShowNotif(!showNotif)}>🔔</button>
+                {showNotif && (
+                  <div style={styles.notifDropdown}>
+                    <div style={{fontSize:'14px', fontWeight:'700', color:'var(--app-text)', marginBottom:'12px'}}>Notifications</div>
+                    <div style={styles.notifItem}>🔥 You're on a 12-day streak!</div>
+                    <div style={styles.notifItem}>🦵 Leg Day today!</div>
+                    <div style={{...styles.notifItem, borderBottom:'none', color:'var(--app-text-muted)', fontSize:'12px', justifyContent:'center', marginTop:'8px'}}>No new alerts</div>
+                  </div>
+                )}
+              </div>
+              <button
+                className="theme-toggle-btn"
+                onClick={toggleTheme}
+                title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                aria-label="Toggle theme"
+              >
+                {theme === 'dark' ? '☀️' : '🌙'}
+              </button>
+            </>
+          }
+        />
 
         {poseTrackingError && (
           <div style={{

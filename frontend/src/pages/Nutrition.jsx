@@ -1022,7 +1022,7 @@ function MealCard({ meal, isLocked, isSequenceLocked, unlockMessage, checkedFood
   const isDisabled = isFutureDay || isLocked || isSequenceLocked;
   return (
     <div
-      className="meal-card-hover"
+      className="meal-card meal-card-hover"
       style={{
         ...styles.mealCard,
         ...(isLocked ? styles.mealCardCompleted : {}),
@@ -1076,7 +1076,7 @@ function MealCard({ meal, isLocked, isSequenceLocked, unlockMessage, checkedFood
         </div>
       </div>
 
-      <div style={styles.foodTableHeader}>
+      <div style={styles.foodTableHeader} className="food-table-header">
         <div></div><div>Food</div><div style={{ textAlign: "center", color: "#a78bfa" }}>Portion</div><div style={{ textAlign: "center" }}>Cal</div>
         <div style={{ textAlign: "center" }}>Pro</div><div style={{ textAlign: "center" }}>Carb</div>
         <div style={{ textAlign: "center" }}>Fat</div><div></div>
