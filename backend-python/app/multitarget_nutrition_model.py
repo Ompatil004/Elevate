@@ -55,7 +55,6 @@ class MultiTargetNutritionModel:
             random_state=self.random_state,
             objective='reg:squarederror',
             eval_metric='mae',
-            early_stopping_rounds=10,
             verbose=0
         )
         
@@ -227,8 +226,8 @@ class MultiTargetNutritionModel:
         # Prepare training data
         if isinstance(X_train, pd.DataFrame):
             # Create a temporary dataframe with features and targets to use _prepare_features
-            temp_df = pd.DataFrame(X_train)
-            temp_df[self.target_names] = pd.DataFrame(y_train, columns=self.target_names)
+            temp_df = X_train.copy()
+            temp_df[self.target_names] = y_train
             X_train_processed, y_train_processed = self._prepare_features(temp_df)
         else:
             # If X_train is already processed
@@ -239,8 +238,8 @@ class MultiTargetNutritionModel:
         X_val_processed, y_val_processed = None, None
         if X_val is not None and y_val is not None:
             if isinstance(X_val, pd.DataFrame):
-                temp_val_df = pd.DataFrame(X_val)
-                temp_val_df[self.target_names] = pd.DataFrame(y_val, columns=self.target_names)
+                temp_val_df = X_val.copy()
+                temp_val_df[self.target_names] = y_val
                 X_val_processed, y_val_processed = self._prepare_features(temp_val_df)
             else:
                 X_val_processed = X_val
@@ -279,9 +278,7 @@ class MultiTargetNutritionModel:
             # Fit the random search
             if X_val_processed is not None:
                 random_search.fit(
-                    X_train_processed, y_train_processed,
-                    estimator__eval_set=[(X_val_processed, y_val_processed)],
-                    estimator__verbose=0
+                    X_train_processed, y_train_processed
                 )
             else:
                 random_search.fit(X_train_processed, y_train_processed)
@@ -294,9 +291,7 @@ class MultiTargetNutritionModel:
             # Train with default parameters
             if X_val_processed is not None:
                 self.model.fit(
-                    X_train_processed, y_train_processed,
-                    estimator__eval_set=[(X_val_processed, y_val_processed)],
-                    estimator__verbose=0
+                    X_train_processed, y_train_processed
                 )
             else:
                 self.model.fit(X_train_processed, y_train_processed)
