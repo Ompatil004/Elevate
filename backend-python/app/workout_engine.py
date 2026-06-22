@@ -20,10 +20,17 @@ from .hybrid_volume_optimizer import HybridVolumeOptimizer, get_hybrid_optimizer
 
 # Import progression engine
 try:
-    from .progression_engine import get_progression_engine, apply_age_safety_caps as prog_age_caps
+    from .progression_engine import (
+        get_progression_engine,
+        apply_age_safety_caps as prog_age_caps,
+        get_age_modifiers,
+        build_form_feedback,
+    )
 except ImportError:
     get_progression_engine = None
     prog_age_caps = None
+    get_age_modifiers = None
+    build_form_feedback = None
 
 try:
     from .gemini_service import generate_workout_config, is_gemini_available
@@ -3981,7 +3988,7 @@ class WorkoutEngine:
                     'is_timed': classification['is_timed'],
                     'needs_camera': classification['needs_camera'],
                     'exercise_mode': classification['exercise_mode'],
-                    'movement_pattern': classification['movement_pattern'],
+                    'movement_pattern': classification.get('movement_pattern', ''),
                     '_is_compound': row.get('_is_compound', False),
                 })
 
@@ -4027,7 +4034,7 @@ class WorkoutEngine:
                         'is_timed': classification['is_timed'],
                         'needs_camera': classification['needs_camera'],
                         'exercise_mode': classification['exercise_mode'],
-                        'movement_pattern': classification['movement_pattern'],
+                        'movement_pattern': classification.get('movement_pattern', ''),
                         '_is_compound': False,
                     })
 

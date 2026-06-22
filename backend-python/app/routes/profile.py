@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends, Header, Request
 from bson import ObjectId
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Optional, List, Dict, Any
 import logging
 import traceback
@@ -14,6 +14,16 @@ from app.biometric_normalizer import BiometricNormalizer
 from app.utils.activity_logger import log_user_activity, ActivityType
 from app.utils.db_safe_write import safe_update_one, safe_find_one
 
+logger = logging.getLogger(__name__)
+
+# Prescription targets — single source of truth for water/sleep goals
+try:
+    from app.prescription_targets import get_prescription_targets
+except Exception as _pt_err:
+    logger.warning(f"prescription_targets import failed ({_pt_err}); using defaults")
+    def get_prescription_targets(goal, level, age):
+        return {'water_target_ml': 2750, 'sleep_target_hours': 8.0, 'sleep_minimum_hours': 7.0}
+
 # Priority 3 — Adaptive modifier: adjust intensity/volume based on last 7 daily check-ins
 try:
     from app.adaptive_modifier import compute_adaptive_modifiers, apply_modifiers_to_workout_stats
@@ -22,7 +32,6 @@ except Exception as _am_err:
     compute_adaptive_modifiers = None
     apply_modifiers_to_workout_stats = None
 
-logger = logging.getLogger(__name__)
 
 
 def _utcnow() -> datetime:
@@ -231,7 +240,41 @@ def _build_user_filter(user_id: str) -> Dict[str, Any]:
     return {'_id': user_id}
 
 
-async def _load_adaptive_modifiers(user_id: str) -> Dict[str, Any]:
+def _is_cold_start(user_doc: Dict[str, Any], daily_log_count: int = 0) -> bool:
+    """
+    Detect if this is a Week 1 user who has no historical adaptation data yet.
+
+    Returns True when:
+    - Account is less than 7 days old, OR
+    - User has fewer than 7 daily logs
+
+    Per plan Section 11: cold-start users get base matrix + age modifier only.
+    The weekly adaptive modifier is skipped until Day 8.
+    """
+    if daily_log_count < 7:
+        return True
+
+    created_at = user_doc.get('createdAt') or user_doc.get('created_at')
+    if not created_at:
+        return False  # no creation date → assume existing user, don't cold-start
+
+    try:
+        if isinstance(created_at, str):
+            created_at = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
+        if created_at.tzinfo is None:
+            created_at = created_at.replace(tzinfo=timezone.utc)
+        age_days = (_utcnow() - created_at).days
+        return age_days < 7
+    except Exception:
+        return False
+
+
+_COLD_START_MESSAGE = (
+    "Your plan will personalise further after your first week based on your sleep "
+    "and hydration. Keep logging daily!"
+)
+
+async def _load_adaptive_modifiers(user_id: str, water_target_ml: int = 2750, sleep_target_hours: float = 8.0) -> Dict[str, Any]:
     """Fetch last 7 daily check-ins and compute adaptive modifiers."""
     if not callable(compute_adaptive_modifiers):
         return {}
@@ -244,7 +287,11 @@ async def _load_adaptive_modifiers(user_id: str) -> Dict[str, Any]:
         logs = [doc async for doc in cursor]
         if not logs:
             return {}
-        mods = compute_adaptive_modifiers(logs)
+        mods = compute_adaptive_modifiers(
+            logs,
+            water_target_ml=water_target_ml,
+            sleep_target_hours=sleep_target_hours,
+        )
         logger.info(f"Adaptive modifiers for {user_id}: {mods.get('reason', '')}")
         return mods
     except Exception as exc:
@@ -430,15 +477,38 @@ async def update_profile(
             except Exception as cache_exc:
                 logger.warning(f"[{request_id}] Cache invalidation failed: {cache_exc}")
 
+        # Compute prescription targets (water + sleep) for this user
+        _targets = get_prescription_targets(
+            goal=plan_profile.get('goal', 'Muscle Gain'),
+            level=plan_profile.get('experience', 'Beginner'),
+            age=int(plan_profile.get('age', 25)),
+        )
+        water_target_ml: int = _targets['water_target_ml']
+        sleep_target_hours: float = _targets['sleep_target_hours']
+
         # Priority 3: Load adaptive modifiers from last 7 daily check-ins.
         # Done once and passed to both plan generators so they share the same
         # adjustment context for this profile update.
+        # Cold-start detection: skip adaptive modifier in Week 1 (per plan Section 11).
         adaptive_mods: Dict[str, Any] = {}
+        personalization_message: str = ''
         if needs_workout_regen:
             try:
-                adaptive_mods = await _load_adaptive_modifiers(user_id)
+                db_tmp = get_database()
+                log_count = await db_tmp.daily_logs.count_documents({'user_id': user_id})
+                cold_start = _is_cold_start(existing_user, daily_log_count=log_count)
+                if cold_start:
+                    personalization_message = _COLD_START_MESSAGE
+                    logger.info(f"[{request_id}] Cold-start detected — skipping adaptive modifier")
+                else:
+                    adaptive_mods = await _load_adaptive_modifiers(
+                        user_id,
+                        water_target_ml=water_target_ml,
+                        sleep_target_hours=sleep_target_hours,
+                    )
             except Exception as am_exc:
                 logger.warning(f"[{request_id}] Adaptive modifier load error: {am_exc}")
+
 
         workout_plan_result = None
         nutrition_plan_result = None
@@ -556,6 +626,17 @@ async def update_profile(
             'changed_fields': changed_fields,
             'workout_regenerated': bool(needs_workout_regen and workout_regen_success),
             'nutrition_regenerated': bool(needs_nutrition_regen and nutrition_regen_success),
+        }
+
+        # Cold-start onboarding message (empty string when not applicable)
+        response_data['personalization_message'] = personalization_message
+
+        # Prescription targets included in every plan response so frontend
+        # can display the correct water / sleep goals to the user.
+        response_data['prescription_targets'] = {
+            'water_target_ml':     water_target_ml,
+            'sleep_target_hours':  sleep_target_hours,
+            'sleep_minimum_hours': _targets.get('sleep_minimum_hours', 7.0),
         }
 
         logger.info(f"[{request_id}] ===== PROFILE UPDATE COMPLETED =====")

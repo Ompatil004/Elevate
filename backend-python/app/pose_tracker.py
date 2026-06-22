@@ -1509,8 +1509,19 @@ class PoseTracker:
     def get_exercise_stats(self):
         """Return a compatibility summary used by the refactored tests/UI."""
         from app.detectors import DetectorFactory
+        try:
+            from app.progression_engine import build_form_feedback as _bff
+        except ImportError:
+            _bff = None
 
         config = self.detector_config or DetectorFactory.get_exercise_config(self.current_exercise)
+        raw_form_score = self.calculate_average_form_accuracy()
+        # Detectors return 0–100; normalise to 0.0–1.0 for build_form_feedback
+        form_score_normalised = raw_form_score / 100.0 if raw_form_score > 1.0 else raw_form_score
+        form_feedback = (
+            _bff(form_score_normalised, self.current_exercise) if _bff else {}
+        )
+
         if config.get("trackable") is False:
             return {
                 "status": "not_trackable",
@@ -1520,7 +1531,8 @@ class PoseTracker:
                 "exercise_completed": self.exercise_completed,
                 "feedback": getattr(self, "feedback", ""),
                 "confidence": self.confidence_history[-1] if self.confidence_history else 0.0,
-                "form_score": self.calculate_average_form_accuracy(),
+                "form_score": raw_form_score,
+                "form_feedback": form_feedback,
             }
 
         return {
@@ -1530,7 +1542,8 @@ class PoseTracker:
             "exercise_completed": self.exercise_completed,
             "feedback": getattr(self, "feedback", ""),
             "confidence": self.confidence_history[-1] if self.confidence_history else 0.0,
-            "form_score": self.calculate_average_form_accuracy(),
+            "form_score": raw_form_score,
+            "form_feedback": form_feedback,
         }
 
     def get_tracking_statistics(self):
