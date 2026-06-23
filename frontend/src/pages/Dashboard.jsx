@@ -21,1351 +21,8 @@ import { syncBridge, SyncTypes } from '../utils/syncBridge';
 import AuroraBackground from '../components/AuroraBackground';
 
 // --- FULL PREMIUM STYLES (JS Object - Static Only) ---
-const styles = {
-  page: {
-    background: 'transparent',
-    minHeight: '100dvh',
-    color: 'var(--app-text)',
-    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
-    overflowX: 'hidden',
-    position: 'relative',
-    zIndex: 1,
-    paddingBottom: '40px',
-    paddingTop: 'clamp(64px, 9vw, 80px)'
-  },
-  dateDisplay: {
-    fontSize: '13px',
-    fontWeight: '600',
-    color: 'var(--app-text-muted)',
-    fontFamily: 'sans-serif',
-    letterSpacing: '0.5px',
-    marginRight: '8px'
-  },
-  navbar: {
-    display: 'flex',
-    alignItems: 'center',
-    padding: '0 clamp(12px, 4vw, 40px)',
-    height: 'clamp(64px, 9vw, 80px)',
-    gap: 'clamp(8px, 2vw, 18px)',
-    borderBottom: '1px solid var(--app-border)',
-    background: 'var(--app-nav-bg, rgba(9, 9, 11, 0.6))',
-    backdropFilter: 'blur(16px)',
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 1000,
-    overflowX: 'auto'
-  },
-  brand: {
-    flex: 1,
-    fontSize: 'clamp(18px, 2.8vw, 22px)',
-    fontWeight: '900',
-    letterSpacing: '-1px',
-    background: 'linear-gradient(to right, #fff, #a5b4fc)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px'
-  },
-  navCenter: {
-    display: 'flex',
-    gap: 'clamp(4px, 1.5vw, 8px)',
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  navLink: {
-    display: 'flex',
-    alignItems: 'center',
-    padding: '8px clamp(10px, 2vw, 20px)',
-    fontSize: 'clamp(11px, 1.7vw, 13px)',
-    fontWeight: '600',
-    color: 'var(--app-text-muted)',
-    cursor: 'pointer',
-    borderRadius: '20px',
-    transition: 'all 0.2s',
-    textTransform: 'uppercase',
-    letterSpacing: '0.5px',
-    border: '1px solid transparent'
-  },
-  navLinkActive: {
-    background: 'var(--app-border)',
-    color: 'var(--app-text)',
-    boxShadow: '0 0 20px var(--app-border)',
-    border: '1px solid var(--app-border)'
-  },
-  navRight: {
-    flex: 1,
-    display: 'flex',
-    alignItems: 'center',
-    gap: 'clamp(8px, 2vw, 24px)',
-    justifyContent: 'flex-end'
-  },
-  iconButton: {
-    width: 'clamp(36px, 6vw, 42px)',
-    height: 'clamp(36px, 6vw, 42px)',
-    borderRadius: '12px',
-    background: 'var(--quote-bg)',
-    border: '1px solid var(--app-border)',
-    color: 'var(--app-text)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
-    fontSize: '18px',
-    transition: 'all 0.2s',
-    position: 'relative'
-  },
-  notifDropdown: {
-    position: 'absolute',
-    top: '60px',
-    right: '0px',
-    width: 'min(92vw, 340px)',
-    background: 'var(--app-surface)',
-    border: '1px solid var(--app-border)',
-    borderRadius: '16px',
-    padding: '16px',
-    zIndex: 2000,
-    boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
-    animation: 'slideDown 0.2s ease-out'
-  },
-  notifItem: {
-    padding: '12px 16px',
-    borderBottom: '1px solid var(--app-border)',
-    fontSize: '13px',
-    color: '#d4d4d8',
-    display: 'flex',
-    gap: '10px',
-    alignItems: 'center'
-  },
-  logoutBtn: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    padding: '0 clamp(10px, 2vw, 20px)',
-    borderRadius: '12px',
-    background: 'rgba(239, 68, 68, 0.1)',
-    border: '1px solid rgba(239, 68, 68, 0.2)',
-    color: '#ef4444',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    height: 'clamp(36px, 6vw, 42px)'
-  },
-  logoutText: {
-    fontSize: '12px',
-    fontWeight: '700',
-    letterSpacing: '0.5px',
-    textTransform: 'uppercase'
-  },
-  brandDot: {
-    width: '8px',
-    height: '8px',
-    background: '#6366f1',
-    borderRadius: '50%',
-    boxShadow: '0 0 15px #6366f1'
-  },
-  container: {
-    maxWidth: '1600px',
-    margin: '0 auto',
-    padding: 'clamp(10px, 2.5vw, 24px)',
-    display: 'grid',
-    gridTemplateColumns: 'repeat(12, 1fr)',
-    gap: 'clamp(10px, 1.6vw, 16px)'
-  },
-  bentoBox: {
-    background: 'var(--app-surface-glass, var(--app-surface))',
-    border: '1px solid var(--app-border)',
-    borderRadius: '18px',
-    padding: 'clamp(12px, 1.8vw, 20px)',
-    display: 'flex',
-    flexDirection: 'column',
-    position: 'relative',
-    overflow: 'hidden',
-    transition: 'transform 0.2s ease, border-color 0.2s ease',
-    backdropFilter: 'blur(14px)',
-    boxShadow: '0 14px 34px rgba(0,0,0,0.22)'
-  },
-  heroSection: {
-    gridColumn: 'span 12',
-    background: 'var(--app-hero-glass, var(--app-bg-grad))',
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 'clamp(10px, 1.8vw, 20px)',
-    minHeight: 'auto',
-    padding: 'clamp(12px, 2vw, 22px)',
-    boxShadow: '0 12px 28px rgba(0,0,0,0.2)'
-  },
-  heroLeft: {
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: 'clamp(10px, 2.2vw, 24px)',
-    flexWrap: 'wrap',
-    flex: 1.2,
-    minWidth: 0
-  },
-  avatarWrapper: {
-    position: 'relative',
-    width: 'clamp(64px, 8vw, 96px)',
-    height: 'clamp(64px, 8vw, 96px)',
-    flexShrink: 0,
-    cursor: 'pointer'
-  },
-  avatarContainer: {
-    width: '100%',
-    height: '100%',
-    borderRadius: '50%',
-    background: 'conic-gradient(from 0deg, #6366f1, #ec4899, #6366f1)',
-    padding: '4px',
-    boxShadow: '0 10px 50px rgba(99, 102, 241, 0.3)',
-    transition: 'transform 0.2s'
-  },
-  avatarImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: '50%',
-    background: 'var(--app-surface)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: 'clamp(24px, 5vw, 44px)',
-    fontWeight: '700',
-    color: 'var(--app-text)',
-    objectFit: 'cover'
-  },
-  editIconBadge: {
-    position: 'absolute',
-    bottom: '5px',
-    right: '5px',
-    width: 'clamp(30px, 6vw, 40px)',
-    height: 'clamp(30px, 6vw, 40px)',
-    borderRadius: '50%',
-    background: '#4f46e5',
-    border: '4px solid var(--app-bg)',
-    color: 'var(--app-text)',
-    fontSize: 'clamp(14px, 2.6vw, 18px)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    boxShadow: '0 4px 20px rgba(0,0,0,0.6)',
-    zIndex: 10,
-    transition: 'all 0.2s ease'
-  },
-  heroTextContent: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    gap: '10px',
-    paddingTop: '8px'
-  },
-  h1: {
-    fontSize: 'clamp(22px, 3.5vw, 36px)',
-    fontWeight: '800',
-    background: 'var(--h1-grad)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    margin: 0,
-    whiteSpace: 'normal',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    filter: 'drop-shadow(0 4px 20px rgba(99, 102, 241, 0.3))',
-    lineHeight: '1.1'
-  },
-  quoteCard: {
-    background: 'var(--quote-bg)',
-    borderLeft: '4px solid #6366f1',
-    padding: '12px 18px',
-    borderRadius: '0 12px 12px 0',
-    fontStyle: 'italic',
-    color: 'var(--app-text-muted)',
-    fontSize: '15px',
-    lineHeight: '1.6',
-    marginTop: '8px',
-    maxWidth: 'min(100%, 450px)'
-  },
-  heroCenter: {
-    flex: 0.8,
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: '10px'
-  },
-  circleBtn: {
-    width: 'min(100%, 260px)',
-    minHeight: '118px',
-    borderRadius: '18px',
-    border: '1px solid rgba(255,255,255,0.16)',
-    cursor: 'pointer',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    gap: '8px',
-    padding: '12px 14px 10px',
-    textAlign: 'left',
-    color: 'var(--app-text)',
-    transition: 'all 0.3s ease',
-    textShadow: '0 2px 10px rgba(0,0,0,0.3)',
-    position: 'relative',
-    zIndex: 10,
-    boxShadow: '0 10px 24px rgba(0,0,0,0.28)',
-    backdropFilter: 'blur(12px)',
-    overflow: 'hidden',
-    letterSpacing: '0.6px'
-  },
-  actionTopRow: {
-    width: '100%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between'
-  },
-  actionIconPill: {
-    width: '36px',
-    height: '36px',
-    borderRadius: '10px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '18px',
-    border: '1px solid rgba(255,255,255,0.3)',
-    background: 'var(--app-border)',
-    boxShadow: 'inset 0 0 0 1px var(--app-border)'
-  },
-  actionStateTag: {
-    fontSize: '11px',
-    fontWeight: '800',
-    letterSpacing: '1px',
-    textTransform: 'uppercase',
-    padding: '6px 10px',
-    borderRadius: '999px',
-    border: '1px solid rgba(255,255,255,0.25)',
-    background: 'rgba(0,0,0,0.2)',
-    color: '#eef2ff'
-  },
-  actionTextWrap: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '6px'
-  },
-  actionTitle: {
-    fontSize: 'clamp(14px, 1.6vw, 18px)',
-    fontWeight: '800',
-    letterSpacing: '-0.3px',
-    lineHeight: 1.15,
-    color: 'var(--app-text)'
-  },
-  actionSubtitle: {
-    fontSize: '13px',
-    lineHeight: 1.5,
-    color: 'rgba(230, 235, 255, 0.92)',
-    maxWidth: '30ch'
-  },
-  actionHint: {
-    fontSize: '12px',
-    fontWeight: '700',
-    color: 'var(--app-text-muted)',
-    textTransform: 'uppercase',
-    letterSpacing: '1.2px',
-    background: 'rgba(255,255,255,0.04)',
-    border: '1px solid var(--app-border)',
-    borderRadius: '999px',
-    padding: '8px 14px'
-  },
-  btnBlue: {
-    background: 'linear-gradient(145deg, rgba(79,70,229,0.95) 0%, rgba(49,46,129,0.95) 100%)'
-  },
-  btnPink: {
-    background: 'linear-gradient(145deg, rgba(236,72,153,0.95) 0%, rgba(157,23,77,0.95) 100%)'
-  },
-  btnGreen: {
-    background: 'linear-gradient(145deg, rgba(34,197,94,0.92) 0%, rgba(20,83,45,0.95) 100%)'
-  },
-  heroRight: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-end',
-    justifyContent: 'center',
-    gap: '16px',
-    flex: 1
-  },
-  streakLabel: {
-    fontSize: '13px',
-    fontWeight: '700',
-    color: 'var(--app-text-muted)',
-    letterSpacing: '3px',
-    textTransform: 'uppercase'
-  },
-  streakNumber: {
-    fontSize: '54px',
-    fontWeight: '900',
-    lineHeight: 0.9,
-    background: 'linear-gradient(to bottom, #fff 30%, #6366f1 100%)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    filter: 'drop-shadow(0 0 20px rgba(99,102,241,0.3))'
-  },
-  weekGrid: {
-    display: 'flex',
-    gap: '8px',
-    flexWrap: 'wrap'
-  },
-  dayCircle: {
-    width: 'clamp(34px, 5.5vw, 42px)',
-    height: 'clamp(34px, 5.5vw, 42px)',
-    borderRadius: '14px',
-    background: 'var(--app-surface2)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '16px',
-    border: '1px solid var(--app-border)',
-    transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
-    cursor: 'default',
-    fontWeight: '700',
-    color: 'var(--app-text-muted)'
-  },
-  dayActive: {
-    background: 'rgba(99, 102, 241, 0.1)',
-    borderColor: '#6366f1',
-    boxShadow: '0 0 15px rgba(99, 102, 241, 0.2)',
-    color: 'var(--app-text)'
-  },
-  dayDone: {
-    background: 'rgba(34, 197, 94, 0.1)',
-    borderColor: '#22c55e',
-    color: 'var(--app-text)',
-    boxShadow: '0 0 15px rgba(34, 197, 94, 0.2)'
-  },
-  statsRow: {
-    gridColumn: 'span 12',
-    display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)',
-    gap: '24px'
-  },
-  statBox: {
-    minHeight: '280px'
-  },
-  macroBarBG: {
-    width: '100%',
-    height: '8px',
-    background: 'var(--app-surface2)',
-    borderRadius: '10px',
-    marginTop: '8px',
-    overflow: 'hidden'
-  },
-  macroBarFill: {
-    height: '100%',
-    borderRadius: '10px',
-    transition: 'width 0.5s ease'
-  },
-  glassPill: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    background: 'var(--quote-bg)',
-    borderRadius: '50px',
-    padding: '4px',
-    marginTop: '20px',
-    border: '1px solid var(--app-border)',
-    boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.3)',
-    width: '100%',
-    maxWidth: '100%'
-  },
-  glassBtn: {
-    width: '40px',
-    height: '40px',
-    borderRadius: '50%',
-    background: 'transparent',
-    border: 'none',
-    color: 'var(--app-text)',
-    fontSize: '20px',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    transition: 'all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1)'
-  },
-  glassText: {
-    fontSize: '12px',
-    fontWeight: '700',
-    color: 'var(--app-text-muted)',
-    letterSpacing: '1px',
-    textTransform: 'uppercase'
-  },
-  chartSection: {
-    gridColumn: 'span 8',
-    height: '360px'
-  },
-  activitySection: {
-    gridColumn: 'span 4',
-    height: '360px',
-    display: 'flex',
-    flexDirection: 'column'
-  },
-  sectionHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '14px'
-  },
-  sectionTitle: {
-    fontSize: 'clamp(14px, 1.8vw, 17px)',
-    fontWeight: '800',
-    color: 'var(--app-text)',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    letterSpacing: '-0.5px'
-  },
-  sectionAccent: {
-    width: '4px',
-    height: '24px',
-    background: '#6366f1',
-    borderRadius: '4px'
-  },
-  chartControls: {
-    display: 'flex',
-    gap: '16px',
-    flexWrap: 'wrap'
-  },
-  chartTabs: {
-    display: 'flex',
-    gap: '4px',
-    background: 'var(--app-border)',
-    padding: '4px',
-    borderRadius: '10px'
-  },
-  chartTab: {
-    padding: '6px 14px',
-    borderRadius: '8px',
-    fontSize: '11px',
-    fontWeight: '700',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-    border: 'none',
-    color: '#71717a',
-    background: 'transparent'
-  },
-  chartTabActive: {
-    background: 'var(--app-surface2)',
-    color: 'var(--app-text)',
-    boxShadow: '0 2px 10px rgba(0,0,0,0.2)'
-  },
-  listRow: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '18px 16px',
-    borderBottom: '1px solid var(--app-border)',
-    borderRadius: '16px',
-    marginBottom: '8px',
-    cursor: 'pointer',
-    background: 'transparent'
-  },
-  modalOverlay: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    background: 'rgba(0, 0, 0, 0.85)',
-    backdropFilter: 'blur(10px)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 10000,
-    animation: 'fadeIn 0.3s ease'
-  },
-  modalContent: {
-    position: 'relative',
-    maxWidth: '500px',
-    width: '90%',
-    background: 'var(--app-surface)',
-    borderRadius: '24px',
-    padding: '10px',
-    boxShadow: '0 25px 50px rgba(0,0,0,0.5)',
-    border: '1px solid var(--app-border)'
-  },
-  modalImage: {
-    width: '100%',
-    borderRadius: '16px',
-    display: 'block'
-  },
-  closeModalBtn: {
-    position: 'absolute',
-    top: '-15px',
-    right: '-15px',
-    width: '32px',
-    height: '32px',
-    borderRadius: '50%',
-    background: 'var(--app-text)',
-    color: 'var(--app-bg)',
-    border: 'none',
-    fontSize: '16px',
-    fontWeight: 'bold',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    boxShadow: '0 4px 10px rgba(0,0,0,0.3)'
-  },
-  notificationsContainer: {
-    position: 'fixed',
-    top: '20px',
-    right: '20px',
-    zIndex: 10000,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '10px',
-    maxWidth: '400px',
-    width: '100%'
-  },
-  notificationItem: {
-    padding: '12px 16px',
-    borderRadius: '12px',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-    backdropFilter: 'blur(10px)',
-    border: '1px solid var(--app-border)',
-    display: 'flex',
-    alignItems: 'center',
-    animation: 'slideInRight 0.3s ease-out',
-    background: 'rgba(24, 24, 27, 0.9)'
-  },
-  notificationSuccess: {
-    borderLeft: '4px solid #22c55e'
-  },
-  notificationWarning: {
-    borderLeft: '4px solid #f59e0b'
-  },
-  notificationInfo: {
-    borderLeft: '4px solid #3b82f6'
-  },
-  notificationClose: {
-    background: 'var(--app-border)',
-    border: 'none',
-    color: 'var(--app-text)',
-    fontSize: '16px',
-    cursor: 'pointer',
-    padding: '4px 8px',
-    borderRadius: '6px',
-    transition: 'background 0.2s',
-    marginLeft: '8px'
-  },
-  notificationCloseHover: {
-    background: 'rgba(255, 255, 255, 0.2)'
-  },
-  notificationContent: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    flex: 1
-  },
-  notificationMessage: {
-    color: 'var(--app-text)',
-    fontSize: '14px',
-    lineHeight: 1.4
-  }
-};
+import './Dashboard.css';
 
-// --- RESPONSIVE CSS STRING (Animations, Media Queries, Hover States) ---
-const responsiveStyles = `
-  * {
-    box-sizing: border-box;
-  }
-
-  body {
-    margin: 0;
-  }
-
-  /* ===== HOVER EFFECTS ===== */
-  .hover-card:hover {
-    transform: translateY(-4px);
-    border-color: rgba(255, 255, 255, 0.12) !important;
-    cursor: pointer;
-    box-shadow: 0 7px 20px rgba(0, 0, 0, 0.25);
-  }
-
-  .hover-scale:hover {
-    transform: scale(1.03);
-  }
-
-  .nav-item:hover {
-    color: #fff !important;
-  }
-
-  .macro-item {
-    transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), filter 0.2s;
-  }
-
-  .macro-item:hover {
-    transform: scale(1.03);
-    filter: brightness(1.15);
-  }
-
-  .icon-hover:hover {
-    background: var(--app-border) !important;
-    animation: ring 1.2s ease;
-  }
-
-  .edit-icon-hover:hover {
-    transform: scale(1.1);
-    background: #4338ca !important;
-    box-shadow: 0 0 15px rgba(79, 70, 229, 0.6) !important;
-  }
-
-  .logout-btn:hover {
-    background: rgba(239, 68, 68, 0.15) !important;
-    transform: translateY(-1.5px);
-    box-shadow: 0 3px 12px rgba(239, 68, 68, 0.15);
-  }
-
-  .control-btn-hover:hover {
-    background: rgba(255, 255, 255, 0.12) !important;
-    transform: scale(1.07);
-  }
-
-  .day-item:hover {
-    transform: scale(1.1);
-    border-color: #6366f1 !important;
-    box-shadow: 0 0 15px rgba(99, 102, 241, 0.3) !important;
-    color: #fff;
-  }
-
-  .activity-row {
-    border-left: 3px solid transparent;
-    transition: all 0.2s ease;
-  }
-
-  .activity-row:hover {
-    background: rgba(255, 255, 255, 0.07) !important;
-    transform: translateX(7px);
-    border-left: 3px solid #6366f1;
-    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.3);
-  }
-
-  .hero-action-btn:not(:disabled):hover {
-    transform: translateY(-4px);
-    box-shadow: 0 18px 34px rgba(0, 0, 0, 0.35);
-    border-color: rgba(255, 255, 255, 0.3);
-  }
-
-  .hero-action-btn:not(:disabled):active {
-    transform: translateY(-1px);
-  }
-
-  /* ===== ANIMATIONS ===== */
-  @keyframes ring {
-    0% { transform: rotate(0); }
-    10% { transform: rotate(10deg); }
-    20% { transform: rotate(-10deg); }
-    30% { transform: rotate(7deg); }
-    40% { transform: rotate(-7deg); }
-    100% { transform: rotate(0); }
-  }
-
-  @keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-7px); }
-    100% { transform: translateY(0px); }
-  }
-
-  .action-icon {
-    display: inline-block;
-    transform-origin: center;
-    animation: iconFloat 2.2s ease-in-out infinite;
-  }
-
-  @keyframes iconFloat {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-3px); }
-  }
-
-  .hero-ring-glow {
-    animation: heroRingGlow 2.4s ease-in-out infinite;
-  }
-
-  .neon-radial-btn {
-    transition: transform 0.2s ease;
-  }
-
-  .neon-radial-btn:not(:disabled):hover {
-    transform: translateY(-1px) scale(1.01) !important;
-    box-shadow: none !important;
-    border-color: transparent !important;
-  }
-
-  .neon-radial-btn .hero-ring-glow {
-    transition: transform 0.2s ease, filter 0.2s ease;
-  }
-
-  .neon-radial-btn:not(:disabled):hover .hero-ring-glow {
-    transform: scale(1.06);
-    filter: drop-shadow(0 0 14px rgba(236, 72, 153, 0.42));
-  }
-
-  .neon-radial-btn .neon-cta {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-
-  .neon-radial-btn:not(:disabled):hover .neon-cta {
-    transform: translateY(-1px);
-    box-shadow: 0 0 18px rgba(236, 72, 153, 0.38) !important;
-  }
-
-  .neon-radial-btn.neon-state-workout:not(:disabled):hover .neon-cta,
-  .neon-radial-btn.neon-state-meal:not(:disabled):hover .neon-cta {
-    background: rgba(236, 72, 153, 0.32) !important;
-    color: #fff1f8 !important;
-  }
-
-  @keyframes heroRingGlow {
-    0%, 100% {
-      transform: scale(1);
-      filter: drop-shadow(0 0 0 rgba(34, 211, 238, 0.18));
-    }
-    50% {
-      transform: scale(1.03);
-      filter: drop-shadow(0 0 10px rgba(34, 211, 238, 0.34));
-    }
-  }
-
-  /* ===== SCROLLBAR ===== */
-  .activity-list::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  .activity-list::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .activity-list::-webkit-scrollbar-thumb {
-    background: var(--app-surface2);
-    border-radius: 4px;
-  }
-
-  /* ===== ANIMATIONS (Entry/Exit) ===== */
-  @keyframes slideDown {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes slideInRight {
-    from {
-      opacity: 0;
-      transform: translateX(100px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  @keyframes celebrate {
-    0% {
-      transform: translate(-50%, -50%) scale(0.5);
-      opacity: 0;
-    }
-    50% {
-      transform: translate(-50%, -50%) scale(1.2);
-      opacity: 1;
-    }
-    100% {
-      transform: translate(-50%, -50%) scale(1);
-      opacity: 0;
-    }
-  }
-
-  @keyframes floatUp {
-    0% { transform: translateY(0) scale(0); opacity: 0; }
-    15% { opacity: 1; transform: translateY(-30px) scale(1); }
-    100% { transform: translateY(-200px) scale(0.4) rotate(45deg); opacity: 0; }
-  }
-
-  @keyframes celebrateCard {
-    0% { transform: scale(0.3); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-  }
-
-  @keyframes bounce {
-    0% { transform: scale(0); }
-    50% { transform: scale(1.3); }
-    70% { transform: scale(0.9); }
-    100% { transform: scale(1); }
-  }
-
-  @keyframes pulse {
-    0% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.05);
-    }
-    100% {
-      transform: scale(1);
-    }
-  }
-
-  .pulse-animation {
-    animation: pulse 1.5s infinite;
-  }
-
-  /* ===== RESPONSIVE MEDIA QUERIES ===== */
-
-  /* Extra Small Mobile (320px - 480px) */
-  @media (max-width: 480px) {
-    .page {
-      padding: 8px;
-    }
-
-    .container {
-      padding: 16px;
-      gap: 16px;
-    }
-
-    .bentoBox {
-      flex-direction: column;
-      gap: 16px;
-      padding: 16px;
-    }
-
-    .heroSection {
-      flex-direction: column;
-      gap: 20px;
-      padding: 20px;
-    }
-
-    .heroLeft,
-    .heroCenter,
-    .heroRight {
-      width: 100%;
-      text-align: center;
-    }
-
-    .avatarWrapper {
-      margin: 0 auto 16px auto;
-    }
-
-    .statsRow {
-      grid-template-columns: 1fr;
-      gap: 16px;
-    }
-
-    .chartSection {
-      grid-column: span 12;
-      height: 340px;
-    }
-
-    .activitySection {
-      grid-column: span 12;
-      height: 340px;
-    }
-
-    .glassPill {
-      flex-direction: column;
-      gap: 8px;
-      padding: 12px;
-      width: 100%;
-      max-width: 240px;
-      margin: 0 auto;
-    }
-
-    .glassBtn {
-      width: 100%;
-      padding: 10px;
-    }
-
-    .sectionHeader {
-      flex-direction: column;
-      gap: 12px;
-      align-items: flex-start;
-    }
-
-    .chartControls {
-      width: 100%;
-      flex-direction: column;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .chartTabs {
-      width: 100%;
-      justify-content: center;
-    }
-
-    .chartTab {
-      padding: 4px 10px;
-      font-size: 10px;
-    }
-
-    .listRow {
-      padding: 12px;
-      flex-direction: column;
-      gap: 6px;
-      align-items: center;
-    }
-
-    .navbar {
-      padding: 0 16px;
-      height: 50px;
-    }
-
-    .brand {
-      font-size: 16px;
-    }
-
-    .navLink {
-      padding: 6px 10px;
-      font-size: 11px;
-    }
-
-    .dateDisplay {
-      font-size: 11px;
-    }
-
-    .iconButton {
-      width: 36px;
-      height: 36px;
-    }
-
-    .logoutBtn {
-      padding: 0 12px;
-    }
-
-    .logoutText {
-      font-size: 10px;
-    }
-
-    .notifDropdown {
-      width: 280px;
-      right: -120px;
-    }
-
-    .circleBtn {
-      width: 150px;
-      height: 150px;
-      font-size: 14px;
-    }
-
-    .h1 {
-      font-size: 32px;
-    }
-
-    .quoteCard {
-      max-width: 100%;
-      padding: 12px 16px;
-    }
-
-    .streakNumber {
-      font-size: 60px;
-    }
-
-    .weekGrid {
-      gap: 6px;
-    }
-
-    .dayCircle {
-      width: 36px;
-      height: 36px;
-      font-size: 14px;
-    }
-
-    .macroBar {
-      height: 12px;
-    }
-
-    .modalContent {
-      width: 95%;
-      padding: 8px;
-    }
-
-    .closeModalBtn {
-      width: 28px;
-      height: 28px;
-      font-size: 14px;
-    }
-  }
-
-  /* Small Mobile (481px - 768px) */
-  @media (min-width: 481px) and (max-width: 768px) {
-    .page {
-      padding: 10px;
-    }
-
-    .container {
-      padding: 20px;
-      gap: 20px;
-    }
-
-    .bentoBox {
-      flex-direction: column;
-      gap: 16px;
-      padding: 16px;
-    }
-
-    .heroSection {
-      flex-direction: column;
-      gap: 20px;
-      padding: 20px;
-    }
-
-    .heroLeft,
-    .heroCenter,
-    .heroRight {
-      width: 100%;
-      text-align: center;
-    }
-
-    .avatarWrapper {
-      margin: 0 auto 16px;
-    }
-
-    .statsRow {
-      grid-template-columns: 1fr;
-      gap: 16px;
-    }
-
-    .chartSection {
-      grid-column: span 12;
-      height: 340px;
-    }
-
-    .activitySection {
-      grid-column: span 12;
-      height: 340px;
-    }
-
-    .glassPill {
-      flex-direction: column;
-      gap: 8px;
-      padding: 12px;
-      width: 100%;
-      max-width: 240px;
-      margin: 0 auto;
-    }
-
-    .glassBtn {
-      width: 100%;
-      padding: 10px;
-    }
-
-    .sectionHeader {
-      flex-direction: column;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .chartControls {
-      width: 100%;
-      flex-direction: column;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .chartTabs {
-      width: 100%;
-      justify-content: center;
-    }
-
-    .chartTab {
-      padding: 4px 10px;
-      font-size: 10px;
-    }
-
-    .listRow {
-      padding: 14px 12px;
-      flex-direction: column;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .navbar {
-      padding: 0 20px;
-      height: 60px;
-    }
-
-    .brand {
-      font-size: 18px;
-    }
-
-    .navLink {
-      padding: 6px 12px;
-      font-size: 12px;
-    }
-
-    .circleBtn {
-      width: 150px;
-      height: 150px;
-      font-size: 14px;
-    }
-
-    .h1 {
-      font-size: 28px;
-    }
-
-    .quoteCard {
-      max-width: 100%;
-      padding: 12px 16px;
-    }
-
-    .streakNumber {
-      font-size: 60px;
-    }
-
-    .weekGrid {
-      gap: 6px;
-      justify-content: center;
-    }
-
-    .dayCircle {
-      width: 36px;
-      height: 36px;
-      font-size: 14px;
-    }
-
-    .macroBar {
-      height: 12px;
-    }
-
-    .sectionTitle {
-      font-size: 18px;
-    }
-
-    .listRow {
-      padding: 14px 12px;
-      flex-direction: column;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .modalContent {
-      width: 95%;
-      padding: 8px;
-    }
-
-    .closeModalBtn {
-      width: 28px;
-      height: 28px;
-      font-size: 14px;
-    }
-  }
-
-  /* Tablet (769px - 1024px) */
-  @media (min-width: 769px) and (max-width: 1024px) {
-    .bentoBox {
-      padding: 20px;
-    }
-
-    .heroSection {
-      flex-direction: row;
-      gap: 30px;
-    }
-
-    .statsRow {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
-    }
-
-    .chartSection {
-      height: 380px;
-    }
-
-    .activitySection {
-      height: 380px;
-    }
-
-    .navbar {
-      padding: 0 30px;
-    }
-
-    .circleBtn {
-      width: 170px;
-      height: 170px;
-    }
-
-    .h1 {
-      font-size: 40px;
-    }
-
-    .streakNumber {
-      font-size: 70px;
-    }
-
-    .dayCircle {
-      width: 40px;
-      height: 40px;
-    }
-
-    .sectionTitle {
-      font-size: 20px;
-    }
-  }
-
-  /* Desktop (1025px+) */
-  @media (min-width: 1025px) {
-    .bentoBox {
-      padding: 32px;
-    }
-
-    .heroSection {
-      gap: 40px;
-    }
-
-    .statsRow {
-      gap: 24px;
-    }
-
-    .chartSection {
-      height: 460px;
-    }
-
-    .activitySection {
-      height: 460px;
-    }
-
-    .circleBtn {
-      width: 200px;
-      height: 200px;
-    }
-
-    .h1 {
-      font-size: 52px;
-    }
-
-    .streakNumber {
-      font-size: 90px;
-    }
-
-    .dayCircle {
-      width: 46px;
-      height: 46px;
-    }
-
-    .sectionTitle {
-      font-size: 22px;
-    }
-  }
-`;
 
 // --- CHART COMPONENT ---
 const ActivityChart = React.memo(({ data, mode, period, xLabels: propXLabels }) => {
@@ -1389,7 +46,7 @@ const ActivityChart = React.memo(({ data, mode, period, xLabels: propXLabels }) 
     all: { unit: '%', yMax: 100, color1: '#6366f1', color2: '#a855f7', gradId: 'allGrad' },
     water: { unit: ' L', yMax: 4, color1: '#38bdf8', color2: '#0ea5e9', gradId: 'waterGrad' },
     sleep: { unit: ' h', yMax: 12, color1: '#a78bfa', color2: '#8b5cf6', gradId: 'sleepGrad' },
-    meal:  { unit: '', yMax: 3000, color1: '#f472b6', color2: '#ec4899', gradId: 'mealGrad' },
+    meal: { unit: '', yMax: 3000, color1: '#f472b6', color2: '#ec4899', gradId: 'mealGrad' },
     workout: { unit: ' min', yMax: 120, color1: '#34d399', color2: '#10b981', gradId: 'workoutGrad' },
   };
   const cfg = modeConfig[mode] || modeConfig.workout;
@@ -1473,17 +130,17 @@ const ActivityChart = React.memo(({ data, mode, period, xLabels: propXLabels }) 
           const val = (mode === 'water' || mode === 'sleep') ? data[hoveredPoint].toFixed(1) : Math.round(data[hoveredPoint]);
           const dayLabel = xLabels[hoveredPoint] || '';
           return (
-            <div style={{ position: 'absolute', left: `${(cx / width) * 100}%`, top: `${(cy / height) * 100}%`, transform: 'translate(-50%, -130%)', transition: 'left 0.1s linear, top 0.1s linear', background: 'rgba(24, 24, 27, 0.95)', border: `1px solid ${cfg.color1}40`, borderRadius: '8px', padding: '8px 16px', boxShadow: `0 4px 20px rgba(0,0,0,0.5)`, textAlign: 'center', minWidth: '70px', backdropFilter: 'blur(8px)' }}>
-              <div style={{ fontSize: '10px', color: 'var(--app-text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '2px' }}>{dayLabel}</div>
-              <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--app-text)', fontFamily: 'sans-serif' }}>
-                {val}<span style={{ fontSize: '12px', color: cfg.color1, marginLeft: '2px' }}>{unit}</span>
+            <div style={{ position: 'absolute', left: `${(cx / width) * 100}%`, top: `${(cy / height) * 100}%`, transform: 'translate(-50%, -130%)', transition: 'left 0.1s linear, top 0.1s linear', background: 'rgba(24, 24, 27, 0.95)', border: `1px solid ${cfg.color1}40`, borderRadius: '8px', padding: '8px 16px', boxShadow: `0 4px 20px rgba(0,0,0,0.5)`, textAlign: 'center', minWidth: '70px', backdropFilter: 'blur(8px)' }} >
+              <div style={{fontSize: '10px', color: 'var(--app-text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '2px'}}>{dayLabel}</div>
+              <div style={{fontSize: '16px', fontWeight: '700', color: 'var(--app-text)', fontFamily: 'sans-serif'}}>
+                {val}<span style={{fontSize: '12px', color: cfg.color1, marginLeft: '2px'}}>{unit}</span>
               </div>
-              <div style={{ position: 'absolute', bottom: '-5px', left: '50%', transform: 'translateX(-50%) rotate(45deg)', width: '10px', height: '10px', background: 'rgba(24,24,27,0.95)', borderRight: `1px solid ${cfg.color1}40`, borderBottom: `1px solid ${cfg.color1}40` }} />
+              <div style={{position: 'absolute', bottom: '-5px', left: '50%', transform: 'translateX(-50%) rotate(45deg)', width: '10px', height: '10px', background: 'rgba(24,24,27,0.95)', borderRight: `1px solid ${cfg.color1}40`, borderBottom: `1px solid ${cfg.color1}40`}} />
             </div>
-          );
+      );
         })()}
-      </div>
     </div>
+    </div >
   );
 }, (prevProps, nextProps) => {
   return (
@@ -2034,15 +691,9 @@ function Dashboard({ onLogout }) {
 
   const isCompactLayout = viewportWidth <= 1024;
   const dashboardLayout = {
-    statsRow: isCompactLayout
-      ? { ...styles.statsRow, gridTemplateColumns: '1fr' }
-      : styles.statsRow,
-    chartSection: isCompactLayout
-      ? { ...styles.chartSection, gridColumn: 'span 12', height: '360px' }
-      : styles.chartSection,
-    activitySection: isCompactLayout
-      ? { ...styles.activitySection, gridColumn: 'span 12', height: '360px' }
-      : styles.activitySection
+    statsRow: isCompactLayout ? { gridTemplateColumns: '1fr' } : {},
+    chartSection: isCompactLayout ? { gridColumn: 'span 12', height: '360px' } : {},
+    activitySection: isCompactLayout ? { gridColumn: 'span 12', height: '360px' } : {}
   };
 
   const todayDate = new Date().toLocaleDateString('en-US', {
@@ -2093,7 +744,7 @@ function Dashboard({ onLogout }) {
       // 3. Water (25 pts) — intake vs personal goal (weight × 0.033 L), updates per glass
       const userWeight = parseFloat(safeJSONParse('user', {})?.weight || '70');
       const _isWkDone = (typeof status !== "undefined" && (status === "done" || status === "meal")) || (typeof workoutProgress !== "undefined" && workoutProgress === 1);
-    const waterGoal = getDynamicWaterGoal(typeof userWeight !== "undefined" ? userWeight : 70, typeof sleep !== "undefined" ? sleep : 0, _isWkDone);
+      const waterGoal = getDynamicWaterGoal(typeof userWeight !== "undefined" ? userWeight : 70, typeof sleep !== "undefined" ? sleep : 0, _isWkDone);
       const waterRatio = Math.min(1, water / waterGoal);
       const waterPts = Math.round(waterRatio * 25);
 
@@ -2252,13 +903,13 @@ function Dashboard({ onLogout }) {
               });
             }
 
-            
+
             // 2. Warm nutrition plan cache
             const cachedNutrition = localStorage.getItem('nutritionCache');
             const cachedNutritionDate = localStorage.getItem('nutritionCacheDate');
             const todayStr = new Date().toLocaleDateString('en-CA');
             const cacheInvalid = localStorage.getItem('nutritionCacheInvalid') === 'true';
-            
+
             if (cacheInvalid || !cachedNutrition || cachedNutritionDate !== todayStr) {
               console.log('[Dashboard] Warming up nutrition plan cache in background...');
               import('../api').then(({ generateNutritionPlan }) => {
@@ -2306,10 +957,10 @@ function Dashboard({ onLogout }) {
           return d.startsWith(todayStr) && (Number(m.calories) > 0);
         });
         mealsToday.forEach(m => {
-           cEaten += Number(m.calories) || 0;
-           pEaten += Number(m.protein) || 0;
-           carbEaten += Number(m.carbs) || 0;
-           fEaten += Number(m.fat) || 0;
+          cEaten += Number(m.calories) || 0;
+          pEaten += Number(m.protein) || 0;
+          carbEaten += Number(m.carbs) || 0;
+          fEaten += Number(m.fat) || 0;
         });
 
         // Fallback hydration from local checked/locked state so values persist across
@@ -2426,22 +1077,22 @@ function Dashboard({ onLogout }) {
 
         const combinedHistory = [];
         (data.workouts || []).forEach(w => {
-            combinedHistory.push({
-                type: 'workout',
-                name: w.focus || w.dayName || 'Completed Workout',
-                details: w.exercises_count ? `${w.exercises_count} exercises` : 'Daily Routine',
-                date: new Date(w.completedAt || w.date || new Date()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                timestamp: new Date(w.completedAt || w.date || new Date()).getTime(),
-            });
+          combinedHistory.push({
+            type: 'workout',
+            name: w.focus || w.dayName || 'Completed Workout',
+            details: w.exercises_count ? `${w.exercises_count} exercises` : 'Daily Routine',
+            date: new Date(w.completedAt || w.date || new Date()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            timestamp: new Date(w.completedAt || w.date || new Date()).getTime(),
+          });
         });
         normalizedMeals.forEach(m => {
-            combinedHistory.push({
-                type: 'meal',
-                name: m.name || m.mealType || 'Logged Meal',
-                details: `${Math.round(Number(m.calories) || 0)} cal`,
-                date: new Date(m.completedAt || m.date || new Date()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                timestamp: new Date(m.completedAt || m.date || new Date()).getTime(),
-            });
+          combinedHistory.push({
+            type: 'meal',
+            name: m.name || m.mealType || 'Logged Meal',
+            details: `${Math.round(Number(m.calories) || 0)} cal`,
+            date: new Date(m.completedAt || m.date || new Date()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            timestamp: new Date(m.completedAt || m.date || new Date()).getTime(),
+          });
         });
         (Array.isArray(data.recent_activities) ? data.recent_activities : []).forEach((a) => {
           combinedHistory.push({
@@ -2483,34 +1134,34 @@ function Dashboard({ onLogout }) {
 
         // ✅ State Sync from DB Trends (Water, Sleep, Streak)
         if (data.trends && Array.isArray(data.trends)) {
-           // Synchronize today's latest data points
-           const todayRecord = data.trends.find(t => String(t.date).startsWith(todayStr));
-           if (todayRecord) {
-             let syncedWater = 0;
-             let syncedSleep = 0;
-             if (todayRecord.water_intake !== undefined) syncedWater = Number(todayRecord.water_intake);
-             else if (todayRecord.water_glasses !== undefined) syncedWater = Number(todayRecord.water_glasses);
-             
-             if (todayRecord.sleep_duration !== undefined) syncedSleep = Number(todayRecord.sleep_duration);
-             else if (todayRecord.sleep_hours !== undefined) syncedSleep = Number(todayRecord.sleep_hours);
+          // Synchronize today's latest data points
+          const todayRecord = data.trends.find(t => String(t.date).startsWith(todayStr));
+          if (todayRecord) {
+            let syncedWater = 0;
+            let syncedSleep = 0;
+            if (todayRecord.water_intake !== undefined) syncedWater = Number(todayRecord.water_intake);
+            else if (todayRecord.water_glasses !== undefined) syncedWater = Number(todayRecord.water_glasses);
 
-             // ✅ KEY FIX: localStorage is updated synchronously on every button click, while the
-             // backend lags by the debounce window (500ms). If the user reduced water then
-             // quickly refreshed (before the debounce fired), the DB still holds the OLD value.
-             // Prefer localStorage for today's session if it holds a valid number.
-             const lsWater = parseFloat(localStorage.getItem(StorageKeys.WATER_INTAKE));
-             const lsSleep = parseFloat(localStorage.getItem(StorageKeys.SLEEP_HOURS));
-             if (Number.isFinite(lsWater)) syncedWater = lsWater;
-             if (Number.isFinite(lsSleep)) syncedSleep = lsSleep;
-             
-             setWater(syncedWater);
-             setSleep(syncedSleep);
-             // IMPORTANT: initialise lastSaved.current to match whatever we just set into
-             // state (localStorage-preferred). This ensures the debounce diff check fires
-             // correctly even when the user reduces water back to the same value that is
-             // stored in the DB (e.g. add 0→0.25 then remove 0.25→0: if lastSaved were the
-             // DB value 0 the diff would be 0===0 and the save would be silently skipped).
-             lastSaved.current = { water: syncedWater, sleep: syncedSleep, workout_completed: !!todayRecord?.workout_completed };
+            if (todayRecord.sleep_duration !== undefined) syncedSleep = Number(todayRecord.sleep_duration);
+            else if (todayRecord.sleep_hours !== undefined) syncedSleep = Number(todayRecord.sleep_hours);
+
+            // ✅ KEY FIX: localStorage is updated synchronously on every button click, while the
+            // backend lags by the debounce window (500ms). If the user reduced water then
+            // quickly refreshed (before the debounce fired), the DB still holds the OLD value.
+            // Prefer localStorage for today's session if it holds a valid number.
+            const lsWater = parseFloat(localStorage.getItem(StorageKeys.WATER_INTAKE));
+            const lsSleep = parseFloat(localStorage.getItem(StorageKeys.SLEEP_HOURS));
+            if (Number.isFinite(lsWater)) syncedWater = lsWater;
+            if (Number.isFinite(lsSleep)) syncedSleep = lsSleep;
+
+            setWater(syncedWater);
+            setSleep(syncedSleep);
+            // IMPORTANT: initialise lastSaved.current to match whatever we just set into
+            // state (localStorage-preferred). This ensures the debounce diff check fires
+            // correctly even when the user reduces water back to the same value that is
+            // stored in the DB (e.g. add 0→0.25 then remove 0.25→0: if lastSaved were the
+            // DB value 0 the diff would be 0===0 and the save would be silently skipped).
+            lastSaved.current = { water: syncedWater, sleep: syncedSleep, workout_completed: !!todayRecord?.workout_completed };
 
             // Sync to Python AI coach on load
             try {
@@ -2527,99 +1178,99 @@ function Dashboard({ onLogout }) {
               console.warn('Initial Python sync failed', pyErr);
             }
 
-           }
+          }
 
-           // ✅ FIX: Advanced Streak Calculation incorporating Rest Days
-           // A day is "completed" if meal_completed AND (workout_completed OR isRestDay)
-           let currentStreak = 0;
-           // Build a map: date-string -> trend entry (pick latest if duplicates)
-           const trendsByDate = new Map();
-           data.trends.forEach(t => {
-             if (t.date) trendsByDate.set(String(t.date).split('T')[0], t);
-           });
+          // ✅ FIX: Advanced Streak Calculation incorporating Rest Days
+          // A day is "completed" if meal_completed AND (workout_completed OR isRestDay)
+          let currentStreak = 0;
+          // Build a map: date-string -> trend entry (pick latest if duplicates)
+          const trendsByDate = new Map();
+          data.trends.forEach(t => {
+            if (t.date) trendsByDate.set(String(t.date).split('T')[0], t);
+          });
 
-           const registrationDate = new Date(data.user?.createdAt || data.createdAt || Date.now());
-           registrationDate.setHours(0, 0, 0, 0);
+          const registrationDate = new Date(data.user?.createdAt || data.createdAt || Date.now());
+          registrationDate.setHours(0, 0, 0, 0);
 
-           // Walk backwards from today, day by day
-           const dateCursor = new Date();
-           dateCursor.setHours(0, 0, 0, 0);
-           for (let attempts = 0; attempts < 365; attempts++) {
-             if (dateCursor < registrationDate) {
-               break;
-             }
+          // Walk backwards from today, day by day
+          const dateCursor = new Date();
+          dateCursor.setHours(0, 0, 0, 0);
+          for (let attempts = 0; attempts < 365; attempts++) {
+            if (dateCursor < registrationDate) {
+              break;
+            }
 
-             const dateKey = getLocalDateStr(dateCursor);
-             const entry = trendsByDate.get(dateKey);
+            const dateKey = getLocalDateStr(dateCursor);
+            const entry = trendsByDate.get(dateKey);
 
-             if (!entry) break; // No record for this date = streak broken
+            if (!entry) break; // No record for this date = streak broken
 
-             const mealDone = !!entry.meal_completed;
-             const workoutDone = !!entry.workout_completed;
-             const waterDone = (entry.water_glasses || entry.water_intake || 0) > 0;
-             const sleepDone = (entry.sleep_hours || 0) > 0;
-             const dayCompleted = workoutDone || mealDone || waterDone || sleepDone;
+            const mealDone = !!entry.meal_completed;
+            const workoutDone = !!entry.workout_completed;
+            const waterDone = (entry.water_glasses || entry.water_intake || 0) > 0;
+            const sleepDone = (entry.sleep_hours || 0) > 0;
+            const dayCompleted = workoutDone || mealDone || waterDone || sleepDone;
 
-             if (dayCompleted) {
-               currentStreak++;
-               dateCursor.setDate(dateCursor.getDate() - 1);
-             } else {
-               break;
-             }
-           }
-           setStats((prev) => ({ ...prev, streak: currentStreak }));
+            if (dayCompleted) {
+              currentStreak++;
+              dateCursor.setDate(dateCursor.getDate() - 1);
+            } else {
+              break;
+            }
+          }
+          setStats((prev) => ({ ...prev, streak: currentStreak }));
 
-           // ✅ FIX: Build weekly progress from backend trends data
-           const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-           const startOfWeek = new Date();
-           const dow = startOfWeek.getDay();
-           const diffToMon = startOfWeek.getDate() - dow + (dow === 0 ? -6 : 1);
-           startOfWeek.setDate(diffToMon);
-           startOfWeek.setHours(0, 0, 0, 0);
-           const currentDayIndex = new Date().getDay();
-           const ourIdx = currentDayIndex === 0 ? 6 : currentDayIndex - 1;
+          // ✅ FIX: Build weekly progress from backend trends data
+          const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+          const startOfWeek = new Date();
+          const dow = startOfWeek.getDay();
+          const diffToMon = startOfWeek.getDate() - dow + (dow === 0 ? -6 : 1);
+          startOfWeek.setDate(diffToMon);
+          startOfWeek.setHours(0, 0, 0, 0);
+          const currentDayIndex = new Date().getDay();
+          const ourIdx = currentDayIndex === 0 ? 6 : currentDayIndex - 1;
 
-           const weekData = days.map((day, index) => {
-             const dayDate = new Date(startOfWeek);
-             dayDate.setDate(startOfWeek.getDate() + index);
-             const dateKey = getLocalDateStr(dayDate);
-             const entry = trendsByDate.get(dateKey);
-             const restDay = isRestDayForDate(dayDate);
-             const storedDone = getFromStorage(StorageKeys.getWorkoutDoneKey(dateKey));
+          const weekData = days.map((day, index) => {
+            const dayDate = new Date(startOfWeek);
+            dayDate.setDate(startOfWeek.getDate() + index);
+            const dateKey = getLocalDateStr(dayDate);
+            const entry = trendsByDate.get(dateKey);
+            const restDay = isRestDayForDate(dayDate);
+            const storedDone = getFromStorage(StorageKeys.getWorkoutDoneKey(dateKey));
 
-             let status = 'pending';
-             if (entry) {
-               const mDone = !!entry.meal_completed;
-               const wDone = !!entry.workout_completed;
-               if (mDone && (wDone || restDay)) status = 'done';
-               else if (index < ourIdx) status = 'missed';
-             } else if (storedDone === 'true') {
-               status = 'done';
-             } else if (index < ourIdx) {
-               status = 'missed';
-             }
-             return { day, status };
-           });
-           setWeeklyProgress(weekData);
+            let status = 'pending';
+            if (entry) {
+              const mDone = !!entry.meal_completed;
+              const wDone = !!entry.workout_completed;
+              if (mDone && (wDone || restDay)) status = 'done';
+              else if (index < ourIdx) status = 'missed';
+            } else if (storedDone === 'true') {
+              status = 'done';
+            } else if (index < ourIdx) {
+              status = 'missed';
+            }
+            return { day, status };
+          });
+          setWeeklyProgress(weekData);
 
         } else {
-           // Fallback to workout count
-           const workouts = data.workouts || [];
-           const uniqueDays = new Set(workouts.map(w => (w.date || '').split('T')[0]));
-           setStats((prev) => ({ ...prev, streak: uniqueDays.size }));
+          // Fallback to workout count
+          const workouts = data.workouts || [];
+          const uniqueDays = new Set(workouts.map(w => (w.date || '').split('T')[0]));
+          setStats((prev) => ({ ...prev, streak: uniqueDays.size }));
 
-           // ✅ FIX: Still build weekly progress even without trends
-           const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-           const currentDayIndex = new Date().getDay();
-           const ourIdx = currentDayIndex === 0 ? 6 : currentDayIndex - 1;
-           setWeeklyProgress(days.map((day, i) => ({ day, status: i < ourIdx ? 'missed' : 'pending' })));
+          // ✅ FIX: Still build weekly progress even without trends
+          const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+          const currentDayIndex = new Date().getDay();
+          const ourIdx = currentDayIndex === 0 ? 6 : currentDayIndex - 1;
+          setWeeklyProgress(days.map((day, i) => ({ day, status: i < ourIdx ? 'missed' : 'pending' })));
         }
 
         // Derive definitive status
         const todayRecordForStatus = data.trends && Array.isArray(data.trends) ? data.trends.find(t => String(t.date).startsWith(todayStr)) : null;
         let finalWorkoutDone = todayRecordForStatus ? !!todayRecordForStatus.workout_completed : false;
         let finalMealDone = todayRecordForStatus ? !!todayRecordForStatus.meal_completed : false;
-        
+
         // Fallback calculations if trend data is lagging
         const workoutsTodayArray = (data.workouts || []).filter((w) => {
           const workoutDate = String(w.completedAt || w.date || '');
@@ -2634,13 +1285,13 @@ function Dashboard({ onLogout }) {
         if (mealsDoneToday) finalMealDone = true;
 
         if (finalWorkoutDone) {
-            setToStorage(StorageKeys.TODAY_WORKOUT_DONE, 'true');
-            setToStorage(StorageKeys.getWorkoutDoneKey(todayStr), 'true');
+          setToStorage(StorageKeys.TODAY_WORKOUT_DONE, 'true');
+          setToStorage(StorageKeys.getWorkoutDoneKey(todayStr), 'true');
         }
         if (finalMealDone) {
-            setToStorage(StorageKeys.TODAY_MEALS_DONE, 'true');
+          setToStorage(StorageKeys.TODAY_MEALS_DONE, 'true');
         }
-        
+
         // Fetch weekly averages for adaptive coaching card
         try {
           const weeklyRes = await getWeeklyLogs();
@@ -2650,7 +1301,7 @@ function Dashboard({ onLogout }) {
         } catch (weeklyErr) {
           console.warn('Failed to load weekly logs for AI Coach:', weeklyErr);
         }
-        
+
         return { workoutDone: finalWorkoutDone, mealDone: finalMealDone };
       } catch (error) {
         console.error('Error fetching profile:', error);
@@ -2672,9 +1323,9 @@ function Dashboard({ onLogout }) {
       checkDailyReset();
       // ✅ FIX: Call checkDayReset to properly set workout→meal→done status flow
       if (derivedStatus) {
-         checkDayReset(derivedStatus.workoutDone, derivedStatus.mealDone);
+        checkDayReset(derivedStatus.workoutDone, derivedStatus.mealDone);
       } else {
-         checkDayReset();
+        checkDayReset();
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -2814,7 +1465,7 @@ function Dashboard({ onLogout }) {
         }
       }
     };
-   document.addEventListener('visibilitychange', handlePageVisibilityChange);
+    document.addEventListener('visibilitychange', handlePageVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handlePageVisibilityChange);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -3012,7 +1663,7 @@ function Dashboard({ onLogout }) {
     try {
       const userWeight = parseFloat(safeJSONParse('user', {})?.weight || '70');
       const _isWkDone = (typeof status !== "undefined" && (status === "done" || status === "meal")) || (typeof workoutProgress !== "undefined" && workoutProgress === 1);
-    const waterGoal = getDynamicWaterGoal(typeof userWeight !== "undefined" ? userWeight : 70, typeof sleep !== "undefined" ? sleep : 0, _isWkDone);
+      const waterGoal = getDynamicWaterGoal(typeof userWeight !== "undefined" ? userWeight : 70, typeof sleep !== "undefined" ? sleep : 0, _isWkDone);
       const halfGoal = parseFloat((waterGoal / 2).toFixed(1));
 
       if (
@@ -3119,7 +1770,7 @@ function Dashboard({ onLogout }) {
       if (currentHour < 10 && !hasDailyReminderBeenShown('water')) {
         const userWeight = parseFloat(safeJSONParse('user', {})?.weight || '70');
         const _isWkDone = (typeof status !== "undefined" && (status === "done" || status === "meal")) || (typeof workoutProgress !== "undefined" && workoutProgress === 1);
-    const waterGoal = getDynamicWaterGoal(typeof userWeight !== "undefined" ? userWeight : 70, typeof sleep !== "undefined" ? sleep : 0, _isWkDone);
+        const waterGoal = getDynamicWaterGoal(typeof userWeight !== "undefined" ? userWeight : 70, typeof sleep !== "undefined" ? sleep : 0, _isWkDone);
         if (water < 0.5) {
           const newNotification = {
             id: `water-reminder-${todayStr}`,
@@ -3142,7 +1793,7 @@ function Dashboard({ onLogout }) {
       if (currentHour >= 14 && currentHour < 16 && !hasDailyReminderBeenShown('water-afternoon')) {
         const userWeight = parseFloat(safeJSONParse('user', {})?.weight || '70');
         const _isWkDone = (typeof status !== "undefined" && (status === "done" || status === "meal")) || (typeof workoutProgress !== "undefined" && workoutProgress === 1);
-    const waterGoal = getDynamicWaterGoal(typeof userWeight !== "undefined" ? userWeight : 70, typeof sleep !== "undefined" ? sleep : 0, _isWkDone);
+        const waterGoal = getDynamicWaterGoal(typeof userWeight !== "undefined" ? userWeight : 70, typeof sleep !== "undefined" ? sleep : 0, _isWkDone);
         if (water < waterGoal * 0.5) {
           const newNotification = {
             id: `water-afternoon-${todayStr}`,
@@ -3324,22 +1975,22 @@ function Dashboard({ onLogout }) {
     setStats((prev) => ({ ...prev, focusScore: Math.floor(score) }));
   };
 
-   // ✅ FIX 4: Use StorageKeys for water persistence
-   const handleWaterAdd = useCallback(() => {
+  // ✅ FIX 4: Use StorageKeys for water persistence
+  const handleWaterAdd = useCallback(() => {
     const newWaterValue = parseFloat((water + 0.25).toFixed(2));
     checkWaterThresholdNotifications(water, newWaterValue);
     setWater(newWaterValue);
     setToStorage(StorageKeys.WATER_INTAKE, String(newWaterValue));
-      const userWeight = parseFloat(safeJSONParse('user', {})?.weight || '70');
-      const _isWkDone = (typeof status !== "undefined" && (status === "done" || status === "meal")) || (typeof workoutProgress !== "undefined" && workoutProgress === 1);
+    const userWeight = parseFloat(safeJSONParse('user', {})?.weight || '70');
+    const _isWkDone = (typeof status !== "undefined" && (status === "done" || status === "meal")) || (typeof workoutProgress !== "undefined" && workoutProgress === 1);
     const waterGoal = getDynamicWaterGoal(typeof userWeight !== "undefined" ? userWeight : 70, typeof sleep !== "undefined" ? sleep : 0, _isWkDone);
-      const percentage = Math.min(100, (newWaterValue / waterGoal) * 100);
-      syncBridge.emit(SyncTypes.WATER_ADDED, {
-        amount: newWaterValue,
-        previousAmount: water,
-        percentage,
-        glasses: Math.floor(newWaterValue / 0.25),
-      });
+    const percentage = Math.min(100, (newWaterValue / waterGoal) * 100);
+    syncBridge.emit(SyncTypes.WATER_ADDED, {
+      amount: newWaterValue,
+      previousAmount: water,
+      percentage,
+      glasses: Math.floor(newWaterValue / 0.25),
+    });
     logActivity('water', 'Hydration', '+250ml Water');
     updateRecoveryScore(newWaterValue, sleep);
   }, [water, sleep, checkWaterThresholdNotifications]);
@@ -3352,7 +2003,7 @@ function Dashboard({ onLogout }) {
       setToStorage(StorageKeys.WATER_INTAKE, String(newWaterValue));
       const userWeight = parseFloat(safeJSONParse('user', {})?.weight || '70');
       const _isWkDone = (typeof status !== "undefined" && (status === "done" || status === "meal")) || (typeof workoutProgress !== "undefined" && workoutProgress === 1);
-    const waterGoal = getDynamicWaterGoal(typeof userWeight !== "undefined" ? userWeight : 70, typeof sleep !== "undefined" ? sleep : 0, _isWkDone);
+      const waterGoal = getDynamicWaterGoal(typeof userWeight !== "undefined" ? userWeight : 70, typeof sleep !== "undefined" ? sleep : 0, _isWkDone);
       const percentage = Math.min(100, (newWaterValue / waterGoal) * 100);
       syncBridge.emit(SyncTypes.WATER_ADDED, {
         amount: newWaterValue,
@@ -3668,7 +2319,7 @@ function Dashboard({ onLogout }) {
       const trends = Array.isArray(trendsResponse?.data) ? trendsResponse.data : [];
       const userWeight = parseFloat(safeJSONParse('user', {})?.weight || '70');
       const _isWkDone = (typeof status !== "undefined" && (status === "done" || status === "meal")) || (typeof workoutProgress !== "undefined" && workoutProgress === 1);
-    const waterGoal = getDynamicWaterGoal(typeof userWeight !== "undefined" ? userWeight : 70, typeof sleep !== "undefined" ? sleep : 0, _isWkDone);
+      const waterGoal = getDynamicWaterGoal(typeof userWeight !== "undefined" ? userWeight : 70, typeof sleep !== "undefined" ? sleep : 0, _isWkDone);
       const calorieGoal = Math.max(1, Number(macros.calMax) || 2200);
 
       if (period === 'month') {
@@ -3835,7 +2486,7 @@ function Dashboard({ onLogout }) {
       else if (chartMode === 'all') {
         const userWeight = parseFloat(safeJSONParse('user', {})?.weight || '70');
         const _isWkDone = (typeof status !== "undefined" && (status === "done" || status === "meal")) || (typeof workoutProgress !== "undefined" && workoutProgress === 1);
-    const waterGoal = getDynamicWaterGoal(typeof userWeight !== "undefined" ? userWeight : 70, typeof sleep !== "undefined" ? sleep : 0, _isWkDone);
+        const waterGoal = getDynamicWaterGoal(typeof userWeight !== "undefined" ? userWeight : 70, typeof sleep !== "undefined" ? sleep : 0, _isWkDone);
         const calorieGoal = Math.max(1, Number(macros.calMax) || 2200);
         newChartData[adjustedIndex] = calculateOverallTrendScore(trendData, calorieGoal, waterGoal);
       }
@@ -3997,8 +2648,7 @@ function Dashboard({ onLogout }) {
 
   return (
     <>
-      <div style={styles.page} className="page">
-        <style>{responsiveStyles}</style>
+      <div className="page page">
         {/* ✨ Aurora Mesh Gradient background — replaces bubble animation */}
         <AuroraBackground />
 
@@ -4021,59 +2671,57 @@ function Dashboard({ onLogout }) {
 
         {/* IMAGE MODAL */}
         {showImageModal && userAvatar && (
-          <div style={styles.modalOverlay} onClick={() => setShowImageModal(false)}>
-            <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+          <div className="modalOverlay" onClick={() => setShowImageModal(false)}>
+            <div className="modalContent" onClick={(e) => e.stopPropagation()}>
               <button
-                style={styles.closeModalBtn}
+                className="closeModalBtn"
                 onClick={() => setShowImageModal(false)}
               >
                 ×
               </button>
-              <img src={userAvatar} alt="Full Profile" style={styles.modalImage} />
+              <img src={userAvatar} alt="Full Profile" className="modalImage" />
             </div>
           </div>
         )}
 
         {/* NAVBAR */}
-        <Navbar 
+        <Navbar
           isDark={theme === 'dark'}
-          navigate={navigate} 
-          activePage="dashboard" 
+          navigate={navigate}
+          activePage="dashboard"
           onLogout={handleLogout}
           rightContent={
             <>
-              <div style={styles.dateDisplay} className="desktop-nav">{todayDate}</div>
+              <div className="dateDisplay desktop-nav">{todayDate}</div>
               <div style={{ position: 'relative' }} ref={notifRef}>
                 <button
-                  style={styles.iconButton}
-                  className="icon-hover"
+                  className="iconButton icon-hover"
                   onClick={() => setShowNotif(!showNotif)}
                 >
                   🔔
                 </button>
                 {showNotif && (
-                  <div style={styles.notifDropdown}>
+                  <div className="notifDropdown">
                     <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--app-text)', marginBottom: '12px' }}>
                       Notifications
                     </div>
                     {notifications.length === 0 ? (
-                      <div style={{...styles.notifItem, borderBottom: 'none', color: 'var(--app-text-muted)', fontSize: '12px', justifyContent: 'center', marginTop: '8px'}}>
-                          No new alerts
+                      <div className="notifItem" style={{ borderBottom: 'none', color: 'var(--app-text-muted)', fontSize: '12px', justifyContent: 'center', marginTop: '8px' }}>
+                        No new alerts
                       </div>
                     ) : (
                       notifications.map((n, idx) => (
-                        <div key={n.id} style={{
-                            ...styles.notifItem,
-                            borderBottom: idx === notifications.length - 1 ? 'none' : '1px solid var(--app-border)',
-                            padding: '8px 0',
-                            fontSize: '12px',
-                            color: 'var(--app-text)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px'
+                        <div key={n.id} className="notifItem" style={{
+                          borderBottom: idx === notifications.length - 1 ? 'none' : '1px solid var(--app-border)',
+                          padding: '8px 0',
+                          fontSize: '12px',
+                          color: 'var(--app-text)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px'
                         }}>
-                            <span>{n.type === 'error' ? '❌' : n.type === 'warning' ? '⚠️' : 'ℹ️'}</span>
-                            <span style={{lineHeight: '1.4'}}>{n.message}</span>
+                          <span>{n.type === 'error' ? '❌' : n.type === 'warning' ? '⚠️' : 'ℹ️'}</span>
+                          <span style={{ lineHeight: '1.4' }}>{n.message}</span>
                         </div>
                       ))
                     )}
@@ -4093,7 +2741,7 @@ function Dashboard({ onLogout }) {
         />
 
         {/* MAIN CONTAINER */}
-        <div style={styles.container} className="container responsive-grid-12">
+        <div className="container container responsive-grid-12">
 
           {/* WATER CELEBRATION */}
           {showWaterCelebration && (
@@ -4108,374 +2756,356 @@ function Dashboard({ onLogout }) {
                   animation: `floatUp ${2 + Math.random() * 2}s ease-out forwards`,
                   animationDelay: `${Math.random() * 0.5}s`,
                   opacity: 0,
-                }}>{['💧', '🌊', '💦', '✨'][Math.floor(Math.random() * 4)]}</div>
-              ))}
-              <div style={{
-                background: 'rgba(14, 165, 233, 0.1)', backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '24px',
-                padding: '32px 48px', textAlign: 'center',
-                animation: 'celebrateCard 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
-                boxShadow: '0 25px 50px rgba(0,0,0,0.4), 0 0 60px rgba(56,189,248,0.2)',
-              }}>
-                <div style={{ fontSize: '56px', marginBottom: '8px', animation: 'bounce 0.6s ease 0.3s both' }}>💧</div>
-                <div style={{ fontSize: '24px', fontWeight: '800', color: 'var(--app-text)', letterSpacing: '-0.5px' }}>Hydration Complete!</div>
-                <div style={{ fontSize: '14px', color: '#7dd3fc', marginTop: '4px' }}>Daily water goal reached</div>
-              </div>
-            </div>
+                }} > { ['💧', '🌊', '💦', '✨'][Math.floor(Math.random() * 4)] }</div>
+          ))}
+          <div style={{
+            background: 'rgba(14, 165, 233, 0.1)', backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '24px',
+            padding: '32px 48px', textAlign: 'center',
+            animation: 'celebrateCard 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+            boxShadow: '0 25px 50px rgba(0,0,0,0.4), 0 0 60px rgba(56,189,248,0.2)',
+          }}>
+            <div style={{ fontSize: '56px', marginBottom: '8px', animation: 'bounce 0.6s ease 0.3s both' }}>💧</div>
+            <div style={{ fontSize: '24px', fontWeight: '800', color: 'var(--app-text)', letterSpacing: '-0.5px' }}>Hydration Complete!</div>
+            <div style={{ fontSize: '14px', color: '#7dd3fc', marginTop: '4px' }}>Daily water goal reached</div>
+          </div>
+        </div>
           )}
 
-          {/* SLEEP CELEBRATION */}
-          {showSleepCelebration && (
-            <div style={{ position: 'fixed', inset: 0, zIndex: 9999, pointerEvents: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%)', animation: 'fadeIn 0.3s ease' }} />
-              {[...Array(20)].map((_, i) => (
-                <div key={i} style={{
-                  position: 'absolute',
-                  fontSize: `${12 + Math.random() * 24}px`,
-                  left: `${5 + Math.random() * 90}%`,
-                  top: `${Math.random() * 100}%`,
-                  animation: `floatUp ${2 + Math.random() * 2}s ease-out forwards`,
-                  animationDelay: `${Math.random() * 0.5}s`,
-                  opacity: 0,
-                }}>{['🌙', '⭐', '✨', '😴'][Math.floor(Math.random() * 4)]}</div>
-              ))}
-              <div style={{
-                background: 'rgba(139, 92, 246, 0.1)', backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(167, 139, 250, 0.3)', borderRadius: '24px',
-                padding: '32px 48px', textAlign: 'center',
-                animation: 'celebrateCard 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
-                boxShadow: '0 25px 50px rgba(0,0,0,0.4), 0 0 60px rgba(139,92,246,0.2)',
-              }}>
-                <div style={{ fontSize: '56px', marginBottom: '8px', animation: 'bounce 0.6s ease 0.3s both' }}>🌙</div>
-                <div style={{ fontSize: '24px', fontWeight: '800', color: 'var(--app-text)', letterSpacing: '-0.5px' }}>Optimal Sleep!</div>
-                <div style={{ fontSize: '14px', color: '#c4b5fd', marginTop: '4px' }}>You hit the 7-9 hour sweet spot</div>
-              </div>
-            </div>
+        {/* SLEEP CELEBRATION */}
+        {showSleepCelebration && (
+          <div style={{ position: 'fixed', inset: 0, zIndex: 9999, pointerEvents: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%)', animation: 'fadeIn 0.3s ease' }} />
+            {[...Array(20)].map((_, i) => (
+              <div key={i} style={{
+                position: 'absolute',
+                fontSize: `${12 + Math.random() * 24}px`,
+                left: `${5 + Math.random() * 90}%`,
+                top: `${Math.random() * 100}%`,
+                animation: `floatUp ${2 + Math.random() * 2}s ease-out forwards`,
+                animationDelay: `${Math.random() * 0.5}s`,
+                opacity: 0,
+              }} > { ['🌙', '⭐', '✨', '😴'][Math.floor(Math.random() * 4)] }</div>
+        ))}
+        <div style={{
+          background: 'rgba(139, 92, 246, 0.1)', backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(167, 139, 250, 0.3)', borderRadius: '24px',
+          padding: '32px 48px', textAlign: 'center',
+          animation: 'celebrateCard 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+          boxShadow: '0 25px 50px rgba(0,0,0,0.4), 0 0 60px rgba(139,92,246,0.2)',
+        }}>
+          <div style={{ fontSize: '56px', marginBottom: '8px', animation: 'bounce 0.6s ease 0.3s both' }}>🌙</div>
+          <div style={{ fontSize: '24px', fontWeight: '800', color: 'var(--app-text)', letterSpacing: '-0.5px' }}>Optimal Sleep!</div>
+          <div style={{ fontSize: '14px', color: '#c4b5fd', marginTop: '4px' }}>You hit the 7-9 hour sweet spot</div>
+        </div>
+      </div>
           )}
 
-          {/* HERO SECTION */}
-          <div style={{ ...styles.bentoBox, ...styles.heroSection }} className="bentoBox heroSection">
+      {/* HERO SECTION */}
+      <div className="bentoBox heroSection bentoBox heroSection">
 
-            <div style={{ ...styles.heroLeft, position: 'relative', zIndex: 1 }} className="heroLeft">
-              <div
-                style={styles.avatarWrapper}
-                className="avatarWrapper"
-                onClick={() => navigate('/profile-setup', { state: { isEditing: true } })}
-              >
-                <div style={styles.avatarContainer}>
-                  {userAvatar ? (
-                    <img src={userAvatar} alt="Profile" style={styles.avatarImage} />
-                  ) : (
-                    <div style={styles.avatarImage}>
-                      {displayName ? displayName.charAt(0).toUpperCase() : 'T'}
-                    </div>
-                  )}
+        <div style={{ position: 'relative', zIndex: 1 }} className="heroLeft heroLeft">
+          <div
+            className="avatarWrapper avatarWrapper"
+            onClick={() => navigate('/profile-setup', { state: { isEditing: true } })}
+          >
+            <div className="avatarContainer">
+              {userAvatar ? (
+                <img src={userAvatar} alt="Profile" className="avatarImage" />
+              ) : (
+                <div className="avatarImage">
+                  {displayName ? displayName.charAt(0).toUpperCase() : 'T'}
                 </div>
-                <div style={styles.editIconBadge} className="edit-icon-hover">
-                  ✎
-                </div>
-              </div>
-              <div style={styles.heroTextContent}>
-                <h1 style={styles.h1} className="h1">
-                  Hello, {displayName}
-                </h1>
-                <div style={styles.quoteCard} className="quoteCard">
-                  "{currentQuote}"
-                </div>
-              </div>
+              )}
             </div>
+            <div className="editIconBadge edit-icon-hover">
+              ✎
+            </div>
+          </div>
+          <div className="heroTextContent">
+            <h1 className="h1 h1">
+              Hello, {displayName}
+            </h1>
+            <div className="quoteCard quoteCard">
+              "{currentQuote}"
+            </div>
+          </div>
+        </div>
 
-            <div style={{ ...styles.heroCenter, position: 'relative', zIndex: 1 }} className="heroCenter">
-              {(() => {
-                const heroAction = getHeroActionMeta(status);
-                const heroTheme = getHeroActionTheme(HERO_ACTION_VARIANT, heroAction.stateKey);
-                // Always use computed daily progress so first render starts at 0%.
-                const radialScore = Number.isFinite(dailyProgress)
-                  ? Math.min(100, Math.max(0, Math.round(dailyProgress)))
-                  : getFallbackRadialScore(status);
-                const ctaLabel =
-                  heroAction.stateKey === 'meal'
-                    ? 'Open Meals'
-                    : heroAction.stateKey === 'done'
-                    ? (radialScore < 100 ? 'Finish Habits' : 'Completed')
-                    : heroAction.stateKey === 'sync'
+        <div style={{ position: 'relative', zIndex: 1 }} className="heroCenter heroCenter">
+          {(() => {
+            const heroAction = getHeroActionMeta(status);
+            const heroTheme = getHeroActionTheme(HERO_ACTION_VARIANT, heroAction.stateKey);
+            // Always use computed daily progress so first render starts at 0%.
+            const radialScore = Number.isFinite(dailyProgress)
+              ? Math.min(100, Math.max(0, Math.round(dailyProgress)))
+              : getFallbackRadialScore(status);
+            const ctaLabel =
+              heroAction.stateKey === 'meal'
+                ? 'Open Meals'
+                : heroAction.stateKey === 'done'
+                  ? (radialScore < 100 ? 'Finish Habits' : 'Completed')
+                  : heroAction.stateKey === 'sync'
                     ? 'Syncing...'
                     : 'Start Workout';
 
-                return (
-                  <button
+            return (
+              <button
+                style={{
+                  width:
+                    HERO_ACTION_VARIANT === 'neonRadial'
+                      ? 'min(100%, 224px)'
+                      : undefined,
+                  minHeight:
+                    HERO_ACTION_VARIANT === 'neonRadial'
+                      ? '206px'
+                      : undefined,
+                  padding:
+                    HERO_ACTION_VARIANT === 'neonRadial'
+                      ? '12px 10px'
+                      : undefined,
+                  gap:
+                    HERO_ACTION_VARIANT === 'neonRadial'
+                      ? '10px'
+                      : undefined,
+                  alignItems:
+                    HERO_ACTION_VARIANT === 'neonRadial'
+                      ? 'center'
+                      : undefined,
+                  textAlign:
+                    HERO_ACTION_VARIANT === 'neonRadial'
+                      ? 'center'
+                      : undefined,
+                  borderRadius:
+                    HERO_ACTION_VARIANT === 'neonRadial'
+                      ? '20px'
+                      : undefined,
+                  justifyContent:
+                    HERO_ACTION_VARIANT === 'neonRadial'
+                      ? 'center'
+                      : undefined,
+                  alignSelf:
+                    HERO_ACTION_VARIANT === 'neonRadial'
+                      ? 'center'
+                      : 'auto',
+                  background: HERO_ACTION_VARIANT === 'neonRadial' ? 'transparent' : heroTheme.surface,
+                  border: heroTheme.border,
+                  boxShadow: heroTheme.shadow,
+                  backdropFilter: HERO_ACTION_VARIANT === 'neonRadial' ? 'none' : 'blur(10px)',
+                  cursor: heroAction.disabled ? 'default' : 'pointer',
+                  outline: 'none'
+                }}
+                className={`hero-action-btn ${HERO_ACTION_VARIANT === 'neonRadial' ? `neon-radial-btn neon-state-${heroAction.stateKey}` : ''}`}
+                disabled={heroAction.disabled}
+                onClick={heroAction.disabled ? undefined : handleAction}
+              >
+                <div style={{ display: 'grid', placeItems: 'center', marginTop: '2px' }}>
+                  <div
+                    className="hero-ring-glow"
                     style={{
-                      ...styles.circleBtn,
-                      width:
-                        HERO_ACTION_VARIANT === 'neonRadial'
-                          ? 'min(100%, 224px)'
-                          : styles.circleBtn.width,
-                      minHeight:
-                        HERO_ACTION_VARIANT === 'neonRadial'
-                          ? '206px'
-                          : styles.circleBtn.minHeight,
-                      padding:
-                        HERO_ACTION_VARIANT === 'neonRadial'
-                          ? '12px 10px'
-                          : styles.circleBtn.padding,
-                      gap:
-                        HERO_ACTION_VARIANT === 'neonRadial'
-                          ? '10px'
-                          : styles.circleBtn.gap,
-                      alignItems:
-                        HERO_ACTION_VARIANT === 'neonRadial'
-                          ? 'center'
-                          : styles.circleBtn.alignItems,
-                      textAlign:
-                        HERO_ACTION_VARIANT === 'neonRadial'
-                          ? 'center'
-                          : styles.circleBtn.textAlign,
-                      borderRadius:
-                        HERO_ACTION_VARIANT === 'neonRadial'
-                          ? '20px'
-                          : styles.circleBtn.borderRadius,
-                      justifyContent:
-                        HERO_ACTION_VARIANT === 'neonRadial'
-                          ? 'center'
-                          : styles.circleBtn.justifyContent,
-                      alignSelf:
-                        HERO_ACTION_VARIANT === 'neonRadial'
-                          ? 'center'
-                          : 'auto',
-                      background: HERO_ACTION_VARIANT === 'neonRadial' ? 'transparent' : heroTheme.surface,
-                      border: heroTheme.border,
-                      boxShadow: heroTheme.shadow,
-                      backdropFilter: HERO_ACTION_VARIANT === 'neonRadial' ? 'none' : 'blur(10px)',
-                      cursor: heroAction.disabled ? 'default' : 'pointer',
-                      outline: 'none'
+                      width: '120px',
+                      height: '120px',
+                      borderRadius: '50%',
+                      background: `conic-gradient(${heroTheme.ringColor} ${radialScore}%, var(--app-border) ${radialScore}% 100%)`,
+                      display: 'grid',
+                      placeItems: 'center',
+                      boxShadow: `0 0 18px ${heroTheme.ringGlow}`,
+                      transition: 'background 0.7s cubic-bezier(0.4, 0, 0.2, 1)',
                     }}
-                    className={`hero-action-btn ${HERO_ACTION_VARIANT === 'neonRadial' ? `neon-radial-btn neon-state-${heroAction.stateKey}` : ''}`}
-                    disabled={heroAction.disabled}
-                    onClick={heroAction.disabled ? undefined : handleAction}
-                  >
-                    <div style={{ display: 'grid', placeItems: 'center', marginTop: '2px' }}>
+                      >
                       <div
-                        className="hero-ring-glow"
                         style={{
-                          width: '120px',
-                          height: '120px',
+                          width: '96px',
+                          height: '96px',
                           borderRadius: '50%',
-                          background: `conic-gradient(${heroTheme.ringColor} ${radialScore}%, var(--app-border) ${radialScore}% 100%)`,
+                          background: heroTheme.coreBg.startsWith('#') ? `${heroTheme.coreBg}cc` : heroTheme.coreBg, /* 80% opacity */
+                          border: heroTheme.coreBorder,
                           display: 'grid',
                           placeItems: 'center',
-                          boxShadow: `0 0 18px ${heroTheme.ringGlow}`,
-                          transition: 'background 0.7s cubic-bezier(0.4, 0, 0.2, 1)',
+                          boxShadow: 'inset 0 1px 8px rgba(0,0,0,0.35)'
                         }}
-                      >
-                        <div
-                          style={{
-                            width: '96px',
-                            height: '96px',
-                            borderRadius: '50%',
-                            background: heroTheme.coreBg.startsWith('#') ? `${heroTheme.coreBg}cc` : heroTheme.coreBg, /* 80% opacity */
-                            border: heroTheme.coreBorder,
-                            display: 'grid',
-                            placeItems: 'center',
-                            boxShadow: 'inset 0 1px 8px rgba(0,0,0,0.35)'
-                          }}
-                        >
+                          >
                           <div style={{ textAlign: 'center' }}>
                             <div style={{ fontSize: '22px', lineHeight: 1, color: heroTheme.iconColor }}>{heroAction.icon}</div>
                             <div style={{ marginTop: '4px', fontSize: '14px', color: heroTheme.titleColor, fontWeight: 800 }}>{radialScore}%</div>
                           </div>
                         </div>
-                      </div>
+              </div>
                     </div>
 
-                    <div
-                      className={HERO_ACTION_VARIANT === 'neonRadial' ? 'neon-cta' : undefined}
-                      style={{
-                        marginTop: '4px',
-                        border: 'none',
-                        borderRadius: '999px',
-                        background: heroTheme.ctaBg,
-                        color: heroTheme.ctaText,
-                        fontWeight: 800,
-                        fontSize: '13px',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.4px',
-                        padding: '9px 14px',
-                        minWidth: '152px',
-                        textAlign: 'center',
-                        boxShadow: `0 0 14px ${heroTheme.ringGlow}`
-                      }}
-                    >
-                      {ctaLabel}
+        <div
+          className={HERO_ACTION_VARIANT === 'neonRadial' ? 'neon-cta' : undefined}
+          style={{
+            marginTop: '4px',
+            border: 'none',
+            borderRadius: '999px',
+            background: heroTheme.ctaBg,
+            color: heroTheme.ctaText,
+            fontWeight: 800,
+            fontSize: '13px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.4px',
+            padding: '9px 14px',
+            minWidth: '152px',
+            textAlign: 'center',
+            boxShadow: `0 0 14px ${heroTheme.ringGlow}`
+          }}
+            >
+            { ctaLabel }
                     </div>
 
-                    {heroAction.subtitle ? (
-                      <div style={{ fontSize: '12px', color: heroTheme.subtitleColor, lineHeight: 1.45, textAlign: 'center', maxWidth: '220px' }}>
-                        {heroAction.subtitle}
-                      </div>
-                    ) : null}
-                  </button>
+      {heroAction.subtitle ? (
+        <div style={{ fontSize: '12px', color: heroTheme.subtitleColor, lineHeight: 1.45, textAlign: 'center', maxWidth: '220px' }}>
+          {heroAction.subtitle}
+        </div>
+      ) : null}
+    </button >
                 );
-              })()}
-            </div>
+}) ()}
+            </div >
 
-            <div style={{ ...styles.heroRight, position: 'relative', zIndex: 1 }} className="heroRight">
-              <div style={{ textAlign: 'right' }}>
-                <div style={styles.streakLabel}>CURRENT STREAK</div>
-                <div style={{ display: 'flex', gap: 15, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                  <div style={styles.streakNumber} className="streakNumber">
-                    {stats.streak}
-                  </div>
-                  <div style={{ animation: 'firePulse 2.5s infinite alternate ease-in-out', display: 'flex', alignItems: 'center' }}>
-                    <style>{`
+  <div style={{ position: 'relative', zIndex: 1 }} className="heroRight heroRight">
+    <div style={{ textAlign: 'right' }}>
+      <div className="streakLabel">CURRENT STREAK</div>
+      <div style={{ display: 'flex', gap: 15, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+        <div className="streakNumber streakNumber">
+          {stats.streak}
+        </div>
+        <div style={{ animation: 'firePulse 2.5s infinite alternate ease-in-out', display: 'flex', alignItems: 'center' }}>
+          <style>{`
                       @keyframes firePulse {
                         0% { transform: scale(0.95); filter: drop-shadow(0 0 8px rgba(249, 115, 22, 0.4)); }
                         50% { transform: scale(1.03); filter: drop-shadow(0 0 18px rgba(249, 115, 22, 0.8)); }
                         100% { transform: scale(0.98); filter: drop-shadow(0 0 14px rgba(239, 68, 68, 0.6)); }
                       }
                     `}</style>
-                    <svg style={{ width: 'clamp(42px, 10vw, 80px)', height: 'auto' }} viewBox="0 0 24 24" fill="url(#streakFireGrad)" stroke="none">
-                      <defs>
-                        <linearGradient id="streakFireGrad" x1="0%" y1="100%" x2="0%" y2="0%">
-                          <stop offset="0%" stopColor="#f59e0b" />
-                          <stop offset="50%" stopColor="#f97316" />
-                          <stop offset="100%" stopColor="#ef4444" />
-                        </linearGradient>
-                      </defs>
-                      <path fillRule="evenodd" d="M12.963 2.286a.75.75 0 00-1.071-.136 9.742 9.742 0 00-3.539 6.177A7.547 7.547 0 016.648 6.61a.75.75 0 00-1.152-.082A9 9 0 1015.68 4.534a7.46 7.46 0 01-2.717-2.248zM15.75 14.25a3.75 3.75 0 11-7.313-1.172c.628.465 1.353.81 2.133 1a5.99 5.99 0 011.925-3.545 3.75 3.75 0 013.255 3.717z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-              <div style={styles.weekGrid} className="weekGrid">
-                {weeklyProgress.map((item, i) => (
-                  <div
-                    key={i}
-                    className="day-item dayCircle"
-                    style={{
-                      ...styles.dayCircle,
-                      ...(item.status === 'done' ? styles.dayDone : styles.dayActive)
-                    }}
-                  >
-                    {item.status === 'done' ? '✅' : item.day}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+          <svg style={{ width: 'clamp(42px, 10vw, 80px)', height: 'auto' }} viewBox="0 0 24 24" fill="url(#streakFireGrad)" stroke="none">
+            <defs>
+              <linearGradient id="streakFireGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+                <stop offset="0%" stopColor="#f59e0b" />
+                <stop offset="50%" stopColor="#f97316" />
+                <stop offset="100%" stopColor="#ef4444" />
+              </linearGradient>
+            </defs>
+            <path fillRule="evenodd" d="M12.963 2.286a.75.75 0 00-1.071-.136 9.742 9.742 0 00-3.539 6.177A7.547 7.547 0 016.648 6.61a.75.75 0 00-1.152-.082A9 9 0 1015.68 4.534a7.46 7.46 0 01-2.717-2.248zM15.75 14.25a3.75 3.75 0 11-7.313-1.172c.628.465 1.353.81 2.133 1a5.99 5.99 0 011.925-3.545 3.75 3.75 0 013.255 3.717z" clipRule="evenodd" />
+          </svg>
+        </div>
+      </div>
+    </div>
+    <div className="weekGrid weekGrid">
+      {weeklyProgress.map((item, i) => (
+        <div
+          key={i}
+          className={`day-item dayCircle ${item.status === "done" ? "dayDone" : "dayActive"}`}
+        >
+          {item.status === 'done' ? '✅' : item.day}
+        </div>
+      ))}
+    </div>
+  </div>
+          </div >
 
-          {/* STATS ROW (MACRO, HYDRATION, READINESS) */}
-          <div style={dashboardLayout.statsRow} className="responsive-stats-row">
-            {/* MACROS BOX */}
-            <div style={{ ...styles.bentoBox, ...styles.statBox }} className="hover-card">
+  {/* STATS ROW (MACRO, HYDRATION, READINESS) */ }
+  <div className="statsRow">
+    {/* MACROS BOX */ }
+    < div  className = "hover-card bentoBox statBox" >
               <div
-                style={{
-                  display: 'flex',
+                style={{display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  marginBottom: '16px'
-                }}
+                  marginBottom: '16px'}}
               >
-                <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--app-text)' }}>
+                <div style={{fontSize: '14px', fontWeight: '700', color: 'var(--app-text)'}}>
                   MACROS TODAY
                 </div>
-                <div style={{ fontSize: '12px', color: 'var(--app-text-muted)' }}>
+                <div style={{fontSize: '12px', color: 'var(--app-text-muted)'}}>
                   {Math.round(macros.calories)} / {Math.round(macros.calMax)} cal
                 </div>
               </div>
               <div
                 className="macro-item"
-                style={{ marginBottom: '12px', cursor: 'pointer' }}
+                style={{marginBottom: '12px', cursor: 'pointer'}}
                 title={`Total: ${Math.round(macros.calories)} cal`}
               >
                 <div
-                  style={{
-                    display: 'flex',
+                  style={{display: 'flex',
                     justifyContent: 'space-between',
                     fontSize: '11px',
                     color: 'var(--app-text)',
-                    marginBottom: '4px'
-                  }}
+                    marginBottom: '4px'}}
                 >
                   <span>Total Calories</span>
                 </div>
-                <div style={{ ...styles.macroBarBG, overflow: 'hidden' }}>
+                <div className="macroBarBG" style={{overflow: 'hidden'}}>
                   <div
-                    style={{
-                      ...styles.macroBarFill,
-                      width: `${Math.min(100, (macros.calories / macros.calMax) * 100)}%`,
-                      background: 'var(--app-text)'
-                    }}
+                    className="macroBarFill" style={{width: `${Math.min(100, (macros.calories / macros.calMax) * 100)}%`,
+                      background: 'var(--app-text)'}}
                   ></div>
                 </div>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
-                {/* Protein */}
-                <div
-                  className="macro-item"
-                  style={{ cursor: 'pointer' }}
-                  title={`${Math.round(macros.p)}g Protein`}
+              </div >
+  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+    {/* Protein */}
+    <div
+      className="macro-item"
+      style={{ cursor: 'pointer' }}
+      title={`${Math.round(macros.p)}g Protein`}
+    >
+      <div style={{ fontSize: '10px', color: 'var(--app-text-muted)', marginBottom: '4px' }}>
+        Prot ({Math.round(macros.p)}g)
+      </div>
+      <div className="macroBarBG" style={{ height: '4px', overflow: 'hidden' }}>
+        <div
+          className="macroBarFill" style={{
+            width: `${Math.min(100, (macros.p / macros.pMax) * 100)}%`,
+            background: '#6366f1'
+          }}
+            ></div>
+    </div>
+  </div>
+{/* Carbs */ }
+<div
+  className="macro-item"
+  style={{ cursor: 'pointer' }}
+  title={`${Math.round(macros.c)}g Carbs`}
+>
+  <div style={{ fontSize: '10px', color: 'var(--app-text-muted)', marginBottom: '4px' }}>
+    Carb ({Math.round(macros.c)}g)
+  </div>
+  <div className="macroBarBG" style={{ height: '4px', overflow: 'hidden' }}>
+    <div
+      className="macroBarFill" style={{
+        width: `${Math.min(100, (macros.c / macros.cMax) * 100)}%`,
+        background: '#22c55e'
+      }}
+        ></div>
+</div>
+                </div >
+  {/* Fats */ }
+  < div
+className = "macro-item"
+style = {{ cursor: 'pointer' }}
+title = {`${Math.round(macros.f)}g Fats`}
                 >
-                  <div style={{ fontSize: '10px', color: 'var(--app-text-muted)', marginBottom: '4px' }}>
-                    Prot ({Math.round(macros.p)}g)
-                  </div>
-                  <div style={{ ...styles.macroBarBG, height: '4px', overflow: 'hidden' }}>
-                    <div
-                      style={{
-                        ...styles.macroBarFill,
-                        width: `${Math.min(100, (macros.p / macros.pMax) * 100)}%`,
-                        background: '#6366f1'
-                      }}
-                    ></div>
-                  </div>
-                </div>
-                {/* Carbs */}
-                <div
-                  className="macro-item"
-                  style={{ cursor: 'pointer' }}
-                  title={`${Math.round(macros.c)}g Carbs`}
-                >
-                  <div style={{ fontSize: '10px', color: 'var(--app-text-muted)', marginBottom: '4px' }}>
-                    Carb ({Math.round(macros.c)}g)
-                  </div>
-                  <div style={{ ...styles.macroBarBG, height: '4px', overflow: 'hidden' }}>
-                    <div
-                      style={{
-                        ...styles.macroBarFill,
-                        width: `${Math.min(100, (macros.c / macros.cMax) * 100)}%`,
-                        background: '#22c55e'
-                      }}
-                    ></div>
-                  </div>
-                </div>
-                {/* Fats */}
-                <div
-                  className="macro-item"
-                  style={{ cursor: 'pointer' }}
-                  title={`${Math.round(macros.f)}g Fats`}
-                >
-                  <div style={{ fontSize: '10px', color: 'var(--app-text-muted)', marginBottom: '4px' }}>
+                  <div style={{fontSize: '10px', color: 'var(--app-text-muted)', marginBottom: '4px'}}>
                     Fat ({Math.round(macros.f)}g)
                   </div>
-                  <div style={{ ...styles.macroBarBG, height: '4px', overflow: 'hidden' }}>
+                  <div className="macroBarBG" style={{height: '4px', overflow: 'hidden'}}>
                     <div
-                      style={{
-                        ...styles.macroBarFill,
-                        width: `${Math.min(100, (macros.f / macros.fMax) * 100)}%`,
-                        background: '#eab308'
-                      }}
+                      className="macroBarFill" style={{width: `${Math.min(100, (macros.f / macros.fMax) * 100)}%`,
+                        background: '#eab308'}}
                     ></div>
-                  </div>
-                </div>
-              </div>
-              {/* Meals Logged Today */}
-              <div style={{ marginTop: '14px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <span style={{ fontSize: '11px', color: 'var(--app-text-muted)' }}>Meals Logged</span>
-                  <span style={{ fontSize: '11px', color: mealsLoggedToday === 3 ? '#34d399' : 'var(--app-text-muted)' }}>
+                  </div >
+                </div >
+              </div >
+  {/* Meals Logged Today */ }
+  < div style = {{ marginTop: '14px' }}>
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px'}}>
+                  <span style={{fontSize: '11px', color: 'var(--app-text-muted)'}}>Meals Logged</span>
+                  <span style={{fontSize: '11px', color: mealsLoggedToday === 3 ? '#34d399' : 'var(--app-text-muted)'}}>
                     {mealsLoggedToday} / 3
                   </span>
                 </div>
-                <div style={{ display: 'flex', gap: '6px' }}>
+                <div style={{display: 'flex', gap: '6px'}}>
                   {[
                     { label: 'B', name: 'breakfast' },
                     { label: 'L', name: 'lunch' },
@@ -4490,8 +3120,7 @@ function Dashboard({ onLogout }) {
                       <div
                         key={name}
                         title={`${name.charAt(0).toUpperCase() + name.slice(1)} ${done ? 'logged ✅' : 'not logged yet'}`}
-                        style={{
-                          flex: 1,
+                        style={{flex: 1,
                           padding: '5px 0',
                           borderRadius: '6px',
                           textAlign: 'center',
@@ -4502,386 +3131,376 @@ function Dashboard({ onLogout }) {
                             : 'var(--app-border)',
                           color: done ? '#34d399' : '#52525b',
                           border: `1px solid ${done ? 'rgba(52,211,153,0.3)' : 'rgba(255,255,255,0.06)'}`,
-                          transition: 'all 0.3s ease',
-                        }}
+                          transition: 'all 0.3s ease'}}
                       >
                         {label}
                       </div>
                     );
                   })}
-                </div>
+                </div >
+              </div >
+            </div >
+
+  {/* HYDRATION BOX */ }
+{
+  (() => {
+    const userWeight = parseFloat(safeJSONParse('user', {})?.weight || localStorage.getItem('userWeight') || '70');
+    const _isWkDone = (typeof status !== "undefined" && (status === "done" || status === "meal")) || (typeof workoutProgress !== "undefined" && workoutProgress === 1);
+    const waterGoal = getDynamicWaterGoal(typeof userWeight !== "undefined" ? userWeight : 70, typeof sleep !== "undefined" ? sleep : 0, _isWkDone);
+    const waterPercent = Math.min(100, Math.round((water / waterGoal) * 100));
+    return (
+      <div
+        style={{
+          background: 'linear-gradient(135deg, rgba(30, 58, 138, 0.82) 0%, rgba(23, 37, 84, 0.82) 100%)',
+          border: '1px solid rgba(96, 165, 250, 0.2)',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+        className="hover-card bentoBox bentoBox statBox"
+      >
+        {/* Animated water fill background */}
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0,
+          height: `${waterPercent}%`,
+          background: 'linear-gradient(180deg, rgba(56, 189, 248, 0.15) 0%, rgba(14, 165, 233, 0.08) 100%)',
+          transition: 'height 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+          borderTop: '1px solid rgba(56, 189, 248, 0.2)',
+        }} />
+          <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+              <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--app-text)' }}>HYDRATION</div>
+              <div style={{ fontSize: '12px', fontWeight: '700', color: waterPercent >= 100 ? '#34d399' : '#93c5fd' }}>{waterPercent}%</div>
+            </div>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+              <div style={{ fontSize: '48px', fontWeight: '800', color: 'var(--app-text)' }}>
+                {water.toFixed(1)} <span style={{ fontSize: '16px', fontWeight: '500', color: '#93c5fd' }}>L</span>
+              </div>
+              <div style={{ fontSize: '12px', color: '#bfdbfe' }}>Goal: {waterGoal} L ({Math.round(userWeight)}kg)</div>
+              {/* Progress bar */}
+              <div style={{ width: '80%', height: '4px', background: 'var(--app-border)', borderRadius: '2px', marginTop: '8px', overflow: 'hidden' }}>
+                <div style={{ width: `${waterPercent}%`, height: '100%', background: waterPercent >= 100 ? 'linear-gradient(90deg, #34d399, #22c55e)' : 'linear-gradient(90deg, #38bdf8, #0ea5e9)', borderRadius: '2px', transition: 'width 0.6s ease' }} />
               </div>
             </div>
-
-            {/* HYDRATION BOX */}
-            {(() => {
-              const userWeight = parseFloat(safeJSONParse('user', {})?.weight || localStorage.getItem('userWeight') || '70');
-              const _isWkDone = (typeof status !== "undefined" && (status === "done" || status === "meal")) || (typeof workoutProgress !== "undefined" && workoutProgress === 1);
-    const waterGoal = getDynamicWaterGoal(typeof userWeight !== "undefined" ? userWeight : 70, typeof sleep !== "undefined" ? sleep : 0, _isWkDone);
-              const waterPercent = Math.min(100, Math.round((water / waterGoal) * 100));
-              return (
-              <div
-                style={{
-                  ...styles.bentoBox,
-                  ...styles.statBox,
-                  background: 'linear-gradient(135deg, rgba(30, 58, 138, 0.82) 0%, rgba(23, 37, 84, 0.82) 100%)',
-                  border: '1px solid rgba(96, 165, 250, 0.2)',
-                  position: 'relative',
-                  overflow: 'hidden',
-                }}
-                className="hover-card bentoBox"
-              >
-                {/* Animated water fill background */}
-                <div style={{
-                  position: 'absolute', bottom: 0, left: 0, right: 0,
-                  height: `${waterPercent}%`,
-                  background: 'linear-gradient(180deg, rgba(56, 189, 248, 0.15) 0%, rgba(14, 165, 233, 0.08) 100%)',
-                  transition: 'height 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-                  borderTop: '1px solid rgba(56, 189, 248, 0.2)',
-                }} />
-                <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                    <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--app-text)' }}>HYDRATION</div>
-                    <div style={{ fontSize: '12px', fontWeight: '700', color: waterPercent >= 100 ? '#34d399' : '#93c5fd' }}>{waterPercent}%</div>
-                  </div>
-                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                    <div style={{ fontSize: '48px', fontWeight: '800', color: 'var(--app-text)' }}>
-                      {water.toFixed(1)} <span style={{ fontSize: '16px', fontWeight: '500', color: '#93c5fd' }}>L</span>
-                    </div>
-                    <div style={{ fontSize: '12px', color: '#bfdbfe' }}>Goal: {waterGoal} L ({Math.round(userWeight)}kg)</div>
-                    {/* Progress bar */}
-                    <div style={{ width: '80%', height: '4px', background: 'var(--app-border)', borderRadius: '2px', marginTop: '8px', overflow: 'hidden' }}>
-                      <div style={{ width: `${waterPercent}%`, height: '100%', background: waterPercent >= 100 ? 'linear-gradient(90deg, #34d399, #22c55e)' : 'linear-gradient(90deg, #38bdf8, #0ea5e9)', borderRadius: '2px', transition: 'width 0.6s ease' }} />
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center' }}>
-                    <div style={styles.glassPill} className="glassPill">
-                      <button style={styles.glassBtn} className="control-btn-hover glassBtn" onClick={handleWaterRemove}>-</button>
-                      <span style={styles.glassText}>+250ML</span>
-                      <button style={styles.glassBtn} className="control-btn-hover glassBtn" onClick={handleWaterAdd}>+</button>
-                    </div>
-                    <div style={{ marginTop: '10px', fontSize: '12px', color: recoveryScore > 60 ? '#22c55e' : recoveryScore > 40 ? '#f59e0b' : '#ef4444' }}>
-                      Recovery: {recoveryScore}%
-                    </div>
-                  </div>
-                </div>
+            <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center' }}>
+              <div className="glassPill glassPill">
+                <button className="glassBtn control-btn-hover glassBtn" onClick={handleWaterRemove}>-</button>
+                <span className="glassText">+250ML</span>
+                <button className="glassBtn control-btn-hover glassBtn" onClick={handleWaterAdd}>+</button>
               </div>
-              );
-            })()}
+              <div style={{ marginTop: '10px', fontSize: '12px', color: recoveryScore > 60 ? '#22c55e' : recoveryScore > 40 ? '#f59e0b' : '#ef4444' }}>
+                Recovery: {recoveryScore}%
+              </div>
+            </div>
+          </div>
+              </div>
+    );
+  })()
+}
 
-            {/* READINESS BOX */}
-            {(() => {
-              const sleepQuality = sleep === 0 ? 0 : sleep >= 7 && sleep <= 9 ? 100 : sleep >= 6 && sleep <= 10 ? 75 : sleep >= 5 ? 50 : 25;
-              const qualityLabel = sleepQuality >= 90 ? 'Optimal' : sleepQuality >= 70 ? 'Good' : sleepQuality >= 40 ? 'Fair' : sleep > 0 ? 'Low' : '—';
-              const qualityColor = sleepQuality >= 90 ? '#22c55e' : sleepQuality >= 70 ? '#34d399' : sleepQuality >= 40 ? '#f59e0b' : '#ef4444';
-              return (
-              <div style={{ ...styles.bentoBox, ...styles.statBox, position: 'relative', overflow: 'hidden' }} className="hover-card bentoBox">
-                <div style={{ position: 'absolute', bottom: '-20px', left: '50%', transform: 'translateX(-50%)', width: '150px', height: '80px', background: `radial-gradient(circle, ${qualityColor}15 0%, transparent 70%)`, transition: 'all 0.6s ease' }} />
-                <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--app-text)', marginBottom: '10px' }}>SLEEP</div>
-                    <div style={{ fontSize: '12px', fontWeight: '700', padding: '2px 10px', borderRadius: '12px', background: `${qualityColor}15`, color: qualityColor, border: `1px solid ${qualityColor}30` }}>
+{/* READINESS BOX */ }
+{
+  (() => {
+    const sleepQuality = sleep === 0 ? 0 : sleep >= 7 && sleep <= 9 ? 100 : sleep >= 6 && sleep <= 10 ? 75 : sleep >= 5 ? 50 : 25;
+    const qualityLabel = sleepQuality >= 90 ? 'Optimal' : sleepQuality >= 70 ? 'Good' : sleepQuality >= 40 ? 'Fair' : sleep > 0 ? 'Low' : '—';
+    const qualityColor = sleepQuality >= 90 ? '#22c55e' : sleepQuality >= 70 ? '#34d399' : sleepQuality >= 40 ? '#f59e0b' : '#ef4444';
+    return (
+      <div style={{ position: 'relative', overflow: 'hidden' }} className="hover-card bentoBox bentoBox statBox">
+        <div style={{ position: 'absolute', bottom: '-20px', left: '50%', transform: 'translateX(-50%)', width: '150px', height: '80px', background: `radial-gradient(circle, ${qualityColor}15 0%, transparent 70%)`, transition: 'all 0.6s ease' }} />
+                <div style={{position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', height: '100%'}}>
+                  <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                    <div style={{fontSize: '14px', fontWeight: '700', color: 'var(--app-text)', marginBottom: '10px'}}>SLEEP</div>
+                    <div style={{fontSize: '12px', fontWeight: '700', padding: '2px 10px', borderRadius: '12px', background: `${qualityColor}15`, color: qualityColor, border: `1px solid ${qualityColor}30`}}>
                       {qualityLabel}
                     </div>
                   </div>
-                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                    <div style={{ fontSize: '48px', fontWeight: '800', color: 'var(--app-text)', fontFamily: 'monospace' }}>
-                      {Math.floor(sleep)}<span style={{ color: '#6366f1' }}>:</span>{String(Math.round((sleep % 1) * 60)).padStart(2, '0')}
+                  <div style={{flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
+                    <div style={{fontSize: '48px', fontWeight: '800', color: 'var(--app-text)', fontFamily: 'monospace'}}>
+                      {Math.floor(sleep)}<span style={{color: '#6366f1'}}>:</span>{String(Math.round((sleep % 1) * 60)).padStart(2, '0')}
                     </div>
-                    <div style={{ fontSize: '12px', color: 'var(--app-text-muted)' }}>Hours Slept • Target 7-9h</div>
-                    <div style={{ width: '80%', height: '4px', background: 'var(--app-border)', borderRadius: '2px', marginTop: '8px', overflow: 'hidden' }}>
-                      <div style={{ width: `${sleepQuality}%`, height: '100%', background: `linear-gradient(90deg, ${qualityColor}, ${qualityColor}cc)`, borderRadius: '2px', transition: 'width 0.6s ease' }} />
+                    <div style={{fontSize: '12px', color: 'var(--app-text-muted)'}}>Hours Slept • Target 7-9h</div>
+                    <div style={{width: '80%', height: '4px', background: 'var(--app-border)', borderRadius: '2px', marginTop: '8px', overflow: 'hidden'}}>
+                      <div style={{width: `${sleepQuality}%`, height: '100%', background: `linear-gradient(90deg, ${qualityColor}, ${qualityColor}cc)`, borderRadius: '2px', transition: 'width 0.6s ease' }} />
                     </div>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center' }}>
-                    <div style={styles.glassPill} className="glassPill">
-                      <button style={styles.glassBtn} className="control-btn-hover glassBtn" onClick={handleSleepRemove}>-</button>
-                      <span style={styles.glassText}>+30 MIN</span>
-                      <button style={styles.glassBtn} className="control-btn-hover glassBtn" onClick={handleSleepAdd}>+</button>
+                  <div style={{display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center'}}>
+                    <div className="glassPill glassPill">
+                      <button className="glassBtn control-btn-hover glassBtn" onClick={handleSleepRemove}>-</button>
+                      <span className="glassText">+30 MIN</span>
+                      <button className="glassBtn control-btn-hover glassBtn" onClick={handleSleepAdd}>+</button>
                     </div>
-                    <div style={{ marginTop: '10px', fontSize: '12px', color: qualityColor }}>
+                    <div style={{marginTop: '10px', fontSize: '12px', color: qualityColor}}>
                       Readiness: {stats.focusScore}%
                     </div>
                   </div>
                 </div>
-              </div>
+              </div >
               );
-            })()
-          }
-          </div>
+  })()
+}
+          </div >
 
-          {/* AI COACH SUMMARY / ADAPTIVE MODIFIERS */}
-          {weeklyAverages && (
-            <div
-              style={{
-                ...styles.bentoBox,
-                gridColumn: 'span 12',
-                background: 'linear-gradient(135deg, rgba(30, 27, 75, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%)',
-                border: '1px solid rgba(139, 92, 246, 0.2)',
-                padding: '20px',
-                marginBottom: '20px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '15px',
-                position: 'relative',
-                overflow: 'hidden',
-              }}
-              className="hover-card bentoBox"
-            >
-              {/* Decorative radial gradient glow */}
-              <div
-                style={{
-                  position: 'absolute',
-                  top: '-40px',
-                  right: '-40px',
-                  width: '180px',
-                  height: '180px',
-                  background: 'radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%)',
-                  pointerEvents: 'none',
-                }}
-              />
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div style={{ fontSize: '24px', background: 'rgba(139, 92, 246, 0.2)', padding: '8px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🤖</div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                    <span style={{ fontSize: '16px', fontWeight: '900', color: 'var(--app-text)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-                      AI Coach
-                    </span>
-                    <span style={{ fontSize: '11px', fontWeight: '700', color: '#c084fc', letterSpacing: '1px', textTransform: 'uppercase' }}>
-                      Adaptive Auto-Regulation
-                    </span>
-                  </div>
-                </div>
-                <div
-                  style={{
-                    fontSize: '11px',
-                    fontWeight: '700',
-                    padding: '3px 10px',
-                    borderRadius: '20px',
-                    background: 'rgba(139, 92, 246, 0.15)',
-                    color: '#c084fc',
-                    border: '1px solid rgba(139, 92, 246, 0.3)',
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  {(weeklyAverages.days_logged || 0)} Days Tracked
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '15px' }}>
-                {/* Sleep Metrics */}
-                <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <div style={{ fontSize: '11px', color: 'var(--app-text-muted)', marginBottom: '4px' }}>WEEKLY SLEEP AVG</div>
-                  <div style={{ fontSize: '24px', fontWeight: '800', color: '#a78bfa' }}>
-                    {(weeklyAverages.avg_sleep_hours || 0)} <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--app-text-muted)' }}>hours / night</span>
-                  </div>
-                  {weeklyAverages.deload_flag ? (
-                    <div style={{ fontSize: '11px', color: '#f87171', marginTop: '6px', fontWeight: '600' }}>
-                      ⚠️ Critical sleep deficit. Recovery Deload active.
-                    </div>
-                  ) : (weeklyAverages.avg_sleep_hours || 0) < 6.0 ? (
-                    <div style={{ fontSize: '11px', color: '#fbbf24', marginTop: '6px', fontWeight: '600' }}>
-                      ⚠️ Sleep deficit. Intensity reduced by 10%.
-                    </div>
-                  ) : (
-                    <div style={{ fontSize: '11px', color: '#34d399', marginTop: '6px', fontWeight: '600' }}>
-                      ✓ Sleep is optimal. Recovery normal.
-                    </div>
-                  )}
-                </div>
-
-                {/* Hydration Metrics */}
-                <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <div style={{ fontSize: '11px', color: 'var(--app-text-muted)', marginBottom: '4px' }}>WEEKLY HYDRATION AVG</div>
-                  <div style={{ fontSize: '24px', fontWeight: '800', color: '#60a5fa' }}>
-                    {((weeklyAverages.avg_water_ml || 0) / 1000).toFixed(2)} <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--app-text-muted)' }}>L / day</span>
-                  </div>
-                  {weeklyAverages.dehydration_flag ? (
-                    <div style={{ fontSize: '11px', color: '#f87171', marginTop: '6px', fontWeight: '600' }}>
-                      ⚠️ Dehydration detected. Cardio & work reduced.
-                    </div>
-                  ) : (
-                    <div style={{ fontSize: '11px', color: '#34d399', marginTop: '6px', fontWeight: '600' }}>
-                      ✓ Hydration targets met.
-                    </div>
-                  )}
-                </div>
-
-                {/* Workout Consistency */}
-                <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <div style={{ fontSize: '11px', color: 'var(--app-text-muted)', marginBottom: '4px' }}>WORKOUT FREQUENCY</div>
-                  <div style={{ fontSize: '24px', fontWeight: '800', color: '#34d399' }}>
-                    {Math.round((weeklyAverages.workout_completion_rate || 0) * 100)}% <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--app-text-muted)' }}>completion</span>
-                  </div>
-                  <div style={{ fontSize: '11px', color: (weeklyAverages.workout_completion_rate || 0) >= 0.57 ? '#34d399' : '#f87171', marginTop: '6px', fontWeight: '600' }}>
-                    {(weeklyAverages.workout_completion_rate || 0) >= 0.57 
-                      ? '🔥 Consistency bonus active: +1 set!' 
-                      : '⚠️ Attendance deficit. Volume increases paused.'}
-                  </div>
-                </div>
-              </div>
-
-              {/* Coach Adaptation Explanation */}
-              <div
-                style={{
-                  background: 'rgba(139, 92, 246, 0.05)',
-                  border: '1px dashed rgba(139, 92, 246, 0.2)',
-                  padding: '12px 16px',
-                  borderRadius: '8px',
-                  fontSize: '13px',
-                  lineHeight: '1.5',
-                  color: '#e9d5ff',
-                }}
-              >
-                <strong>Coach Adaptation Decision:</strong> {weeklyAverages.adaptive_reason || 'Baseline — all biometrics normal.'}
-              </div>
-            </div>
-          )}
-          {/* CHART SECTION */}
-          <div style={{ ...styles.bentoBox, ...dashboardLayout.chartSection }} className="bentoBox chartSection responsive-grid-span-8">
-            <div style={styles.sectionHeader} className="sectionHeader">
-              <div style={styles.sectionTitle} className="sectionTitle">
-                <div style={styles.sectionAccent}></div> TRENDS
-              </div>
-              <div style={styles.chartControls}>
-                <div style={styles.chartTabs}>
-                  {['all', 'workout', 'meal', 'sleep', 'water'].map((m) => (
-                    <button
-                      key={m}
-                      style={{
-                        ...styles.chartTab,
-                        ...(chartMode === m ? styles.chartTabActive : {})
-                      }}
-                      onClick={() => setChartMode(m)}
-                    >
-                      {m === 'all' ? 'ALL' : m.toUpperCase()}
-                    </button>
-                  ))}
-                </div>
-                <div style={styles.chartTabs}>
-                  {['week', 'month'].map((p) => (
-                    <button
-                      key={p}
-                      style={{
-                        ...styles.chartTab,
-                        ...(chartPeriod === p ? styles.chartTabActive : {})
-                      }}
-                      onClick={() => setChartPeriod(p)}
-                    >
-                      {p.toUpperCase()}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <ActivityChart data={chartData} mode={chartMode} period={chartPeriod} xLabels={chartXLabels} />
-          </div>
-
-          {/* ACTIVITY SECTION */}
-          <div style={{ ...styles.bentoBox, ...dashboardLayout.activitySection }} className="bentoBox activitySection responsive-grid-span-4">
-            <div style={styles.sectionHeader}>
-              <div style={styles.sectionTitle}>
-                <div style={styles.sectionAccent}></div> ACTIVITY
-              </div>
-            </div>
-            <div className="activity-list" style={{ flex: 1, overflowY: 'auto', paddingRight: '4px' }}>
-              {recentHistory.length === 0 ? (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 20px', color: '#52525b' }}>
-                  <div style={{ fontSize: '32px', marginBottom: '12px' }}>📋</div>
-                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#71717a' }}>No activity yet</div>
-                  <div style={{ fontSize: '12px', color: '#52525b', marginTop: '4px' }}>Complete a workout or log a meal to see your activity here</div>
-                </div>
-              ) : (
-              recentHistory.map((h, i) => (
-                <div key={i} style={styles.listRow} className="activity-row listRow">
-                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                    <div
-                      style={{
-                        width: '36px',
-                        height: '36px',
-                        borderRadius: '10px',
-                        background:
-                          h.type === 'workout'
-                            ? 'rgba(34, 197, 94, 0.1)'
-                            : h.type === 'meal'
-                              ? 'rgba(236, 72, 153, 0.1)'
-                              : h.type === 'sleep'
-                                ? 'rgba(99, 102, 241, 0.1)'
-                                : h.type === 'water'
-                                  ? 'rgba(56, 189, 248, 0.1)'
-                                  : 'rgba(245, 158, 11, 0.1)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '16px'
-                      }}
-                    >
-                      {h.type === 'workout'
-                        ? '💪'
-                        : h.type === 'meal'
-                          ? '🥗'
-                          : h.type === 'sleep'
-                            ? '😴'
-                            : h.type === 'water'
-                              ? '💧'
-                              : '📊'}
-                    </div>
-                    <div>
-                      <div style={{ color: 'var(--app-text)', fontSize: '14px', fontWeight: '600' }}>
-                        {h.name}
-                      </div>
-                      <div style={{ color: '#71717a', fontSize: '13px', fontFamily: 'sans-serif' }}>
-                        {h.date}
-                      </div>
-                    </div>
-                  </div>
-                  <div style={{ fontSize: '12px', color: 'var(--app-text-muted)', fontWeight: '500' }}>
-                    {h.details}
-                  </div>
-                </div>
-              ))
-              )}
-            </div>
+  {/* AI COACH SUMMARY / ADAPTIVE MODIFIERS */ }
+{
+  weeklyAverages && (
+    <div
+      style={{
+        gridColumn: 'span 12',
+        background: 'linear-gradient(135deg, rgba(30, 27, 75, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%)',
+        border: '1px solid rgba(139, 92, 246, 0.2)',
+        padding: '20px',
+        marginBottom: '20px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '15px',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+      className="hover-card bentoBox bentoBox"
+    >
+      {/* Decorative radial gradient glow */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '-40px',
+          right: '-40px',
+          width: '180px',
+          height: '180px',
+          background: 'radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%)',
+          pointerEvents: 'none',
+        }}
+      />
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ fontSize: '24px', background: 'rgba(139, 92, 246, 0.2)', padding: '8px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🤖</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+            <span style={{ fontSize: '16px', fontWeight: '900', color: 'var(--app-text)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+              AI Coach
+            </span>
+            <span style={{ fontSize: '11px', fontWeight: '700', color: '#c084fc', letterSpacing: '1px', textTransform: 'uppercase' }}>
+              Adaptive Auto-Regulation
+            </span>
           </div>
         </div>
-
-        {/* NOTIFICATIONS CONTAINER */}
-        {notifications.length > 0 && (
-          <div style={styles.notificationsContainer}>
-            {notifications.map((notification) => (
-              <div
-                key={notification.id}
-                style={{
-                  ...styles.notificationItem,
-                  ...(notification.type === 'success'
-                    ? styles.notificationSuccess
-                    : notification.type === 'warning'
-                      ? styles.notificationWarning
-                      : styles.notificationInfo)
-                }}
-              >
-                <div style={styles.notificationContent}>
-                  <span style={styles.notificationMessage}>{notification.message}</span>
-                  <button
-                    style={styles.notificationClose}
-                    onClick={() => dismissNotification(notification.id)}
-                  >
-                    ×
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* CONFIRM DIALOG */}
-        <ConfirmDialog
-          show={confirmDialog.show}
-          message={confirmDialog.message}
-          onConfirm={handleConfirm}
-          onCancel={handleCancelConfirm}
-        />
+        <div
+          style={{
+            fontSize: '11px',
+            fontWeight: '700',
+            padding: '3px 10px',
+            borderRadius: '20px',
+            background: 'rgba(139, 92, 246, 0.15)',
+            color: '#c084fc',
+            border: '1px solid rgba(139, 92, 246, 0.3)',
+            textTransform: 'uppercase',
+          }}
+        >
+          {(weeklyAverages.days_logged || 0)} Days Tracked
+        </div>
       </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '15px' }}>
+        {/* Sleep Metrics */}
+        <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
+          <div style={{ fontSize: '11px', color: 'var(--app-text-muted)', marginBottom: '4px' }}>WEEKLY SLEEP AVG</div>
+          <div style={{ fontSize: '24px', fontWeight: '800', color: '#a78bfa' }}>
+            {(weeklyAverages.avg_sleep_hours || 0)} <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--app-text-muted)' }}>hours / night</span>
+          </div>
+          {weeklyAverages.deload_flag ? (
+            <div style={{ fontSize: '11px', color: '#f87171', marginTop: '6px', fontWeight: '600' }}>
+              ⚠️ Critical sleep deficit. Recovery Deload active.
+            </div>
+          ) : (weeklyAverages.avg_sleep_hours || 0) < 6.0 ? (
+            <div style={{ fontSize: '11px', color: '#fbbf24', marginTop: '6px', fontWeight: '600' }}>
+              ⚠️ Sleep deficit. Intensity reduced by 10%.
+            </div>
+          ) : (
+            <div style={{ fontSize: '11px', color: '#34d399', marginTop: '6px', fontWeight: '600' }}>
+              ✓ Sleep is optimal. Recovery normal.
+            </div>
+          )}
+        </div>
+
+        {/* Hydration Metrics */}
+        <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
+          <div style={{ fontSize: '11px', color: 'var(--app-text-muted)', marginBottom: '4px' }}>WEEKLY HYDRATION AVG</div>
+          <div style={{ fontSize: '24px', fontWeight: '800', color: '#60a5fa' }}>
+            {((weeklyAverages.avg_water_ml || 0) / 1000).toFixed(2)} <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--app-text-muted)' }}>L / day</span>
+          </div>
+          {weeklyAverages.dehydration_flag ? (
+            <div style={{ fontSize: '11px', color: '#f87171', marginTop: '6px', fontWeight: '600' }}>
+              ⚠️ Dehydration detected. Cardio & work reduced.
+            </div>
+          ) : (
+            <div style={{ fontSize: '11px', color: '#34d399', marginTop: '6px', fontWeight: '600' }}>
+              ✓ Hydration targets met.
+            </div>
+          )}
+        </div>
+
+        {/* Workout Consistency */}
+        <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
+          <div style={{ fontSize: '11px', color: 'var(--app-text-muted)', marginBottom: '4px' }}>WORKOUT FREQUENCY</div>
+          <div style={{ fontSize: '24px', fontWeight: '800', color: '#34d399' }}>
+            {Math.round((weeklyAverages.workout_completion_rate || 0) * 100)}% <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--app-text-muted)' }}>completion</span>
+          </div>
+          <div style={{ fontSize: '11px', color: (weeklyAverages.workout_completion_rate || 0) >= 0.57 ? '#34d399' : '#f87171', marginTop: '6px', fontWeight: '600' }}>
+            {(weeklyAverages.workout_completion_rate || 0) >= 0.57
+              ? '🔥 Consistency bonus active: +1 set!'
+              : '⚠️ Attendance deficit. Volume increases paused.'}
+          </div>
+        </div>
+      </div>
+
+      {/* Coach Adaptation Explanation */}
+      <div
+        style={{
+          background: 'rgba(139, 92, 246, 0.05)',
+          border: '1px dashed rgba(139, 92, 246, 0.2)',
+          padding: '12px 16px',
+          borderRadius: '8px',
+          fontSize: '13px',
+          lineHeight: '1.5',
+          color: '#e9d5ff',
+        }}
+      >
+        <strong>Coach Adaptation Decision:</strong> {weeklyAverages.adaptive_reason || 'Baseline — all biometrics normal.'}
+      </div>
+    </div>
+  )
+}
+{/* CHART SECTION */ }
+<div className="bentoBox chartSection responsive-grid-span-8">
+  <div className="sectionHeader sectionHeader">
+    <div className="sectionTitle sectionTitle">
+      <div className="sectionAccent"></div> TRENDS
+    </div>
+    <div className="chartControls">
+      <div className="chartTabs">
+        {['all', 'workout', 'meal', 'sleep', 'water'].map((m) => (
+          <button
+            key={m}
+            className={`chartTab ${chartMode === m ? "chartTabActive" : ""}`}
+            onClick={() => setChartMode(m)}
+          >
+            {m === 'all' ? 'ALL' : m.toUpperCase()}
+          </button>
+        ))}
+      </div>
+      <div className="chartTabs">
+        {['week', 'month'].map((p) => (
+          <button
+            key={p}
+            className={`chartTab ${chartPeriod === p ? "chartTabActive" : ""}`}
+            onClick={() => setChartPeriod(p)}
+          >
+            {p.toUpperCase()}
+          </button>
+        ))}
+      </div>
+    </div>
+  </div>
+  <ActivityChart data={chartData} mode={chartMode} period={chartPeriod} xLabels={chartXLabels} />
+</div>
+
+{/* ACTIVITY SECTION */ }
+<div className="bentoBox activitySection responsive-grid-span-4">
+  <div className="sectionHeader">
+    <div className="sectionTitle">
+      <div className="sectionAccent"></div> ACTIVITY
+    </div>
+  </div>
+  <div className="activity-list" style={{ flex: 1, overflowY: 'auto', paddingRight: '4px' }}>
+    {recentHistory.length === 0 ? (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 20px', color: '#52525b' }}>
+        <div style={{ fontSize: '32px', marginBottom: '12px' }}>📋</div>
+        <div style={{ fontSize: '14px', fontWeight: '600', color: '#71717a' }}>No activity yet</div>
+        <div style={{ fontSize: '12px', color: '#52525b', marginTop: '4px' }}>Complete a workout or log a meal to see your activity here</div>
+      </div>
+    ) : (
+      recentHistory.map((h, i) => (
+        <div key={i} className="listRow activity-row listRow">
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            <div
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '10px',
+                background:
+                  h.type === 'workout'
+                    ? 'rgba(34, 197, 94, 0.1)'
+                    : h.type === 'meal'
+                      ? 'rgba(236, 72, 153, 0.1)'
+                      : h.type === 'sleep'
+                        ? 'rgba(99, 102, 241, 0.1)'
+                        : h.type === 'water'
+                          ? 'rgba(56, 189, 248, 0.1)'
+                          : 'rgba(245, 158, 11, 0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '16px'
+              }}
+            >
+              {h.type === 'workout'
+                ? '💪'
+                : h.type === 'meal'
+                  ? '🥗'
+                  : h.type === 'sleep'
+                    ? '😴'
+                    : h.type === 'water'
+                      ? '💧'
+                      : '📊'}
+            </div>
+            <div>
+              <div style={{ color: 'var(--app-text)', fontSize: '14px', fontWeight: '600' }}>
+                {h.name}
+              </div>
+              <div style={{ color: '#71717a', fontSize: '13px', fontFamily: 'sans-serif' }}>
+                {h.date}
+              </div>
+            </div>
+          </div>
+          <div style={{ fontSize: '12px', color: 'var(--app-text-muted)', fontWeight: '500' }}>
+            {h.details}
+          </div>
+        </div>
+      ))
+    )}
+  </div>
+</div>
+        </div >
+
+  {/* NOTIFICATIONS CONTAINER */ }
+{
+  notifications.length > 0 && (
+    <div className="notificationsContainer">
+      {notifications.map((notification) => (
+        <div
+          key={notification.id}
+          className="notificationItem"
+        >
+          <div className="notificationContent">
+            <span className="notificationMessage">{notification.message}</span>
+            <button
+              className="notificationClose"
+              onClick={() => dismissNotification(notification.id)}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+{/* CONFIRM DIALOG */ }
+<ConfirmDialog
+  show={confirmDialog.show}
+  message={confirmDialog.message}
+  onConfirm={handleConfirm}
+  onCancel={handleCancelConfirm}
+/>
+      </div >
     </>
   );
 }
@@ -4890,13 +3509,13 @@ function Dashboard({ onLogout }) {
 const getDynamicWaterGoal = (weightKg = 70, sleepHours = 0, workoutCompleted = false) => {
   // Base requirement: 33ml per kg
   let targetLiters = weightKg * 0.033;
-  
+
   // +500ml on workout days
   if (workoutCompleted) targetLiters += 0.5;
-  
+
   // +250ml if sleep is poor (< 7 hours)
   if (sleepHours > 0 && sleepHours < 7) targetLiters += 0.25;
-  
+
   return Math.min(5.0, Math.max(2.0, targetLiters));
 };
 
