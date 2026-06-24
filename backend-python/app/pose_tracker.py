@@ -991,14 +991,11 @@ class PoseTracker:
         df_ex = self.load_exercise_dataset()
 
         # Load nutrition data
-        nut_processed = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'nutrition_processed.csv')
-        nut_raw = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'nutrition.csv')
+        nut_processed = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'nutrition_production_final_v4.csv')
 
         if os.path.exists(nut_processed):
             df_nut = pd.read_csv(nut_processed)
-            df_nut.rename(columns={'carbohydrate': 'Carbs', 'total_fat': 'Fats', 'name': 'Name'}, inplace=True)
-        elif os.path.exists(nut_raw):
-            df_nut = pd.read_csv(nut_raw)
+            df_nut.rename(columns={'carbohydrates_g': 'Carbs', 'fat_g': 'Fats', 'food_name': 'Name', 'diet_type': 'Tags', 'meal_type': 'Type', 'allergens': 'Allergens', 'calories_kcal': 'calories'}, inplace=True)
         else:
             print(" Nutrition data files not found")
             df_nut = pd.DataFrame()

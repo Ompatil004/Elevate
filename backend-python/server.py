@@ -492,26 +492,12 @@ async def _load_or_generate_user_weekly_plan(user_doc: Dict[str, Any]) -> Dict[s
         
         # Recalculate nutrition plan to align with the new workout volume/intensity
         try:
-            from app.nutrition_intelligence import get_meal_runtime
-            meal_runtime = get_meal_runtime()
+            from app.meal_engine import get_meal_engine
+            meal_engine = get_meal_engine()
             
-            # calculate average exercises and intensity
-            workout_days_count = sum(1 for d in weekly_plan if d.get("type") == "workout")
-            workout_intensity = "moderate"
-            total_exercises = sum(
-                len(d.get("exercises", [])) for d in weekly_plan if d.get("type") == "workout"
-            )
-            avg_exercises = total_exercises / max(workout_days_count, 1)
-            if avg_exercises >= 8:
-                workout_intensity = "very_hard"
-            elif avg_exercises >= 6:
-                workout_intensity = "hard"
-            elif avg_exercises >= 3:
-                workout_intensity = "moderate"
-            else:
-                workout_intensity = "light"
-                
-            meal_plan = meal_runtime.suggest_daily_meals(profile, workout_intensity)
+            # Use the user_doc directly since meal_engine expects the full profile
+            weekly_schedule = weekly_plan.get("schedule", []) if isinstance(weekly_plan, dict) else []
+            meal_plan = meal_engine.generate_meal_plan(user_doc, weekly_workout_plan=weekly_schedule)
             db_instance = get_database()
             await db_instance.users.update_one(
                 {"_id": user_doc["_id"]},
@@ -3217,6 +3203,8 @@ async def generate_plan(
         return result
 
 
+    except HTTPException:
+        raise
     except Exception as e:
         print(f" CRITICAL ERROR in /generate-plan: {e}")
         import traceback

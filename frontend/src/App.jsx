@@ -68,11 +68,7 @@ function AppInner({ isAuthenticated, setIsAuthenticated }) {
     navigate('/login', { replace: true });
   }, [navigate, setIsAuthenticated, showError]);
 
-  useEffect(() => {
-    const onSessionExpired = () => handleLogout('inactivity');
-    window.addEventListener('sessionExpired', onSessionExpired);
-    return () => window.removeEventListener('sessionExpired', onSessionExpired);
-  }, [handleLogout]);
+
 
 
 

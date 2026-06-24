@@ -1571,6 +1571,12 @@ class WorkoutEngine:
                 filtered = filtered[
                     ~filtered['Avoid_If'].str.contains(issue, case=False, na=False)
                 ]
+                if 'shoulder' in issue.lower():
+                    # Rule-based safety logic: filter out exercises with shoulder forbidden terms
+                    forbidden_words = ["pull-up", "pullup", "overhead press", "pike push", "handstand", "shoulder press", "military press", "neck press"]
+                    pattern = "|".join(forbidden_words)
+                    if 'Name' in filtered.columns:
+                        filtered = filtered[~filtered['Name'].str.contains(pattern, case=False, na=False)]
 
             if filtered.empty:
                 print(f" All exercises filtered out by injuries, returning safe defaults")
@@ -2654,7 +2660,8 @@ class WorkoutEngine:
         workout_days = max(1, min(recommended_days, user_days))
         
         # --- Inject Gemini AI Intelligence Config ---
-        gemini_enabled = bool(generate_workout_config and is_gemini_available and is_gemini_available())
+        # FIX: Disabled synchronous LLM call during workout generation to prevent 3-8s latency
+        gemini_enabled = False
         if gemini_enabled:
             cfg = generate_workout_config(profile, 0.75)
             if cfg:
@@ -3910,6 +3917,12 @@ class WorkoutEngine:
             for issue in body_issues:
                 if 'Avoid_If' in pool.columns:
                     pool = pool[~pool['Avoid_If'].str.contains(issue, case=False, na=False)]
+                if 'shoulder' in issue.lower():
+                    # Rule-based safety logic: filter out exercises with shoulder forbidden terms
+                    forbidden_words = ["pull-up", "pullup", "overhead press", "pike push", "handstand", "shoulder press", "military press", "neck press"]
+                    pattern = "|".join(forbidden_words)
+                    if 'Name' in pool.columns:
+                        pool = pool[~pool['Name'].str.contains(pattern, case=False, na=False)]
 
         # Biomechanical safety filter
         pool = self._filter_biomechanics(pool, profile)

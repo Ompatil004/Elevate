@@ -289,11 +289,13 @@ function Nutrition() {
       // ✅ PA-7: Use LOCAL timezone for consistent date across pages
       const todayStr = getLocalDateStr();
       const profileHash = `${profile.weight}-${profile.height}-${profile.goal}-${profile.dietary_preference || ''}-${profile.age}`;
-      const cacheInvalid = getFromStorage(StorageKeys.NUTRITION_CACHE_INVALID) === 'true';
+      const rawInvalid = getFromStorage(StorageKeys.NUTRITION_CACHE_INVALID);
+      const cacheInvalid = rawInvalid === true || rawInvalid === 'true';
       const cachedDate = getFromStorage(StorageKeys.NUTRITION_CACHE_DATE);
       const cachedPlan = getFromStorage(StorageKeys.NUTRITION_CACHE);
+      const hasValidDays = cachedPlan && Array.isArray(cachedPlan.days) && cachedPlan.days.length > 0;
 
-      if (!cacheInvalid && cachedPlan && cachedDate === todayStr && cachedPlan._profileHash === profileHash && cachedPlan.days) {
+      if (!cacheInvalid && hasValidDays && cachedDate === todayStr && cachedPlan._profileHash === profileHash) {
         // Use cached plan — no network request needed
         setWeeklyPlan({ week_start: todayStr, days: cachedPlan.days });
         setDailyTarget(cachedPlan.daily_target || {});
@@ -343,12 +345,13 @@ function Nutrition() {
           for (const mealType of ['breakfast', 'lunch', 'dinner', 'snack']) {
             const items = backendDay[mealType] || [];
             const foods = items.map((item, idx) => ({
-              id: `${mealType}-${item.name}-${i}-${idx}`,
-              name: item.name,
+              id: `${mealType}-${item.name || item.food_name}-${i}-${idx}`,
+              name: item.name || item.food_name,
               calories: item.calories || 0,
-              protein_g: item.protein || 0,
-              carbs_g: item.carbs || 0,
-              fat_g: item.fat || 0,
+              protein_g: item.protein_g || item.protein || 0,
+              carbs_g: item.carbs_g || item.carbs || 0,
+              fat_g: item.fat_g || item.fat || 0,
+              serving: item.serving || '',
               swap_group: item.swap_group || '',
             }));
             const totals = {
@@ -683,6 +686,7 @@ function Nutrition() {
             protein_g: selectedSwap.protein,
             carbs_g: selectedSwap.carbs,
             fat_g: selectedSwap.fat,
+            serving: selectedSwap.serving || '',
             swap_group: selectedSwap.swap_group || '',
           };
         });
@@ -999,17 +1003,24 @@ function Nutrition() {
                 {swapOptions.length === 0 ? (
                   <div style={{ textAlign: "center", padding: "40px", color: "#52525b", fontSize: "15px", background: 'var(--app-surface-hover, rgba(255,255,255,0.02))', borderRadius: "16px" }}>No similar swap options found.</div>
                 ) : (
-                  swapOptions.map((option, i) => (
+                  swapOptions.map((option, i) => {
+                    const optName = option.food_name || option.name;
+                    const selName = selectedSwap?.food_name || selectedSwap?.name;
+                    const isSelected = selName === optName;
+                    return (
                     <div key={i} onClick={() => setSelectedSwap(option)} style={{
                       display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 20px",
-                      background: selectedSwap?.name === option.name ? "rgba(99, 102, 241, 0.15)" : "var(--quote-bg)",
+                      background: isSelected ? "rgba(99, 102, 241, 0.15)" : "var(--quote-bg)",
                       borderRadius: "16px",
-                      border: selectedSwap?.name === option.name ? "2px solid #6366f1" : "1px solid var(--app-border)",
+                      border: isSelected ? "2px solid #6366f1" : "1px solid var(--app-border)",
                       cursor: "pointer", transition: "all 0.2s ease",
-                      boxShadow: selectedSwap?.name === option.name ? "0 4px 15px rgba(99, 102, 241, 0.2)" : "none"
+                      boxShadow: isSelected ? "0 4px 15px rgba(99, 102, 241, 0.2)" : "none"
                     }}>
                       <div>
-                        <div style={{ fontSize: "16px", fontWeight: "700", color: selectedSwap?.name === option.name ? "var(--app-text)" : "var(--app-text)" }}>{option.name}</div>
+                        <div style={{ fontSize: "16px", fontWeight: "700", color: isSelected ? "var(--app-text)" : "var(--app-text)" }}>{optName}</div>
+                        <div style={{ fontSize: "13px", color: "var(--app-text-muted)", marginTop: "4px" }}>
+                          {(!option.serving || option.serving.match(/^(~?\d+(?:\.\d+)?)(g|ml)$/i)) ? getFallbackServing(optName, option.calories) : option.serving}
+                        </div>
                         <div style={{ display: "flex", gap: "12px", marginTop: "8px" }}>
                           <span style={{ fontSize: "12px", color: "#10b981", fontWeight: "600", fontFamily: "monospace" }}>P: {option.protein}g</span>
                           <span style={{ fontSize: "12px", color: "#3b82f6", fontWeight: "600", fontFamily: "monospace" }}>C: {option.carbs}g</span>
@@ -1020,7 +1031,7 @@ function Nutrition() {
                         {option.calories} cal
                       </div>
                     </div>
-                  ))
+                  )})
                 )}
               </div>
             )}
@@ -1157,17 +1168,7 @@ function MealCard({ meal, isLocked, isSequenceLocked, unlockMessage, checkedFood
                   padding: "3px 7px", fontFamily: "monospace",
                   whiteSpace: "nowrap",
                 }}>
-                  {(() => {
-                    const cal = food.calories || 0;
-                    const name = (food.name || '').toLowerCase();
-                    const isLiquid = /juice|milk|smoothie|drink|shake|tea|coffee|water|lassi|soup|broth/.test(name);
-                    if (isLiquid) {
-                      const ml = Math.round((cal / 60) * 200 / 50) * 50;
-                      return `~${Math.max(100, Math.min(500, ml))}ml`;
-                    }
-                    const g = Math.round((cal / 250) * 200 / 25) * 25;
-                    return `~${Math.max(50, Math.min(400, g))}g`;
-                  })()}
+                  {(!food.serving || food.serving.match(/^(~?\d+(?:\.\d+)?)(g|ml)$/i)) ? getFallbackServing(food.name, food.calories) : food.serving}
                 </span>
               </div>
               <div style={{ textAlign: "center", color: "var(--app-text)", fontWeight: "600", fontFamily: "monospace", fontSize: "13px" }}>{food.calories}</div>
@@ -1295,6 +1296,110 @@ function HistoryPanel({ mealHistory, expandedDates, setExpandedDates, expandedMe
       )}
     </div>
   );
+}
+
+export function getFallbackServing(nameStr, calValue) {
+  const cal = calValue || 0;
+  const name = (nameStr || '').toLowerCase();
+  
+  // 1. Eggs
+  if (name.includes('egg') || name.includes('anda')) {
+    const qty = Math.max(1, Math.round(cal / 70));
+    return `${qty} piece${qty > 1 ? 's' : ''} (egg)`;
+  }
+  
+  // 2. Roti / Chapati / Paratha / Naan / Bread
+  if (name.includes('roti') || name.includes('chapati') || name.includes('phulka')) {
+    const qty = Math.max(1, Math.round(cal / 85));
+    return `${qty} piece${qty > 1 ? 's' : ''} (roti)`;
+  }
+  if (name.includes('paratha') || name.includes('parantha')) {
+    const qty = Math.max(1, Math.round(cal / 180));
+    return `${qty} piece${qty > 1 ? 's' : ''} (paratha)`;
+  }
+  if (name.includes('naan')) {
+    const qty = Math.max(1, Math.round(cal / 250 * 2) / 2);
+    return `${qty} piece${qty > 1 ? 's' : ''} (naan)`;
+  }
+  if (name.includes('bread') || name.includes('toast')) {
+    const qty = Math.max(1, Math.round(cal / 80));
+    return `${qty} slice${qty > 1 ? 's' : ''}`;
+  }
+  
+  // 3. Idli / Dosa / Uttapam / Vada
+  if (name.includes('idli')) {
+    const qty = Math.max(1, Math.round(cal / 65));
+    return `${qty} piece${qty > 1 ? 's' : ''}`;
+  }
+  if (name.includes('dosa')) {
+    const qty = Math.max(1, Math.round(cal / 150));
+    return `${qty} piece${qty > 1 ? 's' : ''} (dosa)`;
+  }
+  if (name.includes('vada')) {
+    const qty = Math.max(1, Math.round(cal / 100));
+    return `${qty} piece${qty > 1 ? 's' : ''}`;
+  }
+  if (name.includes('uttapam')) {
+    const qty = Math.max(1, Math.round(cal / 200 * 2) / 2);
+    return `${qty} piece${qty > 1 ? 's' : ''}`;
+  }
+  
+  // 4. Whole fruits
+  if (/apple|banana|orange|fruit\s*\(/.test(name)) {
+    const qty = Math.max(1, Math.round(cal / 85));
+    return `${qty} medium fruit${qty > 1 ? 's' : ''}`;
+  }
+  
+  // 5. Beverages & Liquid Shakes (ml/glass)
+  if (/juice|milk|smoothie|drink|shake|lassi|chaas|lemonade/.test(name)) {
+    const isRich = /lassi|shake|milk|smoothie/.test(name);
+    const baseCalPerGlass = isRich ? 150 : 80;
+    const glasses = Math.round((cal / baseCalPerGlass) * 2) / 2;
+    if (glasses >= 1) {
+      return `${glasses} glass${glasses > 1 ? 'es' : ''} (~${Math.round(glasses * 250)}ml)`;
+    }
+    return `~${Math.round(cal * 2)}ml`;
+  }
+  
+  // 6. Tea & Coffee
+  if (name.includes('tea') || name.includes('coffee') || name.includes('chai')) {
+    const cups = Math.round((cal / 60) * 2) / 2;
+    return `${Math.max(0.5, cups)} cup${cups > 1 ? 's' : ''}`;
+  }
+  
+  // 7. Dal, Sambar, Kadhi, Soups, Salad, Yogurt, Raita
+  if (/dal|sambar|kadhi|soup|shorba|raita|yogurt|curd|salad/.test(name)) {
+    const isHeavy = /dal|sambar|kadhi|soup|shorba/.test(name);
+    const baseCalPerBowl = isHeavy ? 120 : 70;
+    const bowls = Math.round((cal / baseCalPerBowl) * 2) / 2;
+    return `${Math.max(0.5, bowls)} bowl${bowls > 1 ? 's' : ''}`;
+  }
+  
+  // 8. Rice, Pulao, Biryani, Noodles, Pasta
+  if (/rice|pulao|biryani|noodle|pasta|spaghetti|macaroni|chowmein/.test(name)) {
+    const plates = Math.round((cal / 200) * 2) / 2;
+    return `${Math.max(0.5, plates)} plate${plates > 1 ? 's' : ''}`;
+  }
+  
+  // 9. Protein Bars
+  if (name.includes('bar')) {
+    const qty = Math.max(1, Math.round(cal / 200));
+    return `${qty} bar${qty > 1 ? 's' : ''}`;
+  }
+  
+  // 10. Nuts & Seeds
+  if (/almonds|walnuts|cashew|nuts|seeds/.test(name)) {
+    const handfuls = Math.round((cal / 160) * 2) / 2;
+    const g = Math.round(cal / 160 * 28);
+    if (handfuls >= 1) {
+      return `${handfuls} handful${handfuls > 1 ? 's' : ''} (~${g}g)`;
+    }
+    return `~${g}g`;
+  }
+  
+  // Fallback to Grams
+  const g = Math.round((cal / 250) * 200 / 25) * 25;
+  return `~${Math.max(50, Math.min(400, g))}g`;
 }
 
 export default Nutrition;

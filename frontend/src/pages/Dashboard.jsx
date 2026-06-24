@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useNotification } from '../components/NotificationProvider';
 import { useTheme } from '../context/ThemeContext';
 import ConfirmDialog from '../components/ConfirmDialog';
-import { getProfile, saveTrends, getTrends, logActivityToBackend, getRecentActivities, syncActivitiesToBackend, saveDailyLog, getWeeklyLogs, generateWorkout, getMealHistory } from '../api';
+import { getProfile, saveTrends, getTrends, logActivityToBackend, getRecentActivities, syncActivitiesToBackend, saveDailyLog, getWeeklyLogs, generateWorkout } from '../api';
 import Navbar from '../components/Navbar';
 import { preloadPoseAssets } from '../utils/poseModelPreload';
 import { QUOTES } from '../data/quotes';
@@ -752,7 +752,12 @@ function Dashboard({ onLogout }) {
       const sleepRatio = Math.min(1, sleep / 7);
       const sleepPts = Math.round(sleepRatio * 25);
 
-      const total = workoutPts + mealPts + waterPts + sleepPts;
+      let total = workoutPts + mealPts + waterPts + sleepPts;
+      
+      // Prevent progress bar from going up just because of pre-filled sleep data
+      if (workoutPts === 0 && mealPts === 0 && waterPts === 0) {
+        total = 0;
+      }
       setDailyProgress(Math.min(100, Math.max(0, total)));
     } catch (err) {
       console.error('Error computing daily progress:', err);
@@ -1082,17 +1087,18 @@ function Dashboard({ onLogout }) {
             name: w.focus || w.dayName || 'Completed Workout',
             details: w.exercises_count ? `${w.exercises_count} exercises` : 'Daily Routine',
             date: new Date(w.completedAt || w.date || new Date()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            timestamp: new Date(w.completedAt || w.date || new Date()).getTime(),
           });
         });
         normalizedMeals.forEach(m => {
-          combinedHistory.push({
-            type: 'meal',
-            name: m.name || m.mealType || 'Logged Meal',
-            details: `${Math.round(Number(m.calories) || 0)} cal`,
-            date: new Date(m.completedAt || m.date || new Date()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            timestamp: new Date(m.completedAt || m.date || new Date()).getTime(),
-          });
+          if (Number(m.calories) > 0) {
+            combinedHistory.push({
+              type: 'meal',
+              name: m.name || m.mealType || 'Logged Meal',
+              details: `${Math.round(Number(m.calories) || 0)} cal`,
+              date: new Date(m.completedAt || m.date || new Date()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              timestamp: new Date(m.completedAt || m.date || new Date()).getTime(),
+            });
+          }
         });
         (Array.isArray(data.recent_activities) ? data.recent_activities : []).forEach((a) => {
           combinedHistory.push({
@@ -1207,9 +1213,8 @@ function Dashboard({ onLogout }) {
 
             const mealDone = !!entry.meal_completed;
             const workoutDone = !!entry.workout_completed;
-            const waterDone = (entry.water_glasses || entry.water_intake || 0) > 0;
-            const sleepDone = (entry.sleep_hours || 0) > 0;
-            const dayCompleted = workoutDone || mealDone || waterDone || sleepDone;
+            // Streak is only extended if user actually completes the main daily tasks.
+            const dayCompleted = workoutDone || mealDone;
 
             if (dayCompleted) {
               currentStreak++;
@@ -1252,12 +1257,24 @@ function Dashboard({ onLogout }) {
             return { day, status };
           });
           setWeeklyProgress(weekData);
-
         } else {
-          // Fallback to workout count
+          // Fallback to workout count - Calculate consecutive streak properly
           const workouts = data.workouts || [];
-          const uniqueDays = new Set(workouts.map(w => (w.date || '').split('T')[0]));
-          setStats((prev) => ({ ...prev, streak: uniqueDays.size }));
+          const completedWorkouts = workouts.filter(w => w.completed || String(w.status).toLowerCase() === 'completed' || w.completedAt);
+          const uniqueDays = new Set(completedWorkouts.map(w => (w.completedAt || w.date || '').split('T')[0]));
+          let currentStreak = 0;
+          const dateCursor = new Date();
+          dateCursor.setHours(0, 0, 0, 0);
+          for (let i = 0; i < 365; i++) {
+            const dateKey = getLocalDateStr(dateCursor);
+            if (uniqueDays.has(dateKey)) {
+              currentStreak++;
+              dateCursor.setDate(dateCursor.getDate() - 1);
+            } else {
+              break;
+            }
+          }
+          setStats((prev) => ({ ...prev, streak: currentStreak }));
 
           // ✅ FIX: Still build weekly progress even without trends
           const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
@@ -3239,234 +3256,238 @@ title = {`${Math.round(macros.f)}g Fats`}
 }
           </div >
 
-  {/* AI COACH SUMMARY / ADAPTIVE MODIFIERS */ }
-{
-  weeklyAverages && (
-    <div
-      style={{
-        gridColumn: 'span 12',
-        background: 'linear-gradient(135deg, rgba(30, 27, 75, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%)',
-        border: '1px solid rgba(139, 92, 246, 0.2)',
-        padding: '20px',
-        marginBottom: '20px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '15px',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-      className="hover-card bentoBox bentoBox"
-    >
-      {/* Decorative radial gradient glow */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '-40px',
-          right: '-40px',
-          width: '180px',
-          height: '180px',
-          background: 'radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%)',
-          pointerEvents: 'none',
-        }}
-      />
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ fontSize: '24px', background: 'rgba(139, 92, 246, 0.2)', padding: '8px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🤖</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-            <span style={{ fontSize: '16px', fontWeight: '900', color: 'var(--app-text)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-              AI Coach
-            </span>
-            <span style={{ fontSize: '11px', fontWeight: '700', color: '#c084fc', letterSpacing: '1px', textTransform: 'uppercase' }}>
-              Adaptive Auto-Regulation
-            </span>
-          </div>
-        </div>
-        <div
-          style={{
-            fontSize: '11px',
-            fontWeight: '700',
-            padding: '3px 10px',
-            borderRadius: '20px',
-            background: 'rgba(139, 92, 246, 0.15)',
-            color: '#c084fc',
-            border: '1px solid rgba(139, 92, 246, 0.3)',
-            textTransform: 'uppercase',
-          }}
-        >
-          {(weeklyAverages.days_logged || 0)} Days Tracked
-        </div>
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '15px' }}>
-        {/* Sleep Metrics */}
-        <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
-          <div style={{ fontSize: '11px', color: 'var(--app-text-muted)', marginBottom: '4px' }}>WEEKLY SLEEP AVG</div>
-          <div style={{ fontSize: '24px', fontWeight: '800', color: '#a78bfa' }}>
-            {(weeklyAverages.avg_sleep_hours || 0)} <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--app-text-muted)' }}>hours / night</span>
-          </div>
-          {weeklyAverages.deload_flag ? (
-            <div style={{ fontSize: '11px', color: '#f87171', marginTop: '6px', fontWeight: '600' }}>
-              ⚠️ Critical sleep deficit. Recovery Deload active.
-            </div>
-          ) : (weeklyAverages.avg_sleep_hours || 0) < 6.0 ? (
-            <div style={{ fontSize: '11px', color: '#fbbf24', marginTop: '6px', fontWeight: '600' }}>
-              ⚠️ Sleep deficit. Intensity reduced by 10%.
-            </div>
-          ) : (
-            <div style={{ fontSize: '11px', color: '#34d399', marginTop: '6px', fontWeight: '600' }}>
-              ✓ Sleep is optimal. Recovery normal.
-            </div>
-          )}
-        </div>
-
-        {/* Hydration Metrics */}
-        <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
-          <div style={{ fontSize: '11px', color: 'var(--app-text-muted)', marginBottom: '4px' }}>WEEKLY HYDRATION AVG</div>
-          <div style={{ fontSize: '24px', fontWeight: '800', color: '#60a5fa' }}>
-            {((weeklyAverages.avg_water_ml || 0) / 1000).toFixed(2)} <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--app-text-muted)' }}>L / day</span>
-          </div>
-          {weeklyAverages.dehydration_flag ? (
-            <div style={{ fontSize: '11px', color: '#f87171', marginTop: '6px', fontWeight: '600' }}>
-              ⚠️ Dehydration detected. Cardio & work reduced.
-            </div>
-          ) : (
-            <div style={{ fontSize: '11px', color: '#34d399', marginTop: '6px', fontWeight: '600' }}>
-              ✓ Hydration targets met.
-            </div>
-          )}
-        </div>
-
-        {/* Workout Consistency */}
-        <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
-          <div style={{ fontSize: '11px', color: 'var(--app-text-muted)', marginBottom: '4px' }}>WORKOUT FREQUENCY</div>
-          <div style={{ fontSize: '24px', fontWeight: '800', color: '#34d399' }}>
-            {Math.round((weeklyAverages.workout_completion_rate || 0) * 100)}% <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--app-text-muted)' }}>completion</span>
-          </div>
-          <div style={{ fontSize: '11px', color: (weeklyAverages.workout_completion_rate || 0) >= 0.57 ? '#34d399' : '#f87171', marginTop: '6px', fontWeight: '600' }}>
-            {(weeklyAverages.workout_completion_rate || 0) >= 0.57
-              ? '🔥 Consistency bonus active: +1 set!'
-              : '⚠️ Attendance deficit. Volume increases paused.'}
-          </div>
-        </div>
-      </div>
-
-      {/* Coach Adaptation Explanation */}
-      <div
-        style={{
-          background: 'rgba(139, 92, 246, 0.05)',
-          border: '1px dashed rgba(139, 92, 246, 0.2)',
-          padding: '12px 16px',
-          borderRadius: '8px',
-          fontSize: '13px',
-          lineHeight: '1.5',
-          color: '#e9d5ff',
-        }}
-      >
-        <strong>Coach Adaptation Decision:</strong> {weeklyAverages.adaptive_reason || 'Baseline — all biometrics normal.'}
-      </div>
-    </div>
-  )
-}
-{/* CHART SECTION */ }
-<div className="bentoBox chartSection responsive-grid-span-8">
-  <div className="sectionHeader sectionHeader">
-    <div className="sectionTitle sectionTitle">
-      <div className="sectionAccent"></div> TRENDS
-    </div>
-    <div className="chartControls">
-      <div className="chartTabs">
-        {['all', 'workout', 'meal', 'sleep', 'water'].map((m) => (
-          <button
-            key={m}
-            className={`chartTab ${chartMode === m ? "chartTabActive" : ""}`}
-            onClick={() => setChartMode(m)}
-          >
-            {m === 'all' ? 'ALL' : m.toUpperCase()}
-          </button>
-        ))}
-      </div>
-      <div className="chartTabs">
-        {['week', 'month'].map((p) => (
-          <button
-            key={p}
-            className={`chartTab ${chartPeriod === p ? "chartTabActive" : ""}`}
-            onClick={() => setChartPeriod(p)}
-          >
-            {p.toUpperCase()}
-          </button>
-        ))}
-      </div>
-    </div>
-  </div>
-  <ActivityChart data={chartData} mode={chartMode} period={chartPeriod} xLabels={chartXLabels} />
-</div>
-
-{/* ACTIVITY SECTION */ }
-<div className="bentoBox activitySection responsive-grid-span-4">
-  <div className="sectionHeader">
-    <div className="sectionTitle">
-      <div className="sectionAccent"></div> ACTIVITY
-    </div>
-  </div>
-  <div className="activity-list" style={{ flex: 1, overflowY: 'auto', paddingRight: '4px' }}>
-    {recentHistory.length === 0 ? (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 20px', color: '#52525b' }}>
-        <div style={{ fontSize: '32px', marginBottom: '12px' }}>📋</div>
-        <div style={{ fontSize: '14px', fontWeight: '600', color: '#71717a' }}>No activity yet</div>
-        <div style={{ fontSize: '12px', color: '#52525b', marginTop: '4px' }}>Complete a workout or log a meal to see your activity here</div>
-      </div>
-    ) : (
-      recentHistory.map((h, i) => (
-        <div key={i} className="listRow activity-row listRow">
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          {/* AI COACH SUMMARY / ADAPTIVE MODIFIERS */}
+          {weeklyAverages && (
             <div
               style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '10px',
-                background:
-                  h.type === 'workout'
-                    ? 'rgba(34, 197, 94, 0.1)'
-                    : h.type === 'meal'
-                      ? 'rgba(236, 72, 153, 0.1)'
-                      : h.type === 'sleep'
-                        ? 'rgba(99, 102, 241, 0.1)'
-                        : h.type === 'water'
-                          ? 'rgba(56, 189, 248, 0.1)'
-                          : 'rgba(245, 158, 11, 0.1)',
+                gridColumn: 'span 12',
+                background: 'linear-gradient(135deg, rgba(30, 27, 75, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%)',
+                border: '1px solid rgba(139, 92, 246, 0.2)',
+                padding: '20px',
+                marginBottom: '20px',
                 display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '16px'
+                flexDirection: 'column',
+                gap: '15px',
+                position: 'relative',
+                overflow: 'hidden',
               }}
+              className="hover-card bentoBox bentoBox"
             >
-              {h.type === 'workout'
-                ? '💪'
-                : h.type === 'meal'
-                  ? '🥗'
-                  : h.type === 'sleep'
-                    ? '😴'
-                    : h.type === 'water'
-                      ? '💧'
-                      : '📊'}
+              {/* Decorative radial gradient glow */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '-40px',
+                  right: '-40px',
+                  width: '180px',
+                  height: '180px',
+                  background: 'radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%)',
+                  pointerEvents: 'none',
+                }}
+              />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ fontSize: '24px', background: 'rgba(139, 92, 246, 0.2)', padding: '8px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🤖</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                    <span style={{ fontSize: '16px', fontWeight: '900', color: 'var(--app-text)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                      AI Coach
+                    </span>
+                    <span style={{ fontSize: '11px', fontWeight: '700', color: '#c084fc', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                      Adaptive Auto-Regulation
+                    </span>
+                  </div>
+                </div>
+                <div
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: '700',
+                    padding: '3px 10px',
+                    borderRadius: '20px',
+                    background: 'rgba(139, 92, 246, 0.15)',
+                    color: '#c084fc',
+                    border: '1px solid rgba(139, 92, 246, 0.3)',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  {(weeklyAverages.days_logged || 0)} Days Tracked
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '15px' }}>
+                {/* Sleep Metrics */}
+                <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--app-text-muted)', marginBottom: '4px' }}>WEEKLY SLEEP AVG</div>
+                  <div style={{ fontSize: '24px', fontWeight: '800', color: '#a78bfa' }}>
+                    {(weeklyAverages.avg_sleep_hours || 0)} <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--app-text-muted)' }}>hours / night</span>
+                  </div>
+                  {weeklyAverages.deload_flag ? (
+                    <div style={{ fontSize: '11px', color: '#f87171', marginTop: '6px', fontWeight: '600' }}>
+                      ⚠️ Critical sleep deficit. Recovery Deload active.
+                    </div>
+                  ) : (weeklyAverages.avg_sleep_hours || 0) < 6.0 ? (
+                    <div style={{ fontSize: '11px', color: '#fbbf24', marginTop: '6px', fontWeight: '600' }}>
+                      ⚠️ Sleep deficit. Intensity reduced by 10%.
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: '11px', color: '#34d399', marginTop: '6px', fontWeight: '600' }}>
+                      ✓ Sleep is optimal. Recovery normal.
+                    </div>
+                  )}
+                </div>
+
+                {/* Hydration Metrics */}
+                <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--app-text-muted)', marginBottom: '4px' }}>WEEKLY HYDRATION AVG</div>
+                  <div style={{ fontSize: '24px', fontWeight: '800', color: '#60a5fa' }}>
+                    {((weeklyAverages.avg_water_ml || 0) / 1000).toFixed(2)} <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--app-text-muted)' }}>L / day</span>
+                  </div>
+                  {weeklyAverages.dehydration_flag ? (
+                    <div style={{ fontSize: '11px', color: '#f87171', marginTop: '6px', fontWeight: '600' }}>
+                      ⚠️ Dehydration detected. Cardio & work reduced.
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: '11px', color: '#34d399', marginTop: '6px', fontWeight: '600' }}>
+                      ✓ Hydration targets met.
+                    </div>
+                  )}
+                </div>
+
+                {/* Workout Consistency */}
+                <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--app-text-muted)', marginBottom: '4px' }}>WORKOUT FREQUENCY</div>
+                  <div style={{ fontSize: '24px', fontWeight: '800', color: '#34d399' }}>
+                    {Math.round((weeklyAverages.workout_completion_rate || 0) * 100)}% <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--app-text-muted)' }}>completion</span>
+                  </div>
+                  <div style={{ fontSize: '11px', color: (weeklyAverages.workout_completion_rate || 0) >= 0.57 ? '#34d399' : '#f87171', marginTop: '6px', fontWeight: '600' }}>
+                    {(weeklyAverages.workout_completion_rate || 0) >= 0.57 
+                      ? '🔥 Consistency bonus active: +1 set!' 
+                      : '⚠️ Attendance deficit. Volume increases paused.'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Coach Adaptation Explanation */}
+              <div
+                style={{
+                  background: 'rgba(139, 92, 246, 0.05)',
+                  border: '1px dashed rgba(139, 92, 246, 0.2)',
+                  padding: '12px 16px',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  lineHeight: '1.5',
+                  color: '#e9d5ff',
+                }}
+              >
+                <strong>Coach Adaptation Decision:</strong> {weeklyAverages.adaptive_reason || 'Baseline — all biometrics normal.'}
+              </div>
             </div>
-            <div>
-              <div style={{ color: 'var(--app-text)', fontSize: '14px', fontWeight: '600' }}>
-                {h.name}
+          )}
+          {/* CHART SECTION */}
+          <div className="bentoBox chartSection responsive-grid-span-8">
+            <div className="sectionHeader sectionHeader">
+              <div className="sectionTitle sectionTitle">
+                <div className="sectionAccent"></div> TRENDS
               </div>
-              <div style={{ color: '#71717a', fontSize: '13px', fontFamily: 'sans-serif' }}>
-                {h.date}
+              <div className="chartControls">
+                <div className="chartTabs">
+                  {['all', 'workout', 'meal', 'sleep', 'water'].map((m) => (
+                    <button
+                      key={m}
+                      className={`chartTab ${chartMode === m ? "chartTabActive" : ""}`}
+                      onClick={() => setChartMode(m)}
+                    >
+                      {m === 'all' ? 'ALL' : m.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
+                <div className="chartTabs">
+                  {['week', 'month'].map((p) => (
+                    <button
+                      key={p}
+                      className={`chartTab ${chartPeriod === p ? "chartTabActive" : ""}`}
+                      onClick={() => setChartPeriod(p)}
+                    >
+                      {p.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
               </div>
+            </div>
+            <ActivityChart data={chartData} mode={chartMode} period={chartPeriod} xLabels={chartXLabels} />
+          </div>
+
+          {/* ACTIVITY SECTION */}
+          <div className="bentoBox activitySection responsive-grid-span-4">
+            <div className="sectionHeader">
+              <div className="sectionTitle">
+                <div className="sectionAccent"></div> ACTIVITY
+              </div>
+            </div>
+            <div className="activity-list" style={{ flex: 1, overflowY: 'auto', paddingRight: '4px' }}>
+              {(() => {
+                const todayStr = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                const todaysHistory = recentHistory.filter(h => h.date === todayStr || String(h.date).includes('Today') || String(h.date).includes(new Date().getDate()));
+                
+                return todaysHistory.length === 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 20px', color: '#52525b' }}>
+                    <div style={{ fontSize: '32px', marginBottom: '12px' }}>📋</div>
+                    <div style={{ fontSize: '14px', fontWeight: '600', color: '#71717a' }}>No activity yet</div>
+                    <div style={{ fontSize: '12px', color: '#52525b', marginTop: '4px' }}>Complete a workout or log a meal to see your activity here</div>
+                  </div>
+                ) : (
+                  todaysHistory.map((h, i) => (
+                    <div key={i} className="listRow activity-row listRow">
+                      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                        <div
+                          style={{
+                            width: '36px',
+                            height: '36px',
+                            borderRadius: '10px',
+                            background:
+                              h.type === 'workout'
+                                ? 'rgba(34, 197, 94, 0.1)'
+                                : h.type === 'meal'
+                                  ? 'rgba(236, 72, 153, 0.1)'
+                                  : h.type === 'sleep'
+                                    ? 'rgba(99, 102, 241, 0.1)'
+                                    : h.type === 'water'
+                                      ? 'rgba(56, 189, 248, 0.1)'
+                                      : 'rgba(245, 158, 11, 0.1)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '16px'
+                          }}
+                        >
+                          {h.type === 'workout'
+                            ? '💪'
+                            : h.type === 'meal'
+                              ? '🥗'
+                              : h.type === 'sleep'
+                                ? '😴'
+                                : h.type === 'water'
+                                  ? '💧'
+                                  : '📊'}
+                        </div>
+                        <div>
+                          <div style={{ color: 'var(--app-text)', fontSize: '14px', fontWeight: '600' }}>
+                            {h.name}
+                          </div>
+                          <div style={{ color: '#71717a', fontSize: '13px', fontFamily: 'sans-serif' }}>
+                            {h.date}
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{ fontSize: '12px', color: 'var(--app-text-muted)', fontWeight: '500' }}>
+                        {h.details}
+                      </div>
+                    </div>
+                  ))
+                );
+              })()}
             </div>
           </div>
-          <div style={{ fontSize: '12px', color: 'var(--app-text-muted)', fontWeight: '500' }}>
-            {h.details}
-          </div>
-        </div>
-      ))
-    )}
-  </div>
-</div>
+
         </div >
 
   {/* NOTIFICATIONS CONTAINER */ }

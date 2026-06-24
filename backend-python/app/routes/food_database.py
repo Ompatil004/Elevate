@@ -23,8 +23,8 @@ def load_food_database():
         return FOOD_DATABASE
     
     try:
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        csv_path = os.path.join(base_dir, 'data', 'nutrition_processed.csv')
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        csv_path = os.path.join(base_dir, 'data', 'nutrition_production_final_v4.csv')
         
         if not os.path.exists(csv_path):
             logger.error(f"Food database not found at {csv_path}")
@@ -41,7 +41,7 @@ def load_food_database():
         }
         
         for _, row in df.iterrows():
-            meal_type = row.get('Type', '').lower()
+            meal_type = str(row.get('meal_type', '')).lower()
             
             # Map meal types
             if 'breakfast' in meal_type:
@@ -56,31 +56,30 @@ def load_food_database():
                 continue
             
             # Determine if vegetarian
-            tags = str(row.get('Tags', '')).lower()
-            is_veg = 'veg' in tags and 'non' not in tags
+            is_veg = bool(row.get('is_vegetarian', False)) or bool(row.get('is_vegan', False))
             
             # Get swap group
-            swap_group = row.get('Swap_Group', '')
+            swap_group = str(row.get('subcategory', ''))
             
             # Get goal
-            goal = row.get('Goal', 'Maintain')
+            goal = str(row.get('goal', 'Maintenance'))
             
             # Get allergens
-            allergens = str(row.get('Allergens', ''))
+            allergens = str(row.get('allergens', ''))
             
             food_item = {
-                'name': row.get('Name', 'Unknown'),
-                'calories': float(row.get('calories', 0)),
-                'protein': float(row.get('protein', 0)),
-                'carbs': float(row.get('carbohydrate', 0)),
-                'fat': float(row.get('total_fat', 0)),
+                'name': str(row.get('food_name', 'Unknown')),
+                'calories': float(row.get('calories_kcal', 0)),
+                'protein': float(row.get('protein_g', 0)),
+                'carbs': float(row.get('carbohydrates_g', 0)),
+                'fat': float(row.get('fat_g', 0)),
                 'unit': 'g',
-                'baseQty': 100,
-                'category': categorize_food(row.get('Name', '')),
+                'baseQty': float(row.get('serving_size_g', 100)),
+                'category': categorize_food(str(row.get('food_name', ''))),
                 'isVeg': is_veg,
                 'swapGroup': swap_group,
                 'goal': goal,
-                'allergens': allergens if allergens and allergens != 'nan' else ''
+                'allergens': allergens if allergens and allergens.lower() != 'nan' else 'No Known Allergens'
             }
             
             FOOD_DATABASE[category].append(food_item)

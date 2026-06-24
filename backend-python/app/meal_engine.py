@@ -140,7 +140,10 @@ class MealEngine:
         base_carbs = float(base_macros.get('carb_g', 0) or 0)
         base_fat = float(base_macros.get('fat_g', 0) or 0)
 
-        for day_name, meals in (weekly_plan.get('weekly_plan') or {}).items():
+        # V2 engine returns plan under 'plan' key
+        raw_plan = weekly_plan.get('plan') or weekly_plan.get('weekly_plan') or {}
+
+        for day_name, meals in raw_plan.items():
             day_intensity = self._normalize_intensity(intensity_by_day.get(day_name, 'moderate'))
             factor = self.intensity_multipliers.get(day_intensity, 1.0)
 
@@ -177,90 +180,65 @@ class MealEngine:
         print(f"\n[MealEngine] Generating meals for {user_profile.get('goal', 'Maintenance')}"
               f" — intensity: {workout_intensity}")
         print(f"[MealEngine] User profile: {user_profile}")
-        normalized_intensity = self._normalize_intensity(workout_intensity)
 
-        # Generate the full weekly plan from real dataset
-        print(f"[MealEngine] Calling generate_weekly_plan...")
-        weekly = self.engine.generate_weekly_plan(user_profile)
-        print(f"[MealEngine] Weekly plan generated with keys: {list(weekly.keys())}")
-        print(f"[MealEngine] Weekly plan has weekly_plan: {'weekly_plan' in weekly}")
-        if 'weekly_plan' in weekly:
-            print(f"[MealEngine] Weekly plan days: {list(weekly['weekly_plan'].keys())}")
-            # Show first day's meals as a sample
-            first_day = list(weekly['weekly_plan'].keys())[0] if weekly['weekly_plan'] else None
-            if first_day:
-                print(f"[MealEngine] {first_day} meals: {list(weekly['weekly_plan'][first_day].keys())}")
-        intensity_by_day = self._build_intensity_by_day(user_profile, normalized_intensity)
+        # Use generate_meal_plan to ensure workout volume is properly integrated
+        weekly_workout_plan = user_profile.get('weekly_workout_plan')
+        weekly = self.generate_meal_plan(user_profile, weekly_workout_plan)
 
-        base_targets = weekly['daily_targets']
-        adjusted_targets_by_day = {}
-        adjusted_weekly_plan = {}
-
-        for day_name, meals in weekly['weekly_plan'].items():
-            day_intensity = intensity_by_day.get(day_name, normalized_intensity)
-            factor = self.intensity_multipliers.get(day_intensity, 1.0)
-
-            adjusted_weekly_plan[day_name] = {}
-            for meal_type, items in (meals or {}).items():
-                adjusted_weekly_plan[day_name][meal_type] = [
-                    self._scale_meal_item(item, factor) for item in items
-                ]
-
-            adjusted_targets_by_day[day_name] = {
-                'calories': round(base_targets['daily_calories'] * factor),
-                'protein': round(base_targets['macro_targets_g']['protein_g'] * factor, 1),
-                'carbs': round(base_targets['macro_targets_g']['carb_g'] * factor, 1),
-                'fat': round(base_targets['macro_targets_g']['fat_g'] * factor, 1),
-                'workout_intensity': day_intensity,
-            }
+        adjusted_weekly_plan = weekly.get('weekly_plan', {})
+        adjusted_targets_by_day = weekly.get('daily_targets_by_day', {})
+        intensity_by_day = weekly.get('intensity_by_day', {})
 
         # Pick today's day (aligned to IST timezone like frontend)
         today_key = datetime.now(_IST).strftime('%A')
         if today_key not in adjusted_weekly_plan:
-            today_key = list(adjusted_weekly_plan.keys())[0]
+            today_key = list(adjusted_weekly_plan.keys())[0] if adjusted_weekly_plan else 'Monday'
 
-        today_meals = adjusted_weekly_plan[today_key]
+        today_meals = adjusted_weekly_plan.get(today_key, {})
+        today_target = adjusted_targets_by_day.get(today_key, {})
+
+        normalized_intensity = self._normalize_intensity(workout_intensity)
+        today_intensity = intensity_by_day.get(today_key, normalized_intensity)
 
         # Flatten into a single list of meals for the frontend
         flat_meals = []
         for meal_type, items in today_meals.items():
             for item in items:
                 flat_meals.append({
-                    'meal_type': meal_type,
-                    'name': item['name'],
-                    'calories': item['calories'],
-                    'protein': item['protein'],
-                    'carbs': item['carbs'],
-                    'fat': item['fat'],
-                    'fiber': 0,
-                    'swap_group': item.get('swap_group', ''),
-                    'tags': '',
+                    'meal_type':    meal_type,
+                    'name':         item.get('food_name', item.get('name', '')),
+                    'food_name':    item.get('food_name', item.get('name', '')),
+                    'serving':      item.get('serving', ''),
+                    'calories':     item.get('calories', 0),
+                    'protein':      item.get('protein', 0),
+                    'carbs':        item.get('carbs', 0),
+                    'fat':          item.get('fat', 0),
+                    'fiber':        0,
+                    'swap_group':   item.get('swap_group', ''),
+                    'swap_options': item.get('swap_options', []),
+                    'meal_role':    item.get('meal_role', ''),
+                    'budget_level': item.get('budget_level', ''),
+                    'availability': item.get('availability', ''),
+                    'tags':         '',
                     'intensity_adjusted': True,
-                    'workout_intensity': intensity_by_day.get(today_key, normalized_intensity),
+                    'workout_intensity':  today_intensity,
                 })
 
-        print(f" Generated {len(flat_meals)} meal items for {today_key}")
-
-        today_target = adjusted_targets_by_day[today_key]
-
         print(f"[MealEngine] Generated {len(flat_meals)} meal items for {today_key}")
-        print(f"[MealEngine] Flat meals sample: {flat_meals[:2] if flat_meals else 'EMPTY'}")
         
         result_dict = {
             'date': datetime.now(_IST).strftime('%Y-%m-%d'),
             'daily_target': today_target,
             'daily_targets_by_day': adjusted_targets_by_day,
             'meals': flat_meals,
-            'note': (f"Daily plan for {user_profile.get('goal', 'Maintenance')}"
-                     f" — {intensity_by_day.get(today_key, normalized_intensity)} intensity"),
+            'note': (f"Daily plan for {user_profile.get('goal', 'Maintenance')} — {today_intensity} intensity"),
             'ml_powered': True,
-            'consistency_score': weekly['weekly_summary']['consistency_score'],
-            'shopping_list': weekly['weekly_summary']['shopping_list'],
-            'workout_intensity': intensity_by_day.get(today_key, normalized_intensity),
+            'consistency_score': weekly.get('weekly_summary', {}).get('consistency_score', 0),
+            'shopping_list': weekly.get('weekly_summary', {}).get('shopping_list', {}),
+            'workout_intensity': today_intensity,
             'intensity_by_day': intensity_by_day,
             'weekly_plan': adjusted_weekly_plan,
         }
-        print(f"[MealEngine] Returning meal plan with keys: {list(result_dict.keys())}")
 
         return result_dict
 

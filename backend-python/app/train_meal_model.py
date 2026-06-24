@@ -19,7 +19,7 @@ def train_meal_model():
     
     # Load nutrition data
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    nutrition_path = os.path.join(base_dir, 'data', 'nutrition_processed.csv')
+    nutrition_path = os.path.join(base_dir, 'data', 'nutrition_production_final_v4.csv')
     
     print(f"\n Loading nutrition data from: {nutrition_path}")
     
@@ -54,11 +54,10 @@ def train_meal_model():
         # Meal macros (from actual data)
         if len(df) > 0:
             meal = df.sample(1).iloc[0]
-            meal_calories = meal.get('calories', np.random.randint(200, 600))
-            meal_protein = meal.get('protein', np.random.randint(10, 50))
-            # nutrition_processed.csv uses carbohydrate/total_fat columns.
-            meal_carbs = meal.get('carbohydrate', meal.get('carbs', np.random.randint(20, 80)))
-            meal_fat = meal.get('total_fat', meal.get('fat', np.random.randint(5, 30)))
+            meal_calories = meal.get('calories_kcal', meal.get('calories', np.random.randint(200, 600)))
+            meal_protein = meal.get('protein_g', meal.get('protein', np.random.randint(10, 50)))
+            meal_carbs = meal.get('carbohydrates_g', meal.get('carbohydrate', np.random.randint(20, 80)))
+            meal_fat = meal.get('fat_g', meal.get('total_fat', np.random.randint(5, 30)))
         else:
             meal_calories = np.random.randint(200, 600)
             meal_protein = np.random.randint(10, 50)

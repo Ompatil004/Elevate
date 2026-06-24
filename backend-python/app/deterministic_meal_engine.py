@@ -1,890 +1,739 @@
 """
-Deterministic 7-Day Meal Engine — Dataset-Driven with Production-Level Food Classification
+Meal Engine V2  — 8-Phase Production Implementation
+Follows ELEVATE AI NUTRITION SYSTEM — MEAL ENGINE V2 IMPLEMENTATION SPECIFICATION v2.0
 
-Loads ALL meals directly from data/nutrition_processed.csv.
-Selects meals using Mifflin-St Jeor TDEE, macro ratios, dietary
-preference filtering, allergen exclusion, and Swap_Group matching.
-
-Features:
-- Multi-layer food classification (main_meal, side_dish, ingredient)
-- Regex-based filtering with whitelist protection
-- Nutrition-based validation
-- Indian meal combination suggestions
-
-Every calorie/macro value displayed is the EXACT value from the
-dataset — no random multipliers, no dummy data.
+Phases implemented:
+  Phase 1  — Weekly Variety Engine (history, protein/carb/cuisine/template rotation)
+  Phase 2  — Portion Optimizer (stepped, clamped, realistic servings)
+  Phase 3  — Meal Completeness Engine (blueprints, role validation)
+  Phase 4  — Meal Template Engine (predefined templates, rotation)
+  Phase 5  — Smart Meal Swap Engine (role-compatible, nutrition-similar swaps)
+  Phase 6  — Meal Scoring Engine (30–50 candidates, weighted scoring)
+  Phase 7  — Budget & Availability Engine (priority-based selection)
+  Phase 8  — Weekly Validator (duplicate, portion, budget, nutrition checks)
 """
-
 import pandas as pd
 import numpy as np
 from datetime import datetime, timezone
-from typing import Dict, List, Optional, Tuple
-from enum import Enum
+from typing import Dict, List, Optional, Tuple, Set
 import os
 import random
 import hashlib
-from collections import Counter
+import re
+from collections import Counter, deque
 import json
+import math
+
+
+# ---------------------------------------------------------------------------
+# MODULE-LEVEL CONSTANTS
+# ---------------------------------------------------------------------------
+
+MEAL_DISTRIBUTION = {
+    'breakfast': 0.25,
+    'lunch':     0.35,
+    'dinner':    0.28,
+    'snack':     0.12,
+}
+
+# Blueprints: each entry is a list of required meal_roles for a meal slot.
+# The engine picks a random blueprint then fills each role from the food pool.
+BLUEPRINTS = {
+    'breakfast': [
+        ['protein_main', 'carb_base', 'beverage'],
+        ['combo_meal', 'beverage'],
+        ['combo_meal', 'snack_fruit'],
+        ['combo_meal', 'condiment', 'beverage'],
+    ],
+    'lunch': [
+        ['carb_base', 'protein_main', 'veg_side', 'salad', 'dairy_side'],
+        ['carb_base', 'protein_main', 'veg_side', 'salad'],
+        ['combo_meal', 'dairy_side', 'salad'],
+        ['combo_meal', 'salad'],
+        ['combo_meal', 'condiment', 'salad'],
+    ],
+    'dinner': [
+        ['protein_main', 'veg_side', 'carb_base'],
+        ['combo_meal', 'dairy_side'],
+        ['combo_meal'],
+        ['combo_meal', 'condiment'],
+    ],
+    'snack': [
+        ['snack_fruit', 'snack'],
+        ['snack'],
+        ['beverage', 'snack'],
+    ],
+}
+
+# Availability scoring weights
+AVAILABILITY_SCORE = {
+    'very_common': 10,
+    'common':       7,
+    'limited':      3,
+    'rare':         0,
+}
+
+BUDGET_SCORE = {
+    'Low':    10,
+    'Medium':  6,
+    'High':    2,
+}
+
+# Cuisine/region bonus for variety
+REGION_ALIASES = {
+    'North India':      'North Indian',
+    'South India':      'South Indian',
+    'East India':       'East Indian',
+    'West India':       'West Indian',
+    'Northeastern India': 'North East Indian',
+    'Northeast India':  'North East Indian',
+    'All India':        'Pan Indian',
+}
+
+# Foods to exclude from recommendations — unrealistic for daily meal planning
+FOOD_NAME_BLOCKLIST = [
+    'stock', 'consomme', 'icing', 'gateau', 'fondant', 'aspic',
+    'gelatin', 'sorbet', 'mousse', 'truffle', 'caviar', 'foie gras',
+    'jam', 'jelly', 'filling', 'syrup', 'punch', 'fruit squash', 'drink squash', 'cordial',
+    'fudge', 'frosting', 'sauce', 'glaze', 'curd filling'
+]
+
+
+# ---------------------------------------------------------------------------
+# PHASE 1 — WEEKLY VARIETY TRACKER
+# ---------------------------------------------------------------------------
+
+class WeeklyVarietyTracker:
+    """
+    Tracks what has been used across the full week so the engine can
+    penalise repeats when scoring candidates.
+    """
+    def __init__(self):
+        self.breakfast_history:  Set[str] = set()
+        self.lunch_history:      Set[str] = set()
+        self.dinner_history:     Set[str] = set()
+        self.snack_history:      Set[str] = set()
+        self.protein_history:    List[str] = []
+        self.carb_history:       List[str] = []
+        self.cuisine_history:    List[str] = []
+        self.template_history:   List[int] = []   # blueprint indices used
+        self.family_history:     List[str] = []   # track broad food families
+
+    def meal_history(self, meal_type: str) -> Set[str]:
+        return getattr(self, f'{meal_type}_history', set())
+
+    def record_meal(self, meal_type: str, components: List[Dict]):
+        """Register a chosen meal so future days can avoid repeats."""
+        hist = self.meal_history(meal_type)
+        for c in components:
+            name = c.get('food_name', c.get('name', ''))
+            sg = c.get('swap_group', '')
+            
+            hist.add(name)
+            family = get_food_family(name, sg)
+            if family not in ('Drink', 'Fruit', 'Salad', 'Raita', 'Yogurt', 'Other', 'Vegetable'):
+                self.family_history.append(family)
+            
+            if sg in ('chicken/meat', 'dal & pulses', 'paneer', 'eggs',
+                      'fish & seafood', 'tofu & soy'):
+                self.protein_history.append(sg)
+            if sg in ('rice', 'bread & roti', 'oats & cereals'):
+                self.carb_history.append(sg)
+
+    def record_cuisine(self, region: str):
+        r = REGION_ALIASES.get(region, region)
+        self.cuisine_history.append(r)
+
+    def record_template(self, bp_idx: int):
+        self.template_history.append(bp_idx)
+
+    def variety_penalty(self, meal_type: str, components: List[Dict],
+                        bp_idx: int, region: str) -> float:
+        """Return a penalty score (≥0) that is subtracted from the meal score."""
+        penalty = 0.0
+        hist = self.meal_history(meal_type)
+
+        for c in components:
+            name = c.get('food_name', c.get('name', ''))
+            sg   = c.get('swap_group', '')
+            family = get_food_family(name, sg)
+            
+            # Repeated food name
+            if name in hist:
+                penalty += 40 if meal_type == 'breakfast' else 35
+                
+            # Repeated family within the last 3 days (approx 12 main meals)
+            if family not in ('Drink', 'Fruit', 'Salad', 'Raita', 'Yogurt', 'Other', 'Vegetable'):
+                family_recent = self.family_history[-12:]
+                freq = family_recent.count(family)
+                if freq > 0:
+                    penalty += 30 * freq # Heavily penalize multiple sandwiches or dosas
+                
+            # Repeated protein source
+            if sg in ('chicken/meat', 'dal & pulses', 'paneer', 'eggs',
+                      'fish & seafood', 'tofu & soy'):
+                freq = self.protein_history.count(sg)
+                penalty += min(20, freq * 7)
+            # Repeated carb
+            if sg in ('rice', 'bread & roti', 'oats & cereals'):
+                freq = self.carb_history.count(sg)
+                penalty += min(15, freq * 5)
+
+        # Repeated cuisine
+        r = REGION_ALIASES.get(region, region)
+        cuisine_freq = self.cuisine_history.count(r)
+        penalty += min(10, cuisine_freq * 3)
+
+        # Repeated template
+        tmpl_freq = self.template_history.count(bp_idx)
+        if tmpl_freq > 0:
+            penalty += 25 if tmpl_freq == 1 else 50
+
+        return penalty
+
+
+# ---------------------------------------------------------------------------
+# PHASE 2 — PORTION OPTIMIZER
+# ---------------------------------------------------------------------------
+
+def get_food_family(name: str, swap_group: str) -> str:
+    n = str(name).lower()
+    sg = str(swap_group).lower()
+    
+    if 'sandwich' in n: return 'Sandwich'
+    if 'salad' in n or 'kosambari' in n: return 'Salad'
+    if 'raita' in n or 'pachadi' in n: return 'Raita'
+    if 'soup' in n or 'shorba' in n or 'broth' in n: return 'Soup'
+    if 'milkshake' in n or 'smoothie' in n or 'lassi' in n or 'drink' in n or 'juice' in n: return 'Drink'
+    if 'fruit' in n or sg == 'fruits': return 'Fruit'
+    if sg == 'yogurt/curd' or 'curd' in n or 'yogurt' in n: return 'Yogurt'
+    if 'oats' in n or 'oatmeal' in n or 'porridge' in n or 'muesli' in n: return 'Oats'
+    if 'dosa' in n or 'idli' in n or 'uttapam' in n or 'paniyaram' in n: return 'South Indian Breakfast'
+    if 'paratha' in n or 'thepla' in n or 'cheela' in n or 'chilla' in n: return 'North Indian Breakfast'
+    if 'khichdi' in n or 'biryani' in n or 'pulao' in n or 'rice' in n or 'bisi bele' in n: return 'Cooked Staple'
+    if 'roti' in n or 'chapati' in n or 'phulka' in n or 'naan' in n: return 'Cooked Staple'
+    if 'dal' in n or 'lentil' in n or 'sambar' in n or 'rasam' in n: return 'Cooked Staple'
+    if 'chicken' in n or sg == 'chicken/meat': return 'Cooked Staple'
+    if 'fish' in n or sg == 'fish & seafood': return 'Cooked Staple'
+    if 'paneer' in n or sg == 'paneer': return 'Cooked Staple'
+    if 'egg' in n or sg == 'eggs': return 'Cooked Staple'
+    if 'sabzi' in n or 'curry' in n or sg == 'vegetable': return 'Cooked Staple'
+    if 'pasta' in n or 'noodles' in n or 'thukpa' in n: return 'Cooked Staple'
+    
+    return sg.title() if sg else 'Other'
+
+def is_realistic_meal_identity(meal_type: str, components: List[pd.Series]) -> bool:
+    """
+    Validates if the generated meal combinations make sense for the target meal.
+    Prevents e.g. Lunch/Dinner being just a Sandwich + Drink.
+    """
+    if meal_type.lower() not in ('lunch', 'dinner'):
+        return True
+        
+    families = [get_food_family(str(c.get('food_name', '')), str(c.get('swap_group', ''))) for c in components]
+    
+    # Lunch/Dinner must contain a Cooked Staple if it uses Breakfast/Snack mains
+    if 'Sandwich' in families or 'Milkshake' in families or 'Oats' in families or 'Drink' in families or 'South Indian Breakfast' in families or 'North Indian Breakfast' in families:
+        if 'Cooked Staple' not in families:
+            return False
+            
+    return True
+
+def optimize_portions(components: List[pd.Series],
+                      target_cal: float) -> Tuple[List[Dict], float]:
+    """
+    Step-based portion optimizer. No continuous multiplier scaling.
+    Steps portions incrementally until target_cal is reached or all max out.
+    """
+    if not components:
+        return [], 0.0
+
+    state = []
+    total_cal = 0.0
+    for c in components:
+        base_qty  = float(c.get('serving_quantity', 1) or 1)
+        p_min  = float(c.get('portion_min',  base_qty * 0.5) or 1)
+        p_max  = float(c.get('portion_max',  base_qty * 2.0) or base_qty * 2)
+        p_step = float(c.get('portion_step', 1) or 1)
+        p_step = max(0.01, p_step)
+        
+        if c.get('serving_unit', '') in ('piece', 'pieces', 'unit', 'number'):
+            p_step = max(1.0, round(p_step))
+            p_min = max(1.0, round(p_min))
+            p_max = max(1.0, round(p_max))
+            
+        family = get_food_family(str(c.get('food_name', '')), str(c.get('swap_group', '')))
+        
+            
+        base_cal = float(c.get('calories_kcal', 0))
+        cal_per_unit = base_cal / base_qty if base_qty > 0 else 0
+        
+        current_qty = p_min
+        current_cal = current_qty * cal_per_unit
+        
+        state.append({
+            'raw_c': c,
+            'qty': current_qty,
+            'p_min': p_min,
+            'p_max': p_max,
+            'p_step': p_step,
+            'cal_per_unit': cal_per_unit,
+            'base_qty': base_qty,
+            'cal': current_cal
+        })
+        total_cal += current_cal
+        
+    loop_count = 0
+    while total_cal < target_cal and loop_count < 1000:
+        loop_count += 1
+        steppable = [s for s in state if s['qty'] + s['p_step'] <= s['p_max'] * 1.001 and s['cal_per_unit'] > 0]
+        if not steppable:
+            break
+            
+        steppable.sort(key=lambda s: s['cal'])
+        target_item = steppable[0]
+        
+        deficit = target_cal - total_cal
+        cal_per_step = target_item['p_step'] * target_item['cal_per_unit']
+        max_steps = int(round((target_item['p_max'] - target_item['qty']) / target_item['p_step']))
+        
+        if cal_per_step > 0:
+            steps_needed = max(1, int(deficit / cal_per_step))
+        else:
+            steps_needed = 1
+            
+        jump_steps = min(max_steps, steps_needed)
+        if jump_steps < 1:
+            jump_steps = 1
+            
+        target_item['qty'] += target_item['p_step'] * jump_steps
+        added_cal = (target_item['p_step'] * jump_steps) * target_item['cal_per_unit']
+        target_item['cal'] += added_cal
+        total_cal += added_cal
+        
+    result = []
+    final_cal = 0.0
+    for s in state:
+        c = s['raw_c']
+        qty = s['qty']
+        
+        if c.get('serving_unit', '') in ('piece', 'pieces', 'unit', 'number'):
+            qty = max(1, round(qty))
+            
+        actual_scale = qty / s['base_qty'] if s['base_qty'] > 0 else 1.0
+        cal  = float(c.get('calories_kcal', 0)) * actual_scale
+        prot = float(c.get('protein_g',     0)) * actual_scale
+        carb = float(c.get('carbohydrates_g', 0)) * actual_scale
+        fat  = float(c.get('fat_g',          0)) * actual_scale
+        final_cal += cal
+
+        unit = str(c.get('serving_unit', 'g'))
+        serving_str = _format_serving(qty, unit, name=str(c.get('food_name', '')), cal=cal)
+
+        result.append({
+            'food_id':      str(c.get('food_id', '')),
+            'food_name':    str(c.get('food_name', '')),
+            'serving':      serving_str,
+            'serving_qty':  qty,
+            'serving_unit': unit,
+            'calories':     round(cal,  1),
+            'protein':      round(prot, 1),
+            'carbs':        round(carb, 1),
+            'fat':          round(fat,  1),
+            'budget_level': str(c.get('budget_level', 'Low')),
+            'availability': str(c.get('availability', 'common')),
+            'swap_group':   str(c.get('swap_group', '')),
+            'meal_role':    str(c.get('meal_role', '')),
+            'region':       str(c.get('region', 'All India')),
+            '_raw':         c,   # kept for swap engine; stripped before output
+        })
+
+    return result, final_cal
+
+
 import re
 
-from .daily_planner import generate_day_plan
+def _format_serving(qty: float, unit: str, name: str = '', cal: float = 0.0) -> str:
+    """Produce a human-readable serving string based on food type and calories."""
+    name_lower = str(name).lower() if name else ''
+    cal = float(cal) if cal else 0.0
+    qty = float(qty) if qty else 0.0
+    
+    # If explicitly pieces
+    if unit in ('piece', 'pieces', 'unit', 'number'):
+        n = int(qty)
+        label = 'piece' if n == 1 else 'pieces'
+        return f"{n} {label}"
+        
+    # If no name or calories provided, fallback to basic formatting
+    if not name_lower or cal <= 0:
+        if unit in ('g', 'ml'):
+            return f"{int(qty)}{unit}"
+        return f"{qty:g} {unit}"
+
+    # 1. Eggs
+    if 'egg' in name_lower or 'anda' in name_lower:
+        p = max(1, round(cal / 70))
+        return f"{p} piece{'s' if p > 1 else ''} (egg)"
+        
+    # 2. Roti / Chapati / Paratha / Naan / Bread
+    if any(x in name_lower for x in ['roti', 'chapati', 'phulka']):
+        p = max(1, round(cal / 85))
+        return f"{p} piece{'s' if p > 1 else ''} (roti)"
+    if 'paratha' in name_lower or 'parantha' in name_lower:
+        p = max(1, round(cal / 180))
+        return f"{p} piece{'s' if p > 1 else ''} (paratha)"
+    if 'naan' in name_lower:
+        p = max(0.5, round(cal / 250 * 2) / 2)
+        return f"{p:g} piece{'s' if p > 1 else ''} (naan)"
+    if 'bread' in name_lower or 'toast' in name_lower:
+        p = max(1, round(cal / 80))
+        return f"{p} slice{'s' if p > 1 else ''}"
+        
+    # 3. Idli / Dosa / Uttapam / Vada
+    if 'idli' in name_lower:
+        p = max(1, round(cal / 65))
+        return f"{p} piece{'s' if p > 1 else ''}"
+    if 'dosa' in name_lower:
+        p = max(1, round(cal / 150))
+        return f"{p} piece{'s' if p > 1 else ''} (dosa)"
+    if 'vada' in name_lower:
+        p = max(1, round(cal / 100))
+        return f"{p} piece{'s' if p > 1 else ''}"
+    if 'uttapam' in name_lower:
+        p = max(0.5, round(cal / 200 * 2) / 2)
+        return f"{p:g} piece{'s' if p > 1 else ''}"
+        
+    # 4. Whole fruits
+    if re.search(r'apple|banana|orange|fruit\s*\(', name_lower):
+        p = max(1, round(cal / 85))
+        return f"{p} medium fruit{'s' if p > 1 else ''}"
+        
+    # 5. Beverages
+    if re.search(r'juice|milk|smoothie|drink|shake|lassi|chaas|lemonade', name_lower):
+        is_rich = bool(re.search(r'lassi|shake|milk|smoothie', name_lower))
+        base_cal = 150 if is_rich else 80
+        glasses = round(cal / base_cal * 2) / 2
+        if glasses >= 1:
+            return f"{glasses:g} glass{'es' if glasses > 1 else ''} (~{int(glasses * 250)}ml)"
+        return f"~{int(cal * 2)}ml"
+        
+    # 6. Tea & Coffee
+    if any(x in name_lower for x in ['tea', 'coffee', 'chai']):
+        cups = max(0.5, round(cal / 60 * 2) / 2)
+        return f"{cups:g} cup{'s' if cups > 1 else ''}"
+        
+    # 7. Dal, Sambar, Kadhi, Soups, Salad, Yogurt, Raita
+    if re.search(r'dal|sambar|kadhi|soup|shorba|raita|yogurt|curd|salad', name_lower):
+        is_heavy = bool(re.search(r'dal|sambar|kadhi|soup|shorba', name_lower))
+        base_cal = 120 if is_heavy else 70
+        bowls = max(0.5, round(cal / base_cal * 2) / 2)
+        return f"{bowls:g} bowl{'s' if bowls > 1 else ''}"
+        
+    # 8. Rice, Pulao, Biryani, Noodles, Pasta
+    if re.search(r'rice|pulao|biryani|noodle|pasta|spaghetti|macaroni|chowmein', name_lower):
+        plates = max(0.5, round(cal / 200 * 2) / 2)
+        return f"{plates:g} plate{'s' if plates > 1 else ''}"
+        
+    # 9. Protein Bars
+    if 'bar' in name_lower:
+        p = max(1, round(cal / 200))
+        return f"{p} bar{'s' if p > 1 else ''}"
+        
+    # 10. Nuts & Seeds
+    if re.search(r'almonds|walnuts|cashew|nuts|seeds', name_lower):
+        handfuls = round(cal / 160 * 2) / 2
+        g = int(round(cal / 160 * 28))
+        if handfuls >= 1:
+            return f"{handfuls:g} handful{'s' if handfuls > 1 else ''} (~{g}g)"
+        return f"~{g}g"
+        
+    # Fallback for G / ML
+    if unit in ('g', 'ml'):
+        # For foods not caught above, format as `[X]g`
+        return f"{int(qty)}{unit}"
+        
+    # Basic fallback
+    n = f"{qty:.1f}".rstrip('0').rstrip('.')
+    return f"{n} {unit}"
 
 
-def _utcnow() -> datetime:
-    return datetime.now(timezone.utc)
+# ---------------------------------------------------------------------------
+# PHASE 6 — MEAL SCORER
+# ---------------------------------------------------------------------------
 
-
-class FoodCategory(Enum):
-    """Classification categories for food items."""
-    MAIN_MEAL = "main_meal"
-    SIDE_DISH = "side_dish"
-    INGREDIENT = "ingredient"
-    CONDIMENT = "condiment"
-    BEVERAGE = "beverage"
-    INVALID = "invalid"
-
-
-class FoodClassifier:
+def score_meal(components: List[Dict],
+               meal_cal: float,
+               target_cal: float,
+               variety_tracker: WeeklyVarietyTracker,
+               meal_type: str,
+               bp_idx: int) -> float:
     """
-    Production-level food classifier for Indian cuisine dataset.
-    Classifies food items and filters out non-meal entries.
+    Score a candidate meal (0–100).
+    Weights per spec:
+        Macro accuracy   30%
+        Weekly variety   20%
+        Meal completeness 15%
+        Portion realism  10%
+        Budget           10%
+        Availability     10%
+        Cuisine rotation  5%
     """
-    
-    # ==================================================================
-    # WHITELIST: Known valid Indian dishes that should NEVER be removed
-    # ==================================================================
-    INDIAN_DISH_WHITELIST = {
-        # Dosas and South Indian
-        'masala dosa', 'plain dosa', 'rava dosa', 'uttapam', 'idli', 'vada', 'sambar',
-        'rasam', 'pongal', 'upma', 'poha', 'appe', 'paniyaram',
-        
-        # North Indian Curries
-        'butter chicken', 'paneer butter masala', 'dal makhani', 'dal tadka',
-        'chole', 'chole bhature', 'rajma', 'kadhi', 'palak paneer',
-        'shahi paneer', 'matar paneer', 'aloo gobi', 'aloo matar',
-        'bhindi masala', 'baingan bharta', 'mixed vegetable', 'navratan korma',
-        'vegetable korma', 'malai kofta', 'dum aloo', 'aloo jeera',
-        
-        # Breads
-        'roti', 'chapati', 'paratha', 'naan', 'kulcha', 'bhatura',
-        'poori', 'thepla', 'dhokla', 'handvo',
-        
-        # Rice dishes
-        'biryani', 'pulao', 'fried rice', 'lemon rice', 'tamarind rice',
-        'curd rice', 'sambar rice', 'bisibele bath', 'tahari',
-        
-        # Street food & Snacks
-        'samosa', 'kachori', 'pakora', 'bhajiya', 'vada pav', 'pav bhaji',
-        'chaat', 'dahi bhalla', 'aloo tikki', 'gol gappa', 'panipuri',
-        
-        # Sweets & Desserts (as snacks)
-        'kheer', 'payasam', 'halwa', 'laddu', 'barfi', 'gulab jamun',
-        'rasmalai', 'jalebi', 'mysore pak', 'soan papdi',
-        
-        # Soups & Starters
-        'tomato soup', 'sweet corn soup', 'manchow soup', 'hot and sour soup',
-        'dal shorba', 'mulligatawny soup', 'tandoori chicken', 'tikka',
-        
-        # Breakfast items
-        'poha', 'upma', 'dalia', 'sabudana khichdi', 'sabudana vada',
-        'misal pav', 'akuri', 'anda bhurji',
-        
-        # Regional
-        'lassi', 'chaas', 'buttermilk', 'thali', 'meal', 'thali meal',
-    }
-    
-    # ==================================================================
-    # PATTERNS: Regex patterns for classification
-    # ==================================================================
-    
-    # Raw ingredients - standalone items not suitable as meals
-    INGREDIENT_PATTERNS = [
-        # Pure spices and masalas (standalone only)
-        r'^garam masala\b', r'^chat masala\b', r'^kashmiri masala\b',
-        r'^rasam\b.*\b(powder|masala)\b', r'^sambar\b.*\b(powder|masala)\b',
-        r'^bengal.*spice', r'^panch phoran\b',
-        r'^turmeric\b', r'^cumin\b', r'^coriander powder\b',
-        r'^chili powder\b', r'^red chili\b', r'^black pepper\b',
-        r'^salt\b', r'^mustard seeds\b', r'^fenugreek\b',
-        r'^cardamom\b', r'^cinnamon\b', r'^cloves\b', r'^bay leaves\b',
-        r'^asafoetida\b', r'^hing\b', r'^carom seeds\b', r'^ajwain\b',
-        r'^fennel seeds\b', r'^dry ginger\b', r'^mace\b', r'^star anise\b',
-        r'^vanilla extract\b', r'^baking (powder|soda)\b',
-        
-        # Pure cooking mediums
-        r'^ghee\b', r'^oil\b', r'^butter\b', r'^vinegar\b',
-        r'^cooking oil\b', r'^vanilla essence\b', r'^food colou?r\b',
-        
-        # Standalone sauces (not dishes WITH sauce)
-        r'^tomato (sauce|ketchup|puree|paste)\b',
-        r'^tartare sauce\b', r'^barbeque sauce\b', r'^bread sauce\b',
-        r'^bbq sauce\b', r'^green chilli sauce\b', r'^red chilli sauce\b',
-        r'^soy sauce\b', r'^hot sauce\b', r'^sweet chilli\b',
-        r'^hot cherry sauce\b', r'^cherry sauce\b',
-        
-        # Tadkas/Baghars (cooking tempering, not meals)
-        r'baghar\b', r'tadka\b', r'jeera.*tadka', r'mustard.*tadka',
-        r'cumin seeds.*baghar', r'onion tomato.*baghar',
-        
-        # Pure condiments (not raita or accompaniments)
-        r'achaar\b', r'pickle\b', r'murabba\b', r'achar\b',
-        r'squash\b', r'concentrate\b', r'^syrup\b',
-    ]
-    
-    # Side dishes - valid accompaniments but not main meals alone
-    SIDE_DISH_PATTERNS = [
-        r'raita\b', r'chutney\b', r'papad\b', r'salad\b',
-        r'pickle\b', r'achaar\b', r'chips\b', r'fries\b',
-        r'crisps\b', r'dip\b', r'spread\b',
-    ]
-    
-    # Main meal indicators
-    MAIN_MEAL_PATTERNS = [
-        r'\b(curry|sabzi|sabji|bhaji|bharta|fry|roast|grill)\b',
-        r'\b(dal|sambar|rassam|kadhi|sambar)\b',
-        r'\b(biryani|pulao|fried rice|rice)\b',
-        r'\b(roti|chapati|paratha|naan|kulcha|bhatura|poori)\b',
-        r'\b(dosa|idli|vada|uttapam|upma|poha)\b',
-        r'\b(sandwich|burger|pizza|pasta|noodles)\b',
-        r'\b(soup|stew|broth|shorba)\b',
-        r'\b(egg|anda)\b', r'\b(chicken|mutton|fish|prawn|paneer)\b',
-        r'\b(thali|meal|combo|platter)\b',
-        r'\b(ladoo|halwa|kheer|payasam)\b',
-    ]
+    score = 100.0
 
-    # Beverage indicators - items matching these should NEVER be a meal slot
-    BEVERAGE_PATTERNS = [
-        r'\bdrink\b', r'\bjuice\b', r'\bcooler\b', r'\blemonade\b',
-        r'\bnimbu pani\b', r'\bsherbet\b', r'\bsharbat\b',
-        r'\baam panna\b', r'\bfruit punch\b', r'\binfused water\b',
-        r'\biced tea\b', r'\bespresso\b', r'\bcold coffee\b',
-        r'\bhot cocoa\b', r'\bchaas\b', r'\bmilkshake\b',
-        r'\bshake\b', r'\bnog\b', r'\bsummer cooler\b',
-        r'\blassi\b', r'\bcoco pine\b', r'\bsquash\b',
-    ]
+    # 1. Macro Accuracy (30 pts)
+    if target_cal > 0:
+        cal_err = abs(meal_cal - target_cal) / target_cal
+        score -= min(30, cal_err * 60)
 
-    # ==================================================================
-    # NUTRITION THRESHOLDS
-    # ==================================================================
-    MIN_MEAL_CALORIES = 80  # Below this is likely a condiment
-    MAX_SINGLE_ITEM_CALORIES = 700   # Single food item should never exceed 700 cal
-                                      # Poori=1844, Pulao=1454 etc. are full batches not servings
-    
-    # Fat-based ingredient detection
-    HIGH_FAT_THRESHOLD = 80  # grams
-    LOW_PROTEIN_THRESHOLD = 10  # grams
-    LOW_CARBS_THRESHOLD = 20  # grams
-    
-    def __init__(self):
-        """Initialize classifier with compiled regex patterns."""
-        self.ingredient_regex = re.compile(
-            '|'.join(self.INGREDIENT_PATTERNS),
-            re.IGNORECASE
+    # 2. Weekly Variety (20 pts) — subtract variety_penalty capped at 20
+    if components:
+        region = components[0].get('region', 'All India')
+        vp = variety_tracker.variety_penalty(meal_type, components, bp_idx, region)
+        score -= min(20, vp * 0.3)   # scale down since raw penalty can be high
+
+    # 3. Meal Completeness (15 pts)
+    roles = {c['meal_role'] for c in components}
+    has_protein = bool(roles & {'protein_main', 'combo_meal'})
+    has_carb    = bool(roles & {'carb_base', 'combo_meal'})
+    if not has_protein:
+        score -= 15
+    if not has_carb and meal_type not in ('snack',):
+        score -= 10
+
+    # 4. Portion Realism (10 pts) — penalise components at their min/max boundary
+    at_boundary = sum(
+        1 for c in components
+        if c.get('serving_qty', 0) in (
+            float(c['_raw'].get('portion_min', 0)),
+            float(c['_raw'].get('portion_max', 9999))
         )
-        self.side_dish_regex = re.compile(
-            '|'.join(self.SIDE_DISH_PATTERNS),
-            re.IGNORECASE
-        )
-        self.main_meal_regex = re.compile(
-            '|'.join(self.MAIN_MEAL_PATTERNS),
-            re.IGNORECASE
-        )
-        # M2 Fix: Compile beverage regex — beverages must never appear as meal slots
-        self.beverage_regex = re.compile(
-            '|'.join(self.BEVERAGE_PATTERNS),
-            re.IGNORECASE
-        )
-    
-    # ==================================================================
-    # CORE CLASSIFICATION METHODS
-    # ==================================================================
-    
-    def classify_food(self, name: str, nutrition: Dict) -> FoodCategory:
-        """
-        Classify a food item into category based on name and nutrition.
-        
-        Args:
-            name: Food item name
-            nutrition: Dict with calories, protein, carbs, fat
-            
-        Returns:
-            FoodCategory enum value
-        """
-        name_lower = name.lower().strip()
+    )
+    score -= min(10, at_boundary * 3)
 
-        # STEP 0: Check for beverages FIRST — these are never a standalone meal
-        # M2 Fix: Beverages (lassi, lemonade, milkshake, etc.) were appearing as
-        # breakfast/lunch because FoodCategory.BEVERAGE was never returned before.
-        if self.beverage_regex.search(name_lower):
-            return FoodCategory.BEVERAGE
+    # 5. Budget (10 pts)
+    budget_pts = [BUDGET_SCORE.get(c.get('budget_level', 'Low'), 5) for c in components]
+    avg_budget = sum(budget_pts) / max(len(budget_pts), 1)
+    score += (avg_budget / 10) * 10 - 10   # normalize; contributes -10 to +10
 
-        # STEP 1: Check for raw ingredients FIRST (strict filtering)
-        # This catches ingredients like "sambar powder" even though "sambar" is whitelisted
-        if self._is_ingredient(name_lower):
-            return FoodCategory.INGREDIENT
+    # 6. Availability (10 pts)
+    avail_pts = [AVAILABILITY_SCORE.get(c.get('availability', 'common'), 5) for c in components]
+    avg_avail = sum(avail_pts) / max(len(avail_pts), 1)
+    score += (avg_avail / 10) * 10 - 10
 
-        # STEP 2: Check whitelist (but only for non-ingredients)
-        if self._is_whitelisted(name_lower):
-            # Whitelisted items need nutrition validation
-            return self._validate_by_nutrition(nutrition, FoodCategory.MAIN_MEAL)
+    # 7. Cuisine rotation (5 pts)
+    if components:
+        region = components[0].get('region', 'All India')
+        r = REGION_ALIASES.get(region, region)
+        freq = variety_tracker.cuisine_history.count(r)
+        score -= min(5, freq * 2)
 
-        # STEP 3: Check for side dishes
-        if self._is_side_dish(name_lower):
-            return FoodCategory.SIDE_DISH
-
-        # STEP 4: Check for main meals by pattern
-        if self._is_main_meal_by_pattern(name_lower):
-            return self._validate_by_nutrition(nutrition, FoodCategory.MAIN_MEAL)
-
-        # STEP 5: Fallback to nutrition-based classification
-        return self._classify_by_nutrition_only(nutrition)
-    
-    def _is_whitelisted(self, name: str) -> bool:
-        """Check if food is in the whitelist of known valid dishes."""
-        import re
-        
-        # Exact match
-        if name in self.INDIAN_DISH_WHITELIST:
-            return True
-        
-        # Word boundary match - avoid partial matches like "sambar" matching "sambar powder"
-        for dish in self.INDIAN_DISH_WHITELIST:
-            # Use word boundary regex to ensure complete word match
-            pattern = r'\b' + re.escape(dish) + r'\b'
-            if re.search(pattern, name, re.IGNORECASE):
-                return True
-        
-        return False
-    
-    def _is_ingredient(self, name: str) -> bool:
-        """Check if item is a raw ingredient (not suitable as meal)."""
-        # Must match ingredient pattern AND not be a compound dish
-        if self.ingredient_regex.search(name):
-            # Check it's not a dish that contains the ingredient
-            # e.g., "Chicken with garam masala" is a dish, not an ingredient
-            compound_indicators = [
-                'with', 'and', 'in', 'ka', 'ke', 'ki', 'wala', 'wali',
-                'dish', 'style', 'flavored', 'marinated'
-            ]
-            if any(ind in name for ind in compound_indicators):
-                return False
-            return True
-        return False
-    
-    def _is_side_dish(self, name: str) -> bool:
-        """Check if item is a side dish/accompaniment."""
-        return bool(self.side_dish_regex.search(name))
-    
-    def _is_main_meal_by_pattern(self, name: str) -> bool:
-        """Check if item matches main meal patterns."""
-        return bool(self.main_meal_regex.search(name))
-    
-    def _validate_by_nutrition(self, nutrition: Dict, 
-                                default_category: FoodCategory) -> FoodCategory:
-        """
-        Validate a food item by its nutrition profile.
-        Reclassify to INVALID if nutrition doesn't match expected category.
-        """
-        calories = nutrition.get('calories', 0) or 0
-        protein = nutrition.get('protein', 0) or 0
-        carbs = nutrition.get('carbs', 0) or 0
-        fat = nutrition.get('fat', 0) or 0
-        
-        # Too low calories = condiment/ingredient
-        if calories < self.MIN_MEAL_CALORIES:
-            return FoodCategory.CONDIMENT
-        
-        # Too high calories = possible data error
-        if calories > self.MAX_SINGLE_ITEM_CALORIES:
-            return FoodCategory.INVALID
-        
-        # Pure fat-based ingredient detection
-        if (fat > self.HIGH_FAT_THRESHOLD and 
-            protein < self.LOW_PROTEIN_THRESHOLD and 
-            carbs < self.LOW_CARBS_THRESHOLD):
-            return FoodCategory.INGREDIENT
-        
-        # Must have meaningful protein OR carbs for a meal
-        if protein < 2 and carbs < 10:
-            return FoodCategory.CONDIMENT
-        
-        return default_category
-    
-    def _classify_by_nutrition_only(self, nutrition: Dict) -> FoodCategory:
-        """
-        Classify based solely on nutrition when name patterns don't match.
-        """
-        calories = nutrition.get('calories', 0) or 0
-        protein = nutrition.get('protein', 0) or 0
-        carbs = nutrition.get('carbs', 0) or 0
-        fat = nutrition.get('fat', 0) or 0
-        
-        # Very low calories = condiment
-        if calories < 50:
-            return FoodCategory.CONDIMENT
-        
-        # Low calories + low macros = side dish or condiment
-        if calories < 150 and protein < 5 and carbs < 20:
-            return FoodCategory.SIDE_DISH
-        
-        # Balanced nutrition = likely a main meal
-        if calories >= 150 and (protein >= 5 or carbs >= 15):
-            return FoodCategory.MAIN_MEAL
-        
-        # Fat dominant = ingredient
-        if fat > 50 and protein < 5:
-            return FoodCategory.INGREDIENT
-        
-        return FoodCategory.MAIN_MEAL  # Default assumption
-    
-    def is_valid_meal(self, name: str, nutrition: Dict, 
-                      allow_side_dishes: bool = False) -> bool:
-        """
-        Check if an item is a valid meal option.
-        
-        Args:
-            name: Food item name
-            nutrition: Dict with nutrition values
-            allow_side_dishes: If True, side_dish is also valid
-            
-        Returns:
-            True if valid meal, False otherwise
-        """
-        category = self.classify_food(name, nutrition)
-        
-        valid_categories = [FoodCategory.MAIN_MEAL]
-        if allow_side_dishes:
-            valid_categories.append(FoodCategory.SIDE_DISH)
-        
-        return category in valid_categories
-    
-    # ==================================================================
-    # DATASET CLEANING PIPELINE
-    # ==================================================================
-    
-    def clean_dataset(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Main pipeline to clean the food dataset.
-        
-        Pipeline:
-        1. Add classification column
-        2. Filter out ingredients and invalid items
-        3. Return only valid meals
-        
-        Args:
-            df: DataFrame with food data (must have name, calories, protein, carbs, fat)
-            
-        Returns:
-            Cleaned DataFrame with only valid meals
-        """
-        print(f"  [FoodClassifier] Starting dataset cleaning: {len(df)} items")
-        
-        # Create copy to avoid modifying original
-        df = df.copy()
-        
-        # Add classification column
-        df['food_category'] = df.apply(
-            lambda row: self.classify_food(
-                row['name'],
-                {
-                    'calories': row.get('calories', 0),
-                    'protein': row.get('protein', 0),
-                    'carbs': row.get('carbs', 0),
-                    'fat': row.get('fat', 0)
-                }
-            ).value,
-            axis=1
-        )
-        
-        # Filter to valid meals only
-        # M2 Fix: Explicitly exclude beverages — they must never appear in any meal slot
-        valid_categories = ['main_meal', 'side_dish']
-        df_clean = df[
-            df['food_category'].isin(valid_categories) &
-            (df['food_category'] != 'beverage')
-        ].copy()
-        
-        # Additional nutrition-based filtering
-        df_clean = self._apply_nutrition_filters(df_clean)
-        
-        print(f"  [FoodClassifier] Cleaning complete: {len(df_clean)} valid meals")
-        print(f"  [FoodClassifier] Removed: {len(df) - len(df_clean)} items")
-        
-        return df_clean
-    
-    def _apply_nutrition_filters(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Apply additional nutrition-based filters."""
-        # Remove items with unrealistic nutrition profiles
-        mask = (
-            (df['calories'].fillna(0) >= self.MIN_MEAL_CALORIES) &
-            (df['calories'].fillna(0) <= self.MAX_SINGLE_ITEM_CALORIES) &
-            # Must have some substance (not just water/liquid)
-            ((df['protein'].fillna(0) >= 1) | (df['carbs'].fillna(0) >= 5))
-        )
-        return df[mask].copy()
-    
-    # ==================================================================
-    # MEAL COMBINATION SUGGESTIONS
-    # ==================================================================
-    
-    def suggest_meal_combinations(self, df: pd.DataFrame, 
-                                   meal_type: str = 'lunch') -> List[Dict]:
-        """
-        Suggest complete Indian meal combinations.
-        
-        Typical Indian meal structure:
-        - Roti/Rice (carb base)
-        - Dal/Curry (protein)
-        - Sabzi/Vegetable (fiber)
-        - Side (raita/pickle/salad) - optional
-        
-        Args:
-            df: DataFrame with classified food items
-            meal_type: 'breakfast', 'lunch', 'dinner', 'snack'
-            
-        Returns:
-            List of meal combination suggestions
-        """
-        combinations = []
-        
-        # Get items by category
-        mains = df[df['food_category'] == 'main_meal']
-        sides = df[df['food_category'] == 'side_dish']
-        
-        if meal_type in ['lunch', 'dinner']:
-            # Typical North Indian meal
-            roti_items = mains[mains['name'].str.contains('roti|chapati|naan|paratha', case=False, na=False)]
-            rice_items = mains[mains['name'].str.contains('rice|biryani|pulao', case=False, na=False)]
-            dal_items = mains[mains['name'].str.contains('dal|sambar|kadhi', case=False, na=False)]
-            curry_items = mains[mains['name'].str.contains('curry|sabzi|paneer|chicken|mutton', case=False, na=False)]
-            
-            # Create combinations
-            if not roti_items.empty and not dal_items.empty:
-                combinations.append({
-                    'name': 'North Indian Vegetarian Thali',
-                    'items': [
-                        roti_items.iloc[0]['name'],
-                        dal_items.iloc[0]['name'],
-                        curry_items.iloc[0]['name'] if not curry_items.empty else None,
-                        sides.iloc[0]['name'] if not sides.empty else None
-                    ],
-                    'type': 'vegetarian'
-                })
-            
-            if not rice_items.empty and not curry_items.empty:
-                combinations.append({
-                    'name': 'Rice & Curry Combo',
-                    'items': [
-                        rice_items.iloc[0]['name'],
-                        curry_items.iloc[0]['name'],
-                        sides.iloc[0]['name'] if not sides.empty else None
-                    ],
-                    'type': 'mixed'
-                })
-        
-        elif meal_type == 'breakfast':
-            # South Indian breakfast
-            dosa_items = mains[mains['name'].str.contains('dosa', case=False, na=False)]
-            idli_items = mains[mains['name'].str.contains('idli', case=False, na=False)]
-            
-            if not dosa_items.empty:
-                combinations.append({
-                    'name': 'South Indian Breakfast',
-                    'items': [dosa_items.iloc[0]['name'], 'sambar', 'chutney'],
-                    'type': 'south_indian'
-                })
-        
-        return [c for c in combinations if any(c['items'])]
+    return max(0.0, score)
 
 
-class MealBuilder:
+# ---------------------------------------------------------------------------
+# PHASE 5 — SWAP ENGINE
+# ---------------------------------------------------------------------------
+
+def build_swap_options(component: Dict,
+                       pool: pd.DataFrame,
+                       profile: Dict,
+                       meal_time: str = '',
+                       limit: int = 4) -> List[Dict]:
     """
-    Production-level meal builder for creating balanced Indian meals.
-    
-    Creates meals with proper macro balance:
-    - 1 carb (roti, rice, etc.)
-    - 1 protein (dal, paneer, chicken, etc.)
-    - 1 vegetable (sabzi, bhaji, etc.)
-    - Optional 1 side (raita, salad, chutney)
-    
-    No regional classification - works for all Indian cuisines.
+    Generate swap options for a single meal component.
+    Rules: same meal_role, same meal_time, diet-compatible, allergy-free, ±30% calories,
+    prefer common/low-budget.
     """
-    
-    # ==================================================================
-    # FOOD TAGGING PATTERNS
-    # ==================================================================
-    
-    # Carbohydrate sources
-    CARB_PATTERNS = [
-        r'\broti\b', r'\bchapati\b', r'\bnaan\b', r'\bkulcha\b',
-        r'\bparatha\b', r'\bbhatura\b', r'\bpoori\b', r'\bpuri\b',
-        r'\brice\b', r'\bbiryani\b', r'\bpulao\b', r'\bfried rice\b',
-        r'\bpoha\b', r'\bupma\b', r'\bbread\b', r'\btoast\b',
-        r'\biddli\b', r'\bidli\b', r'\bdosa\b', r'\buttapam\b',
-        r'\bappam\b', r'\bputtu\b', r'\bpathiri\b',
-    ]
-    
-    # Protein sources
-    PROTEIN_PATTERNS = [
-        r'\bdal\b', r'\bsambar\b', r'\bkadhi\b', r'\bchana\b',
-        r'\bchole\b', r'\brajma\b', r'\blobia\b', r'\bmung\b',
-        r'\bmoong\b', r'\burad\b', r'\btoor\b',
-        r'\btuar\b', r'\bmasoor\b', r'\bchickpea\b', r'\bbean\b',
-        r'\bpaneer\b', r'\btofu\b', r'\bsoya\b', r'\bsoy\b',
-        r'\bchicken\b', r'\bmutton\b', r'\blamb\b', r'\bgoat\b',
-        r'\bfish\b', r'\bprawn\b', r'\bshrimp\b', r'\begg\b',
-        r'\banda\b', r'\bomelette\b', r'\bomelet\b', r'\bkeema\b',
-        r'\bcheese\b', r'\bcottage cheese\b',
-    ]
-    
-    # Vegetable dishes
-    VEGETABLE_PATTERNS = [
-        r'\bsabzi\b', r'\bsabji\b', r'\bbhaji\b', r'\bbharta\b',
-        r'\baloo\b', r'\bpotato\b', r'\bgobi\b', r'\bcauliflower\b',
-        r'\bbhindi\b', r'\bokra\b', r'\blady finger\b',
-        r'\bbaingan\b', r'\bbrinjal\b', r'\beggplant\b',
-        r'\bpalak\b', r'\bspinach\b', r'\bmethi\b', r'\bfenugreek\b',
-        r'\bkarela\b', r'\bbitter gourd\b', r'\btinda\b',
-        r'\btori\b', r'\bridge gourd\b', r'\blauki\b', r'\bbottle gourd\b',
-        r'\bparwal\b', r'\bpointed gourd\b', r'\bdrumstick\b',
-        r'\bcabbage\b', r'\bpatta\b', r'\bcarrot\b', r'\bgajar\b',
-        r'\bbeetroot\b', r'\bchukandar\b', r'\bbeans\b', r'\bfrench beans\b',
-        r'\bcluster beans\b', r'\bguar\b', r'\bpeas\b', r'\bmatar\b',
-        r'\bcorn\b', r'\bmakai\b', r'\bbhutta\b', r'\bcapsicum\b',
-        r'\bshimla\b', r'\bbell pepper\b', r'\btomato\b', r'\btamatar\b',
-        r'\bonion\b', r'\bpyaaz\b', r'\bmushroom\b', r'\bmixed veg\b',
-        r'\bmix veg\b', r'\bvegetable\b', r'\bkorma\b', r'\bkurma\b',
-    ]
-    
-    # Side dishes/accompaniments
-    SIDE_PATTERNS = [
-        r'\braita\b', r'\bchutney\b', r'\bsalad\b', r'\bkoshimbir\b',
-        r'\bpapad\b', r'\bpapadum\b', r'\bpickle\b', r'\bachaar\b',
-        r'\bcurd\b', r'\bdahi\b', r'\byogurt\b', r'\bcurry\b',
-        r'\bsoup\b', r'\bbuttermilk\b', r'\bchaas\b', r'\blassi\b',
-    ]
-    
-    # ==================================================================
-    # MEAL VALIDATION THRESHOLDS
-    # ==================================================================
-    MIN_MEAL_CALORIES = 300
-    MAX_MEAL_CALORIES = 800
-    
-    def __init__(self, food_items: List[Dict] = None):
-        """
-        Initialize MealBuilder with food items.
-        
-        Args:
-            food_items: List of food dicts with name, calories, protein, carbs, fat
-        """
-        self.food_items = food_items or []
-        self.tagged_items = {}
-        
-        # Compile regex patterns
-        self.carb_regex = re.compile('|'.join(self.CARB_PATTERNS), re.IGNORECASE)
-        self.protein_regex = re.compile('|'.join(self.PROTEIN_PATTERNS), re.IGNORECASE)
-        self.veg_regex = re.compile('|'.join(self.VEGETABLE_PATTERNS), re.IGNORECASE)
-        self.side_regex = re.compile('|'.join(self.SIDE_PATTERNS), re.IGNORECASE)
-        
-        # Tag all items if provided
-        if food_items:
-            self._tag_all_items()
-    
-    # ==================================================================
-    # FOOD TAGGING SYSTEM
-    # ==================================================================
-    
-    def assign_food_tag(self, food_name: str) -> str:
-        """
-        Assign a food tag based on food name patterns.
-        
-        Priority order: protein > carb > vegetable > side
-        (protein is most important for meal balance)
-        
-        Args:
-            food_name: Name of the food item
-            
-        Returns:
-            Tag: "carb", "protein", "vegetable", "side", or "other"
-        """
-        name = food_name.lower().strip()
-        
-        # Check protein first (highest priority)
-        if self.protein_regex.search(name):
-            return "protein"
-        
-        # Check carb
-        if self.carb_regex.search(name):
-            return "carb"
-        
-        # Check vegetable
-        if self.veg_regex.search(name):
-            return "vegetable"
-        
-        # Check side
-        if self.side_regex.search(name):
-            return "side"
-        
-        return "other"
-    
-    def _tag_all_items(self):
-        """Tag all food items and group by tag."""
-        self.tagged_items = {
-            "carb": [],
-            "protein": [],
-            "vegetable": [],
-            "side": [],
-            "other": []
-        }
-        for item in self.food_items:
-            tag = self.assign_food_tag(item.get('name', ''))
-            self.tagged_items[tag].append(item)
-    
-    def get_items_by_tag(self, tag: str) -> List[Dict]:
-        """Get all items with a specific tag."""
-        return self.tagged_items.get(tag, [])
+    role      = component.get('meal_role', '')
+    sg        = component.get('swap_group', '')
+    cal_ref   = component.get('calories', 0)
+    food_name = component.get('food_name', '')
 
-    # =================================================================:
-    # MEAL BUILDER
-    # ==================================================================
+    # We convert to a list of dicts for much faster filtering compared to DataFrame masks
+    # Only pick rows matching role
+    role_mask = (pool['meal_role'] == role) & (pool['food_name'] != food_name)
+    candidates_df = pool[role_mask]
+    
+    if candidates_df.empty:
+        return []
+        
+    # Convert to native list of dicts for fast iteration
+    candidates = candidates_df.to_dict('records')
 
-    def generate_meal(self, meal_type: str = "lunch",
-                     include_side: bool = True,
-                     goal: str = "maintain",
-                     used_items: set = None,
-                     seed: Optional[int] = None,
-                     max_attempts: int = 60) -> Optional[Dict]:
-        """
-        Generate one balanced meal with diversity controls and validation.
-        """
-        if not self.food_items:
-            return None
+    # Filter by meal_type to avoid cross-meal swaps (e.g. dinner biryani in breakfast swap)
+    if meal_time:
+        mt_cap = meal_time.capitalize()
+        # Case insensitive check
+        meal_filtered = [c for c in candidates if c.get('meal_type') and mt_cap.lower() in str(c.get('meal_type')).lower()]
+        if meal_filtered:
+            candidates = meal_filtered
 
-        if not self.tagged_items:
-            self._tag_all_items()
+    if not candidates:
+        return []
 
-        if used_items is None:
-            used_items = set()
+    # Nutrition similarity filter — try tight window first, then widen
+    if cal_ref > 0:
+        tight = [c for c in candidates if cal_ref * 0.70 <= float(c.get('calories_kcal', 0)) <= cal_ref * 1.30]
+        wide = [c for c in candidates if cal_ref * 0.40 <= float(c.get('calories_kcal', 0)) <= cal_ref * 1.60]
+        
+        if len(tight) >= 2:
+            candidates = tight
+        elif wide:
+            candidates = wide
 
-        if seed is None:
-            seed = random.randint(1, 10000)
-        rng = random.Random(seed)
-
-        goal_key = (goal or "maintain").strip().lower()
-        if goal_key == "weight_loss":
-            calorie_range = (300, 500)
-        elif goal_key == "muscle_gain":
-            calorie_range = (500, 800)
+    # Prefer same swap_group first
+    same_sg = []
+    other_sg = []
+    for c in candidates:
+        if c.get('swap_group') == sg:
+            same_sg.append(c)
         else:
-            calorie_range = (400, 700)
+            other_sg.append(c)
 
-        def _filter_pool(items: List[Dict]) -> List[Dict]:
-            pool = items
-            diverse_pool = [i for i in pool if i.get("name") not in used_items]
-            if diverse_pool:
-                return diverse_pool
-            return pool
+    # Score by availability + budget
+    for c in same_sg + other_sg:
+        c['_swap_score'] = AVAILABILITY_SCORE.get(c.get('availability', 'common'), 5) + \
+                           BUDGET_SCORE.get(c.get('budget_level', 'Low'), 5)
 
-        carbs = _filter_pool(self.get_items_by_tag("carb"))
-        proteins = _filter_pool(self.get_items_by_tag("protein"))
-        vegetables = _filter_pool(self.get_items_by_tag("vegetable"))
-        sides = _filter_pool(self.get_items_by_tag("side")) if include_side else []
+    same_sg.sort(key=lambda x: x.get('_swap_score', 0), reverse=True)
+    other_sg.sort(key=lambda x: x.get('_swap_score', 0), reverse=True)
 
-        if not carbs or not proteins:
-            raise Exception("Not enough data to build meal")
+    candidates = same_sg + other_sg
 
-        best_meal = None
-        best_penalty = float("inf")
+    # Take top N
+    candidates = candidates[:limit]
 
-        for _ in range(max_attempts):
-            meal_items = []
+    # Convert numeric values that were float64 to python floats for JSON safety
+    for c in candidates:
+        c['swap_group'] = sg  # ensure swap_group is preserved
+        c['_raw'] = c.copy()
 
-            carb_item = rng.choice(carbs)
-            protein_item = rng.choice(proteins)
-            meal_items.append(self._to_meal_item(carb_item, "carb"))
-            meal_items.append(self._to_meal_item(protein_item, "protein"))
+    return candidates
 
-            if vegetables:
-                meal_items.append(self._to_meal_item(rng.choice(vegetables), "vegetable"))
+    options = []
+    for _, row in candidates.head(limit * 2).iterrows():
+        cand_cal = float(row.get('calories_kcal', 1))
+        cand_cal = cand_cal if cand_cal > 0 else 1.0
+        
+        # Determine the ideal multiplier to match calories
+        ideal_m = cal_ref / cand_cal if cal_ref > 0 else 1.0
+        
+        # Snap to valid portion step
+        base_qty = float(row.get('serving_quantity', 1) or 1)
+        p_step = float(row.get('portion_step', base_qty * 0.5) or base_qty * 0.5)
+        p_min = float(row.get('portion_min', base_qty * 0.5) or base_qty * 0.5)
+        p_max = float(row.get('portion_max', base_qty * 3.0) or base_qty * 3.0)
+        
+        # If the unit is piece/unit, force step to integer
+        if str(row.get('serving_unit', '')).lower() in ('piece', 'pieces', 'unit', 'number'):
+            p_step = max(1.0, round(p_step))
+            p_min = max(1.0, round(p_min))
+            p_max = max(1.0, round(p_max))
+            
+        # Calculate multiplier that represents the actual physical steps
+        # Note: p_step in metadata is in the same unit as serving_quantity. 
+        # So we figure out the ideal raw quantity, snap it to step, then find the true multiplier.
+        ideal_qty = base_qty * ideal_m
+        snapped_qty = max(p_min, min(p_max, round(ideal_qty / p_step) * p_step))
+        
+        true_m = snapped_qty / base_qty if base_qty > 0 else 1.0
+        
+        options.append({
+            'food_id':   str(row['food_id']),
+            'name':      str(row['food_name']),
+            'food_name': str(row['food_name']),
+            'serving':   _format_serving(snapped_qty, str(row.get('serving_unit', 'g')), name=str(row['food_name']), cal=round(cand_cal * true_m)),
+            'serving_weight': snapped_qty,
+            'serving_qty': snapped_qty,
+            'serving_unit': str(row.get('serving_unit', 'g')),
+            'calories':  round(cand_cal * true_m),
+            'protein':   round(float(row.get('protein_g', 0)) * true_m, 1),
+            'carbs':     round(float(row.get('carbohydrates_g', 0)) * true_m, 1),
+            'fat':       round(float(row.get('fat_g', 0)) * true_m, 1),
+        })
+        if len(options) >= limit:
+            break
 
-            if include_side and sides and rng.random() < 0.65:
-                meal_items.append(self._to_meal_item(rng.choice(sides), "side"))
+    return options
 
-            # If meal is too light, add extra carb/protein picks to meet goal range.
-            additions = 0
-            while sum(i["calories"] for i in meal_items) < calorie_range[0] and additions < 3:
-                source_pool = proteins if rng.random() < 0.5 else carbs
-                if source_pool:
-                    extra_item = rng.choice(source_pool)
-                    meal_items.append(
-                        self._to_meal_item(extra_item, self.assign_food_tag(extra_item.get("name", "")))
-                    )
-                additions += 1
 
-            meal = self._aggregate_meal(meal_items, meal_type)
-            in_range = calorie_range[0] <= meal["total_calories"] <= calorie_range[1]
 
-            if self.is_valid_meal(meal) and self.score_meal(meal) >= 2:
-                penalty = 0 if in_range else min(
-                    abs(meal["total_calories"] - calorie_range[0]),
-                    abs(meal["total_calories"] - calorie_range[1])
-                )
-                if penalty < best_penalty:
-                    best_meal = meal
-                    best_penalty = penalty
-
-                if in_range:
-                    meal["explanation"] = "Balanced meal with protein, carbs and vegetables"
-                    for item in meal_items:
-                        used_items.add(item["name"])
-                    return meal
-
-        if best_meal is not None:
-            best_meal["explanation"] = "Balanced meal with protein, carbs and vegetables"
-            for item in best_meal.get("items", []):
-                used_items.add(item["name"])
-            return best_meal
-
-        return None
-
-    def _to_meal_item(self, item: Dict, tag: str) -> Dict:
-        """Normalize a raw food item for meal output."""
-        return {
-            "name": str(item.get("name", "")),
-            "tag": tag,
-            "calories": round(float(item.get("calories", 0) or 0), 1),
-            "protein": round(float(item.get("protein", 0) or 0), 1),
-            "carbs": round(float(item.get("carbs", 0) or 0), 1),
-            "fat": round(float(item.get("fat", 0) or 0), 1),
-        }
-
-    def _aggregate_meal(self, items: List[Dict], meal_type: str) -> Dict:
-        """Build meal-level totals from selected items."""
-        total_calories = sum(i.get("calories", 0) for i in items)
-        total_protein = sum(i.get("protein", 0) for i in items)
-        total_carbs = sum(i.get("carbs", 0) for i in items)
-        total_fat = sum(i.get("fat", 0) for i in items)
-
-        return {
-            "meal_type": meal_type,
-            "items": items,
-            "total_calories": round(total_calories, 1),
-            "calories": round(total_calories, 1),
-            "protein": round(total_protein, 1),
-            "total_protein": round(total_protein, 1),
-            "carbs": round(total_carbs, 1),
-            "fat": round(total_fat, 1),
-            "score": 0,
-        }
-
-    def is_valid_meal(self, meal: Dict) -> bool:
-        """Strong validation guard for generated meals."""
-        return (
-            meal["total_calories"] >= 300 and
-            meal["total_calories"] <= 800 and
-            meal["protein"] >= 5 and
-            any(item['tag'] == 'carb' for item in meal['items'])
-        )
-
-    def score_meal(self, meal: Dict) -> int:
-        """Simple quality score for acceptance filtering."""
-        score = 0
-
-        if meal["protein"] > 10:
-            score += 2
-        if meal["total_calories"] < 700:
-            score += 1
-
-        meal["score"] = score
-        return score
-
+# ---------------------------------------------------------------------------
+# MAIN ENGINE CLASS
+# ---------------------------------------------------------------------------
 
 class MealEngine:
-    """Deterministic dataset-driven weekly meal planning engine."""
+    """
+    V2 Production Meal Engine implementing all 8 spec phases.
+    """
+    
+    _cached_df = None
 
-    def __init__(self, nutrition_data_path: str = None):
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        csv_path = nutrition_data_path or os.path.join(base_dir, 'data', 'nutrition_processed.csv')
-
-        if os.path.exists(csv_path):
-            self.nutrition_df = pd.read_csv(csv_path)
-            print(f" [MealEngine] Loaded {len(self.nutrition_df)} foods from {csv_path}")
+    def __init__(self,
+                 nutrition_data_path: str = None,
+                 metadata_path:       str = None):
+        
+        if MealEngine._cached_df is not None:
+            self.df = MealEngine._cached_df.copy()
         else:
-            raise FileNotFoundError(f"Nutrition dataset not found at {csv_path}")
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-        # Initialize the food classifier for production-level filtering
-        self.classifier = FoodClassifier()
-        print(f" [MealEngine] FoodClassifier initialized")
+            csv_path = nutrition_data_path or os.path.join(
+                base_dir, 'data', 'nutrition_production_final_v4.csv')
+            if not os.path.exists(csv_path):
+                raise FileNotFoundError(f"Nutrition dataset not found: {csv_path}")
 
-        # Standardise column names once
-        col_map = {
-            'Name': 'name',
-            'Type': 'meal_type',
-            'calories': 'calories',
-            'protein': 'protein',
-            'carbohydrate': 'carbs',
-            'total_fat': 'fat',
-            'Tags': 'tags',
-            'Allergens': 'allergens',
-            'Swap_Group': 'swap_group',
-            'Goal': 'goal_tag',
-        }
-        self.nutrition_df.rename(columns=col_map, inplace=True)
+            meta_path = metadata_path or os.path.join(
+                base_dir, 'data', 'meal_metadata.csv')
+            if not os.path.exists(meta_path):
+                raise FileNotFoundError(f"Metadata not found: {meta_path}")
 
-        # Fill NaNs
-        for col in ['tags', 'allergens', 'swap_group', 'goal_tag']:
-            if col in self.nutrition_df.columns:
-                self.nutrition_df[col] = self.nutrition_df[col].fillna('')
+            df_nutr = pd.read_csv(csv_path)
+            df_meta = pd.read_csv(meta_path)
 
-        # Normalise meal_type to lowercase (Breakfast → breakfast)
-        self.nutrition_df['meal_type'] = self.nutrition_df['meal_type'].str.lower().str.strip()
+            # Normalise string columns
+            for col in ['diet_type', 'allergens', 'goal', 'meal_type', 'region']:
+                if col in df_nutr.columns:
+                    df_nutr[col] = df_nutr[col].fillna('').astype(str)
 
-        # Pre-clean the dataset using FoodClassifier
-        print(f" [MealEngine] Cleaning dataset with FoodClassifier...")
-        self.nutrition_df = self.classifier.clean_dataset(self.nutrition_df)
-        print(f" [MealEngine] Final dataset: {len(self.nutrition_df)} valid meals")
+            # Inner join on food_id
+            self.df = pd.merge(df_nutr, df_meta, on='food_id', how='inner')
+            # Drop desserts, spreads, sauces — never appear as base meals
+            forbidden_roles = ['side_dish', 'dessert', 'spread', 'sauce', 'sweet']
+            self.df = self.df[~self.df['meal_role'].isin(forbidden_roles)]
+            print(f"[MealEngine V2] Loaded {len(self.df)} foods (post-merge)")
+            MealEngine._cached_df = self.df.copy()
 
-        # Load food blacklist — items that should never appear in a fitness app
-        blacklist_path = os.path.join(base_dir, 'data', 'food_blacklist.json')
-        if os.path.exists(blacklist_path):
-            with open(blacklist_path, encoding='utf-8') as _bl_file:
-                self.food_blacklist = set(json.load(_bl_file))
-            # Apply blacklist to the pre-cleaned dataset
-            pre_bl = len(self.nutrition_df)
-            self.nutrition_df = self.nutrition_df[~self.nutrition_df['name'].isin(self.food_blacklist)]
-            print(f" [MealEngine] Blacklist applied: removed {pre_bl - len(self.nutrition_df)} items")
-            print(f" [MealEngine] Final clean dataset: {len(self.nutrition_df)} items")
-        else:
-            self.food_blacklist = set()
-            print(" [MealEngine] WARNING: food_blacklist.json not found — no items blocked")
+        self.breakfast_history:  Set[str] = set()
+        self.lunch_history:      Set[str] = set()
+        self.dinner_history:     Set[str] = set()
+        self.snack_history:      Set[str] = set()
+        self.protein_history:    List[str] = []
+        self.carb_history:       List[str] = []
+        self.cuisine_history:    List[str] = []
+        self.template_history:   List[int] = []   # blueprint indices used
 
-        # Protein targets in grams per kg of bodyweight (evidence-based: ISSN/ADA guidelines)
-        # These produce realistic ranges: ~50–160g/day for most users.
-        # After protein is fixed, remaining calories are split between carbs and fat.
-        self.protein_per_kg = {
-            'Weight Loss':  1.6,   # High protein preserves muscle during deficit
-            'Fat Loss':     1.8,   # Higher protein prevents muscle catabolism
-            'Muscle Gain':  1.8,   # ~1.6-2.0 g/kg is the evidence-based range
-            'Strength':     1.8,   # Same as muscle gain for heavy lifters
-            'Endurance':    1.4,   # Moderate — endurance athletes need less than strength
-            'Maintenance':  1.0,   # General population (WHO: 0.8, active: 1.0–1.2)
+        # ---- Calorie / macro target parameters ----
+        self._protein_per_kg = {
+            'Weight Loss':  1.6,
+            'Fat Loss':     1.8,
+            'Muscle Gain':  1.8,
+            'Strength':     1.8,
+            'Endurance':    1.4,
+            'Maintenance':  1.0,
             'Maintain':     1.0,
         }
-
-        # After protein calories are accounted for, the REMAINING calories
-        # are split between carbs and fat using these ratios (carbs : fat)
-        self.remaining_carb_fat_split = {
-            'Weight Loss':  {'carbs': 0.50, 'fat': 0.50},  # Balanced low-cal rest
-            'Fat Loss':     {'carbs': 0.40, 'fat': 0.60},  # More fat (keto-adjacent)
-            'Muscle Gain':  {'carbs': 0.65, 'fat': 0.35},  # Carb-forward for training
-            'Strength':     {'carbs': 0.70, 'fat': 0.30},  # Heavy carb for lifts
-            'Endurance':    {'carbs': 0.75, 'fat': 0.25},  # Max carb for aerobics
-            'Maintenance':  {'carbs': 0.58, 'fat': 0.42},  # Balanced general diet
+        self._carb_fat_split = {
+            'Weight Loss':  {'carbs': 0.50, 'fat': 0.50},
+            'Fat Loss':     {'carbs': 0.40, 'fat': 0.60},
+            'Muscle Gain':  {'carbs': 0.65, 'fat': 0.35},
+            'Strength':     {'carbs': 0.70, 'fat': 0.30},
+            'Endurance':    {'carbs': 0.75, 'fat': 0.25},
+            'Maintenance':  {'carbs': 0.58, 'fat': 0.42},
             'Maintain':     {'carbs': 0.58, 'fat': 0.42},
         }
-
-        # Activity multipliers (Mifflin-St Jeor)
-        self.activity_multipliers = {
+        self._activity_mult = {
             'Sedentary':   1.2,
             'Light':       1.375,
             'Moderate':    1.55,
@@ -892,592 +741,719 @@ class MealEngine:
             'Very Active': 1.9,
         }
 
-        # Meal calorie distribution
-        self.meal_distribution = {
-            'breakfast': 0.25,
-            'lunch':     0.35,
-            'dinner':    0.30,
-            'snack':     0.10,
-        }
+    # ------------------------------------------------------------------
+    # HELPERS — determinism
+    # ------------------------------------------------------------------
 
-    def _create_user_entropy(self, profile: Dict) -> str:
-        """Build stable user entropy so two similar profiles still diverge."""
-        entropy_parts = [
+    def _user_entropy(self, profile: Dict) -> str:
+        parts = [
             str(profile.get('user_id') or profile.get('_id') or '').strip(),
             str(profile.get('email') or '').strip().lower(),
             str(profile.get('created_at') or profile.get('createdAt') or '').strip(),
-            str(profile.get('registrationDate') or profile.get('registration_date') or '').strip(),
         ]
-        base = '|'.join(entropy_parts)
-        if not base.replace('|', '').strip():
-            base = 'anonymous-user'
-        return hashlib.sha256(base.encode()).hexdigest()[:24]
+        raw = '|'.join(parts)
+        if not raw.replace('|', '').strip():
+            raw = 'anonymous-user'
+        return hashlib.sha256(raw.encode()).hexdigest()[:24]
 
-    def _create_profile_fingerprint(self, profile: Dict) -> str:
-        """Create fingerprint from plan-affecting profile fields."""
+    def _profile_fp(self, profile: Dict) -> str:
         payload = {
-            'age': int(float(profile.get('age', 25) or 25)),
+            'age':    int(float(profile.get('age', 25) or 25)),
             'weight': round(float(profile.get('weight', 70.0) or 70.0), 1),
             'height': round(float(profile.get('height', 175.0) or 175.0), 1),
-            'goal': str(profile.get('goal', 'Maintenance')),
-            'experience': str(profile.get('experience', 'Beginner')),
-            'dietary_preference': str(profile.get('dietary_preference', 'Non-Veg')),
-            'equipment': sorted([str(x).strip().lower() for x in (profile.get('equipment') or [])]),
-            'body_issues': sorted([str(x).strip().lower() for x in (profile.get('body_issues') or [])]),
-            'allergies': sorted([str(x).strip().lower() for x in (profile.get('allergies') or [])]),
-            'days_per_week': int(profile.get('days_per_week', 4) or 4),
+            'goal':   str(profile.get('goal', 'Maintenance')),
+            'pref':   str(profile.get('dietary_preference', 'nonveg')),
+            'allergy': sorted([str(x).lower() for x in (profile.get('allergies') or [])]),
         }
-        encoded = json.dumps(payload, sort_keys=True, separators=(',', ':'))
-        return hashlib.sha256(encoded.encode()).hexdigest()[:24]
+        return hashlib.sha256(
+            json.dumps(payload, sort_keys=True, separators=(',', ':')).encode()
+        ).hexdigest()[:24]
 
-    def _seed_for_meal_slot(
-        self,
-        *,
-        user_entropy: str,
-        profile_fingerprint: str,
-        week_offset: int,
-        day_idx: int,
-        meal_type: str,
-    ) -> int:
-        seed_material = f"{user_entropy}:{profile_fingerprint}:{week_offset}:{day_idx}:{meal_type}"
-        return int(hashlib.sha256(seed_material.encode()).hexdigest()[:16], 16) % (10**9)
+    def _seed(self, ue: str, fp: str, week: int, day: int, mt: str) -> int:
+        raw = f"{ue}:{fp}:{week}:{day}:{mt}"
+        return int(hashlib.sha256(raw.encode()).hexdigest()[:16], 16) % (10 ** 9)
 
-    # ─────────────────────────────────────────────
-    #  CORE:  calorie / macro target calculations
-    # ─────────────────────────────────────────────
+    # ------------------------------------------------------------------
+    # PHASE: DAILY TARGETS
+    # ------------------------------------------------------------------
 
     def calculate_daily_targets(self, profile: Dict) -> Dict:
-        """
-        Mifflin-St Jeor BMR → TDEE → goal adjustment → macros.
+        gender = str(profile.get('gender', 'Male')).lower()
+        weight = max(30.0, min(300.0, float(profile.get('weight', 70) or 70)))
+        height = max(100.0, min(250.0, float(profile.get('height', 175) or 175)))
+        age    = max(10,    min(100,   int(float(profile.get('age', 25) or 25))))
 
-        Protein is calculated using body-weight-based targets (g/kg) from
-        ISSN/ADA evidence-based guidelines, NOT as a percentage of calories.
-        This prevents the common bug of recommending 200g+ protein.
-        Carbs and fat are derived from the remaining non-protein calories.
-        
-        Gender-based adjustments:
-        - Female users: Lower BMR (-161), reduced protein target (0.9x), adjusted calories
-        - Male users: Standard BMR (+5), full protein target
-        - Other: Average of male/female BMR offsets
-        """
-        gender = profile.get('gender', 'Male')
-        weight = max(30, min(300, float(profile.get('weight', 70))))
-        height = max(100, min(250, profile.get('height', 175)))
-        age    = max(10, min(100, profile.get('age', 25)))
-
-        # BMR calculation with proper gender handling
-        if gender.lower() in ('male', 'm', 'man'):
+        if gender in ('male', 'm', 'man'):
             bmr = 10 * weight + 6.25 * height - 5 * age + 5
-        elif gender.lower() in ('female', 'f', 'woman', 'women'):
+        elif gender in ('female', 'f', 'woman', 'women'):
             bmr = 10 * weight + 6.25 * height - 5 * age - 161
         else:
-            # For "Other": use average of male and female offsets ((+5 + -161) / 2 = -78)
             bmr = 10 * weight + 6.25 * height - 5 * age - 78
 
-        activity = self.activity_multipliers.get(
-            profile.get('activity_level', 'Moderate'), 1.55
-        )
-        tdee = bmr * activity
+        act  = self._activity_mult.get(profile.get('activity_level', 'Moderate'), 1.55)
+        tdee = bmr * act
 
         goal = profile.get('goal', 'Maintenance')
         goal_mult = {
             'Weight Loss': 0.85, 'Fat Loss': 0.80,
             'Muscle Gain': 1.10, 'Strength': 1.05,
-            'Endurance': 1.00, 'Maintenance': 1.00,
-            'Maintain': 1.00,
+            'Endurance':   1.00, 'Maintenance': 1.00, 'Maintain': 1.00,
         }
-        daily_calories = tdee * goal_mult.get(goal, 1.00)
-        
-        # Gender-based calorie adjustment: females typically need 10-15% fewer calories
-        if gender.lower() in ('female', 'f', 'woman', 'women'):
-            daily_calories *= 0.90  # 10% reduction for female users
-        elif gender.lower() not in ('male', 'm', 'man'):
-            daily_calories *= 0.95  # 5% reduction for other/neutral
-        
-        daily_calories = max(1200, min(5000, daily_calories))
+        kcal = tdee * goal_mult.get(goal, 1.00)
 
-        # ── Step 1: Fix protein using body-weight target (g/kg) ──────────────
-        # Evidence-based: ISSN (2017), ADA, WHO guidelines
-        # Produces realistic values: 56–135g for 60–75kg users
-        protein_per_kg = self.protein_per_kg.get(goal, 1.0)
-        
-        # Gender-based protein adjustment
-        # Research shows women have slightly lower protein utilization efficiency
-        if gender.lower() in ('female', 'f', 'woman', 'women'):
-            protein_per_kg *= 0.90  # 10% reduction (1.6-2.0g/kg instead of 1.8-2.2g/kg)
-        elif gender.lower() not in ('male', 'm', 'man'):
-            protein_per_kg *= 0.95  # 5% reduction for other/neutral
-            
-        protein_g = round(protein_per_kg * weight, 1)
-        # Cap: protein should not exceed 35% of calories (2.2g/kg is max evidence limit)
-        max_protein_g = round((daily_calories * 0.35) / 4, 1)
-        protein_g = min(protein_g, max_protein_g)
+        if gender in ('female', 'f', 'woman', 'women'):
+            kcal *= 0.90
+        elif gender not in ('male', 'm', 'man'):
+            kcal *= 0.95
+        kcal = max(1200.0, min(5000.0, kcal))
 
-        # ── Step 2: Remaining calories go to carbs + fat ──────────────────────
-        protein_kcal = protein_g * 4
-        remaining_kcal = max(0, daily_calories - protein_kcal)
+        pp_kg = self._protein_per_kg.get(goal, 1.0)
+        if gender in ('female', 'f', 'woman', 'women'):
+            pp_kg *= 0.90
+        elif gender not in ('male', 'm', 'man'):
+            pp_kg *= 0.95
 
-        split = self.remaining_carb_fat_split.get(goal, {'carbs': 0.58, 'fat': 0.42})
-        carb_g = round((remaining_kcal * split['carbs']) / 4, 1)
-        fat_g  = round((remaining_kcal * split['fat']) / 9, 1)
+        prot = round(pp_kg * weight, 1)
+        prot = min(prot, round((kcal * 0.35) / 4, 1))
 
-        macros_g = {
-            'protein_g': protein_g,
-            'carb_g':    carb_g,
-            'fat_g':     fat_g,
-        }
+        prot_kcal  = prot * 4
+        remaining  = max(0.0, kcal - prot_kcal)
+        split      = self._carb_fat_split.get(goal, {'carbs': 0.58, 'fat': 0.42})
+        carb = round((remaining * split['carbs']) / 4, 1)
+        fat  = round((remaining * split['fat'])  / 9, 1)
 
         return {
-            'daily_calories': round(daily_calories),
-            'macro_targets_g': macros_g,
+            'daily_calories': round(kcal),
+            'macro_targets_g': {
+                'protein_g': prot,
+                'carb_g':    carb,
+                'fat_g':     fat,
+            },
         }
 
+    # ------------------------------------------------------------------
+    # PHASE 7 — NUTRITION RULE ENGINE (diet + allergy filter)
+    # ------------------------------------------------------------------
 
-    # ─────────────────────────────────────────────
-    #  FILTERING: dietary pref, allergens, goal
-    # ─────────────────────────────────────────────
+    def _apply_nutrition_rules(self, profile: Dict) -> pd.DataFrame:
+        df = self.df.copy()
 
-    def _filter_foods(self, profile: Dict) -> pd.DataFrame:
-        """
-        Filter foods based on user profile preferences.
-        The dataset is already pre-cleaned by FoodClassifier in __init__.
-        
-        Bug #4 Fix: Filter out side dishes and condiments from standalone selection.
-        Only allow main_meal and appropriate side_dish items.
-        """
-        df = self.nutrition_df.copy()
+        pref = str(profile.get('dietary_preference') or 'nonveg').lower().strip()
+        pref = {'veg': 'veg', 'vegetarian': 'veg',
+                'vegan': 'vegan',
+                'nonveg': 'nonveg', 'non-veg': 'nonveg',
+                'non vegetarian': 'nonveg'}.get(pref, pref)
 
-        # Bug #4 Fix: Filter out side dishes, ingredients, condiments, and beverages
-        # Only keep main_meal items for standalone meal selection
-        if 'food_category' in df.columns:
-            df = df[df['food_category'].isin(['main_meal'])]
+        if pref == 'veg':
+            df = df[df['is_vegetarian'].astype(str).str.lower().isin(['true', '1', 'yes'])]
+            # Guard against mislabeled CSV rows: exclude fish/meat even if is_vegetarian=True
+            df = df[~df['contains_fish'].astype(str).str.lower().isin(['true', '1', 'yes'])]
+            df = df[~df['contains_meat'].astype(str).str.lower().isin(['true', '1', 'yes'])]
+        elif pref == 'vegan':
+            df = df[df['is_vegan'].astype(str).str.lower().isin(['true', '1', 'yes'])]
+            # Guard against mislabeled rows: exclude fish/meat/dairy for vegan
+            df = df[~df['contains_fish'].astype(str).str.lower().isin(['true', '1', 'yes'])]
+            df = df[~df['contains_meat'].astype(str).str.lower().isin(['true', '1', 'yes'])]
+            df = df[~df['contains_dairy'].astype(str).str.lower().isin(['true', '1', 'yes'])]
+        elif pref == 'nonveg':
+            pass  # all foods allowed
+        else:
+            raise ValueError(
+                f"Invalid dietary_preference '{pref}'. Supported: veg, nonveg, vegan.")
 
-        # Dietary preference
-        pref = (profile.get('dietary_preference') or 'Non-Veg').lower().strip()
-        if pref in ('veg', 'vegetarian', 'vegan'):
-            df = df[df['tags'].str.lower().str.contains('veg', na=False)]
-            # Further exclude non-veg swap groups
-            df = df[~df['swap_group'].str.lower().str.contains('non-veg', na=False)]
-
-        # Allergens — use word-boundary matching to prevent false positives
-        # e.g. 'nut' should NOT filter out 'coconut' or 'butternut'
-        allergies = profile.get('allergies', [])
+        allergies = profile.get('allergies') or []
         if allergies:
-            boundary_patterns = [r'\b' + re.escape(a.lower()) + r'\b' for a in allergies if a]
-            pattern = '|'.join(boundary_patterns)
+            expanded = []
+            for a in allergies:
+                al = a.strip().lower()
+                if al in ('lactose', 'dairy'):
+                    expanded.extend(['milk', 'dairy', 'lactose', 'cheese',
+                                     'paneer', 'butter', 'ghee', 'cream'])
+                elif al == 'gluten':
+                    expanded.extend(['wheat', 'gluten', 'barley', 'rye',
+                                     'maida', 'suji', 'semolina', 'atta'])
+                elif al == 'nuts':
+                    expanded.extend(['nuts', 'almond', 'cashew', 'walnut',
+                                     'peanut', 'pistachio'])
+                else:
+                    expanded.append(al)
+            pattern = '|'.join(r'\b' + re.escape(x) + r'\b' for x in expanded if x)
             if pattern:
-                df = df[~df['allergens'].str.lower().str.contains(pattern, na=False, regex=True)]
+                df = df[~df['allergens'].str.lower().str.contains(
+                    pattern, na=False, regex=True)]
 
-        # Goal-match preference: prefer goal-matching foods, but fall back to all
-        # NOTE: The goal tag in the dataset is unreliable.
-        # We apply this filter ONLY when it leaves a substantial pool.
-        goal = profile.get('goal', 'Maintenance')
-        goal_map = {
-            'Weight Loss': 'Weight Loss',
-            'Fat Loss': 'Weight Loss',
-            'Muscle Gain': 'Muscle Gain',
-            'Strength': 'Muscle Gain',
-            'Endurance': 'Maintain',
-            'Maintenance': 'Maintain',
-            'Maintain': 'Maintain',
-        }
-        mapped_goal = goal_map.get(goal, 'Maintain')
-        goal_df = df[df['goal_tag'].str.strip().str.lower() == mapped_goal.lower()]
-        # Only apply goal filter if it leaves enough items per meal type
-        if len(goal_df) >= 50:
-            mt_counts = goal_df['meal_type'].value_counts()
-            has_enough = all(mt_counts.get(mt, 0) >= 8 for mt in ['breakfast', 'lunch', 'dinner'])
-            if has_enough:
-                df = goal_df
+        blocklist_pattern = '|'.join(r'\b' + re.escape(t) + r'\b' for t in FOOD_NAME_BLOCKLIST)
+        if blocklist_pattern:
+            df = df[~df['food_name'].str.lower().str.contains(
+                blocklist_pattern, na=False, regex=True)]
 
-        if df.empty:
-            df = self.nutrition_df.copy()
-            # Re-apply blacklist + side dish filter even on fallback
-            if hasattr(self, 'food_blacklist') and self.food_blacklist:
-                df = df[~df['name'].isin(self.food_blacklist)]
-            if 'food_category' in df.columns:
-                df = df[df['food_category'].isin(['main_meal'])]
+        # Extra safety check to drop any roles that slipped through
+        df = df[~df['meal_role'].isin(['dessert', 'spread', 'sauce', 'condiment', 'sweet'])]
+
+        never_recommend = profile.get('never_recommend') or []
+        if never_recommend:
+            never_pattern = '|'.join(re.escape(str(t).lower().strip()) for t in never_recommend if t)
+            if never_pattern:
+                df = df[~df['food_name'].str.lower().str.contains(
+                    never_pattern, na=False, regex=True)]
 
         return df
 
-    def generate_daily_plan(self, profile: Dict, goal: Optional[str] = None,
-                            seed: Optional[int] = None) -> Dict:
-        """
-        Build a daily plan using MealBuilder + daily_planner integration.
-        """
-        filtered = self._filter_foods(profile)
-        food_items = filtered.to_dict(orient='records')
-        meal_builder = MealBuilder(food_items=food_items)
-        planner_goal = (goal or profile.get('goal') or 'maintain').strip().lower().replace(' ', '_')
-        plan = generate_day_plan(meal_builder, goal=planner_goal, seed=seed)
-        return plan
+    # ------------------------------------------------------------------
+    # PHASE 3 & 4 — CANDIDATE GENERATION (blueprint + meal_time aware)
+    # ------------------------------------------------------------------
 
-    # ─────────────────────────────────────────────
-    #  MEAL SELECTION  — greedy calorie-fit picker
-    # ─────────────────────────────────────────────
-
-    def _pick_meals_for_slot(self, pool: pd.DataFrame, target_cal: float,
-                              target_macros: Dict, used_names: set,
-                              seed: int = 0, meal_type: str = 'lunch') -> List[Dict]:
+    def _generate_candidates(self,
+                              pool:          pd.DataFrame,
+                              meal_type:     str,
+                              rng:           random.Random,
+                              tracker:       WeeklyVarietyTracker,
+                              num_candidates: int = 40,
+                              rejected_names: Optional[Set[str]] = None) -> List[Tuple[List[Dict], int]]:
         """
-        Pick food items from `pool` whose summed calories are
-        within ±15 % of `target_cal` and macros are balanced.
-        Deterministic per seed.
+        Generate (components, blueprint_idx) tuples.
+        Pool is filtered by meal_time so foods like Dosa don't appear at dinner.
+        """
+        blueprints = BLUEPRINTS.get(meal_type, [['combo_meal']])
+
+        # Filter pool by meal_type from nutrition CSV
+        # meal_type column values: Breakfast, Lunch, Dinner, Snack, Beverage
+        mt_cap = meal_type.capitalize()
+        meal_pool = pool[
+            pool['meal_type'].str.contains(mt_cap, case=False, na=False) |
+            pool['meal_type'].str.contains('Beverage', case=False, na=False)
+        ]
+        if meal_pool.empty:
+            meal_pool = pool  # fallback: ignore meal_time filter
+
+        candidates: List[Tuple[List[Dict], int]] = []
         
-        Bug #3 Fix: Added macro-aware selection and validation.
-        - Main meals (breakfast/lunch/dinner) must have ≥15g protein each
-        - Snacks capped at ≤10g protein (max 8g ideal)
-        - Snack protein must never exceed any main meal's protein
-        """
-        if pool.empty:
-            return []
+        # Precompute available items by role to avoid pandas mask evaluation in hot loop
+        weights_map = {'very_common': 4, 'common': 2, 'limited': 1, 'rare': 0.25}
+        meal_pool_dicts = meal_pool.to_dict('records')
+        available_by_role = {}
+        for b in blueprints:
+            for role in b:
+                if role not in available_by_role:
+                    role_items = [row for row in meal_pool_dicts if row.get('meal_role') == role]
+                    for item in role_items:
+                        item['_base_weight'] = weights_map.get(item.get('availability', 'common'), 1)
+                    available_by_role[role] = role_items
 
-        rng = random.Random(seed)
+        full_pool_dicts = pool.to_dict('records')
+        full_available_by_role = {}
+        for b in blueprints:
+            for role in b:
+                if role not in full_available_by_role:
+                    role_items = [row for row in full_pool_dicts if row.get('meal_role') == role]
+                    for item in role_items:
+                        item['_base_weight'] = weights_map.get(item.get('availability', 'common'), 1)
+                    full_available_by_role[role] = role_items
 
-        # Exclude already-used names (cross-meal dedup for the day)
-        candidates = pool[~pool['name'].isin(used_names)].copy()
-        if candidates.empty:
-            candidates = pool.copy()
+        # Apply rejected_names filter ONCE upfront
+        if rejected_names:
+            for role, items in available_by_role.items():
+                available_by_role[role] = [x for x in items if x.get('food_name') not in rejected_names]
+            for role, items in full_available_by_role.items():
+                full_available_by_role[role] = [x for x in items if x.get('food_name') not in rejected_names]
 
-        # Dynamic dish count by slot and calorie target.
-        # This avoids rigid fixed counts across users and days.
-        if meal_type == 'breakfast':
-            max_items = 2 if target_cal < 380 else 3 if target_cal < 620 else 4
-        elif meal_type in ('lunch', 'dinner'):
-            max_items = 2 if target_cal < 450 else 3 if target_cal < 700 else 4
-        elif meal_type == 'snack':
-            # Snack is optional when the target allocation is very small.
-            if target_cal < 130:
-                return []
-            max_items = 1 if target_cal < 260 else 2
-        else:
-            max_items = 3
+        # Convert history to set ONCE for O(1) lookups
+        history_set = set(tracker.meal_history(meal_type))
 
-        per_item_target = target_cal / max_items
-        
-        # Bug #3 Fix: Score candidates by both calorie proximity AND macro balance
-        # Prefer items with reasonable protein (not too high for snacks, not too low for mains)
-        candidates['_diff'] = abs(candidates['calories'] - per_item_target)
-        
-        # Add macro similarity score (lower is better)
-        if target_macros and 'protein_g' in target_macros:
-            target_protein = target_macros['protein_g']
-            per_item_protein = target_protein / max_items
-            candidates['_protein_diff'] = abs(candidates['protein'] - per_item_protein)
-            # Combined score: 60% calorie fit, 40% macro fit
-            candidates['_score'] = candidates['_diff'] * 0.6 + candidates['_protein_diff'] * 2.0
-            candidates = candidates.sort_values('_score')
-        else:
-            candidates = candidates.sort_values('_diff')
-
-        selected = []
-        remaining_cal = target_cal
-
-        # First pass: greedily pick items that fit
-        indices = list(candidates.index)
-        rng.shuffle(indices)  # shuffle for variety day-to-day
-
-        for idx in indices:
-            if remaining_cal <= 30:  # close enough
+        for attempt in range(num_candidates * 3):
+            if len(candidates) >= num_candidates:
                 break
-            row = candidates.loc[idx]
-            cal = row['calories']
-            protein = float(row.get('protein', 0))
-            
-            if cal <= 0:
-                continue
+
+            # Prefer unused templates first
+            unused_idxs = [i for i in range(len(blueprints))
+                           if i not in tracker.template_history[-len(blueprints):]]
+            if unused_idxs:
+                bp_idx = rng.choice(unused_idxs)
+            else:
+                # Least-recently used
+                counts = Counter(tracker.template_history)
+                bp_idx = min(range(len(blueprints)),
+                             key=lambda i: counts.get(i, 0))
+
+            blueprint = blueprints[bp_idx]
+            components: List[Dict] = []
+            valid = True
+            pair_group: Optional[str] = None
+
+            for role in blueprint:
+                role_pool_items = available_by_role.get(role, [])
+
+                # Try to match pair_group for cohesion (e.g. Idli + Sambar)
+                if pair_group:
+                    pg_pool = [x for x in role_pool_items if x.get('meal_pair_group') == pair_group]
+                    if pg_pool and rng.random() > 0.25:
+                        role_pool_items = pg_pool
+
+                # Graceful Fallbacks if strict filtering exhausts options
+                if not role_pool_items:
+                    # Fallback 1: Try from full pool ignoring meal_time and pair_group
+                    role_pool_items = full_available_by_role.get(role, [])
                 
-            # Bug #3 Fix: Enforce calorie + protein constraints per meal type
-            if meal_type == 'snack':
-                if cal > 250:
-                    continue   # M3 Fix: snack items must be under 250 cal
-                if protein > 15:
-                    continue   # Skip extremely high-protein items in snacks
-            if meal_type in ('breakfast', 'lunch', 'dinner') and protein < 5:
-                continue  # Skip very low-protein main meals
-            
-            if cal <= remaining_cal * 1.3:
-                selected.append({
-                    'name': row['name'],
-                    'calories': round(float(cal)),
-                    'protein': round(float(protein), 1),
-                    'carbs': round(float(row.get('carbs', 0)), 1),
-                    'fat': round(float(row.get('fat', 0)), 1),
-                    'swap_group': str(row.get('swap_group', '')),
-                })
-                remaining_cal -= cal
-                used_names.add(row['name'])
-            if len(selected) >= max_items:
-                break
+                if not role_pool_items:
+                    valid = False
+                    break
 
-        # Bug #3 Fix: Validate and enforce minimums
-        # If main meal has no items or too little protein, force-add a protein source
-        if meal_type in ('breakfast', 'lunch', 'dinner') and selected:
-            total_protein = sum(item['protein'] for item in selected)
-            if total_protein < 15:  # Minimum 15g protein per main meal
-                # Find a high-protein item from the pool
-                high_protein = candidates[candidates['protein'] >= 15]
-                if not high_protein.empty and len(selected) < max_items:
-                    best = high_protein.iloc[0]
-                    selected.append({
-                        'name': best['name'],
-                        'calories': round(float(best['calories'])),
-                        'protein': round(float(best['protein']), 1),
-                        'carbs': round(float(best.get('carbs', 0)), 1),
-                        'fat': round(float(best.get('fat', 0)), 1),
-                        'swap_group': str(best.get('swap_group', '')),
-                    })
-                    used_names.add(best['name'])
+                # Prefer less-recently used foods (variety)
+                unseen = [x for x in role_pool_items if x.get('food_name') not in history_set]
+                sample_pool = unseen if unseen else role_pool_items
 
-        # Make sure we got at least 1
-        if not selected and not candidates.empty:
-            row = candidates.iloc[0]
-            selected.append({
-                'name': row['name'],
-                'calories': round(float(row['calories'])),
-                'protein': round(float(row.get('protein', 0)), 1),
-                'carbs': round(float(row.get('carbs', 0)), 1),
-                'fat': round(float(row.get('fat', 0)), 1),
-                'swap_group': str(row.get('swap_group', '')),
-            })
-            used_names.add(row['name'])
+                # Availability-weighted sampling with tie-breaking noise for variety
+                if '_base_weight' in sample_pool[0]:
+                    w = [x.get('_base_weight', 1) + rng.uniform(0, 0.4) for x in sample_pool]
+                    w_sum = sum(w)
+                    if w_sum > 0:
+                        w = [weight / w_sum for weight in w]
+                        try:
+                            selected = rng.choices(sample_pool, weights=w, k=1)[0]
+                        except Exception:
+                            selected = rng.choice(sample_pool)
+                    else:
+                        selected = rng.choice(sample_pool)
+                else:
+                    selected = rng.choice(sample_pool)
 
-        return selected
+                if pair_group is None and role in ('combo_meal', 'carb_base', 'protein_main'):
+                    pair_group = selected.get('meal_pair_group', '')
 
-    # ─────────────────────────────────────────────
-    #  PUBLIC:  generate a 7-day weekly plan
-    # ─────────────────────────────────────────────
+                components.append(selected)
+
+            if valid and components:
+                if is_realistic_meal_identity(meal_type, components):
+                    candidates.append((components, bp_idx))
+
+        return candidates
+
+    # ------------------------------------------------------------------
+    # PHASE 8 — WEEKLY VALIDATOR
+    # ------------------------------------------------------------------
+
+    def _validate_plan(self, plan: Dict) -> Dict:
+        """
+        Run all checks per spec.
+        Returns dict with:
+          'warnings': List[str]
+          'failed':   List[Tuple[str, str]]  — (day_name, meal_type) pairs that failed
+        """
+        warnings: List[str] = []
+        failed:   List[tuple] = []
+        all_meals_by_type: Dict[str, List[str]] = {
+            'breakfast': [], 'lunch': [], 'dinner': [], 'snack': []}
+
+        for day, meals in plan.items():
+            for mt, items in meals.items():
+                names = [i['food_name'] for i in items]
+                bucket = all_meals_by_type.get(mt, [])
+
+                # CHECK 1 & 2: Duplicate meals across days
+                for n in names:
+                    if n in bucket:
+                        msg = f"CHECK1 -- '{n}' repeated in {mt} across days"
+                        warnings.append(msg)
+                        if (day, mt) not in failed:
+                            failed.append((day, mt))
+                    bucket.append(n)
+
+            # CHECK 3 & 4: Desserts, Spreads, strict completeness rules
+            for mt, items in meals.items():
+                roles = [i.get('meal_role', '') for i in items]
+                
+                # Check for structural completeness
+                if mt in ['breakfast', 'lunch', 'dinner']:
+                    has_combo = 'combo_meal' in roles
+                    has_carb = 'carb_base' in roles
+                    has_protein = 'protein_main' in roles
+                    has_side = any(r in ['salad', 'veg_side', 'dairy_side', 'beverage', 'snack_fruit'] for r in roles)
+                    
+                    is_complete = (has_combo and has_side) or (has_carb and has_protein)
+                    if not is_complete:
+                        warnings.append(f"CHECK3 -- {day}/{mt} lacks structural completeness (requires carb+protein or combo+side).")
+                        if (day, mt) not in failed: failed.append((day, mt))
+
+                # Check condiment portion sizes
+                for item in items:
+                    if item.get('meal_role', '') == 'condiment':
+                        qty = item.get('serving_weight', 0)
+                        max_qty = item.get('portion_max', 30)
+                        if qty > max_qty + 1: # +1 for rounding grace
+                            warnings.append(f"CHECK3 -- {day}/{mt} condiment {item.get('food_name')} exceeds max portion ({qty} > {max_qty}).")
+                            if (day, mt) not in failed: failed.append((day, mt))
+
+                if set(roles) & {'dessert', 'spread', 'sauce', 'sweet'}:
+                    warnings.append(f"CHECK3 -- {day}/{mt} contains forbidden dessert/sauce role.")
+                    if (day, mt) not in failed: failed.append((day, mt))
+                    
+                if roles.count('combo_meal') > 1:
+                    warnings.append(f"CHECK4 -- {day}/{mt} has multiple combo meals.")
+                    if (day, mt) not in failed: failed.append((day, mt))
+                    
+                if roles.count('carb_base') > 1:
+                    warnings.append(f"CHECK4 -- {day}/{mt} has multiple carb bases.")
+                    if (day, mt) not in failed: failed.append((day, mt))
+
+                if 'combo_meal' in roles and 'carb_base' in roles:
+                    warnings.append(f"CHECK4 -- {day}/{mt} mixes combo_meal with carb_base.")
+                    if (day, mt) not in failed: failed.append((day, mt))
+                    
+                if 'combo_meal' in roles and 'protein_main' in roles:
+                    warnings.append(f"CHECK4 -- {day}/{mt} mixes combo_meal with protein_main.")
+                    if (day, mt) not in failed: failed.append((day, mt))
+
+            # CHECK 5: Meal Completeness per day
+            for mt, items in meals.items():
+                if mt == 'snack' or not items:
+                    continue
+                roles = {i.get('meal_role', '') for i in items}
+                # combo_meal counts as both protein and carb
+                has_combo = 'combo_meal' in roles
+                has_p = has_combo or bool(roles & {'protein_main'})
+                has_c = has_combo or bool(roles & {'carb_base'})
+                if not has_p:
+                    msg = f"CHECK5 -- {day}/{mt} missing protein component"
+                    warnings.append(msg)
+                    if (day, mt) not in failed:
+                        failed.append((day, mt))
+                if not has_c and mt in ('lunch', 'dinner'):
+                    msg = f"CHECK5 -- {day}/{mt} missing carb component"
+                    warnings.append(msg)
+                    if (day, mt) not in failed:
+                        failed.append((day, mt))
+
+            # CHECK 6: Portion Realism — already enforced in optimize_portions
+            # CHECK 7 & 8: Budget/Availability — enforced in scoring
+
+        return {'warnings': warnings, 'failed': failed}
+
+    # ------------------------------------------------------------------
+    # MAIN: GENERATE WEEKLY PLAN
+    # ------------------------------------------------------------------
 
     def generate_weekly_plan(self, profile: Dict) -> Dict:
-        targets = self.calculate_daily_targets(profile)
-        daily_cal = targets['daily_calories']
-        macros_g  = targets['macro_targets_g']
+        targets   = self.calculate_daily_targets(profile)
+        total_cal = targets['daily_calories']
 
-        now = datetime.utcnow()
-        iso_year, iso_week, _ = now.isocalendar()
-        week_offset = int(profile.get('week_offset') or ((iso_year * 100) + iso_week))
-        user_entropy = self._create_user_entropy(profile)
-        profile_fingerprint = self._create_profile_fingerprint(profile)
+        ue       = self._user_entropy(profile)
+        fp       = self._profile_fp(profile)
+        import datetime
+        current_iso_week = datetime.datetime.now().isocalendar()[1]
+        week_off = int(profile.get('week_offset') or current_iso_week)
 
-        filtered = self._filter_foods(profile)
+        filtered_pool = self._apply_nutrition_rules(profile)
 
-        # Bug #4 Fix: Split pool by meal type, ensuring side dishes don't appear as mains
-        # Snack pool gets additional filtering to remove heavy meals mislabelled as snacks
-        SNACK_MEAL_BLACKLIST_PATTERNS = [
-            'dal', 'khichdi', 'biryani', 'pulao', 'curry', 'sabzi', 'sabji',
-            'sauce', 'baghar', 'tadka', 'pickle', 'achaar', 'achar', 'chutney',
-            'korma', 'bharta', 'fry', 'roast', 'masala', 'paneer lababdar',
-            'dal makhani', 'dalma', 'panchmel', 'horsegram', 'bengal gram',
-            'ketchup', 'mayonnaise', 'dressing',
-        ]
-        MAX_SNACK_CALORIES = 250  # Snack items must be under 250 cal per item
-
-        pools = {}
-        for mt in ('breakfast', 'lunch', 'dinner', 'snack'):
-            mp = filtered[filtered['meal_type'] == mt].copy()
-            
-            # Additional safety: Ensure no side dishes slip through
-            if 'food_category' in mp.columns:
-                mp = mp[mp['food_category'] == 'main_meal']
-            
-            if mt == 'snack':
-                # M1 Fix: Remove heavy meal items that are mislabelled as snacks in dataset
-                for pattern in SNACK_MEAL_BLACKLIST_PATTERNS:
-                    mp = mp[~mp['name'].str.lower().str.contains(pattern, na=False)]
-                # M3 Fix: Hard calorie cap — snack items must be under 250 cal per row
-                mp = mp[mp['calories'] <= MAX_SNACK_CALORIES]
-
-            if mt == 'snack' and mp.empty:
-                # Fallback for snack: use the full filtered set but STILL apply blacklist+cap
-                # so heavy meals can't slip in via the fallback path
-                mp = filtered.copy()
-                for pattern in SNACK_MEAL_BLACKLIST_PATTERNS:
-                    mp = mp[~mp['name'].str.lower().str.contains(pattern, na=False)]
-                mp = mp[mp['calories'] <= MAX_SNACK_CALORIES]
-                pools[mt] = mp if not mp.empty else pd.DataFrame()
-            else:
-                pools[mt] = mp if not mp.empty else filtered
-
-        weekly_plan = {}
-        day_names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday',
-                     'Friday', 'Saturday', 'Sunday']
+        tracker   = WeeklyVarietyTracker()
+        day_names = ['Monday', 'Tuesday', 'Wednesday',
+                     'Thursday', 'Friday', 'Saturday', 'Sunday']
+        meal_types = ['breakfast', 'lunch', 'snack', 'dinner']
+        weekly_plan: Dict[str, Dict] = {}
 
         for day_idx, day_name in enumerate(day_names):
-            day_plan = {}
-            used_names_today = set()
+            weekly_plan[day_name] = {}
 
-            for mt, ratio in self.meal_distribution.items():
-                slot_cal = daily_cal * ratio
-                slot_macros = {
-                    'protein_g': macros_g['protein_g'] * ratio,
-                    'carb_g':    macros_g['carb_g'] * ratio,
-                    'fat_g':     macros_g['fat_g'] * ratio,
-                }
-                seed = self._seed_for_meal_slot(
-                    user_entropy=user_entropy,
-                    profile_fingerprint=profile_fingerprint,
-                    week_offset=week_offset,
-                    day_idx=day_idx,
-                    meal_type=mt,
-                )
-                items = self._pick_meals_for_slot(
-                    pools[mt], slot_cal, slot_macros,
-                    used_names_today, seed=seed, meal_type=mt
-                )
-                day_plan[mt] = items
+            for mt in meal_types:
+                target_cal = total_cal * MEAL_DISTRIBUTION[mt]
 
-            weekly_plan[day_name] = day_plan
+                best_meal:       Optional[List[Dict]] = None
+                best_score:      float = -1.0
+                best_meal_cal:   float = 0.0
+                best_bp_idx:     int   = 0
 
-        # ─── Summary ───
-        summary = self._build_weekly_summary(weekly_plan, targets)
+                local_rejected_names: Set[str] = set()
 
+                for retry_count in range(3):  # Validator retry loop
+                    seed = str(self._seed(ue, fp, week_off, day_idx, mt)) + "_" + str(retry_count)
+                    rng  = random.Random(seed)
+
+                    candidates = self._generate_candidates(
+                        filtered_pool, mt, rng, tracker, num_candidates=15, rejected_names=local_rejected_names)
+
+                    # Fallback 1: re-try with fewer candidates
+                    if len(candidates) < 3:
+                        candidates = self._generate_candidates(
+                            filtered_pool, mt, rng, tracker, num_candidates=20, rejected_names=local_rejected_names)
+
+                    # Fallback 2: if still empty, use robust multi-role fallbacks
+                    if not candidates:
+                        ROBUST_FALLBACK_BPS = {
+                            'breakfast': [['combo_meal', 'beverage'], ['protein_main', 'carb_base', 'beverage']],
+                            'lunch':     [['combo_meal', 'salad'], ['protein_main', 'carb_base', 'veg_side']],
+                            'snack':     [['snack'], ['snack_fruit']],
+                            'dinner':    [['combo_meal', 'dairy_side'], ['protein_main', 'carb_base', 'veg_side']],
+                        }
+                        for fallback_bp in ROBUST_FALLBACK_BPS.get(mt, [['combo_meal', 'salad']]):
+                            all_roles_available = all(
+                                not filtered_pool[filtered_pool['meal_role']==r].empty
+                                for r in fallback_bp
+                            )
+                            if all_roles_available:
+                                try:
+                                    comps = [
+                                        filtered_pool[filtered_pool['meal_role']==r].sample(
+                                            n=1, random_state=rng.randint(0,1_000_000)).iloc[0]
+                                        for r in fallback_bp
+                                    ]
+                                    candidates = [(comps, 0)]
+                                    print(f"[MealEngine V2] Fallback multi-role blueprint for {day_name}/{mt}: {fallback_bp}")
+                                    break
+                                except Exception:
+                                    continue
+
+                    local_best_meal:       Optional[List[Dict]] = None
+                    local_best_score:      float = -1.0
+                    local_best_meal_cal:   float = 0.0
+                    local_best_bp_idx:     int   = 0
+
+                    for (raw_components, bp_idx) in candidates:
+                        opt, meal_cal = optimize_portions(raw_components, target_cal)
+                        if not opt:
+                            continue
+                        s = score_meal(opt, meal_cal, target_cal, tracker, mt, bp_idx)
+                        if s > local_best_score:
+                            local_best_score    = s
+                            local_best_meal     = opt
+                            local_best_meal_cal = meal_cal
+                            local_best_bp_idx   = bp_idx
+                            
+                    if not local_best_meal:
+                        break  # Pool is truly empty
+
+                    # Inline Validation: If fails, regenerate this meal slot
+                    names = [i['food_name'] for i in local_best_meal]
+                    hist = tracker.meal_history(mt)
+                    is_duplicate = any(n in hist for n in names)
+                    
+                    roles = {i.get('meal_role', '') for i in local_best_meal}
+                    has_combo = 'combo_meal' in roles
+                    has_p = has_combo or bool(roles & {'protein_main'})
+                    has_c = has_combo or bool(roles & {'carb_base'})
+                    
+                    is_incomplete = False
+                    if mt != 'snack':
+                        if not has_p:
+                            is_incomplete = True
+                        if not has_c and mt in ('lunch', 'dinner'):
+                            is_incomplete = True
+                            
+                    # Reject invalid strict rules during generation loops to save validator passes
+                    is_invalid_combo = False
+                    role_list = [i.get('meal_role', '') for i in local_best_meal]
+                    if role_list.count('combo_meal') > 1 or role_list.count('carb_base') > 1:
+                        is_invalid_combo = True
+                    if 'combo_meal' in role_list and ('carb_base' in role_list or 'protein_main' in role_list):
+                        is_invalid_combo = True
+                    if set(role_list) & {'dessert', 'spread', 'sauce', 'condiment', 'sweet'}:
+                        is_invalid_combo = True
+
+                    if not is_duplicate and not is_incomplete and not is_invalid_combo:
+                        # Validation Passed!
+                        best_meal     = local_best_meal
+                        best_score    = local_best_score
+                        best_meal_cal = local_best_meal_cal
+                        best_bp_idx   = local_best_bp_idx
+                        break
+                    else:
+                        local_rejected_names.update(names)
+                        print(f"[MealEngine V2] Inline reject {mt}: {names}")
+                    
+                    # If failed but it's the last retry, accept it anyway
+                    if retry_count == 2 or best_meal is None:
+                        best_meal     = local_best_meal
+                        best_score    = local_best_score
+                        best_meal_cal = local_best_meal_cal
+                        best_bp_idx   = local_best_bp_idx
+
+                formatted_foods: List[Dict] = []
+                if best_meal:
+                    # Register chosen meal in tracker
+                    tracker.record_meal(mt, best_meal)
+                    tracker.record_template(best_bp_idx)
+                    tracker.record_cuisine(best_meal[0].get('region', 'All India'))
+
+                    for c in best_meal:
+                        # Build swap options — pass meal_time to avoid cross-meal swaps
+                        swaps = build_swap_options(c, filtered_pool, profile, meal_time=mt)
+                        food_out = {
+                            'food_id':      c['food_id'],
+                            'food_name':    c['food_name'],
+                            'meal_type':    mt,
+                            'meal_role':    c['meal_role'],
+                            'serving':      c['serving'],
+                            'serving_weight': round(c['serving_qty'], 1),
+                            'calories':     round(c['calories']),
+                            'protein':      round(c['protein'], 1),
+                            'carbs':        round(c['carbs'], 1),
+                            'fat':          round(c['fat'], 1),
+                            'budget_level': c['budget_level'],
+                            'availability': c['availability'],
+                            'swap_group':   c['swap_group'],
+                            'swap_options': swaps,
+                        }
+                        formatted_foods.append(food_out)
+
+                weekly_plan[day_name][mt] = formatted_foods
+
+        # Phase 8: Weekly Validator — runs once, then corrects failed meals
+        validation_result   = self._validate_plan(weekly_plan)
+        validation_warnings = validation_result['warnings']
+        failed_slots        = validation_result['failed']
+
+        if validation_warnings:
+            print(f"[MealEngine V2] Validation warnings ({len(validation_warnings)}):")
+            for w in validation_warnings[:5]:
+                print(f"  [WARN] {w}")
+
+        # Correction loop: regenerate only failed (day, meal_type) slots (up to 3 passes)
+        if failed_slots:
+            rejected_for_slot: Dict[tuple, Set[str]] = {}
+            print(f"[MealEngine V2] Attempting to correct {len(failed_slots)} failed slots...")
+            for correction_pass in range(3):
+                if not failed_slots:
+                    break
+                still_failed = []
+                for (fail_day, fail_mt) in failed_slots:
+                    current_names = [i['food_name'] for i in weekly_plan[fail_day][fail_mt]]
+                    if (fail_day, fail_mt) not in rejected_for_slot:
+                        rejected_for_slot[(fail_day, fail_mt)] = set()
+                    rejected_for_slot[(fail_day, fail_mt)].update(current_names)
+                    print(f"  [CORRECTING] {fail_day}/{fail_mt} - Blacklisting: {current_names}")
+                    
+                    fail_day_idx = day_names.index(fail_day) if fail_day in day_names else 0
+                    target_cal   = total_cal * MEAL_DISTRIBUTION[fail_mt]
+
+                    # Use correction_pass as additional seed entropy
+                    correction_seed_offset = 1000 + correction_pass * 100
+                    seed = str(self._seed(ue, fp, week_off, fail_day_idx, fail_mt)) + f"_corr{correction_seed_offset}"
+                    rng  = random.Random(seed)
+
+                    candidates = self._generate_candidates(
+                        filtered_pool, fail_mt, rng, tracker, num_candidates=40,
+                        rejected_names=rejected_for_slot[(fail_day, fail_mt)])
+                    if not candidates:
+                        still_failed.append((fail_day, fail_mt))
+                        continue
+
+                    local_best_meal:     Optional[List[Dict]] = None
+                    local_best_score:    float = -1.0
+                    local_best_meal_cal: float = 0.0
+                    local_best_bp_idx:   int   = 0
+
+                    for (raw_components, bp_idx) in candidates:
+                        opt, meal_cal = optimize_portions(raw_components, target_cal)
+                        if not opt:
+                            continue
+                        s = score_meal(opt, meal_cal, target_cal, tracker, fail_mt, bp_idx)
+                        if s > local_best_score:
+                            local_best_score    = s
+                            local_best_meal     = opt
+                            local_best_meal_cal = meal_cal
+                            local_best_bp_idx   = bp_idx
+
+                    if not local_best_meal:
+                        still_failed.append((fail_day, fail_mt))
+                        continue
+
+                    # Replace the slot
+                    corrected_foods: List[Dict] = []
+                    tracker.record_meal(fail_mt, local_best_meal)
+                    tracker.record_template(local_best_bp_idx)
+                    for c in local_best_meal:
+                        swaps = build_swap_options(c, filtered_pool, profile, meal_time=fail_mt)
+                        corrected_foods.append({
+                            'food_id':        c['food_id'],
+                            'food_name':      c['food_name'],
+                            'meal_type':      fail_mt,
+                            'meal_role':      c['meal_role'],
+                            'serving':        c['serving'],
+                            'serving_weight': round(c['serving_qty'], 1),
+                            'calories':       round(c['calories']),
+                            'protein':        round(c['protein'], 1),
+                            'carbs':          round(c['carbs'], 1),
+                            'fat':            round(c['fat'], 1),
+                            'budget_level':   c['budget_level'],
+                            'availability':   c['availability'],
+                            'swap_group':     c['swap_group'],
+                            'swap_options':   swaps,
+                        })
+                    weekly_plan[fail_day][fail_mt] = corrected_foods
+                    print(f"  [CORRECTED] {fail_day}/{fail_mt} in pass {correction_pass + 1}")
+
+                # Re-validate after corrections
+                revalidation   = self._validate_plan(weekly_plan)
+                failed_slots   = revalidation['failed']
+                if revalidation['warnings']:
+                    validation_warnings = revalidation['warnings']  # update with latest
+
+            if failed_slots:
+                print(f"[MealEngine V2] {len(failed_slots)} slots could not be fully corrected after 3 passes.")
+
+        summary = self._build_summary(weekly_plan, targets)
         return {
-            'user_profile': {
-                'daily_calorie_target': daily_cal,
-                'macro_targets_g': macros_g,
-            },
-            'daily_targets': targets,
-            'weekly_plan': weekly_plan,
-            'weekly_summary': summary,
-            'mealWeekMetadata': {
-                'generated_at': now.isoformat(),
-                'week_offset': week_offset,
-                'user_entropy': user_entropy,
-                'profile_fingerprint': profile_fingerprint,
-            },
-            'generation_timestamp': _utcnow().isoformat(),
+            'plan':              weekly_plan,
+            'daily_targets':     targets,
+            'weekly_summary':    summary,
+            'validation_warnings': validation_warnings,
         }
 
-    # ─────────────────────────────────────────────
-    #  SWAP: Mathematical Macro Similarity Engine
-    # ─────────────────────────────────────────────
+    # ------------------------------------------------------------------
+    # SUMMARY & SHOPPING LIST
+    # ------------------------------------------------------------------
 
-    def get_swap_options(self, food_name: str, meal_type: str,
-                         profile: Dict, limit: int = 5) -> List[Dict]:
-        """
-        Industry-level recommendation engine:
-        Finds alternatives by calculating Euclidean distance across scaled macro vectors
-        [calories, protein, carbs, fat], heavily penalizing items that disrupt the user's
-        daily calorie or protein targets.
-        """
-        filtered = self._filter_foods(profile)
+    def _build_summary(self, plan: Dict, targets: Dict) -> Dict:
+        total_cal = total_prot = total_carb = total_fat = 0.0
+        shopping: Counter = Counter()
 
-        # 1. Locate the original food item
-        match = filtered[filtered['name'].str.lower() == food_name.lower()]
-        if match.empty:
-            match = self.nutrition_df[self.nutrition_df['name'].str.lower() == food_name.lower()]
-
-        if match.empty:
-            # Fallback: Just return random items of the same meal_type
-            alt = filtered[filtered['meal_type'] == meal_type.lower()]
-            alt = alt.sample(n=min(limit, len(alt))) if not alt.empty else alt
-        else:
-            orig = match.iloc[0]
-            orig_cal = float(orig['calories'])
-            orig_pro = float(orig.get('protein', 0))
-            orig_car = float(orig.get('carbs', 0))
-            orig_fat = float(orig.get('fat', 0))
-
-            # 2. Candidate Pool: Same meal_type OR same Swap_Group, excluding the original
-            # Also filter out low-calorie/non-meal items (< 50 cal) like raw spices
-            swap_group = orig.get('swap_group', '')
-            if swap_group:
-                candidates = filtered[
-                    ((filtered['meal_type'] == meal_type.lower()) | (filtered['swap_group'] == swap_group)) &
-                    (filtered['name'].str.lower() != food_name.lower()) &
-                    (filtered['calories'] >= 50)
-                ].copy()
-            else:
-                candidates = filtered[
-                    (filtered['meal_type'] == meal_type.lower()) &
-                    (filtered['name'].str.lower() != food_name.lower()) &
-                    (filtered['calories'] >= 50)
-                ].copy()
-
-            if candidates.empty:
-                return []
-
-            # 3. Vectorized Distance Calculation (Macro Similarity)
-            # Weights: Calories (2.0x), Protein (1.5x), Carbs (1.0x), Fat (1.0x)
-            # We normalize the diff by the original value (or 1 to avoid div-by-zero)
-            
-            cal_diff = ((candidates['calories'] - orig_cal) / max(orig_cal, 1)) ** 2 * 2.0
-            pro_diff = ((candidates['protein'].fillna(0) - orig_pro) / max(orig_pro, 1)) ** 2 * 1.5
-            car_diff = ((candidates['carbs'].fillna(0) - orig_car) / max(orig_car, 1)) ** 2 * 1.0
-            fat_diff = ((candidates['fat'].fillna(0) - orig_fat) / max(orig_fat, 1)) ** 2 * 1.0
-
-            # Total Euclid-like penalty score
-            candidates['_score'] = np.sqrt(cal_diff + pro_diff + car_diff + fat_diff)
-
-            # 4. Sort by best mathematical match
-            alt = candidates.sort_values('_score').head(limit)
-
-        # 5. Format results
-        results = []
-        for _, row in alt.iterrows():
-            results.append({
-                'name': row['name'],
-                'calories': round(float(row['calories'])),
-                'protein': round(float(row.get('protein', 0)), 1),
-                'carbs': round(float(row.get('carbs', 0)), 1),
-                'fat': round(float(row.get('fat', 0)), 1),
-                'swap_group': str(row.get('swap_group', '')),
-            })
-
-        return results
-
-    # ─────────────────────────────────────────────
-    #  Internal helpers
-    # ─────────────────────────────────────────────
-
-    def _build_weekly_summary(self, weekly_plan: Dict, targets: Dict) -> Dict:
-        total_cal = total_pro = total_carb = total_fat = 0
-
-        for day_meals in weekly_plan.values():
-            for items in day_meals.values():
+        for meals in plan.values():
+            for items in meals.values():
                 for item in items:
-                    total_cal  += item['calories']
-                    total_pro  += item['protein']
-                    total_carb += item['carbs']
-                    total_fat  += item['fat']
+                    total_cal  += float(item.get('calories', 0))
+                    total_prot += float(item.get('protein',  0))
+                    total_carb += float(item.get('carbs',    0))
+                    total_fat  += float(item.get('fat',      0))
+                    shopping[item['food_name']] += 1
 
-        daily_avg_cal = total_cal / 7
-        target_cal    = targets['daily_calories']
-        consistency   = max(0, 1 - abs(daily_avg_cal - target_cal) / max(target_cal, 1))
-
-        # Shopping list
-        shopping = Counter()
-        for day_meals in weekly_plan.values():
-            for items in day_meals.values():
-                for item in items:
-                    shopping[item['name']] += 1
+        days = max(len(plan), 1)
+        target_cal = targets.get('daily_calories', 1)
+        avg_cal = total_cal / days
+        consistency = max(0.0, 1.0 - abs(avg_cal - target_cal) / max(target_cal, 1))
 
         return {
-            'total_calories': round(total_cal),
+            'total_calories':   round(total_cal),
             'daily_average': {
-                'calories': round(daily_avg_cal),
-                'protein_g': round(total_pro / 7, 1),
-                'carbs_g':   round(total_carb / 7, 1),
-                'fat_g':     round(total_fat / 7, 1),
+                'calories':  round(avg_cal),
+                'protein_g': round(total_prot / days, 1),
+                'carbs_g':   round(total_carb / days, 1),
+                'fat_g':     round(total_fat  / days, 1),
             },
             'consistency_score': round(consistency, 2),
-            'shopping_list': dict(shopping),
+            'shopping_list':     dict(shopping.most_common(30)),
         }
 
+    # ------------------------------------------------------------------
+    # PHASE 5 — PUBLIC SWAP API
+    # ------------------------------------------------------------------
 
-# ─── Module-level convenience functions kept for backward compat ───
+    def get_swap_options(self,
+                         food_name: str,
+                         meal_type: str,
+                         profile:   Dict,
+                         limit:     int = 5) -> List[Dict]:
+        """
+        Return swap options for a named food item.
+        Called by /nutrition/swap endpoint.
+        """
+        pool = self._apply_nutrition_rules(profile)
+        row  = pool[pool['food_name'].str.lower() == food_name.strip().lower()]
+        if row.empty:
+            return []
 
-def algorithm_logic():
-    print("Deterministic dataset-driven meal engine. See MealEngine class.")
-
-def pseudocode():
-    print("See MealEngine.generate_weekly_plan() source.")
-
-def optimization_strategy():
-    print("Greedy calorie-fit with Swap_Group diversity.")
-
-def example_weekly_json():
-    print("Run MealEngine().generate_weekly_plan({...}) for live output.")
-
-def shopping_list_generator_logic():
-    print("Shopping list is auto-generated from the weekly plan aggregation.")
+        component = {
+            'food_name':    food_name,
+            'meal_role':    str(row.iloc[0].get('meal_role', '')),
+            'swap_group':   str(row.iloc[0].get('swap_group', '')),
+            'calories':     float(row.iloc[0].get('calories_kcal', 0)),
+            'protein':      float(row.iloc[0].get('protein_g', 0)),
+        }
+        return build_swap_options(component, pool, profile, meal_time=meal_type, limit=limit)
