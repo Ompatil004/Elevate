@@ -214,8 +214,46 @@ export const getWeeklyWorkoutPlan = () =>
 export const getWorkoutSwapOptions = (dayIndex) =>
     FitnessAPI.get('/api/swap-options', { params: { day_index: dayIndex } });
 
-export const generateNutritionPlan = (payload) =>
-    FitnessAPI.post('/nutrition', payload);
+let nutritionRequestInFlight = null;
+let nutritionRequestController = null;
+
+export const generateNutritionPlan = (payload) => {
+    if (nutritionRequestInFlight) {
+        if (import.meta.env.DEV) console.log('[generateNutritionPlan] Reusing in-flight request');
+        const wrappedPromise = Promise.resolve(nutritionRequestInFlight);
+        wrappedPromise.promise = nutritionRequestInFlight;
+        wrappedPromise.cancel = () => nutritionRequestController?.abort();
+        return wrappedPromise;
+    }
+
+    nutritionRequestController = new AbortController();
+    const { signal } = nutritionRequestController;
+
+    if (import.meta.env.DEV) console.log('[generateNutritionPlan] Making new request to /nutrition');
+    nutritionRequestInFlight = FitnessAPI.post('/nutrition', payload, { signal })
+        .then((response) => {
+            if (import.meta.env.DEV) console.log('[generateNutritionPlan] Request successful');
+            return response;
+        })
+        .catch((error) => {
+            if (axios.isCancel?.(error) || error?.name === 'CanceledError' || error?.name === 'AbortError') {
+                if (import.meta.env.DEV) console.log('[generateNutritionPlan] Request cancelled');
+                return null;
+            }
+            console.error('[generateNutritionPlan] Request failed:', error.message);
+            throw error;
+        })
+        .finally(() => {
+            nutritionRequestInFlight = null;
+            nutritionRequestController = null;
+        });
+
+    const retPromise = nutritionRequestInFlight;
+    retPromise.promise = retPromise;
+    retPromise.cancel = () => nutritionRequestController?.abort();
+
+    return retPromise;
+};
 
 export const getNutritionSwapOptions = (payload) =>
     FitnessAPI.post('/nutrition/swap', payload);

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useNotification } from '../components/NotificationProvider';
 import { useTheme } from '../context/ThemeContext';
 import ConfirmDialog from '../components/ConfirmDialog';
-import { getProfile, saveTrends, getTrends, logActivityToBackend, getRecentActivities, syncActivitiesToBackend, saveDailyLog, getWeeklyLogs, generateWorkout, getMealHistory } from '../api';
+import { getProfile, saveTrends, getTrends, logActivityToBackend, getRecentActivities, syncActivitiesToBackend, saveDailyLog, getWeeklyLogs, generateWorkout } from '../api';
 import Navbar from '../components/Navbar';
 import { preloadPoseAssets } from '../utils/poseModelPreload';
 import { QUOTES } from '../data/quotes';
@@ -2093,7 +2093,7 @@ function Dashboard({ onLogout }) {
       // 3. Water (25 pts) — intake vs personal goal (weight × 0.033 L), updates per glass
       const userWeight = parseFloat(safeJSONParse('user', {})?.weight || '70');
       const _isWkDone = (typeof status !== "undefined" && (status === "done" || status === "meal")) || (typeof workoutProgress !== "undefined" && workoutProgress === 1);
-    const waterGoal = getDynamicWaterGoal(typeof userWeight !== "undefined" ? userWeight : 70, typeof sleep !== "undefined" ? sleep : 0, _isWkDone);
+      const waterGoal = getDynamicWaterGoal(typeof userWeight !== "undefined" ? userWeight : 70, typeof sleep !== "undefined" ? sleep : 0, _isWkDone);
       const waterRatio = Math.min(1, water / waterGoal);
       const waterPts = Math.round(waterRatio * 25);
 
@@ -2101,7 +2101,12 @@ function Dashboard({ onLogout }) {
       const sleepRatio = Math.min(1, sleep / 7);
       const sleepPts = Math.round(sleepRatio * 25);
 
-      const total = workoutPts + mealPts + waterPts + sleepPts;
+      let total = workoutPts + mealPts + waterPts + sleepPts;
+      
+      // Prevent progress bar from going up just because of pre-filled sleep data
+      if (workoutPts === 0 && mealPts === 0 && waterPts === 0) {
+        total = 0;
+      }
       setDailyProgress(Math.min(100, Math.max(0, total)));
     } catch (err) {
       console.error('Error computing daily progress:', err);
@@ -2435,13 +2440,15 @@ function Dashboard({ onLogout }) {
             });
         });
         normalizedMeals.forEach(m => {
-            combinedHistory.push({
-                type: 'meal',
-                name: m.name || m.mealType || 'Logged Meal',
-                details: `${Math.round(Number(m.calories) || 0)} cal`,
-                date: new Date(m.completedAt || m.date || new Date()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                timestamp: new Date(m.completedAt || m.date || new Date()).getTime(),
-            });
+            if (Number(m.calories) > 0) {
+                combinedHistory.push({
+                    type: 'meal',
+                    name: m.name || m.mealType || 'Logged Meal',
+                    details: `${Math.round(Number(m.calories) || 0)} cal`,
+                    date: new Date(m.completedAt || m.date || new Date()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    timestamp: new Date(m.completedAt || m.date || new Date()).getTime(),
+                });
+            }
         });
         (Array.isArray(data.recent_activities) ? data.recent_activities : []).forEach((a) => {
           combinedHistory.push({
@@ -2556,9 +2563,8 @@ function Dashboard({ onLogout }) {
 
              const mealDone = !!entry.meal_completed;
              const workoutDone = !!entry.workout_completed;
-             const waterDone = (entry.water_glasses || entry.water_intake || 0) > 0;
-             const sleepDone = (entry.sleep_hours || 0) > 0;
-             const dayCompleted = workoutDone || mealDone || waterDone || sleepDone;
+             // Streak is only extended if user actually completes the main daily tasks.
+             const dayCompleted = workoutDone || mealDone;
 
              if (dayCompleted) {
                currentStreak++;
@@ -2603,10 +2609,23 @@ function Dashboard({ onLogout }) {
            setWeeklyProgress(weekData);
 
         } else {
-           // Fallback to workout count
+           // Fallback to workout count - Calculate consecutive streak properly
            const workouts = data.workouts || [];
-           const uniqueDays = new Set(workouts.map(w => (w.date || '').split('T')[0]));
-           setStats((prev) => ({ ...prev, streak: uniqueDays.size }));
+           const completedWorkouts = workouts.filter(w => w.completed || String(w.status).toLowerCase() === 'completed' || w.completedAt);
+           const uniqueDays = new Set(completedWorkouts.map(w => (w.completedAt || w.date || '').split('T')[0]));
+           let currentStreak = 0;
+           const dateCursor = new Date();
+           dateCursor.setHours(0, 0, 0, 0);
+           for (let i = 0; i < 365; i++) {
+             const dateKey = getLocalDateStr(dateCursor);
+             if (uniqueDays.has(dateKey)) {
+               currentStreak++;
+               dateCursor.setDate(dateCursor.getDate() - 1);
+             } else {
+               break;
+             }
+           }
+           setStats((prev) => ({ ...prev, streak: currentStreak }));
 
            // ✅ FIX: Still build weekly progress even without trends
            const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
@@ -4785,14 +4804,18 @@ function Dashboard({ onLogout }) {
               </div>
             </div>
             <div className="activity-list" style={{ flex: 1, overflowY: 'auto', paddingRight: '4px' }}>
-              {recentHistory.length === 0 ? (
+              {(() => {
+                const todayStr = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                const todaysHistory = recentHistory.filter(h => h.date === todayStr || String(h.date).includes('Today') || String(h.date).includes(new Date().getDate()));
+                
+                return todaysHistory.length === 0 ? (
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 20px', color: '#52525b' }}>
                   <div style={{ fontSize: '32px', marginBottom: '12px' }}>📋</div>
                   <div style={{ fontSize: '14px', fontWeight: '600', color: '#71717a' }}>No activity yet</div>
                   <div style={{ fontSize: '12px', color: '#52525b', marginTop: '4px' }}>Complete a workout or log a meal to see your activity here</div>
                 </div>
               ) : (
-              recentHistory.map((h, i) => (
+              todaysHistory.map((h, i) => (
                 <div key={i} style={styles.listRow} className="activity-row listRow">
                   <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                     <div
@@ -4840,7 +4863,8 @@ function Dashboard({ onLogout }) {
                   </div>
                 </div>
               ))
-              )}
+              )
+              })()}
             </div>
           </div>
         </div>

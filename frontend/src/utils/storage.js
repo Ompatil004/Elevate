@@ -395,6 +395,3 @@ export const markSessionStart = () => {
   }
 };
 
-export const isSessionExpired = () => {
-  return false;
-};

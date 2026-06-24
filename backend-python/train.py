@@ -31,10 +31,10 @@ def train_models():
 
     # --- 1. Train Meal Model ---
     try:
-        df_nutr = pd.read_csv(os.path.join(DATA_DIR, 'nutrition_processed.csv'))
+        df_nutr = pd.read_csv(os.path.join(DATA_DIR, 'nutrition_production_final_v4.csv'))
 
-        X = df_nutr[['calories', 'protein', 'total_fat', 'carbohydrate']]
-        y = df_nutr['Goal']
+        X = df_nutr[['calories_kcal', 'protein_g', 'fat_g', 'carbohydrates_g']]
+        y = df_nutr['goal']
 
         le_goal = LabelEncoder()
         y_encoded = le_goal.fit_transform(y)

@@ -11,8 +11,7 @@ class MLService:
         self.ex_processed = os.path.join(BASE_DIR, 'data', 'exercises_processed.csv')
         self.ex_raw = os.path.join(BASE_DIR, 'data', 'exercises.csv')
         
-        self.nut_processed = os.path.join(BASE_DIR, 'data', 'nutrition_processed.csv')
-        self.nut_raw = os.path.join(BASE_DIR, 'data', 'nutrition.csv')
+        self.nut_processed = os.path.join(BASE_DIR, 'data', 'nutrition_production_final_v4.csv')
 
         self.df_ex = pd.DataFrame()
         self.df_nut = pd.DataFrame()
@@ -30,9 +29,7 @@ class MLService:
         # --- LOAD NUTRITION ---
         if os.path.exists(self.nut_processed):
             self.df_nut = pd.read_csv(self.nut_processed)
-            self.df_nut = self.df_nut.rename(columns={'carbohydrate': 'Carbs', 'total_fat': 'Fats', 'name': 'Name'})
-        elif os.path.exists(self.nut_raw):
-            self.df_nut = pd.read_csv(self.nut_raw)
+            self.df_nut = self.df_nut.rename(columns={'carbohydrates_g': 'Carbs', 'fat_g': 'Fats', 'food_name': 'Name', 'diet_type': 'Tags', 'meal_type': 'Type', 'allergens': 'Allergens', 'calories_kcal': 'calories'})
 
         # Safety Fills to prevent crashes
         if not self.df_ex.empty:

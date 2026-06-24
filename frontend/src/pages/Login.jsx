@@ -2,11 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useNotification } from "../components/NotificationProvider";
 import { loginUser, getProfile, loginWithGoogle } from "../api";
-import { StorageKeys, markSessionStart, isSessionExpired } from "../utils/storage";
+import { StorageKeys, markSessionStart } from "../utils/storage";
 import { loadGoogleSDK } from "../utils/googleAuth";
 import "../App.css";
-
-const SESSION_MAX_MS = 4 * 60 * 60 * 1000;
 
 const clearUserScopedCache = () => {
   const scopedKeys = [
@@ -51,11 +49,6 @@ function Login({ setIsAuthenticated }) {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      if (isSessionExpired(SESSION_MAX_MS)) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        return;
-      }
       // Don't blindly redirect to /dashboard — a new user may have a token
       // but no profile data yet. Check profile completeness first.
       getProfile()
