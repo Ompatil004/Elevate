@@ -122,3 +122,8 @@ def get_meal_completion_collection():
     """Get the meal completion collection instance"""
     db = get_database()
     return db.meal_completions
+
+def get_weekly_meal_plans_collection():
+    """Get the weekly meal plans collection instance"""
+    db = get_database()
+    return db.weekly_meal_plans

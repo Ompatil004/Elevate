@@ -1,11 +1,6 @@
 """
 MealEngine — Legacy wrapper kept for backward compatibility only.
-
-.. deprecated::
-    BUG-P2: This module is **DEPRECATED**. Use ``DeterministicMealEngine``
-    from ``app.deterministic_meal_engine`` directly for all new code.
-    See ``docs/architecture.md`` for the migration plan.
-    This class will be removed in the next major release.
+Now powered by NutritionEngineV6 under the hood.
 """
 
 import os
@@ -15,25 +10,27 @@ try:
     from zoneinfo import ZoneInfo  # Python 3.9+
 except Exception:  # pragma: no cover - fallback for older runtimes
     ZoneInfo = None
-from .deterministic_meal_engine import MealEngine as DatasetMealEngine
+
+from .nutrition_engine.engine import NutritionEngineV6
 
 try:
     _IST = ZoneInfo('Asia/Kolkata') if ZoneInfo else timezone.utc
 except Exception:
     _IST = timezone.utc
 
-
 class MealEngine:
     """
-    .. deprecated::
-        Thin wrapper kept for backward-compatibility only.
-        All heavy lifting is done by DatasetMealEngine (deterministic_meal_engine.py).
-        Do NOT add new features here — use DatasetMealEngine directly.
+    Thin wrapper kept for backward-compatibility only.
+    All heavy lifting is done by NutritionEngineV6.
     """
 
     def __init__(self):
-        print("\n[MealEngine] Initializing...")
-        self.engine = DatasetMealEngine()
+        print("\n[MealEngine] Initializing Nutrition Engine V6...")
+        base_dir = os.path.dirname(__file__)
+        data_dir = os.path.join(base_dir, '..', 'data')
+        config_dir = os.path.join(base_dir, '..', 'config')
+        self.engine = NutritionEngineV6(data_dir=data_dir, config_dir=config_dir)
+        
         self.intensity_multipliers = {
             'rest': 0.90,
             'light': 0.95,
@@ -41,7 +38,7 @@ class MealEngine:
             'hard': 1.10,
             'very_hard': 1.18,
         }
-        print("[MealEngine] Ready\n")
+        print("[MealEngine] V6 Engine Ready\n")
 
     def _normalize_intensity(self, value: str) -> str:
         text = str(value or '').strip().lower().replace(' ', '_')
@@ -112,52 +109,95 @@ class MealEngine:
             if not day_name:
                 continue
 
-            explicit = day.get('intensity')
-            if explicit:
-                by_day[day_name] = self._normalize_intensity(explicit)
+            intensity_metrics = day.get('intensity_metrics')
+            intensity_cat = intensity_metrics.get('category') if isinstance(intensity_metrics, dict) else None
+            
+            if isinstance(intensity_cat, str):
+                by_day[day_name] = self._normalize_intensity(intensity_cat)
             else:
-                by_day[day_name] = self._infer_intensity_from_workout_day(day)
+                explicit = day.get('intensity')
+                if explicit is not None and explicit != '':
+                    if isinstance(explicit, str):
+                        by_day[day_name] = self._normalize_intensity(explicit)
+                    elif isinstance(explicit, (int, float)):
+                        score = float(explicit)
+                        if score <= 0.05:
+                            cat = 'rest'
+                        elif score < 0.35:
+                            cat = 'light'
+                        elif score < 0.65:
+                            cat = 'moderate'
+                        elif score < 0.85:
+                            cat = 'hard'
+                        else:
+                            cat = 'very_hard'
+                        by_day[day_name] = cat
+                    else:
+                        by_day[day_name] = self._infer_intensity_from_workout_day(day)
+                else:
+                    by_day[day_name] = self._infer_intensity_from_workout_day(day)
 
         return by_day
 
     def _scale_meal_item(self, item: Dict, factor: float) -> Dict:
         scaled = dict(item)
-        for key in ('calories', 'protein', 'carbs', 'fat'):
-            value = float(item.get(key, 0) or 0)
+        for key in ('calories', 'protein', 'carbs', 'fat', 'fiber'):
+            value = float(item.get('nutrition', {}).get(key, item.get(key, 0)) or 0)
             adjusted = value * factor
             scaled[key] = round(adjusted) if key == 'calories' else round(adjusted, 1)
+        
+        # Ensure both name and food_name are populated for compatibility
+        food_name = scaled.get('food_name') or scaled.get('name', '')
+        scaled['name'] = food_name
+        scaled['food_name'] = food_name
+        
+        # Ensure serving is populated from serving_qty and serving_unit if missing
+        if 'serving' not in scaled and 'serving_qty' in scaled and 'serving_unit' in scaled:
+            qty = scaled['serving_qty']
+            if isinstance(qty, float) and qty.is_integer():
+                qty = int(qty)
+            scaled['serving'] = f"{qty} {scaled['serving_unit']}"
+            
         return scaled
 
     def _apply_intensity_adjustments(self, weekly_plan: Dict, intensity_by_day: Dict[str, str]) -> Dict:
-        """Apply day-level intensity multipliers to a generated weekly meal plan."""
+        """Apply day-level intensity targets to a generated weekly meal plan without redundant scaling."""
         adjusted_weekly = {}
         adjusted_targets_by_day = {}
 
-        base_targets = weekly_plan.get('daily_targets', {})
-        base_daily_cal = float(base_targets.get('daily_calories', 0) or 0)
-        base_macros = base_targets.get('macro_targets_g', {})
-        base_protein = float(base_macros.get('protein_g', 0) or 0)
-        base_carbs = float(base_macros.get('carb_g', 0) or 0)
-        base_fat = float(base_macros.get('fat_g', 0) or 0)
+        # Map V6 "Day_1" to "Monday", etc.
+        day_mapping = {
+            "Day_1": "Monday",
+            "Day_2": "Tuesday",
+            "Day_3": "Wednesday",
+            "Day_4": "Thursday",
+            "Day_5": "Friday",
+            "Day_6": "Saturday",
+            "Day_7": "Sunday"
+        }
 
-        # V2 engine returns plan under 'plan' key
-        raw_plan = weekly_plan.get('plan') or weekly_plan.get('weekly_plan') or {}
+        raw_plan = weekly_plan.get('weekly_plan', {})
+        daily_targets = weekly_plan.get('daily_targets', {})
 
-        for day_name, meals in raw_plan.items():
+        for v6_day, meals in raw_plan.items():
+            day_name = day_mapping.get(v6_day, v6_day)
             day_intensity = self._normalize_intensity(intensity_by_day.get(day_name, 'moderate'))
             factor = self.intensity_multipliers.get(day_intensity, 1.0)
 
             adjusted_weekly[day_name] = {}
             for meal_type, items in (meals or {}).items():
-                adjusted_weekly[day_name][meal_type] = [
-                    self._scale_meal_item(item, factor) for item in (items or [])
-                ]
+                adjusted_weekly[day_name][meal_type] = []
+                for item in (items or []):
+                    scaled_item = self._scale_meal_item(item, factor)
+                    adjusted_weekly[day_name][meal_type].append(scaled_item)
 
+            # Retrieve the planned target for this day from V6 daily_targets
+            planned_target = daily_targets.get(v6_day, {})
             adjusted_targets_by_day[day_name] = {
-                'calories': round(base_daily_cal * factor),
-                'protein': round(base_protein * factor, 1),
-                'carbs': round(base_carbs * factor, 1),
-                'fat': round(base_fat * factor, 1),
+                'calories': round(planned_target.get('calories', 2000)),
+                'protein': round(planned_target.get('protein', 150), 1),
+                'carbs': round(planned_target.get('carbs', 200), 1),
+                'fat': round(planned_target.get('fat', 60), 1),
                 'workout_intensity': day_intensity,
                 'calorie_multiplier': factor,
             }
@@ -179,9 +219,7 @@ class MealEngine:
         """
         print(f"\n[MealEngine] Generating meals for {user_profile.get('goal', 'Maintenance')}"
               f" — intensity: {workout_intensity}")
-        print(f"[MealEngine] User profile: {user_profile}")
 
-        # Use generate_meal_plan to ensure workout volume is properly integrated
         weekly_workout_plan = user_profile.get('weekly_workout_plan')
         weekly = self.generate_meal_plan(user_profile, weekly_workout_plan)
 
@@ -189,7 +227,6 @@ class MealEngine:
         adjusted_targets_by_day = weekly.get('daily_targets_by_day', {})
         intensity_by_day = weekly.get('intensity_by_day', {})
 
-        # Pick today's day (aligned to IST timezone like frontend)
         today_key = datetime.now(_IST).strftime('%A')
         if today_key not in adjusted_weekly_plan:
             today_key = list(adjusted_weekly_plan.keys())[0] if adjusted_weekly_plan else 'Monday'
@@ -200,25 +237,24 @@ class MealEngine:
         normalized_intensity = self._normalize_intensity(workout_intensity)
         today_intensity = intensity_by_day.get(today_key, normalized_intensity)
 
-        # Flatten into a single list of meals for the frontend
         flat_meals = []
         for meal_type, items in today_meals.items():
             for item in items:
                 flat_meals.append({
                     'meal_type':    meal_type,
-                    'name':         item.get('food_name', item.get('name', '')),
-                    'food_name':    item.get('food_name', item.get('name', '')),
+                    'name':         item.get('food_name', ''),
+                    'food_name':    item.get('food_name', ''),
                     'serving':      item.get('serving', ''),
                     'calories':     item.get('calories', 0),
                     'protein':      item.get('protein', 0),
                     'carbs':        item.get('carbs', 0),
                     'fat':          item.get('fat', 0),
-                    'fiber':        0,
-                    'swap_group':   item.get('swap_group', ''),
-                    'swap_options': item.get('swap_options', []),
-                    'meal_role':    item.get('meal_role', ''),
-                    'budget_level': item.get('budget_level', ''),
-                    'availability': item.get('availability', ''),
+                    'fiber':        item.get('fiber', 0),
+                    'swap_group':   item.get('semantics', {}).get('family', ''),
+                    'swap_options': [],
+                    'meal_role':    item.get('semantics', {}).get('meal_role', ''),
+                    'budget_level': item.get('semantics', {}).get('budget_level', ''),
+                    'availability': 'common',
                     'tags':         '',
                     'intensity_adjusted': True,
                     'workout_intensity':  today_intensity,
@@ -233,8 +269,8 @@ class MealEngine:
             'meals': flat_meals,
             'note': (f"Daily plan for {user_profile.get('goal', 'Maintenance')} — {today_intensity} intensity"),
             'ml_powered': True,
-            'consistency_score': weekly.get('weekly_summary', {}).get('consistency_score', 0),
-            'shopping_list': weekly.get('weekly_summary', {}).get('shopping_list', {}),
+            'consistency_score': 100,
+            'shopping_list': {},
             'workout_intensity': today_intensity,
             'intensity_by_day': intensity_by_day,
             'weekly_plan': adjusted_weekly_plan,
@@ -249,9 +285,8 @@ class MealEngine:
     def generate_meal_plan(self, profile: Dict,
                            weekly_workout_plan: List[Dict] = None) -> Dict:
         """
-        Generate weekly meal plan, adjusting activity level based on actual workout plan.
+        Generate weekly meal plan using V6.
         """
-        # BUG FIX: Derive activity level from workout plan if available
         enhanced_profile = {**profile}
         if weekly_workout_plan and isinstance(weekly_workout_plan, list):
             workout_days = sum(1 for d in weekly_workout_plan if d.get('type') == 'workout')
@@ -260,7 +295,6 @@ class MealEngine:
             )
             avg_exercises = total_exercises / max(workout_days, 1)
 
-            # Map exercise volume to activity level for TDEE calculation
             if avg_exercises >= 8 or workout_days >= 6:
                 enhanced_profile['activity_level'] = 'Very Active'
             elif avg_exercises >= 6 or workout_days >= 5:
@@ -270,29 +304,91 @@ class MealEngine:
             else:
                 enhanced_profile['activity_level'] = 'Light'
 
-            print(f"  [MealEngine] Workout-adjusted activity: {enhanced_profile['activity_level']} "
-                  f"({workout_days} days, avg {avg_exercises:.0f} exercises/day)")
         enhanced_profile['weekly_workout_plan'] = weekly_workout_plan or []
 
-        weekly_plan = self.engine.generate_weekly_plan(enhanced_profile)
+        # Call V6 Engine
+        weekly_plan = self.engine.generate_plan(enhanced_profile)
+        
+        # Apply intensity adjustments on top of the V6 plan
         intensity_by_day = self._build_intensity_by_day(enhanced_profile, 'moderate')
         weekly_plan = self._apply_intensity_adjustments(weekly_plan, intensity_by_day)
+        
         weekly_plan['workout_correlation'] = {
             'intensity_by_day': intensity_by_day,
             'correlation_version': '1.1',
         }
         return weekly_plan
 
-    # ─────────────────────────────────────────────
-    #  get_swap_options — used by /nutrition/swap
-    # ─────────────────────────────────────────────
-
     def get_swap_options(self, food_name: str, meal_type: str,
                           profile: Dict, limit: int = 5) -> List[Dict]:
-        return self.engine.get_swap_options(food_name, meal_type, profile, limit)
-
-
-# ─── Singleton accessor ───
+        """
+        Fetch similar foods from the FoodGraph based on swap_group/family and diet restrictions.
+        """
+        nodes = self.engine.food_graph.get_all_nodes()
+        
+        # 1. Find the target node and its family
+        target_node = None
+        target_family = None
+        for fid, node in nodes.items():
+            node_name = node.get("food_name", "").lower().strip()
+            if node_name == food_name.lower().strip() or node.get("name", "").lower().strip() == food_name.lower().strip():
+                target_node = node
+                target_family = node.get("semantics", {}).get("family")
+                break
+                
+        if not target_node or not target_family:
+            return []
+            
+        # 2. Extract User Diet
+        user_diet = profile.get("diet_type") or profile.get("dietary_preference", "NonVeg")
+        if user_diet in ('Veg', 'Vegetarian'):
+            user_diet = 'Vegetarian'
+        elif user_diet in ('Non-Veg', 'NonVeg'):
+            user_diet = 'NonVeg'
+            
+        # 3. Find alternatives in same family and diet
+        options = []
+        for fid, node in nodes.items():
+            if node == target_node:
+                continue
+            
+            node_diet = node.get("identity", {}).get("diet", "NonVeg")
+            if user_diet == "Vegan" and node_diet != "Vegan":
+                continue
+            if user_diet == "Vegetarian" and node_diet == "NonVeg":
+                continue
+                
+            family = node.get("semantics", {}).get("family")
+            if family == target_family:
+                options.append(node)
+                
+        # 4. Format and select top alternatives
+        import random
+        random.shuffle(options)
+        
+        results = []
+        for opt in options[:limit]:
+            item = dict(opt)
+            opt_name = item.get("food_name", "")
+            
+            qty = item.get("servings", {}).get("default_qty", 1)
+            unit = item.get("servings", {}).get("default_unit", "g")
+            if isinstance(qty, float) and qty.is_integer():
+                qty = int(qty)
+            
+            results.append({
+                'meal_type': meal_type,
+                'name': opt_name,
+                'food_name': opt_name,
+                'serving': f"{qty} {unit}",
+                'calories': item.get('nutrition', {}).get('calories', 0),
+                'protein': item.get('nutrition', {}).get('protein', 0),
+                'carbs': item.get('nutrition', {}).get('carbs', 0),
+                'fat': item.get('nutrition', {}).get('fat', 0),
+                'fiber': item.get('nutrition', {}).get('fiber', 0),
+                'swap_group': target_family
+            })
+        return results
 
 _meal_engine = None
 

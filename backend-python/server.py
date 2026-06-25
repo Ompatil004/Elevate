@@ -1213,10 +1213,17 @@ async def shutdown_event():
     await close_mongo_connection()
 
 # Include routers
+from app.routes.profile import router as profile_router
+from app.routes.food_database import router as food_router
+from app.routes.meal_tracking import router as meal_tracking_router
+from app.routes.chatbot import router as chatbot_router
+from app.routes.meal_plan import router as meal_plan_router
+
 app.include_router(profile_router)  # Profile routes (/profile/...)
 app.include_router(food_router)  # Food database (/food-database)
 app.include_router(meal_tracking_router)  # Meal tracking routes (/api/meals/...)
 app.include_router(chatbot_router)  # Chatbot routes (/api/chat)
+app.include_router(meal_plan_router)  # Meal plan routes (/api/meal-plan)
 
 
 # ==========================================

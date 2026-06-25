@@ -1,0 +1,3013 @@
+{
+  "status": "success",
+  "validation_report": {
+    "is_valid": true,
+    "warnings": [],
+    "metrics": {
+      "avg_daily_calories": 2901.07,
+      "avg_daily_protein": 139.67,
+      "avg_daily_carbs": 294.13,
+      "avg_daily_fat": 127.47
+    }
+  },
+  "weekly_plan": {
+    "Day_1": {
+      "breakfast": [
+        {
+          "food_id": "2076f62b-a28f-4e76-b7de-8a5a09a188f6",
+          "food_name": "Moong Dal Chilla",
+          "serving": "3 pieces",
+          "serving_qty": 3,
+          "serving_unit": "piece",
+          "nutrition": {
+            "calories": 270.0,
+            "protein": 15.0,
+            "carbs": 37.5,
+            "fat": 6.0,
+            "fiber": 9.4
+          },
+          "semantics": {
+            "meal_role": "protein_main",
+            "food_type": "dal_curry",
+            "plate_role": "main",
+            "course": "main_course",
+            "family": "legume",
+            "meal_id": "moong_dal_chilla_breakfast",
+            "meal_name": "Moong Dal Chilla Breakfast",
+            "protein_source": "dal & pulses",
+            "carb_source": "chilla",
+            "vegetables": [
+              "mint",
+              "coriander"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 2.0
+          }
+        },
+        {
+          "food_id": "3ff1d24a-1894-4b23-ab36-f24e1b27b96b",
+          "food_name": "Mint And Coriander Chutney (Pudinay Aur Dhaniye Ki Chutney)",
+          "serving": "3 tbsp",
+          "serving_qty": 3.0,
+          "serving_unit": "tbsp",
+          "nutrition": {
+            "calories": 229.5,
+            "protein": 6.3,
+            "carbs": 47.7,
+            "fat": 1.2,
+            "fiber": 7.9
+          },
+          "semantics": {
+            "meal_role": "unknown",
+            "food_type": "unknown",
+            "plate_role": "unknown",
+            "course": "main_course",
+            "family": "unknown",
+            "meal_id": "moong_dal_chilla_breakfast",
+            "meal_name": "Moong Dal Chilla Breakfast",
+            "protein_source": "dal & pulses",
+            "carb_source": "chilla",
+            "vegetables": [
+              "mint",
+              "coriander"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 2.0
+          }
+        },
+        {
+          "food_id": "f3ed617e-a75e-4a23-9c29-ce8c5a637abf",
+          "food_name": "Greek Yogurt With Berries",
+          "serving": "1 bowl",
+          "serving_qty": 1.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 130.0,
+            "protein": 12.0,
+            "carbs": 14.0,
+            "fat": 3.0,
+            "fiber": 2.2
+          },
+          "semantics": {
+            "meal_role": "dairy_side",
+            "food_type": "yogurt",
+            "plate_role": "accompaniment",
+            "course": "main_course",
+            "family": "dairy",
+            "meal_id": "moong_dal_chilla_breakfast",
+            "meal_name": "Moong Dal Chilla Breakfast",
+            "protein_source": "dal & pulses",
+            "carb_source": "chilla",
+            "vegetables": [
+              "mint",
+              "coriander"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 0.5
+          }
+        }
+      ],
+      "lunch": [
+        {
+          "food_id": "ce47807b-6ba0-4a86-9850-42f39d54f778",
+          "food_name": "Mixed Vegetable Pulao",
+          "serving": "2 plates",
+          "serving_qty": 2.0,
+          "serving_unit": "plate",
+          "nutrition": {
+            "calories": 338.0,
+            "protein": 8.2,
+            "carbs": 52.4,
+            "fat": 10.0,
+            "fiber": 7.4
+          },
+          "semantics": {
+            "meal_role": "carb_base",
+            "food_type": "rice_dish",
+            "plate_role": "base",
+            "course": "main_course",
+            "family": "grain",
+            "meal_id": "vegetable_pulao_butter_chicken_lunch",
+            "meal_name": "Butter Chicken with Vegetable Pulao",
+            "protein_source": "chicken/meat",
+            "carb_source": "rice",
+            "vegetables": [
+              "aloo",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "North Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 1.0
+          }
+        },
+        {
+          "food_id": "0f96b028-812d-4011-9952-c0ec4b7f4d41",
+          "food_name": "Tomato Chicken",
+          "serving": "2 bowls",
+          "serving_qty": 2.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 334.0,
+            "protein": 31.8,
+            "carbs": 6.4,
+            "fat": 20.2,
+            "fiber": 0.0
+          },
+          "semantics": {
+            "meal_role": "protein_main",
+            "food_type": "meat",
+            "plate_role": "main",
+            "course": "main_course",
+            "family": "poultry",
+            "meal_id": "vegetable_pulao_butter_chicken_lunch",
+            "meal_name": "Butter Chicken with Vegetable Pulao",
+            "protein_source": "chicken/meat",
+            "carb_source": "rice",
+            "vegetables": [
+              "aloo",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "North Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 1.0
+          }
+        },
+        {
+          "food_id": "9e7e211b-cf61-4248-8160-29a9711a9e4e",
+          "food_name": "Potato Cauliflower (Aloo Gobhi)",
+          "serving": "1 bowl",
+          "serving_qty": 1.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 159.0,
+            "protein": 2.8,
+            "carbs": 9.0,
+            "fat": 12.2,
+            "fiber": 2.2
+          },
+          "semantics": {
+            "meal_role": "veg_side",
+            "food_type": "curry",
+            "plate_role": "side",
+            "course": "main_course",
+            "family": "vegetable",
+            "meal_id": "vegetable_pulao_butter_chicken_lunch",
+            "meal_name": "Butter Chicken with Vegetable Pulao",
+            "protein_source": "chicken/meat",
+            "carb_source": "rice",
+            "vegetables": [
+              "aloo",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "North Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 0.5
+          }
+        },
+        {
+          "food_id": "e22205c3-2733-4e4d-8daa-61cb21671a5d",
+          "food_name": "Tossed Salad",
+          "serving": "2 bowls",
+          "serving_qty": 2.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 188.0,
+            "protein": 3.0,
+            "carbs": 14.8,
+            "fat": 12.6,
+            "fiber": 1.8
+          },
+          "semantics": {
+            "meal_role": "salad",
+            "food_type": "salad",
+            "plate_role": "side",
+            "course": "main_course",
+            "family": "vegetable",
+            "meal_id": "vegetable_pulao_butter_chicken_lunch",
+            "meal_name": "Butter Chicken with Vegetable Pulao",
+            "protein_source": "chicken/meat",
+            "carb_source": "rice",
+            "vegetables": [
+              "aloo",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "North Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 1.0
+          }
+        }
+      ],
+      "snack": [
+        {
+          "food_id": "787623ea-d570-470d-9d2a-5bee5406a72d",
+          "food_name": "Boiled Egg (Ubla Anda)",
+          "serving": "3 pieces",
+          "serving_qty": 3,
+          "serving_unit": "piece",
+          "nutrition": {
+            "calories": 204.0,
+            "protein": 20.0,
+            "carbs": 0.6,
+            "fat": 13.6,
+            "fiber": 0.0
+          },
+          "semantics": {
+            "meal_role": "protein_main",
+            "food_type": "egg_dish",
+            "plate_role": "main",
+            "course": "main_course",
+            "family": "egg",
+            "meal_id": "boiled_egg_snack",
+            "meal_name": "Boiled Egg Snack",
+            "protein_source": "eggs",
+            "carb_source": "none",
+            "vegetables": [],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Boiled",
+            "internal_ratio": 1.0
+          }
+        }
+      ],
+      "dinner": [
+        {
+          "food_id": "ce47807b-6ba0-4a86-9850-42f39d54f778",
+          "food_name": "Mixed Vegetable Pulao",
+          "serving": "2 plates",
+          "serving_qty": 2.0,
+          "serving_unit": "plate",
+          "nutrition": {
+            "calories": 338.0,
+            "protein": 8.2,
+            "carbs": 52.4,
+            "fat": 10.0,
+            "fiber": 7.4
+          },
+          "semantics": {
+            "meal_role": "carb_base",
+            "food_type": "rice_dish",
+            "plate_role": "base",
+            "course": "main_course",
+            "family": "grain",
+            "meal_id": "vegetable_pulao_fish_curry_dinner",
+            "meal_name": "Fish Curry with Vegetable Pulao",
+            "protein_source": "fish & seafood",
+            "carb_source": "rice",
+            "vegetables": [
+              "capsicum",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Curry",
+            "internal_ratio": 1.0
+          }
+        },
+        {
+          "food_id": "afc8fcd1-daee-4a80-ac60-55e265bcd4a5",
+          "food_name": "Fish Curry (Machli Curry)",
+          "serving": "2 bowls",
+          "serving_qty": 2.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 332.0,
+            "protein": 26.2,
+            "carbs": 11.4,
+            "fat": 20.0,
+            "fiber": 2.4
+          },
+          "semantics": {
+            "meal_role": "protein_main",
+            "food_type": "meat",
+            "plate_role": "main",
+            "course": "main_course",
+            "family": "seafood",
+            "meal_id": "vegetable_pulao_fish_curry_dinner",
+            "meal_name": "Fish Curry with Vegetable Pulao",
+            "protein_source": "fish & seafood",
+            "carb_source": "rice",
+            "vegetables": [
+              "capsicum",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Curry",
+            "internal_ratio": 1.0
+          }
+        },
+        {
+          "food_id": "eddcf59a-5b1f-4317-aab8-29334c2e9258",
+          "food_name": "Stuffed Capsicum (Bharwa Shimla Mirch)",
+          "serving": "1 bowl",
+          "serving_qty": 1.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 272.0,
+            "protein": 4.0,
+            "carbs": 24.8,
+            "fat": 17.2,
+            "fiber": 6.2
+          },
+          "semantics": {
+            "meal_role": "unknown",
+            "food_type": "unknown",
+            "plate_role": "unknown",
+            "course": "main_course",
+            "family": "unknown",
+            "meal_id": "vegetable_pulao_fish_curry_dinner",
+            "meal_name": "Fish Curry with Vegetable Pulao",
+            "protein_source": "fish & seafood",
+            "carb_source": "rice",
+            "vegetables": [
+              "capsicum",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Curry",
+            "internal_ratio": 0.5
+          }
+        },
+        {
+          "food_id": "e22205c3-2733-4e4d-8daa-61cb21671a5d",
+          "food_name": "Tossed Salad",
+          "serving": "2 bowls",
+          "serving_qty": 2.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 188.0,
+            "protein": 3.0,
+            "carbs": 14.8,
+            "fat": 12.6,
+            "fiber": 1.8
+          },
+          "semantics": {
+            "meal_role": "salad",
+            "food_type": "salad",
+            "plate_role": "side",
+            "course": "main_course",
+            "family": "vegetable",
+            "meal_id": "vegetable_pulao_fish_curry_dinner",
+            "meal_name": "Fish Curry with Vegetable Pulao",
+            "protein_source": "fish & seafood",
+            "carb_source": "rice",
+            "vegetables": [
+              "capsicum",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Curry",
+            "internal_ratio": 1.0
+          }
+        }
+      ]
+    },
+    "Day_2": {
+      "breakfast": [
+        {
+          "food_id": "18fa208f-536f-48f8-9e2d-c969d007f5a9",
+          "food_name": "Homestyle Millet Bhel",
+          "serving": "3 slice",
+          "serving_qty": 3.0,
+          "serving_unit": "slice",
+          "nutrition": {
+            "calories": 220.5,
+            "protein": 7.5,
+            "carbs": 37.5,
+            "fat": 4.5,
+            "fiber": 8.4
+          },
+          "semantics": {
+            "meal_role": "snack",
+            "food_type": "snack",
+            "plate_role": "snack",
+            "course": "main_course",
+            "family": "other",
+            "meal_id": "boiled_egg_whole_wheat_bread_breakfast",
+            "meal_name": "Boiled Egg with Whole Wheat Bread",
+            "protein_source": "eggs",
+            "carb_source": "bread & roti",
+            "vegetables": [
+              "tomato"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Boiled",
+            "internal_ratio": 2.0
+          }
+        },
+        {
+          "food_id": "787623ea-d570-470d-9d2a-5bee5406a72d",
+          "food_name": "Boiled Egg (Ubla Anda)",
+          "serving": "3 pieces",
+          "serving_qty": 3,
+          "serving_unit": "piece",
+          "nutrition": {
+            "calories": 204.0,
+            "protein": 20.0,
+            "carbs": 0.6,
+            "fat": 13.6,
+            "fiber": 0.0
+          },
+          "semantics": {
+            "meal_role": "protein_main",
+            "food_type": "egg_dish",
+            "plate_role": "main",
+            "course": "main_course",
+            "family": "egg",
+            "meal_id": "boiled_egg_whole_wheat_bread_breakfast",
+            "meal_name": "Boiled Egg with Whole Wheat Bread",
+            "protein_source": "eggs",
+            "carb_source": "bread & roti",
+            "vegetables": [
+              "tomato"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Boiled",
+            "internal_ratio": 2.0
+          }
+        },
+        {
+          "food_id": "e22205c3-2733-4e4d-8daa-61cb21671a5d",
+          "food_name": "Tossed Salad",
+          "serving": "1 piece",
+          "serving_qty": 1,
+          "serving_unit": "piece",
+          "nutrition": {
+            "calories": 188.0,
+            "protein": 3.0,
+            "carbs": 14.8,
+            "fat": 12.6,
+            "fiber": 1.8
+          },
+          "semantics": {
+            "meal_role": "salad",
+            "food_type": "salad",
+            "plate_role": "side",
+            "course": "main_course",
+            "family": "vegetable",
+            "meal_id": "boiled_egg_whole_wheat_bread_breakfast",
+            "meal_name": "Boiled Egg with Whole Wheat Bread",
+            "protein_source": "eggs",
+            "carb_source": "bread & roti",
+            "vegetables": [
+              "tomato"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Boiled",
+            "internal_ratio": 0.5
+          }
+        }
+      ],
+      "lunch": [
+        {
+          "food_id": "1a61b9b4-7fdf-4d8b-a172-b5faa4d1641b",
+          "food_name": "Multigrain Roti",
+          "serving": "4 pieces",
+          "serving_qty": 4,
+          "serving_unit": "piece",
+          "nutrition": {
+            "calories": 220.0,
+            "protein": 8.0,
+            "carbs": 40.0,
+            "fat": 3.0,
+            "fiber": 10.6
+          },
+          "semantics": {
+            "meal_role": "carb_base",
+            "food_type": "flatbread",
+            "plate_role": "base",
+            "course": "main_course",
+            "family": "grain",
+            "meal_id": "missi_roti_rajma_curry_lunch",
+            "meal_name": "Rajma Curry with Missi Roti",
+            "protein_source": "dal & pulses",
+            "carb_source": "roti",
+            "vegetables": [
+              "mushroom",
+              "cucumber",
+              "tomato"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Curry",
+            "internal_ratio": 2.0
+          }
+        },
+        {
+          "food_id": "d7d76c6e-b090-4b2c-8efd-4ec2a7a91bae",
+          "food_name": "Kidney Bean Curry (Rajmah Curry)",
+          "serving": "2 bowls",
+          "serving_qty": 2.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 430.0,
+            "protein": 17.8,
+            "carbs": 49.2,
+            "fat": 17.4,
+            "fiber": 6.2
+          },
+          "semantics": {
+            "meal_role": "protein_main",
+            "food_type": "dal_curry",
+            "plate_role": "main",
+            "course": "main_course",
+            "family": "legume",
+            "meal_id": "missi_roti_rajma_curry_lunch",
+            "meal_name": "Rajma Curry with Missi Roti",
+            "protein_source": "dal & pulses",
+            "carb_source": "roti",
+            "vegetables": [
+              "mushroom",
+              "cucumber",
+              "tomato"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Curry",
+            "internal_ratio": 1.0
+          }
+        },
+        {
+          "food_id": "7eaffce9-1936-48ba-ab19-c2fa7fb19739",
+          "food_name": "Mushroom Matar",
+          "serving": "1 bowl",
+          "serving_qty": 1.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 212.0,
+            "protein": 8.4,
+            "carbs": 16.0,
+            "fat": 12.4,
+            "fiber": 3.8
+          },
+          "semantics": {
+            "meal_role": "unknown",
+            "food_type": "unknown",
+            "plate_role": "unknown",
+            "course": "main_course",
+            "family": "unknown",
+            "meal_id": "missi_roti_rajma_curry_lunch",
+            "meal_name": "Rajma Curry with Missi Roti",
+            "protein_source": "dal & pulses",
+            "carb_source": "roti",
+            "vegetables": [
+              "mushroom",
+              "cucumber",
+              "tomato"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Curry",
+            "internal_ratio": 0.5
+          }
+        },
+        {
+          "food_id": "e22205c3-2733-4e4d-8daa-61cb21671a5d",
+          "food_name": "Tossed Salad",
+          "serving": "2 bowls",
+          "serving_qty": 2.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 188.0,
+            "protein": 3.0,
+            "carbs": 14.8,
+            "fat": 12.6,
+            "fiber": 1.8
+          },
+          "semantics": {
+            "meal_role": "salad",
+            "food_type": "salad",
+            "plate_role": "side",
+            "course": "main_course",
+            "family": "vegetable",
+            "meal_id": "missi_roti_rajma_curry_lunch",
+            "meal_name": "Rajma Curry with Missi Roti",
+            "protein_source": "dal & pulses",
+            "carb_source": "roti",
+            "vegetables": [
+              "mushroom",
+              "cucumber",
+              "tomato"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Curry",
+            "internal_ratio": 1.0
+          }
+        },
+        {
+          "food_id": "eee08962-14ea-4d35-a573-48f635c1f274",
+          "food_name": "Tomato Onion Raita (Tamatar Aur Onion Ka Raita)",
+          "serving": "1 bowl",
+          "serving_qty": 1.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 88.0,
+            "protein": 5.6,
+            "carbs": 10.6,
+            "fat": 2.8,
+            "fiber": 1.8
+          },
+          "semantics": {
+            "meal_role": "dairy_side",
+            "food_type": "yogurt",
+            "plate_role": "accompaniment",
+            "course": "main_course",
+            "family": "dairy",
+            "meal_id": "missi_roti_rajma_curry_lunch",
+            "meal_name": "Rajma Curry with Missi Roti",
+            "protein_source": "dal & pulses",
+            "carb_source": "roti",
+            "vegetables": [
+              "mushroom",
+              "cucumber",
+              "tomato"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Curry",
+            "internal_ratio": 0.5
+          }
+        }
+      ],
+      "snack": [
+        {
+          "food_id": "2456dd23-eb5f-4089-91bb-49c333facaff",
+          "food_name": "Protein Shake (Whey)",
+          "serving": "1 glas",
+          "serving_qty": 1.0,
+          "serving_unit": "glass",
+          "nutrition": {
+            "calories": 120.0,
+            "protein": 24.0,
+            "carbs": 3.0,
+            "fat": 1.5,
+            "fiber": 0.0
+          },
+          "semantics": {
+            "meal_role": "beverage",
+            "food_type": "drink",
+            "plate_role": "drink",
+            "course": "beverage",
+            "family": "beverage",
+            "meal_id": "protein_shake_snack",
+            "meal_name": "Protein Shake Snack",
+            "protein_source": "supplement",
+            "carb_source": "none",
+            "vegetables": [],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 1.0
+          }
+        }
+      ],
+      "dinner": [
+        {
+          "food_id": "88be2aa8-59e7-4252-83b5-d73348c73987",
+          "food_name": "Boiled Rice (Uble Chawal)",
+          "serving": "2 plates",
+          "serving_qty": 2.0,
+          "serving_unit": "plate",
+          "nutrition": {
+            "calories": 350.0,
+            "protein": 7.8,
+            "carbs": 77.2,
+            "fat": 0.6,
+            "fiber": 9.6
+          },
+          "semantics": {
+            "meal_role": "carb_base",
+            "food_type": "rice_dish",
+            "plate_role": "base",
+            "course": "main_course",
+            "family": "grain",
+            "meal_id": "boiled_rice_(uble_chawal)_fish_curry_dinner",
+            "meal_name": "Fish Curry with Boiled Rice",
+            "protein_source": "fish & seafood",
+            "carb_source": "rice",
+            "vegetables": [
+              "baingan",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Curry",
+            "internal_ratio": 1.0
+          }
+        },
+        {
+          "food_id": "afc8fcd1-daee-4a80-ac60-55e265bcd4a5",
+          "food_name": "Fish Curry (Machli Curry)",
+          "serving": "2 bowls",
+          "serving_qty": 2.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 332.0,
+            "protein": 26.2,
+            "carbs": 11.4,
+            "fat": 20.0,
+            "fiber": 2.4
+          },
+          "semantics": {
+            "meal_role": "protein_main",
+            "food_type": "meat",
+            "plate_role": "main",
+            "course": "main_course",
+            "family": "seafood",
+            "meal_id": "boiled_rice_(uble_chawal)_fish_curry_dinner",
+            "meal_name": "Fish Curry with Boiled Rice",
+            "protein_source": "fish & seafood",
+            "carb_source": "rice",
+            "vegetables": [
+              "baingan",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Curry",
+            "internal_ratio": 1.0
+          }
+        },
+        {
+          "food_id": "0dc0911b-55e9-4f42-a081-bb26d2456377",
+          "food_name": "Baingan Bharta (Low Oil)",
+          "serving": "1 bowl",
+          "serving_qty": 1.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 220.0,
+            "protein": 6.0,
+            "carbs": 30.0,
+            "fat": 8.0,
+            "fiber": 5.6
+          },
+          "semantics": {
+            "meal_role": "unknown",
+            "food_type": "unknown",
+            "plate_role": "unknown",
+            "course": "main_course",
+            "family": "unknown",
+            "meal_id": "boiled_rice_(uble_chawal)_fish_curry_dinner",
+            "meal_name": "Fish Curry with Boiled Rice",
+            "protein_source": "fish & seafood",
+            "carb_source": "rice",
+            "vegetables": [
+              "baingan",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Curry",
+            "internal_ratio": 0.5
+          }
+        },
+        {
+          "food_id": "e22205c3-2733-4e4d-8daa-61cb21671a5d",
+          "food_name": "Tossed Salad",
+          "serving": "2 bowls",
+          "serving_qty": 2.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 188.0,
+            "protein": 3.0,
+            "carbs": 14.8,
+            "fat": 12.6,
+            "fiber": 1.8
+          },
+          "semantics": {
+            "meal_role": "salad",
+            "food_type": "salad",
+            "plate_role": "side",
+            "course": "main_course",
+            "family": "vegetable",
+            "meal_id": "boiled_rice_(uble_chawal)_fish_curry_dinner",
+            "meal_name": "Fish Curry with Boiled Rice",
+            "protein_source": "fish & seafood",
+            "carb_source": "rice",
+            "vegetables": [
+              "baingan",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Curry",
+            "internal_ratio": 1.0
+          }
+        }
+      ]
+    },
+    "Day_3": {
+      "breakfast": [
+        {
+          "food_id": "2076f62b-a28f-4e76-b7de-8a5a09a188f6",
+          "food_name": "Moong Dal Chilla",
+          "serving": "3 pieces",
+          "serving_qty": 3,
+          "serving_unit": "piece",
+          "nutrition": {
+            "calories": 270.0,
+            "protein": 15.0,
+            "carbs": 37.5,
+            "fat": 6.0,
+            "fiber": 9.4
+          },
+          "semantics": {
+            "meal_role": "protein_main",
+            "food_type": "dal_curry",
+            "plate_role": "main",
+            "course": "main_course",
+            "family": "legume",
+            "meal_id": "moong_dal_chilla_breakfast",
+            "meal_name": "Moong Dal Chilla Breakfast",
+            "protein_source": "dal & pulses",
+            "carb_source": "chilla",
+            "vegetables": [
+              "mint",
+              "coriander"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 2.0
+          }
+        },
+        {
+          "food_id": "3ff1d24a-1894-4b23-ab36-f24e1b27b96b",
+          "food_name": "Mint And Coriander Chutney (Pudinay Aur Dhaniye Ki Chutney)",
+          "serving": "3 tbsp",
+          "serving_qty": 3.0,
+          "serving_unit": "tbsp",
+          "nutrition": {
+            "calories": 229.5,
+            "protein": 6.3,
+            "carbs": 47.7,
+            "fat": 1.2,
+            "fiber": 7.9
+          },
+          "semantics": {
+            "meal_role": "unknown",
+            "food_type": "unknown",
+            "plate_role": "unknown",
+            "course": "main_course",
+            "family": "unknown",
+            "meal_id": "moong_dal_chilla_breakfast",
+            "meal_name": "Moong Dal Chilla Breakfast",
+            "protein_source": "dal & pulses",
+            "carb_source": "chilla",
+            "vegetables": [
+              "mint",
+              "coriander"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 2.0
+          }
+        },
+        {
+          "food_id": "f3ed617e-a75e-4a23-9c29-ce8c5a637abf",
+          "food_name": "Greek Yogurt With Berries",
+          "serving": "1 bowl",
+          "serving_qty": 1.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 130.0,
+            "protein": 12.0,
+            "carbs": 14.0,
+            "fat": 3.0,
+            "fiber": 2.2
+          },
+          "semantics": {
+            "meal_role": "dairy_side",
+            "food_type": "yogurt",
+            "plate_role": "accompaniment",
+            "course": "main_course",
+            "family": "dairy",
+            "meal_id": "moong_dal_chilla_breakfast",
+            "meal_name": "Moong Dal Chilla Breakfast",
+            "protein_source": "dal & pulses",
+            "carb_source": "chilla",
+            "vegetables": [
+              "mint",
+              "coriander"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 0.5
+          }
+        }
+      ],
+      "lunch": [
+        {
+          "food_id": "80022c41-40cb-40ba-9ff7-d79f17110fee",
+          "food_name": "Bajra Roti",
+          "serving": "3 pieces",
+          "serving_qty": 3,
+          "serving_unit": "piece",
+          "nutrition": {
+            "calories": 172.5,
+            "protein": 5.2,
+            "carbs": 33.0,
+            "fat": 2.2,
+            "fiber": 9.4
+          },
+          "semantics": {
+            "meal_role": "carb_base",
+            "food_type": "flatbread",
+            "plate_role": "base",
+            "course": "main_course",
+            "family": "grain",
+            "meal_id": "bajra_roti_dal_makhani_lunch",
+            "meal_name": "Dal Makhani with Bajra Roti",
+            "protein_source": "dal & pulses",
+            "carb_source": "roti",
+            "vegetables": [
+              "mixed",
+              "cucumber",
+              "tomato"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 2.0
+          }
+        },
+        {
+          "food_id": "751d2e9d-ec28-4099-9f28-7bb2183ae172",
+          "food_name": "Dal Makhani",
+          "serving": "1.5 bowls",
+          "serving_qty": 1.5,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 166.5,
+            "protein": 7.5,
+            "carbs": 17.9,
+            "fat": 6.9,
+            "fiber": 3.4
+          },
+          "semantics": {
+            "meal_role": "veg_side",
+            "food_type": "dal_curry",
+            "plate_role": "main",
+            "course": "main_course",
+            "family": "legume",
+            "meal_id": "bajra_roti_dal_makhani_lunch",
+            "meal_name": "Dal Makhani with Bajra Roti",
+            "protein_source": "dal & pulses",
+            "carb_source": "roti",
+            "vegetables": [
+              "mixed",
+              "cucumber",
+              "tomato"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 1.0
+          }
+        },
+        {
+          "food_id": "c5f1584d-ede6-4775-a788-2b4523feb538",
+          "food_name": "Mixed Vegetable Soup",
+          "serving": "1 bowl",
+          "serving_qty": 1.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 449.0,
+            "protein": 24.7,
+            "carbs": 8.9,
+            "fat": 35.0,
+            "fiber": 1.4
+          },
+          "semantics": {
+            "meal_role": "unknown",
+            "food_type": "soup",
+            "plate_role": "unknown",
+            "course": "main_course",
+            "family": "vegetable",
+            "meal_id": "bajra_roti_dal_makhani_lunch",
+            "meal_name": "Dal Makhani with Bajra Roti",
+            "protein_source": "dal & pulses",
+            "carb_source": "roti",
+            "vegetables": [
+              "mixed",
+              "cucumber",
+              "tomato"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 0.5
+          }
+        },
+        {
+          "food_id": "e22205c3-2733-4e4d-8daa-61cb21671a5d",
+          "food_name": "Tossed Salad",
+          "serving": "1.5 bowls",
+          "serving_qty": 1.5,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 141.0,
+            "protein": 2.2,
+            "carbs": 11.1,
+            "fat": 9.4,
+            "fiber": 1.4
+          },
+          "semantics": {
+            "meal_role": "salad",
+            "food_type": "salad",
+            "plate_role": "side",
+            "course": "main_course",
+            "family": "vegetable",
+            "meal_id": "bajra_roti_dal_makhani_lunch",
+            "meal_name": "Dal Makhani with Bajra Roti",
+            "protein_source": "dal & pulses",
+            "carb_source": "roti",
+            "vegetables": [
+              "mixed",
+              "cucumber",
+              "tomato"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 1.0
+          }
+        },
+        {
+          "food_id": "367761e3-f4f7-4f74-ab90-775ed2200a75",
+          "food_name": "Cucumber Raita (Kheere Ka Raita)",
+          "serving": "1 bowl",
+          "serving_qty": 1.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 88.0,
+            "protein": 6.1,
+            "carbs": 9.5,
+            "fat": 3.1,
+            "fiber": 2.5
+          },
+          "semantics": {
+            "meal_role": "dairy_side",
+            "food_type": "yogurt",
+            "plate_role": "accompaniment",
+            "course": "main_course",
+            "family": "dairy",
+            "meal_id": "bajra_roti_dal_makhani_lunch",
+            "meal_name": "Dal Makhani with Bajra Roti",
+            "protein_source": "dal & pulses",
+            "carb_source": "roti",
+            "vegetables": [
+              "mixed",
+              "cucumber",
+              "tomato"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 0.5
+          }
+        }
+      ],
+      "snack": [
+        {
+          "food_id": "8f407969-b7fa-46ac-8cca-d1169ea0a496",
+          "food_name": "Roasted Chana",
+          "serving": "2.5 bowls",
+          "serving_qty": 2.5,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 350.0,
+            "protein": 17.5,
+            "carbs": 50.0,
+            "fat": 7.5,
+            "fiber": 14.5
+          },
+          "semantics": {
+            "meal_role": "unknown",
+            "food_type": "unknown",
+            "plate_role": "unknown",
+            "course": "main_course",
+            "family": "unknown",
+            "meal_id": "roasted_chana_snack",
+            "meal_name": "Roasted Chana Snack",
+            "protein_source": "chana",
+            "carb_source": "none",
+            "vegetables": [],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 1.0
+          }
+        }
+      ],
+      "dinner": [
+        {
+          "food_id": "1a61b9b4-7fdf-4d8b-a172-b5faa4d1641b",
+          "food_name": "Multigrain Roti",
+          "serving": "4 pieces",
+          "serving_qty": 4,
+          "serving_unit": "piece",
+          "nutrition": {
+            "calories": 220.0,
+            "protein": 8.0,
+            "carbs": 40.0,
+            "fat": 3.0,
+            "fiber": 10.6
+          },
+          "semantics": {
+            "meal_role": "carb_base",
+            "food_type": "flatbread",
+            "plate_role": "base",
+            "course": "main_course",
+            "family": "grain",
+            "meal_id": "missi_roti_butter_chicken_dinner",
+            "meal_name": "Butter Chicken with Missi Roti",
+            "protein_source": "chicken/meat",
+            "carb_source": "roti",
+            "vegetables": [
+              "lauki",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "North Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 2.0
+          }
+        },
+        {
+          "food_id": "0f96b028-812d-4011-9952-c0ec4b7f4d41",
+          "food_name": "Tomato Chicken",
+          "serving": "2 bowls",
+          "serving_qty": 2.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 334.0,
+            "protein": 31.8,
+            "carbs": 6.4,
+            "fat": 20.2,
+            "fiber": 0.0
+          },
+          "semantics": {
+            "meal_role": "protein_main",
+            "food_type": "meat",
+            "plate_role": "main",
+            "course": "main_course",
+            "family": "poultry",
+            "meal_id": "missi_roti_butter_chicken_dinner",
+            "meal_name": "Butter Chicken with Missi Roti",
+            "protein_source": "chicken/meat",
+            "carb_source": "roti",
+            "vegetables": [
+              "lauki",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "North Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 1.0
+          }
+        },
+        {
+          "food_id": "bfff9061-4788-414d-b37e-578d17d3175e",
+          "food_name": "Split Bengal Gram With Bottle Gourd (Channa Dal With Ghiya/Lauki)",
+          "serving": "1 bowl",
+          "serving_qty": 1.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 109.0,
+            "protein": 4.2,
+            "carbs": 10.6,
+            "fat": 5.4,
+            "fiber": 1.7
+          },
+          "semantics": {
+            "meal_role": "veg_side",
+            "food_type": "dal_curry",
+            "plate_role": "main",
+            "course": "main_course",
+            "family": "legume",
+            "meal_id": "missi_roti_butter_chicken_dinner",
+            "meal_name": "Butter Chicken with Missi Roti",
+            "protein_source": "chicken/meat",
+            "carb_source": "roti",
+            "vegetables": [
+              "lauki",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "North Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 0.5
+          }
+        },
+        {
+          "food_id": "e22205c3-2733-4e4d-8daa-61cb21671a5d",
+          "food_name": "Tossed Salad",
+          "serving": "2 bowls",
+          "serving_qty": 2.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 188.0,
+            "protein": 3.0,
+            "carbs": 14.8,
+            "fat": 12.6,
+            "fiber": 1.8
+          },
+          "semantics": {
+            "meal_role": "salad",
+            "food_type": "salad",
+            "plate_role": "side",
+            "course": "main_course",
+            "family": "vegetable",
+            "meal_id": "missi_roti_butter_chicken_dinner",
+            "meal_name": "Butter Chicken with Missi Roti",
+            "protein_source": "chicken/meat",
+            "carb_source": "roti",
+            "vegetables": [
+              "lauki",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "North Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 1.0
+          }
+        }
+      ]
+    },
+    "Day_4": {
+      "breakfast": [
+        {
+          "food_id": "1a61b9b4-7fdf-4d8b-a172-b5faa4d1641b",
+          "food_name": "Multigrain Roti",
+          "serving": "4 slice",
+          "serving_qty": 4.0,
+          "serving_unit": "slice",
+          "nutrition": {
+            "calories": 220.0,
+            "protein": 8.0,
+            "carbs": 40.0,
+            "fat": 3.0,
+            "fiber": 10.6
+          },
+          "semantics": {
+            "meal_role": "carb_base",
+            "food_type": "flatbread",
+            "plate_role": "base",
+            "course": "main_course",
+            "family": "grain",
+            "meal_id": "scrambled_eggs_multigrain_bread_breakfast",
+            "meal_name": "Scrambled Eggs with Multigrain Bread",
+            "protein_source": "eggs",
+            "carb_source": "bread & roti",
+            "vegetables": [
+              "tomato"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 2.0
+          }
+        },
+        {
+          "food_id": "d682978a-1271-4117-aed7-ea0955e2ecc8",
+          "food_name": "Boiled Eggs (2)",
+          "serving": "2 bowls",
+          "serving_qty": 2.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 280.0,
+            "protein": 24.0,
+            "carbs": 2.0,
+            "fat": 20.0,
+            "fiber": 0.0
+          },
+          "semantics": {
+            "meal_role": "protein_main",
+            "food_type": "egg_dish",
+            "plate_role": "main",
+            "course": "main_course",
+            "family": "egg",
+            "meal_id": "scrambled_eggs_multigrain_bread_breakfast",
+            "meal_name": "Scrambled Eggs with Multigrain Bread",
+            "protein_source": "eggs",
+            "carb_source": "bread & roti",
+            "vegetables": [
+              "tomato"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 1.0
+          }
+        },
+        {
+          "food_id": "e22205c3-2733-4e4d-8daa-61cb21671a5d",
+          "food_name": "Tossed Salad",
+          "serving": "1 piece",
+          "serving_qty": 1,
+          "serving_unit": "piece",
+          "nutrition": {
+            "calories": 188.0,
+            "protein": 3.0,
+            "carbs": 14.8,
+            "fat": 12.6,
+            "fiber": 1.8
+          },
+          "semantics": {
+            "meal_role": "salad",
+            "food_type": "salad",
+            "plate_role": "side",
+            "course": "main_course",
+            "family": "vegetable",
+            "meal_id": "scrambled_eggs_multigrain_bread_breakfast",
+            "meal_name": "Scrambled Eggs with Multigrain Bread",
+            "protein_source": "eggs",
+            "carb_source": "bread & roti",
+            "vegetables": [
+              "tomato"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 0.5
+          }
+        }
+      ],
+      "lunch": [
+        {
+          "food_id": "8405d415-a482-4b44-987e-2c3bab2ad9df",
+          "food_name": "Brown Rice (1 Cup Boiled)",
+          "serving": "1.5 plates",
+          "serving_qty": 1.5,
+          "serving_unit": "plate",
+          "nutrition": {
+            "calories": 322.5,
+            "protein": 7.5,
+            "carbs": 67.5,
+            "fat": 2.7,
+            "fiber": 14.7
+          },
+          "semantics": {
+            "meal_role": "carb_base",
+            "food_type": "rice_dish",
+            "plate_role": "base",
+            "course": "main_course",
+            "family": "grain",
+            "meal_id": "brown_rice_boiled_egg_lunch",
+            "meal_name": "Boiled Egg with Brown Rice",
+            "protein_source": "eggs",
+            "carb_source": "rice",
+            "vegetables": [
+              "mixed",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Boiled",
+            "internal_ratio": 1.0
+          }
+        },
+        {
+          "food_id": "787623ea-d570-470d-9d2a-5bee5406a72d",
+          "food_name": "Boiled Egg (Ubla Anda)",
+          "serving": "2 pieces",
+          "serving_qty": 2,
+          "serving_unit": "piece",
+          "nutrition": {
+            "calories": 136.0,
+            "protein": 13.3,
+            "carbs": 0.4,
+            "fat": 9.1,
+            "fiber": 0.0
+          },
+          "semantics": {
+            "meal_role": "protein_main",
+            "food_type": "egg_dish",
+            "plate_role": "main",
+            "course": "main_course",
+            "family": "egg",
+            "meal_id": "brown_rice_boiled_egg_lunch",
+            "meal_name": "Boiled Egg with Brown Rice",
+            "protein_source": "eggs",
+            "carb_source": "rice",
+            "vegetables": [
+              "mixed",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Boiled",
+            "internal_ratio": 1.0
+          }
+        },
+        {
+          "food_id": "c5f1584d-ede6-4775-a788-2b4523feb538",
+          "food_name": "Mixed Vegetable Soup",
+          "serving": "1 bowl",
+          "serving_qty": 1.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 449.0,
+            "protein": 24.7,
+            "carbs": 8.9,
+            "fat": 35.0,
+            "fiber": 1.4
+          },
+          "semantics": {
+            "meal_role": "unknown",
+            "food_type": "soup",
+            "plate_role": "unknown",
+            "course": "main_course",
+            "family": "vegetable",
+            "meal_id": "brown_rice_boiled_egg_lunch",
+            "meal_name": "Boiled Egg with Brown Rice",
+            "protein_source": "eggs",
+            "carb_source": "rice",
+            "vegetables": [
+              "mixed",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Boiled",
+            "internal_ratio": 0.5
+          }
+        },
+        {
+          "food_id": "ea5438e5-879b-4842-a7df-c7eee914cd78",
+          "food_name": "Cucumber Tomato Salad",
+          "serving": "1.5 bowls",
+          "serving_qty": 1.5,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 60.0,
+            "protein": 1.5,
+            "carbs": 12.0,
+            "fat": 0.8,
+            "fiber": 1.5
+          },
+          "semantics": {
+            "meal_role": "salad",
+            "food_type": "salad",
+            "plate_role": "side",
+            "course": "main_course",
+            "family": "vegetable",
+            "meal_id": "brown_rice_boiled_egg_lunch",
+            "meal_name": "Boiled Egg with Brown Rice",
+            "protein_source": "eggs",
+            "carb_source": "rice",
+            "vegetables": [
+              "mixed",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Boiled",
+            "internal_ratio": 1.0
+          }
+        }
+      ],
+      "snack": [
+        {
+          "food_id": "f3ed617e-a75e-4a23-9c29-ce8c5a637abf",
+          "food_name": "Greek Yogurt With Berries",
+          "serving": "1.5 bowls",
+          "serving_qty": 1.5,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 195.0,
+            "protein": 18.0,
+            "carbs": 21.0,
+            "fat": 4.5,
+            "fiber": 3.3
+          },
+          "semantics": {
+            "meal_role": "dairy_side",
+            "food_type": "yogurt",
+            "plate_role": "accompaniment",
+            "course": "main_course",
+            "family": "dairy",
+            "meal_id": "greek_yogurt_snack",
+            "meal_name": "Greek Yogurt Snack",
+            "protein_source": "yogurt",
+            "carb_source": "none",
+            "vegetables": [],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 1.0
+          }
+        }
+      ],
+      "dinner": [
+        {
+          "food_id": "69d17d59-a53e-4f2b-9572-03399671cd5d",
+          "food_name": "Cumin Pulao (Jeera/Zeera Pulao)",
+          "serving": "1 plate",
+          "serving_qty": 1.0,
+          "serving_unit": "plate",
+          "nutrition": {
+            "calories": 202.0,
+            "protein": 3.7,
+            "carbs": 35.4,
+            "fat": 4.8,
+            "fiber": 5.7
+          },
+          "semantics": {
+            "meal_role": "carb_base",
+            "food_type": "rice_dish",
+            "plate_role": "base",
+            "course": "main_course",
+            "family": "grain",
+            "meal_id": "jeera_rice_chicken_breast_(grilled)_dinner",
+            "meal_name": "Chicken Breast with Jeera Rice",
+            "protein_source": "chicken/meat",
+            "carb_source": "rice",
+            "vegetables": [
+              "tori",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "North Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 1.0
+          }
+        },
+        {
+          "food_id": "fb967af7-6fd3-42a4-9ba5-a254bde31c7c",
+          "food_name": "Chicken Tikka (Air Fried)",
+          "serving": "1 piece",
+          "serving_qty": 1,
+          "serving_unit": "piece",
+          "nutrition": {
+            "calories": 210.0,
+            "protein": 30.0,
+            "carbs": 4.0,
+            "fat": 8.0,
+            "fiber": 0.0
+          },
+          "semantics": {
+            "meal_role": "protein_main",
+            "food_type": "meat",
+            "plate_role": "main",
+            "course": "main_course",
+            "family": "poultry",
+            "meal_id": "jeera_rice_chicken_breast_(grilled)_dinner",
+            "meal_name": "Chicken Breast with Jeera Rice",
+            "protein_source": "chicken/meat",
+            "carb_source": "rice",
+            "vegetables": [
+              "tori",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "North Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 1.0
+          }
+        },
+        {
+          "food_id": "441f032d-95de-4b04-bc27-9761be23fc01",
+          "food_name": "Farm Fresh Tori Sabzi",
+          "serving": "0.5 bowl",
+          "serving_qty": 0.5,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 42.5,
+            "protein": 1.0,
+            "carbs": 4.0,
+            "fat": 2.5,
+            "fiber": 0.6
+          },
+          "semantics": {
+            "meal_role": "veg_side",
+            "food_type": "curry",
+            "plate_role": "side",
+            "course": "main_course",
+            "family": "vegetable",
+            "meal_id": "jeera_rice_chicken_breast_(grilled)_dinner",
+            "meal_name": "Chicken Breast with Jeera Rice",
+            "protein_source": "chicken/meat",
+            "carb_source": "rice",
+            "vegetables": [
+              "tori",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "North Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 0.5
+          }
+        },
+        {
+          "food_id": "d6f7a19f-7f02-47e8-be01-fd382352b3e5",
+          "food_name": "Sprouted Moong Parantha/Paratha",
+          "serving": "1 bowl",
+          "serving_qty": 1.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 571.0,
+            "protein": 10.7,
+            "carbs": 60.8,
+            "fat": 31.1,
+            "fiber": 14.9
+          },
+          "semantics": {
+            "meal_role": "carb_base",
+            "food_type": "flatbread",
+            "plate_role": "base",
+            "course": "main_course",
+            "family": "grain",
+            "meal_id": "jeera_rice_chicken_breast_(grilled)_dinner",
+            "meal_name": "Chicken Breast with Jeera Rice",
+            "protein_source": "chicken/meat",
+            "carb_source": "rice",
+            "vegetables": [
+              "tori",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "North Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 1.0
+          }
+        }
+      ]
+    },
+    "Day_5": {
+      "breakfast": [
+        {
+          "food_id": "18fa208f-536f-48f8-9e2d-c969d007f5a9",
+          "food_name": "Homestyle Millet Bhel",
+          "serving": "3 slice",
+          "serving_qty": 3.0,
+          "serving_unit": "slice",
+          "nutrition": {
+            "calories": 220.5,
+            "protein": 7.5,
+            "carbs": 37.5,
+            "fat": 4.5,
+            "fiber": 8.4
+          },
+          "semantics": {
+            "meal_role": "snack",
+            "food_type": "snack",
+            "plate_role": "snack",
+            "course": "main_course",
+            "family": "other",
+            "meal_id": "boiled_egg_whole_wheat_bread_breakfast",
+            "meal_name": "Boiled Egg with Whole Wheat Bread",
+            "protein_source": "eggs",
+            "carb_source": "bread & roti",
+            "vegetables": [
+              "tomato"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Boiled",
+            "internal_ratio": 2.0
+          }
+        },
+        {
+          "food_id": "787623ea-d570-470d-9d2a-5bee5406a72d",
+          "food_name": "Boiled Egg (Ubla Anda)",
+          "serving": "3 pieces",
+          "serving_qty": 3,
+          "serving_unit": "piece",
+          "nutrition": {
+            "calories": 204.0,
+            "protein": 20.0,
+            "carbs": 0.6,
+            "fat": 13.6,
+            "fiber": 0.0
+          },
+          "semantics": {
+            "meal_role": "protein_main",
+            "food_type": "egg_dish",
+            "plate_role": "main",
+            "course": "main_course",
+            "family": "egg",
+            "meal_id": "boiled_egg_whole_wheat_bread_breakfast",
+            "meal_name": "Boiled Egg with Whole Wheat Bread",
+            "protein_source": "eggs",
+            "carb_source": "bread & roti",
+            "vegetables": [
+              "tomato"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Boiled",
+            "internal_ratio": 2.0
+          }
+        },
+        {
+          "food_id": "e22205c3-2733-4e4d-8daa-61cb21671a5d",
+          "food_name": "Tossed Salad",
+          "serving": "1 piece",
+          "serving_qty": 1,
+          "serving_unit": "piece",
+          "nutrition": {
+            "calories": 188.0,
+            "protein": 3.0,
+            "carbs": 14.8,
+            "fat": 12.6,
+            "fiber": 1.8
+          },
+          "semantics": {
+            "meal_role": "salad",
+            "food_type": "salad",
+            "plate_role": "side",
+            "course": "main_course",
+            "family": "vegetable",
+            "meal_id": "boiled_egg_whole_wheat_bread_breakfast",
+            "meal_name": "Boiled Egg with Whole Wheat Bread",
+            "protein_source": "eggs",
+            "carb_source": "bread & roti",
+            "vegetables": [
+              "tomato"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Boiled",
+            "internal_ratio": 0.5
+          }
+        }
+      ],
+      "lunch": [
+        {
+          "food_id": "8405d415-a482-4b44-987e-2c3bab2ad9df",
+          "food_name": "Brown Rice (1 Cup Boiled)",
+          "serving": "1.5 plates",
+          "serving_qty": 1.5,
+          "serving_unit": "plate",
+          "nutrition": {
+            "calories": 322.5,
+            "protein": 7.5,
+            "carbs": 67.5,
+            "fat": 2.7,
+            "fiber": 14.7
+          },
+          "semantics": {
+            "meal_role": "carb_base",
+            "food_type": "rice_dish",
+            "plate_role": "base",
+            "course": "main_course",
+            "family": "grain",
+            "meal_id": "brown_rice_egg_curry_lunch",
+            "meal_name": "Egg Curry with Brown Rice",
+            "protein_source": "eggs",
+            "carb_source": "rice",
+            "vegetables": [
+              "mixed",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Curry",
+            "internal_ratio": 1.0
+          }
+        },
+        {
+          "food_id": "21bb9b01-d3c5-42f5-be1c-6434b02f1ed1",
+          "food_name": "Egg Curry (Anda Curry)",
+          "serving": "1.5 bowls",
+          "serving_qty": 1.5,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 264.0,
+            "protein": 12.1,
+            "carbs": 9.0,
+            "fat": 19.8,
+            "fiber": 2.0
+          },
+          "semantics": {
+            "meal_role": "protein_main",
+            "food_type": "egg_dish",
+            "plate_role": "main",
+            "course": "main_course",
+            "family": "egg",
+            "meal_id": "brown_rice_egg_curry_lunch",
+            "meal_name": "Egg Curry with Brown Rice",
+            "protein_source": "eggs",
+            "carb_source": "rice",
+            "vegetables": [
+              "mixed",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Curry",
+            "internal_ratio": 1.0
+          }
+        },
+        {
+          "food_id": "c5f1584d-ede6-4775-a788-2b4523feb538",
+          "food_name": "Mixed Vegetable Soup",
+          "serving": "1 bowl",
+          "serving_qty": 1.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 449.0,
+            "protein": 24.7,
+            "carbs": 8.9,
+            "fat": 35.0,
+            "fiber": 1.4
+          },
+          "semantics": {
+            "meal_role": "unknown",
+            "food_type": "soup",
+            "plate_role": "unknown",
+            "course": "main_course",
+            "family": "vegetable",
+            "meal_id": "brown_rice_egg_curry_lunch",
+            "meal_name": "Egg Curry with Brown Rice",
+            "protein_source": "eggs",
+            "carb_source": "rice",
+            "vegetables": [
+              "mixed",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Curry",
+            "internal_ratio": 0.5
+          }
+        },
+        {
+          "food_id": "ea5438e5-879b-4842-a7df-c7eee914cd78",
+          "food_name": "Cucumber Tomato Salad",
+          "serving": "1.5 bowls",
+          "serving_qty": 1.5,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 60.0,
+            "protein": 1.5,
+            "carbs": 12.0,
+            "fat": 0.8,
+            "fiber": 1.5
+          },
+          "semantics": {
+            "meal_role": "salad",
+            "food_type": "salad",
+            "plate_role": "side",
+            "course": "main_course",
+            "family": "vegetable",
+            "meal_id": "brown_rice_egg_curry_lunch",
+            "meal_name": "Egg Curry with Brown Rice",
+            "protein_source": "eggs",
+            "carb_source": "rice",
+            "vegetables": [
+              "mixed",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Curry",
+            "internal_ratio": 1.0
+          }
+        }
+      ],
+      "snack": [
+        {
+          "food_id": "2456dd23-eb5f-4089-91bb-49c333facaff",
+          "food_name": "Protein Shake (Whey)",
+          "serving": "1 glas",
+          "serving_qty": 1.0,
+          "serving_unit": "glass",
+          "nutrition": {
+            "calories": 120.0,
+            "protein": 24.0,
+            "carbs": 3.0,
+            "fat": 1.5,
+            "fiber": 0.0
+          },
+          "semantics": {
+            "meal_role": "beverage",
+            "food_type": "drink",
+            "plate_role": "drink",
+            "course": "beverage",
+            "family": "beverage",
+            "meal_id": "protein_shake_snack",
+            "meal_name": "Protein Shake Snack",
+            "protein_source": "supplement",
+            "carb_source": "none",
+            "vegetables": [],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 1.0
+          }
+        }
+      ],
+      "dinner": [
+        {
+          "food_id": "69d17d59-a53e-4f2b-9572-03399671cd5d",
+          "food_name": "Cumin Pulao (Jeera/Zeera Pulao)",
+          "serving": "1 plate",
+          "serving_qty": 1.0,
+          "serving_unit": "plate",
+          "nutrition": {
+            "calories": 202.0,
+            "protein": 3.7,
+            "carbs": 35.4,
+            "fat": 4.8,
+            "fiber": 5.7
+          },
+          "semantics": {
+            "meal_role": "carb_base",
+            "food_type": "rice_dish",
+            "plate_role": "base",
+            "course": "main_course",
+            "family": "grain",
+            "meal_id": "jeera_rice_butter_chicken_dinner",
+            "meal_name": "Butter Chicken with Jeera Rice",
+            "protein_source": "chicken/meat",
+            "carb_source": "rice",
+            "vegetables": [
+              "cabbage",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "North Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 1.0
+          }
+        },
+        {
+          "food_id": "0f96b028-812d-4011-9952-c0ec4b7f4d41",
+          "food_name": "Tomato Chicken",
+          "serving": "1 bowl",
+          "serving_qty": 1.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 167.0,
+            "protein": 15.9,
+            "carbs": 3.2,
+            "fat": 10.1,
+            "fiber": 0.0
+          },
+          "semantics": {
+            "meal_role": "protein_main",
+            "food_type": "meat",
+            "plate_role": "main",
+            "course": "main_course",
+            "family": "poultry",
+            "meal_id": "jeera_rice_butter_chicken_dinner",
+            "meal_name": "Butter Chicken with Jeera Rice",
+            "protein_source": "chicken/meat",
+            "carb_source": "rice",
+            "vegetables": [
+              "cabbage",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "North Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 1.0
+          }
+        },
+        {
+          "food_id": "cd68a4aa-ecc6-47ca-a0ab-14f32423ce3f",
+          "food_name": "Cabbage And Peas (Cabbage Aur Matar)",
+          "serving": "0.5 bowl",
+          "serving_qty": 0.5,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 95.0,
+            "protein": 4.9,
+            "carbs": 9.4,
+            "fat": 4.0,
+            "fiber": 1.4
+          },
+          "semantics": {
+            "meal_role": "unknown",
+            "food_type": "unknown",
+            "plate_role": "unknown",
+            "course": "main_course",
+            "family": "unknown",
+            "meal_id": "jeera_rice_butter_chicken_dinner",
+            "meal_name": "Butter Chicken with Jeera Rice",
+            "protein_source": "chicken/meat",
+            "carb_source": "rice",
+            "vegetables": [
+              "cabbage",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "North Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 0.5
+          }
+        },
+        {
+          "food_id": "d6f7a19f-7f02-47e8-be01-fd382352b3e5",
+          "food_name": "Sprouted Moong Parantha/Paratha",
+          "serving": "1 bowl",
+          "serving_qty": 1.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 571.0,
+            "protein": 10.7,
+            "carbs": 60.8,
+            "fat": 31.1,
+            "fiber": 14.9
+          },
+          "semantics": {
+            "meal_role": "carb_base",
+            "food_type": "flatbread",
+            "plate_role": "base",
+            "course": "main_course",
+            "family": "grain",
+            "meal_id": "jeera_rice_butter_chicken_dinner",
+            "meal_name": "Butter Chicken with Jeera Rice",
+            "protein_source": "chicken/meat",
+            "carb_source": "rice",
+            "vegetables": [
+              "cabbage",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "North Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 1.0
+          }
+        }
+      ]
+    },
+    "Day_6": {
+      "breakfast": [
+        {
+          "food_id": "2076f62b-a28f-4e76-b7de-8a5a09a188f6",
+          "food_name": "Moong Dal Chilla",
+          "serving": "3 pieces",
+          "serving_qty": 3,
+          "serving_unit": "piece",
+          "nutrition": {
+            "calories": 270.0,
+            "protein": 15.0,
+            "carbs": 37.5,
+            "fat": 6.0,
+            "fiber": 9.4
+          },
+          "semantics": {
+            "meal_role": "protein_main",
+            "food_type": "dal_curry",
+            "plate_role": "main",
+            "course": "main_course",
+            "family": "legume",
+            "meal_id": "moong_dal_chilla_breakfast",
+            "meal_name": "Moong Dal Chilla Breakfast",
+            "protein_source": "dal & pulses",
+            "carb_source": "chilla",
+            "vegetables": [
+              "mint",
+              "coriander"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 2.0
+          }
+        },
+        {
+          "food_id": "3ff1d24a-1894-4b23-ab36-f24e1b27b96b",
+          "food_name": "Mint And Coriander Chutney (Pudinay Aur Dhaniye Ki Chutney)",
+          "serving": "3 tbsp",
+          "serving_qty": 3.0,
+          "serving_unit": "tbsp",
+          "nutrition": {
+            "calories": 229.5,
+            "protein": 6.3,
+            "carbs": 47.7,
+            "fat": 1.2,
+            "fiber": 7.9
+          },
+          "semantics": {
+            "meal_role": "unknown",
+            "food_type": "unknown",
+            "plate_role": "unknown",
+            "course": "main_course",
+            "family": "unknown",
+            "meal_id": "moong_dal_chilla_breakfast",
+            "meal_name": "Moong Dal Chilla Breakfast",
+            "protein_source": "dal & pulses",
+            "carb_source": "chilla",
+            "vegetables": [
+              "mint",
+              "coriander"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 2.0
+          }
+        },
+        {
+          "food_id": "f3ed617e-a75e-4a23-9c29-ce8c5a637abf",
+          "food_name": "Greek Yogurt With Berries",
+          "serving": "1 bowl",
+          "serving_qty": 1.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 130.0,
+            "protein": 12.0,
+            "carbs": 14.0,
+            "fat": 3.0,
+            "fiber": 2.2
+          },
+          "semantics": {
+            "meal_role": "dairy_side",
+            "food_type": "yogurt",
+            "plate_role": "accompaniment",
+            "course": "main_course",
+            "family": "dairy",
+            "meal_id": "moong_dal_chilla_breakfast",
+            "meal_name": "Moong Dal Chilla Breakfast",
+            "protein_source": "dal & pulses",
+            "carb_source": "chilla",
+            "vegetables": [
+              "mint",
+              "coriander"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 0.5
+          }
+        }
+      ],
+      "lunch": [
+        {
+          "food_id": "8405d415-a482-4b44-987e-2c3bab2ad9df",
+          "food_name": "Brown Rice (1 Cup Boiled)",
+          "serving": "2 plates",
+          "serving_qty": 2.0,
+          "serving_unit": "plate",
+          "nutrition": {
+            "calories": 430.0,
+            "protein": 10.0,
+            "carbs": 90.0,
+            "fat": 3.6,
+            "fiber": 19.6
+          },
+          "semantics": {
+            "meal_role": "carb_base",
+            "food_type": "rice_dish",
+            "plate_role": "base",
+            "course": "main_course",
+            "family": "grain",
+            "meal_id": "brown_rice_fish_curry_lunch",
+            "meal_name": "Fish Curry with Brown Rice",
+            "protein_source": "fish & seafood",
+            "carb_source": "rice",
+            "vegetables": [
+              "lauki",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Curry",
+            "internal_ratio": 1.0
+          }
+        },
+        {
+          "food_id": "afc8fcd1-daee-4a80-ac60-55e265bcd4a5",
+          "food_name": "Fish Curry (Machli Curry)",
+          "serving": "2 bowls",
+          "serving_qty": 2.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 332.0,
+            "protein": 26.2,
+            "carbs": 11.4,
+            "fat": 20.0,
+            "fiber": 2.4
+          },
+          "semantics": {
+            "meal_role": "protein_main",
+            "food_type": "meat",
+            "plate_role": "main",
+            "course": "main_course",
+            "family": "seafood",
+            "meal_id": "brown_rice_fish_curry_lunch",
+            "meal_name": "Fish Curry with Brown Rice",
+            "protein_source": "fish & seafood",
+            "carb_source": "rice",
+            "vegetables": [
+              "lauki",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Curry",
+            "internal_ratio": 1.0
+          }
+        },
+        {
+          "food_id": "bfff9061-4788-414d-b37e-578d17d3175e",
+          "food_name": "Split Bengal Gram With Bottle Gourd (Channa Dal With Ghiya/Lauki)",
+          "serving": "1 bowl",
+          "serving_qty": 1.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 109.0,
+            "protein": 4.2,
+            "carbs": 10.6,
+            "fat": 5.4,
+            "fiber": 1.7
+          },
+          "semantics": {
+            "meal_role": "veg_side",
+            "food_type": "dal_curry",
+            "plate_role": "main",
+            "course": "main_course",
+            "family": "legume",
+            "meal_id": "brown_rice_fish_curry_lunch",
+            "meal_name": "Fish Curry with Brown Rice",
+            "protein_source": "fish & seafood",
+            "carb_source": "rice",
+            "vegetables": [
+              "lauki",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Curry",
+            "internal_ratio": 0.5
+          }
+        },
+        {
+          "food_id": "e22205c3-2733-4e4d-8daa-61cb21671a5d",
+          "food_name": "Tossed Salad",
+          "serving": "2 bowls",
+          "serving_qty": 2.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 188.0,
+            "protein": 3.0,
+            "carbs": 14.8,
+            "fat": 12.6,
+            "fiber": 1.8
+          },
+          "semantics": {
+            "meal_role": "salad",
+            "food_type": "salad",
+            "plate_role": "side",
+            "course": "main_course",
+            "family": "vegetable",
+            "meal_id": "brown_rice_fish_curry_lunch",
+            "meal_name": "Fish Curry with Brown Rice",
+            "protein_source": "fish & seafood",
+            "carb_source": "rice",
+            "vegetables": [
+              "lauki",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Curry",
+            "internal_ratio": 1.0
+          }
+        }
+      ],
+      "snack": [
+        {
+          "food_id": "787623ea-d570-470d-9d2a-5bee5406a72d",
+          "food_name": "Boiled Egg (Ubla Anda)",
+          "serving": "3 pieces",
+          "serving_qty": 3,
+          "serving_unit": "piece",
+          "nutrition": {
+            "calories": 204.0,
+            "protein": 20.0,
+            "carbs": 0.6,
+            "fat": 13.6,
+            "fiber": 0.0
+          },
+          "semantics": {
+            "meal_role": "protein_main",
+            "food_type": "egg_dish",
+            "plate_role": "main",
+            "course": "main_course",
+            "family": "egg",
+            "meal_id": "boiled_egg_snack",
+            "meal_name": "Boiled Egg Snack",
+            "protein_source": "eggs",
+            "carb_source": "none",
+            "vegetables": [],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Boiled",
+            "internal_ratio": 1.0
+          }
+        }
+      ],
+      "dinner": [
+        {
+          "food_id": "69d17d59-a53e-4f2b-9572-03399671cd5d",
+          "food_name": "Cumin Pulao (Jeera/Zeera Pulao)",
+          "serving": "1.5 plates",
+          "serving_qty": 1.5,
+          "serving_unit": "plate",
+          "nutrition": {
+            "calories": 303.0,
+            "protein": 5.6,
+            "carbs": 53.1,
+            "fat": 7.2,
+            "fiber": 8.6
+          },
+          "semantics": {
+            "meal_role": "carb_base",
+            "food_type": "rice_dish",
+            "plate_role": "base",
+            "course": "main_course",
+            "family": "grain",
+            "meal_id": "jeera_rice_tofu_curry_dinner",
+            "meal_name": "Tofu Curry with Jeera Rice",
+            "protein_source": "tofu & soy",
+            "carb_source": "rice",
+            "vegetables": [
+              "tori",
+              "cucumber",
+              "tomato"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Curry",
+            "internal_ratio": 1.0
+          }
+        },
+        {
+          "food_id": "c84df96b-f093-4718-b3c8-ae42269b4b31",
+          "food_name": "Tofu Bhurji",
+          "serving": "1.5 bowls",
+          "serving_qty": 1.5,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 285.0,
+            "protein": 27.0,
+            "carbs": 12.0,
+            "fat": 15.0,
+            "fiber": 2.2
+          },
+          "semantics": {
+            "meal_role": "protein_main",
+            "food_type": "meat",
+            "plate_role": "main",
+            "course": "main_course",
+            "family": "unknown",
+            "meal_id": "jeera_rice_tofu_curry_dinner",
+            "meal_name": "Tofu Curry with Jeera Rice",
+            "protein_source": "tofu & soy",
+            "carb_source": "rice",
+            "vegetables": [
+              "tori",
+              "cucumber",
+              "tomato"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Curry",
+            "internal_ratio": 1.0
+          }
+        },
+        {
+          "food_id": "441f032d-95de-4b04-bc27-9761be23fc01",
+          "food_name": "Farm Fresh Tori Sabzi",
+          "serving": "1 bowl",
+          "serving_qty": 1.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 85.0,
+            "protein": 2.0,
+            "carbs": 8.0,
+            "fat": 5.0,
+            "fiber": 1.1
+          },
+          "semantics": {
+            "meal_role": "veg_side",
+            "food_type": "curry",
+            "plate_role": "side",
+            "course": "main_course",
+            "family": "vegetable",
+            "meal_id": "jeera_rice_tofu_curry_dinner",
+            "meal_name": "Tofu Curry with Jeera Rice",
+            "protein_source": "tofu & soy",
+            "carb_source": "rice",
+            "vegetables": [
+              "tori",
+              "cucumber",
+              "tomato"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Curry",
+            "internal_ratio": 0.5
+          }
+        },
+        {
+          "food_id": "e22205c3-2733-4e4d-8daa-61cb21671a5d",
+          "food_name": "Tossed Salad",
+          "serving": "1.5 bowls",
+          "serving_qty": 1.5,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 141.0,
+            "protein": 2.2,
+            "carbs": 11.1,
+            "fat": 9.4,
+            "fiber": 1.4
+          },
+          "semantics": {
+            "meal_role": "salad",
+            "food_type": "salad",
+            "plate_role": "side",
+            "course": "main_course",
+            "family": "vegetable",
+            "meal_id": "jeera_rice_tofu_curry_dinner",
+            "meal_name": "Tofu Curry with Jeera Rice",
+            "protein_source": "tofu & soy",
+            "carb_source": "rice",
+            "vegetables": [
+              "tori",
+              "cucumber",
+              "tomato"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Curry",
+            "internal_ratio": 1.0
+          }
+        },
+        {
+          "food_id": "d3d80f59-28a9-4b98-aec8-94a6e4b5d1e4",
+          "food_name": "Boondi Raita",
+          "serving": "1 bowl",
+          "serving_qty": 1.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 171.0,
+            "protein": 4.1,
+            "carbs": 7.4,
+            "fat": 13.8,
+            "fiber": 2.0
+          },
+          "semantics": {
+            "meal_role": "dairy_side",
+            "food_type": "yogurt",
+            "plate_role": "accompaniment",
+            "course": "main_course",
+            "family": "dairy",
+            "meal_id": "jeera_rice_tofu_curry_dinner",
+            "meal_name": "Tofu Curry with Jeera Rice",
+            "protein_source": "tofu & soy",
+            "carb_source": "rice",
+            "vegetables": [
+              "tori",
+              "cucumber",
+              "tomato"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Curry",
+            "internal_ratio": 0.5
+          }
+        }
+      ]
+    },
+    "Day_7": {
+      "breakfast": [
+        {
+          "food_id": "18fa208f-536f-48f8-9e2d-c969d007f5a9",
+          "food_name": "Homestyle Millet Bhel",
+          "serving": "3 slice",
+          "serving_qty": 3.0,
+          "serving_unit": "slice",
+          "nutrition": {
+            "calories": 220.5,
+            "protein": 7.5,
+            "carbs": 37.5,
+            "fat": 4.5,
+            "fiber": 8.4
+          },
+          "semantics": {
+            "meal_role": "snack",
+            "food_type": "snack",
+            "plate_role": "snack",
+            "course": "main_course",
+            "family": "other",
+            "meal_id": "scrambled_eggs_whole_wheat_bread_breakfast",
+            "meal_name": "Scrambled Eggs with Whole Wheat Bread",
+            "protein_source": "eggs",
+            "carb_source": "bread & roti",
+            "vegetables": [
+              "tomato"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 2.0
+          }
+        },
+        {
+          "food_id": "d682978a-1271-4117-aed7-ea0955e2ecc8",
+          "food_name": "Boiled Eggs (2)",
+          "serving": "1.5 bowls",
+          "serving_qty": 1.5,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 210.0,
+            "protein": 18.0,
+            "carbs": 1.5,
+            "fat": 15.0,
+            "fiber": 0.0
+          },
+          "semantics": {
+            "meal_role": "protein_main",
+            "food_type": "egg_dish",
+            "plate_role": "main",
+            "course": "main_course",
+            "family": "egg",
+            "meal_id": "scrambled_eggs_whole_wheat_bread_breakfast",
+            "meal_name": "Scrambled Eggs with Whole Wheat Bread",
+            "protein_source": "eggs",
+            "carb_source": "bread & roti",
+            "vegetables": [
+              "tomato"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 1.0
+          }
+        },
+        {
+          "food_id": "e22205c3-2733-4e4d-8daa-61cb21671a5d",
+          "food_name": "Tossed Salad",
+          "serving": "1 piece",
+          "serving_qty": 1,
+          "serving_unit": "piece",
+          "nutrition": {
+            "calories": 188.0,
+            "protein": 3.0,
+            "carbs": 14.8,
+            "fat": 12.6,
+            "fiber": 1.8
+          },
+          "semantics": {
+            "meal_role": "salad",
+            "food_type": "salad",
+            "plate_role": "side",
+            "course": "main_course",
+            "family": "vegetable",
+            "meal_id": "scrambled_eggs_whole_wheat_bread_breakfast",
+            "meal_name": "Scrambled Eggs with Whole Wheat Bread",
+            "protein_source": "eggs",
+            "carb_source": "bread & roti",
+            "vegetables": [
+              "tomato"
+            ],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 0.5
+          }
+        }
+      ],
+      "lunch": [
+        {
+          "food_id": "a688e8af-fbc5-410f-bec6-8a6c8d11cc4c",
+          "food_name": "Chapati/Roti",
+          "serving": "3 pieces",
+          "serving_qty": 3,
+          "serving_unit": "piece",
+          "nutrition": {
+            "calories": 757.5,
+            "protein": 22.0,
+            "carbs": 133.6,
+            "fat": 13.4,
+            "fiber": 21.6
+          },
+          "semantics": {
+            "meal_role": "carb_base",
+            "food_type": "flatbread",
+            "plate_role": "base",
+            "course": "main_course",
+            "family": "grain",
+            "meal_id": "chapati_(roti)_butter_chicken_lunch",
+            "meal_name": "Butter Chicken with Chapati",
+            "protein_source": "chicken/meat",
+            "carb_source": "roti",
+            "vegetables": [
+              "bhindi",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "North Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 2.0
+          }
+        },
+        {
+          "food_id": "0f96b028-812d-4011-9952-c0ec4b7f4d41",
+          "food_name": "Tomato Chicken",
+          "serving": "1.5 bowls",
+          "serving_qty": 1.5,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 250.5,
+            "protein": 23.9,
+            "carbs": 4.8,
+            "fat": 15.1,
+            "fiber": 0.0
+          },
+          "semantics": {
+            "meal_role": "protein_main",
+            "food_type": "meat",
+            "plate_role": "main",
+            "course": "main_course",
+            "family": "poultry",
+            "meal_id": "chapati_(roti)_butter_chicken_lunch",
+            "meal_name": "Butter Chicken with Chapati",
+            "protein_source": "chicken/meat",
+            "carb_source": "roti",
+            "vegetables": [
+              "bhindi",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "North Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 1.0
+          }
+        },
+        {
+          "food_id": "883f5317-7b16-4dbd-aca9-1bcf72a2a3bd",
+          "food_name": "Stuffed Okra (Bharwa Bhindi)",
+          "serving": "0.5 bowl",
+          "serving_qty": 0.5,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 70.5,
+            "protein": 1.6,
+            "carbs": 2.9,
+            "fat": 5.8,
+            "fiber": 0.3
+          },
+          "semantics": {
+            "meal_role": "veg_side",
+            "food_type": "curry",
+            "plate_role": "side",
+            "course": "main_course",
+            "family": "vegetable",
+            "meal_id": "chapati_(roti)_butter_chicken_lunch",
+            "meal_name": "Butter Chicken with Chapati",
+            "protein_source": "chicken/meat",
+            "carb_source": "roti",
+            "vegetables": [
+              "bhindi",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "North Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 0.5
+          }
+        },
+        {
+          "food_id": "e22205c3-2733-4e4d-8daa-61cb21671a5d",
+          "food_name": "Tossed Salad",
+          "serving": "1.5 bowls",
+          "serving_qty": 1.5,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 141.0,
+            "protein": 2.2,
+            "carbs": 11.1,
+            "fat": 9.4,
+            "fiber": 1.4
+          },
+          "semantics": {
+            "meal_role": "salad",
+            "food_type": "salad",
+            "plate_role": "side",
+            "course": "main_course",
+            "family": "vegetable",
+            "meal_id": "chapati_(roti)_butter_chicken_lunch",
+            "meal_name": "Butter Chicken with Chapati",
+            "protein_source": "chicken/meat",
+            "carb_source": "roti",
+            "vegetables": [
+              "bhindi",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "North Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 1.0
+          }
+        }
+      ],
+      "snack": [
+        {
+          "food_id": "f3ed617e-a75e-4a23-9c29-ce8c5a637abf",
+          "food_name": "Greek Yogurt With Berries",
+          "serving": "1.5 bowls",
+          "serving_qty": 1.5,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 195.0,
+            "protein": 18.0,
+            "carbs": 21.0,
+            "fat": 4.5,
+            "fiber": 3.3
+          },
+          "semantics": {
+            "meal_role": "dairy_side",
+            "food_type": "yogurt",
+            "plate_role": "accompaniment",
+            "course": "main_course",
+            "family": "dairy",
+            "meal_id": "greek_yogurt_snack",
+            "meal_name": "Greek Yogurt Snack",
+            "protein_source": "yogurt",
+            "carb_source": "none",
+            "vegetables": [],
+            "meal_rules": [],
+            "cuisine": "Pan Indian",
+            "cooking_style": "Mixed",
+            "internal_ratio": 1.0
+          }
+        }
+      ],
+      "dinner": [
+        {
+          "food_id": "1a61b9b4-7fdf-4d8b-a172-b5faa4d1641b",
+          "food_name": "Multigrain Roti",
+          "serving": "3 pieces",
+          "serving_qty": 3,
+          "serving_unit": "piece",
+          "nutrition": {
+            "calories": 165.0,
+            "protein": 6.0,
+            "carbs": 30.0,
+            "fat": 2.2,
+            "fiber": 7.9
+          },
+          "semantics": {
+            "meal_role": "carb_base",
+            "food_type": "flatbread",
+            "plate_role": "base",
+            "course": "main_course",
+            "family": "grain",
+            "meal_id": "multigrain_roti_chicken_curry_dinner",
+            "meal_name": "Chicken Curry with Multigrain Roti",
+            "protein_source": "chicken/meat",
+            "carb_source": "roti",
+            "vegetables": [
+              "capsicum",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "North Indian",
+            "cooking_style": "Curry",
+            "internal_ratio": 2.0
+          }
+        },
+        {
+          "food_id": "c1d51d5e-7553-41cc-8d02-72e534827ef7",
+          "food_name": "Chicken Curry",
+          "serving": "1.5 bowls",
+          "serving_qty": 1.5,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 289.5,
+            "protein": 26.5,
+            "carbs": 7.6,
+            "fat": 17.1,
+            "fiber": 1.8
+          },
+          "semantics": {
+            "meal_role": "protein_main",
+            "food_type": "meat",
+            "plate_role": "main",
+            "course": "main_course",
+            "family": "poultry",
+            "meal_id": "multigrain_roti_chicken_curry_dinner",
+            "meal_name": "Chicken Curry with Multigrain Roti",
+            "protein_source": "chicken/meat",
+            "carb_source": "roti",
+            "vegetables": [
+              "capsicum",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "North Indian",
+            "cooking_style": "Curry",
+            "internal_ratio": 1.0
+          }
+        },
+        {
+          "food_id": "eddcf59a-5b1f-4317-aab8-29334c2e9258",
+          "food_name": "Stuffed Capsicum (Bharwa Shimla Mirch)",
+          "serving": "1 bowl",
+          "serving_qty": 1.0,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 272.0,
+            "protein": 4.0,
+            "carbs": 24.8,
+            "fat": 17.2,
+            "fiber": 6.2
+          },
+          "semantics": {
+            "meal_role": "unknown",
+            "food_type": "unknown",
+            "plate_role": "unknown",
+            "course": "main_course",
+            "family": "unknown",
+            "meal_id": "multigrain_roti_chicken_curry_dinner",
+            "meal_name": "Chicken Curry with Multigrain Roti",
+            "protein_source": "chicken/meat",
+            "carb_source": "roti",
+            "vegetables": [
+              "capsicum",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "North Indian",
+            "cooking_style": "Curry",
+            "internal_ratio": 0.5
+          }
+        },
+        {
+          "food_id": "e22205c3-2733-4e4d-8daa-61cb21671a5d",
+          "food_name": "Tossed Salad",
+          "serving": "1.5 bowls",
+          "serving_qty": 1.5,
+          "serving_unit": "bowl",
+          "nutrition": {
+            "calories": 141.0,
+            "protein": 2.2,
+            "carbs": 11.1,
+            "fat": 9.4,
+            "fiber": 1.4
+          },
+          "semantics": {
+            "meal_role": "salad",
+            "food_type": "salad",
+            "plate_role": "side",
+            "course": "main_course",
+            "family": "vegetable",
+            "meal_id": "multigrain_roti_chicken_curry_dinner",
+            "meal_name": "Chicken Curry with Multigrain Roti",
+            "protein_source": "chicken/meat",
+            "carb_source": "roti",
+            "vegetables": [
+              "capsicum",
+              "onion"
+            ],
+            "meal_rules": [],
+            "cuisine": "North Indian",
+            "cooking_style": "Curry",
+            "internal_ratio": 1.0
+          }
+        }
+      ]
+    }
+  },
+  "stats": {
+    "failure_reasons": {
+      "template_exhausted": 0,
+      "protein_impossible": 0,
+      "calories_impossible": 0,
+      "portion_exceeded": 0,
+      "compatibility_violation": 0,
+      "meal_suitability_violation": 0
+    },
+    "constraint_pressure": {
+      "passed_structure": 23314,
+      "passed_compatibility": 0,
+      "passed_portion": 0,
+      "passed_macros": 0,
+      "passed_variety": 0,
+      "total_candidates": 23479
+    },
+    "acceptance_stats": {
+      "total_generated": 60,
+      "total_accepted": 60,
+      "recovery_successes": 4,
+      "recovery_failures": 0
+    }
+  },
+  "daily_targets": {
+    "Day_1": {
+      "calories": 2894.3125,
+      "protein": 140.0,
+      "carbs": 457.578125,
+      "fat": 56.0,
+      "intensity": "moderate"
+    },
+    "Day_2": {
+      "calories": 2894.3125,
+      "protein": 140.0,
+      "carbs": 457.578125,
+      "fat": 56.0,
+      "intensity": "moderate"
+    },
+    "Day_3": {
+      "calories": 2894.3125,
+      "protein": 140.0,
+      "carbs": 457.578125,
+      "fat": 56.0,
+      "intensity": "moderate"
+    },
+    "Day_4": {
+      "calories": 2894.3125,
+      "protein": 140.0,
+      "carbs": 457.578125,
+      "fat": 56.0,
+      "intensity": "moderate"
+    },
+    "Day_5": {
+      "calories": 2894.3125,
+      "protein": 140.0,
+      "carbs": 457.578125,
+      "fat": 56.0,
+      "intensity": "moderate"
+    },
+    "Day_6": {
+      "calories": 2894.3125,
+      "protein": 140.0,
+      "carbs": 457.578125,
+      "fat": 56.0,
+      "intensity": "moderate"
+    },
+    "Day_7": {
+      "calories": 2894.3125,
+      "protein": 140.0,
+      "carbs": 457.578125,
+      "fat": 56.0,
+      "intensity": "moderate"
+    }
+  }
+}

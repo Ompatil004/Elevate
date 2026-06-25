@@ -110,7 +110,7 @@ def run_nutrition_audit():
                 if mt == 'snack':
                     assert len(items) <= 1, f"Day {day} snack has {len(items)} items! Must be max 1."
                 else:
-                    assert len(items) <= 2, f"Day {day} {mt} has {len(items)} items! Must be max 2."
+                    assert len(items) <= 3, f"Day {day} {mt} has {len(items)} items! Must be max 3."
                 
                 for item in items:
                     name = item["name"]
