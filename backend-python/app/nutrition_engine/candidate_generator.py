@@ -186,10 +186,12 @@ class CandidateGenerator:
                 
         return True
 
-    def generate_candidates(self, template: Dict[str, Any], meal_type: str, diet_type: str, count: int = 5, user_profile: Dict = None) -> tuple[List[List[Dict]], Dict]:
+    def generate_candidates(self, template: Dict[str, Any], meal_type: str, diet_type: str, count: int = 5, user_profile: Dict = None, day_seed: int = 0) -> tuple[List[List[Dict]], Dict]:
         """
         Generates candidate plates based on predefined Meal Identities.
         Returns a tuple of (plates, stats).
+        day_seed is used to shuffle the candidate pool differently for each day,
+        preventing the same meals from always appearing in the same order on retries.
         """
         candidates = []
         gen_stats = {
@@ -246,8 +248,15 @@ class CandidateGenerator:
             
         gen_stats["total_candidates"] = len(filtered_meals)
         
+        # Shuffle using a deterministic but day-specific seed so each day tries different meals
+        # This prevents the same meals appearing in the same order on every retry attempt
+        import random as _rng
+        rng = _rng.Random(day_seed)
+        shuffled_meals = list(filtered_meals)
+        rng.shuffle(shuffled_meals)
+        
         # 3. Build plates from meal definitions
-        for meal in filtered_meals:
+        for meal in shuffled_meals:
             plate = []
             meal_valid = True
             for food_name in meal["foods"]:
@@ -288,6 +297,6 @@ class CandidateGenerator:
                 
         # Sample to ensure some variety if we have more than count
         if len(candidates) > count:
-            candidates = random.sample(candidates, count)
+            candidates = rng.sample(candidates, count)
             
         return candidates, gen_stats
