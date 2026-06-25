@@ -14,10 +14,10 @@ class MealScorer:
         
         # New Scoring Weights based on user specifications
         self.WEIGHT_MACRO = 0.25
-        self.WEIGHT_SEMANTICS = 0.25
+        self.WEIGHT_SEMANTICS = 0.20
         self.WEIGHT_COMPLETENESS = 0.15
         self.WEIGHT_REALISM = 0.15
-        self.WEIGHT_VARIETY = 0.10
+        self.WEIGHT_VARIETY = 0.15
         self.WEIGHT_PORTION = 0.05
         self.WEIGHT_BUDGET = 0.05
 

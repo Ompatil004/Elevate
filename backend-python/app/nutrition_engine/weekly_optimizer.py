@@ -135,7 +135,7 @@ class WeeklyOptimizer:
                     
                     # Pass 1: Strict constraints (Rotation & Portion limits)
                     for template in feasible_templates[:5]: 
-                        candidates, gen_stats = self.candidate_generator.generate_candidates(template, meal_type, diet_type, count=3, user_profile=user_profile)
+                        candidates, gen_stats = self.candidate_generator.generate_candidates(template, meal_type, diet_type, count=5, user_profile=user_profile)
                         stats["constraint_pressure"]["total_candidates"] += gen_stats["total_candidates"]
                         stats["constraint_pressure"]["passed_structure"] += gen_stats["passed_structure"]
                         
@@ -191,7 +191,7 @@ class WeeklyOptimizer:
                     # Pass 2: Fallback constraints if strict pass failed to find anything
                     if not best_plate:
                         for template in feasible_templates[:5]: 
-                            candidates, _ = self.candidate_generator.generate_candidates(template, meal_type, diet_type, count=3, user_profile=user_profile)
+                            candidates, _ = self.candidate_generator.generate_candidates(template, meal_type, diet_type, count=5, user_profile=user_profile)
                             for candidate_plate in candidates:
                                 anchor_sem = candidate_plate[0]['semantics']
                                 meal_id = anchor_sem.get('meal_id')
