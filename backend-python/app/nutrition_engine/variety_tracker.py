@@ -39,6 +39,7 @@ class WeeklyVarietyTracker:
         self.daily_carb_history: Dict[int, Set[str]] = {}
         self.vegetable_history: Dict[int, Set[str]] = {}
         self.meal_identity_history: Dict[str, int] = {}
+        self.meal_appearance_counts: Dict[str, int] = {}  # tracks total appearances per meal_id
         self.daily_cuisine_history: Dict[int, Set[str]] = {}
         self.daily_cooking_style_history: Dict[int, Set[str]] = {}
         
@@ -59,6 +60,7 @@ class WeeklyVarietyTracker:
             "daily_carb_history": {k: set(v) for k, v in self.daily_carb_history.items()},
             "vegetable_history": {k: set(v) for k, v in self.vegetable_history.items()},
             "meal_identity_history": dict(self.meal_identity_history),
+            "meal_appearance_counts": dict(self.meal_appearance_counts),
             "daily_cuisine_history": {k: set(v) for k, v in getattr(self, 'daily_cuisine_history', {}).items()},
             "daily_cooking_style_history": {k: set(v) for k, v in getattr(self, 'daily_cooking_style_history', {}).items()},
         }
@@ -79,6 +81,7 @@ class WeeklyVarietyTracker:
         self.daily_carb_history = {k: set(v) for k, v in snapshot.get("daily_carb_history", {}).items()}
         self.vegetable_history = {k: set(v) for k, v in snapshot.get("vegetable_history", {}).items()}
         self.meal_identity_history = dict(snapshot.get("meal_identity_history", {}))
+        self.meal_appearance_counts = dict(snapshot.get("meal_appearance_counts", {}))
         self.daily_cuisine_history = {k: set(v) for k, v in snapshot.get("daily_cuisine_history", {}).items()}
         self.daily_cooking_style_history = {k: set(v) for k, v in snapshot.get("daily_cooking_style_history", {}).items()}
         
@@ -185,6 +188,7 @@ class WeeklyVarietyTracker:
 
     def record_meal_selection(self, meal_id: str, foods: List[str], protein_source: str, carb_source: str, vegetables: List[str], day_num: int, cuisine: str = None, cooking_style: str = None):
         self.meal_identity_history[meal_id] = day_num
+        self.meal_appearance_counts[meal_id] = self.meal_appearance_counts.get(meal_id, 0) + 1
         
         if day_num not in self.daily_food_history:
             self.daily_food_history[day_num] = set()
@@ -238,20 +242,31 @@ class WeeklyVarietyTracker:
         # 1. Same-day food duplicates check
         if self.is_same_day_duplicate(foods, day_num):
             return True
-                
-        # 2. No duplicate meal identity in last 4 days
-        last_eaten = self.meal_identity_history.get(meal_id)
-        if last_eaten is not None and (day_num - last_eaten) <= 4:
+
+        # 2. Hard cap: no meal_id more than 2 times in the full week
+        all_appearances = sum(
+            1 for d, mid in self.meal_identity_history.items()
+            if mid == meal_id
+        ) if isinstance(self.meal_identity_history, dict) else 0
+        # Actually meal_identity_history maps meal_id -> last_day, not day -> meal_id
+        # So count by tracking appearances separately
+        appearances = self.meal_appearance_counts.get(meal_id, 0)
+        if appearances >= 2:
             return True
-            
-        # 3. Protein source rotation in the same day (removed strict block)
+
+        # 3. No duplicate meal identity in last 2 days (reduced from 4 to allow more variety)
+        last_eaten = self.meal_identity_history.get(meal_id)
+        if last_eaten is not None and (day_num - last_eaten) <= 2:
+            return True
+
+        # 4. Protein source rotation in the same day (removed strict block)
         # Handled by scorer penalties
-                
-        # 4. Carb source rotation in the same day (removed strict block)
+
+        # 5. Carb source rotation in the same day (removed strict block)
         # Handled by scorer penalties
-                
-        # 5. Over-representation of cooking style in the same day
+
+        # 6. Over-representation of cooking style in the same day
         # Removed strict block on cooking style since it's common to eat Curry twice a day.
         # It is now handled by the variety penalty score in meal_scorer.py
-                    
+
         return False

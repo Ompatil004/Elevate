@@ -2220,6 +2220,9 @@ class SwapRequest(BaseModel):
     goal: Optional[str] = "Maintenance"
     dietary_preference: Optional[str] = "Non-Veg"
     allergies: Optional[List[str]] = Field(default_factory=list)
+    # Pass these so swaps are scaled to the same nutrition as the current item
+    current_calories: Optional[float] = None
+    current_protein: Optional[float] = None
 
 @app.post("/nutrition/swap")
 async def get_swap_options(
@@ -2241,7 +2244,9 @@ async def get_swap_options(
             'allergies': body.allergies,
         }
         options = meal_runtime.get_swap_options(
-            body.food_name, body.meal_type, profile, limit=5
+            body.food_name, body.meal_type, profile, limit=5,
+            target_calories=body.current_calories,
+            target_protein=body.current_protein,
         )
         return _api_success(
             "Swap options generated",

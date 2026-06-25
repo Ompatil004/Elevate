@@ -106,7 +106,7 @@ class WeeklyOptimizer:
                 running_deficit = {"calories": 0.0, "protein": 0.0}
                 whey_used_today = 0
                 
-                for meal_type, base_target_macros in meal_split_targets.items():
+                for meal_type_idx, (meal_type, base_target_macros) in enumerate(meal_split_targets.items()):
                     # Apply running deficit to current target, but cap min to 50% to prevent negative runaway targets
                     cals_def = running_deficit["calories"]
                     pro_def = running_deficit["protein"]
@@ -134,8 +134,11 @@ class WeeklyOptimizer:
                     best_effort_score = -1000
                     
                     # Pass 1: Strict constraints (Rotation & Portion limits)
+                    # Seed = day_num * 1000 + meal_type_idx * 100 + attempts
+                    # This guarantees a unique shuffle for every (day, meal_type, attempt) combination
+                    _seed_p1 = day_num * 1000 + meal_type_idx * 100 + attempts
                     for template in feasible_templates[:5]: 
-                        candidates, gen_stats = self.candidate_generator.generate_candidates(template, meal_type, diet_type, count=5, user_profile=user_profile)
+                        candidates, gen_stats = self.candidate_generator.generate_candidates(template, meal_type, diet_type, count=5, user_profile=user_profile, day_seed=_seed_p1)
                         stats["constraint_pressure"]["total_candidates"] += gen_stats["total_candidates"]
                         stats["constraint_pressure"]["passed_structure"] += gen_stats["passed_structure"]
                         
@@ -190,8 +193,9 @@ class WeeklyOptimizer:
  
                     # Pass 2: Fallback constraints if strict pass failed to find anything
                     if not best_plate:
+                        _seed_p2 = day_num * 1000 + meal_type_idx * 100 + attempts + 500
                         for template in feasible_templates[:5]: 
-                            candidates, _ = self.candidate_generator.generate_candidates(template, meal_type, diet_type, count=5, user_profile=user_profile)
+                            candidates, _ = self.candidate_generator.generate_candidates(template, meal_type, diet_type, count=5, user_profile=user_profile, day_seed=_seed_p2)
                             for candidate_plate in candidates:
                                 anchor_sem = candidate_plate[0]['semantics']
                                 meal_id = anchor_sem.get('meal_id')
@@ -201,9 +205,11 @@ class WeeklyOptimizer:
                                 cuisine = anchor_sem.get('cuisine')
                                 cooking_style = anchor_sem.get('cooking_style')
                                 
-                                # In Pass 2 Fallback, we do NOT strictly block duplicates.
-                                # The meal_scorer will penalize duplicates, so the engine will
-                                # naturally prefer the least offensive duplicate if no fresh meals are available.
+                                # Pass 2 Fallback: Allow meals with at most 1 prior appearance,
+                                # but hard-block any meal that has already appeared 2+ times this week.
+                                # This prevents repetition even in fallback scenarios.
+                                if meal_id and self.variety_tracker.meal_appearance_counts.get(meal_id, 0) >= 2:
+                                    continue
                                 
                                 # Supplement Policy Engine & Whey Limitation
                                 has_whey = any('whey' in f.lower() for f in foods)

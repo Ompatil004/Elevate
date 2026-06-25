@@ -320,9 +320,14 @@ class MealEngine:
         return weekly_plan
 
     def get_swap_options(self, food_name: str, meal_type: str,
-                          profile: Dict, limit: int = 5) -> List[Dict]:
+                          profile: Dict, limit: int = 5,
+                          target_calories: float = None,
+                          target_protein: float = None) -> List[Dict]:
         """
-        Fetch similar foods from the FoodGraph based on swap_group/family and diet restrictions.
+        Fetch nutritionally similar foods from the FoodGraph.
+        Nutrition values are SCALED to match the original item's calorie target
+        so that swaps have the same or very similar macro values.
+        Results are sorted by nutritional similarity (closest protein+calorie first).
         """
         nodes = self.engine.food_graph.get_all_nodes()
         
@@ -338,7 +343,24 @@ class MealEngine:
                 
         if not target_node or not target_family:
             return []
-            
+
+        # Use the passed targets or fall back to the original food's own nutrition at default serving
+        orig_nutrition = target_node.get("nutrition", {})
+        orig_serving_g = orig_nutrition.get("serving_size_g", 100.0) or 100.0
+        orig_cal_per_100g = orig_nutrition.get("calories", 0)
+        orig_prot_per_100g = orig_nutrition.get("protein", 0)
+
+        # If caller provided target_calories, use those; otherwise use the food's own default serving nutrition
+        if target_calories and target_calories > 0:
+            cal_target = target_calories
+        else:
+            cal_target = (orig_cal_per_100g / 100.0) * orig_serving_g
+        
+        if target_protein and target_protein > 0:
+            prot_target = target_protein
+        else:
+            prot_target = (orig_prot_per_100g / 100.0) * orig_serving_g
+
         # 2. Extract User Diet
         user_diet = profile.get("diet_type") or profile.get("dietary_preference", "NonVeg")
         if user_diet in ('Veg', 'Vegetarian'):
@@ -346,7 +368,7 @@ class MealEngine:
         elif user_diet in ('Non-Veg', 'NonVeg'):
             user_diet = 'NonVeg'
             
-        # 3. Find alternatives in same family and diet
+        # 3. Find alternatives in same family and compatible diet
         options = []
         for fid, node in nodes.items():
             if node == target_node:
@@ -361,32 +383,97 @@ class MealEngine:
             family = node.get("semantics", {}).get("family")
             if family == target_family:
                 options.append(node)
-                
-        # 4. Format and select top alternatives
-        import random
-        random.shuffle(options)
+
+        # 4. Scale each option's nutrition to match cal_target and compute similarity score
+        def _scale_and_score(node):
+            n = node.get("nutrition", {})
+            cal_per_100g = n.get("calories", 0)
+            prot_per_100g = n.get("protein", 0)
+            carb_per_100g = n.get("carbs", 0)
+            fat_per_100g = n.get("fat", 0)
+            fiber_per_100g = n.get("fiber", 0)
+            
+            # Avoid division by zero for foods with no calorie data
+            if cal_per_100g <= 0:
+                return None
+
+            # Calculate how many grams we need to hit the calorie target
+            grams_needed = (cal_target / cal_per_100g) * 100.0
+            
+            # Cap to a sensible range so we don't end up with 1000g of one food
+            grams_needed = max(30.0, min(grams_needed, 500.0))
+            
+            scale_factor = grams_needed / 100.0
+            scaled_cal  = round(cal_per_100g  * scale_factor, 1)
+            scaled_prot = round(prot_per_100g * scale_factor, 1)
+            scaled_carb = round(carb_per_100g * scale_factor, 1)
+            scaled_fat  = round(fat_per_100g  * scale_factor, 1)
+            scaled_fiber = round(fiber_per_100g * scale_factor, 1)
+            
+            # Similarity score: lower is better (weighted protein diff + calorie diff)
+            prot_diff = abs(scaled_prot - prot_target)
+            cal_diff  = abs(scaled_cal  - cal_target)
+            similarity_score = (prot_diff * 2.0) + (cal_diff * 0.05)
+            
+            # Build a human-readable serving string
+            default_unit = node.get("servings", {}).get("default_unit", "g")
+            if default_unit in ("g", "ml"):
+                qty = round(grams_needed)
+                serving_str = f"{qty} {default_unit}"
+                serving_qty = qty
+                serving_unit = default_unit
+            else:
+                # Convert grams to the food's natural unit using its serving_size_g
+                natural_serving_g = node.get("servings", {}).get("default_qty", 1) or 1
+                natural_unit_g = n.get("serving_size_g", 100.0) or 100.0
+                units_needed = grams_needed / natural_unit_g
+                units_needed = max(0.5, round(units_needed * 2) / 2)  # round to nearest 0.5
+                if units_needed.is_integer():
+                    units_needed = int(units_needed)
+                serving_str = f"{units_needed} {default_unit}"
+                serving_qty = units_needed
+                serving_unit = default_unit
+            
+            return {
+                "node": node,
+                "scaled_cal": scaled_cal,
+                "scaled_prot": scaled_prot,
+                "scaled_carb": scaled_carb,
+                "scaled_fat": scaled_fat,
+                "scaled_fiber": scaled_fiber,
+                "serving_str": serving_str,
+                "serving_qty": serving_qty,
+                "serving_unit": serving_unit,
+                "similarity_score": similarity_score,
+            }
+
+        scored = []
+        for opt in options:
+            result = _scale_and_score(opt)
+            if result:
+                scored.append(result)
         
+        # Sort by similarity (best match first)
+        scored.sort(key=lambda x: x["similarity_score"])
+        
+        # 5. Format and return top results
         results = []
-        for opt in options[:limit]:
-            item = dict(opt)
-            opt_name = item.get("food_name", "")
-            
-            qty = item.get("servings", {}).get("default_qty", 1)
-            unit = item.get("servings", {}).get("default_unit", "g")
-            if isinstance(qty, float) and qty.is_integer():
-                qty = int(qty)
-            
+        for s in scored[:limit]:
+            opt_node = s["node"]
+            opt_name = opt_node.get("food_name", "")
             results.append({
-                'meal_type': meal_type,
-                'name': opt_name,
-                'food_name': opt_name,
-                'serving': f"{qty} {unit}",
-                'calories': item.get('nutrition', {}).get('calories', 0),
-                'protein': item.get('nutrition', {}).get('protein', 0),
-                'carbs': item.get('nutrition', {}).get('carbs', 0),
-                'fat': item.get('nutrition', {}).get('fat', 0),
-                'fiber': item.get('nutrition', {}).get('fiber', 0),
-                'swap_group': target_family
+                'meal_type':    meal_type,
+                'name':         opt_name,
+                'food_name':    opt_name,
+                'serving':      s["serving_str"],
+                'serving_qty':  s["serving_qty"],
+                'serving_unit': s["serving_unit"],
+                'calories':     s["scaled_cal"],
+                'protein':      s["scaled_prot"],
+                'carbs':        s["scaled_carb"],
+                'fat':          s["scaled_fat"],
+                'fiber':        s["scaled_fiber"],
+                'swap_group':   target_family,
             })
         return results
 
