@@ -26,7 +26,7 @@ def _format_serving(qty: float, unit: str, name: str = '', cal: float = 0.0) -> 
         qty = round(qty * 2) / 2 # Round to nearest 0.5
         n_str = f"{qty:.1f}".rstrip('0').rstrip('.')
         unit_clean = unit
-        if float(qty) > 1.0 and not unit.endswith('s') and unit not in ('tbsp', 'tsp'):
+        if float(qty) > 1.0 and (not unit.endswith('s') or unit == 'glass') and unit not in ('tbsp', 'tsp'):
             if unit == 'glass':
                 unit_clean = 'glasses'
             else:
@@ -107,6 +107,9 @@ class PortionOptimizer:
             if 'salad' in food_name_lower or 'raita' in food_name_lower:
                 if unit in ('bowl', 'bowls', 'plate', 'plates'):
                     p_max = min(p_max, 1.0) # Max 1 bowl/plate
+            if any(drink in food_name_lower for drink in ('milkshake', 'smoothie', 'juice', 'drink', 'lassi', 'chaas', 'buttermilk', 'coffee', 'tea', 'water', 'lemonade')):
+                if unit in ('glass', 'glasses', 'cup', 'cups', 'mug', 'mugs'):
+                    p_max = min(p_max, 1.0) # Cap at 1 glass/cup for drinks
                 
             if unit in ('piece', 'pieces', 'unit', 'number', 'slice', 'sandwich', 'medium fruit'):
                 p_step = 1.0

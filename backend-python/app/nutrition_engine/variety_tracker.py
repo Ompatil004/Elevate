@@ -90,13 +90,13 @@ class WeeklyVarietyTracker:
     def calculate_variety_penalty(self, food_id: str, family: str, current_day: int) -> float:
         penalty = 0.0
         
-        # Penalize if food eaten in last 2 days
+        # Penalize if food eaten in last 4 days
         last_eaten = self.item_history.get(food_id)
         if last_eaten is not None:
-            if current_day - last_eaten < 2:
-                penalty += 30
-            elif current_day - last_eaten < 4:
-                penalty += 10
+            if current_day - last_eaten < 3:
+                penalty += 50
+            elif current_day - last_eaten < 5:
+                penalty += 20
                 
         # Penalize repeated family
         if family not in ('Drink', 'Fruit', 'Salad', 'Raita', 'Yogurt', 'Other', 'Vegetable'):
@@ -239,9 +239,9 @@ class WeeklyVarietyTracker:
         if self.is_same_day_duplicate(foods, day_num):
             return True
                 
-        # 2. No duplicate meal identity in last 3 days
+        # 2. No duplicate meal identity in last 4 days
         last_eaten = self.meal_identity_history.get(meal_id)
-        if last_eaten is not None and (day_num - last_eaten) <= 2:
+        if last_eaten is not None and (day_num - last_eaten) <= 4:
             return True
             
         # 3. Protein source rotation in the same day (removed strict block)
