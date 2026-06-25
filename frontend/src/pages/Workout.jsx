@@ -414,6 +414,9 @@ const Workout = () => {
   const getExerciseMediaCandidates = (exercise) => {
     if (!exercise) return [];
     const raw = [
+      exercise.Wger_Image_URL,
+      exercise.wger_image_url,
+      exercise.wgerImageUrl,
       exercise.gif,
       exercise.video_url,
       exercise.videoUrl,
@@ -423,9 +426,6 @@ const Workout = () => {
       exercise.mediaUrl,
       exercise.demo_url,
       exercise.demoUrl,
-      exercise.Wger_Image_URL,
-      exercise.wger_image_url,
-      exercise.wgerImageUrl,
     ];
     const seen = new Set();
     return raw.map(normalizeMediaUrl).filter((trimmed) => {
