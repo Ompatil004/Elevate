@@ -1010,6 +1010,12 @@ const Workout = () => {
         console.log('🌐 Requesting workout plan from server...');
         const response = await generateWorkout(userProfile);
 
+        // If the request was cancelled (e.g., component unmounted), response is null — exit cleanly.
+        if (!response) {
+          console.log('🚫 Workout request was cancelled (null response). Skipping update.');
+          return;
+        }
+
         console.log('✅ Workout plan received:', response.data);
 
         // ===== VALIDATE RESPONSE STRUCTURE =====
