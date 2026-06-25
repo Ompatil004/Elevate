@@ -462,11 +462,10 @@ async def update_profile(
         plan_profile = _build_plan_profile(merged_user, user_id)
 
         needs_workout_regen = any(field in WORKOUT_PLAN_FIELDS for field in changed_fields)
-        needs_nutrition_regen = any(field in NUTRITION_PLAN_FIELDS for field in changed_fields)
 
         logger.info(f"[{request_id}] Changed fields: {changed_fields}")
         logger.info(f"[{request_id}] Workout regeneration needed: {needs_workout_regen}")
-        logger.info(f"[{request_id}] Nutrition regeneration needed: {needs_nutrition_regen}")
+        logger.info(f"[{request_id}] Meal plan regeneration will be handled on next GET /api/meal-plan")
 
         plan_cache = _get_plan_cache_if_available()
         if plan_cache and needs_workout_regen:
@@ -523,25 +522,7 @@ async def update_profile(
                     'error': workout_plan_result.get('error')
                 })
 
-        if needs_nutrition_regen:
-            workout_plan_for_nutrition = None
-            if isinstance(workout_plan_result, dict) and workout_plan_result.get('status') == 'success':
-                workout_plan_for_nutrition = workout_plan_result.get('plan')
-            elif isinstance(existing_user.get('workoutPlan'), list):
-                workout_plan_for_nutrition = existing_user.get('workoutPlan')
 
-            nutrition_plan_result = _generate_nutrition_plan(
-                plan_profile,
-                request_id,
-                workout_plan_for_nutrition,
-            )
-            response_data['regenerated_nutrition'] = nutrition_plan_result
-            if nutrition_plan_result.get('status') == 'error':
-                response_data['errors'].append({
-                    'type': 'nutrition_regeneration',
-                    'message': 'Nutrition plan regeneration failed',
-                    'error': nutrition_plan_result.get('error')
-                })
 
         update_payload: Dict[str, Any] = {
             **update_data,
@@ -561,14 +542,7 @@ async def update_profile(
                 'workoutPlanRegenerated': True,
             })
 
-        if isinstance(nutrition_plan_result, dict) and nutrition_plan_result.get('status') == 'success':
-            update_payload.update({
-                'nutritionPlan': nutrition_plan_result['plan'],
-                'mealPlan': nutrition_plan_result['plan'],
-                'nutritionPlanGeneratedAt': _utcnow(),
-                'mealPlanGeneratedAt': _utcnow(),
-                'nutritionPlanRegenerated': True,
-            })
+
 
         result = await safe_update_one(
             collection=users,
@@ -608,9 +582,6 @@ async def update_profile(
         workout_regen_success = bool(
             isinstance(workout_plan_result, dict) and workout_plan_result.get('status') == 'success'
         )
-        nutrition_regen_success = bool(
-            isinstance(nutrition_plan_result, dict) and nutrition_plan_result.get('status') == 'success'
-        )
 
         response_data['success'] = True
         response_data['message'] = 'Profile updated successfully'
@@ -625,7 +596,7 @@ async def update_profile(
         response_data['profile_changes'] = {
             'changed_fields': changed_fields,
             'workout_regenerated': bool(needs_workout_regen and workout_regen_success),
-            'nutrition_regenerated': bool(needs_nutrition_regen and nutrition_regen_success),
+            'nutrition_regenerated': False, # Will be regenerated on next fetch
         }
 
         # Cold-start onboarding message (empty string when not applicable)

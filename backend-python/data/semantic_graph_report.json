@@ -1,0 +1,9 @@
+{
+  "foods_processed": 1286,
+  "metadata_generated": 1286,
+  "manual_preserved": 0,
+  "missing_family": 383,
+  "missing_meal_role": 360,
+  "low_confidence": 390,
+  "graph_version": "1.0.0"
+}

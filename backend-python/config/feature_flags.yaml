@@ -1,0 +1,7 @@
+enable_shopping_optimizer: true
+enable_failure_recovery: true
+enable_weekly_themes: true
+enable_pantry_awareness: true
+enable_regional_preferences: true
+enable_seasonal_filtering: true
+enable_cost_optimization: true

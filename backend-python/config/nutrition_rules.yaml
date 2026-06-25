@@ -1,0 +1,38 @@
+# Nutrition Rules Configuration
+
+# Rules applied based on user goal
+goals:
+  muscle_gain:
+    protein_multiplier_min: 1.8 # g/kg
+    protein_multiplier_max: 2.2 # g/kg
+    fat_multiplier_min: 0.8
+    calorie_surplus: 300
+  weight_loss:
+    protein_multiplier_min: 1.6
+    protein_multiplier_max: 2.0
+    fat_multiplier_min: 0.6
+    calorie_deficit: 500
+  maintenance:
+    protein_multiplier_min: 1.4
+    protein_multiplier_max: 1.8
+    fat_multiplier_min: 0.8
+    calorie_offset: 0
+
+# Meal distribution rules (percentage of daily calories)
+meal_distribution:
+  breakfast:
+    min_calories_pct: 20
+    max_calories_pct: 30
+    min_protein_g: 20
+  lunch:
+    min_calories_pct: 30
+    max_calories_pct: 40
+    min_protein_g: 25
+  snack:
+    min_calories_pct: 10
+    max_calories_pct: 20
+    min_protein_g: 10
+  dinner:
+    min_calories_pct: 20
+    max_calories_pct: 30
+    min_protein_g: 25

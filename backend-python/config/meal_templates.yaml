@@ -1,0 +1,393 @@
+regions:
+  pan_indian:
+    breakfast:
+      - id: "heavy_traditional_breakfast"
+        priority: 100
+        anchor:
+          role: "protein_main"
+        required:
+          - role: "protein_main"
+            count: 1
+          - role: "carb_base"
+            count: 1
+          - role: "beverage"
+            count: 1
+        optional:
+          - role: "fruit"
+            max: 1
+        forbidden:
+          - role: "curry"
+          - role: "dessert"
+        realism:
+          max_main_dishes: 1
+          max_drinks: 1
+          max_total_items: 4
+        nutrition:
+          min_protein_percent: 20
+          max_fat_percent: 35
+          capacity:
+            protein: { min: 10, max: 70 }
+            calories: { min: 200, max: 1000 }
+        metadata:
+          difficulty: "medium"
+          frequency: "common"
+          family_style: true
+          office_friendly: false
+
+      - id: "quick_oats_bowl"
+        priority: 90
+        anchor:
+          role: "combo_meal"
+        required:
+          - role: "combo_meal"
+            count: 1
+        optional:
+          - role: "beverage"
+            max: 1
+          - role: "fruit"
+            max: 1
+          - role: "snack"
+            max: 1
+        forbidden:
+          - role: "protein_main"
+          - role: "curry"
+        realism:
+          max_main_dishes: 1
+          max_drinks: 1
+          max_total_items: 3
+        nutrition:
+          min_protein_percent: 25
+          max_fat_percent: 25
+          capacity:
+            protein: { min: 5, max: 50 }
+            calories: { min: 150, max: 800 }
+        metadata:
+          difficulty: "easy"
+          frequency: "common"
+          family_style: false
+          office_friendly: true
+
+      - id: "high_protein_vegan_breakfast"
+        priority: 110
+        anchor:
+          role: "protein_main"
+        required:
+          - role: "protein_main"
+            count: 1
+          - role: "carb_base"
+            count: 1
+        optional:
+          - role: "beverage"
+            max: 1
+        forbidden:
+          - role: "dairy_side"
+        realism:
+          max_main_dishes: 1
+          max_drinks: 1
+          max_total_items: 3
+        nutrition:
+          min_protein_percent: 30
+          max_fat_percent: 35
+          capacity:
+            protein: { min: 20, max: 80 }
+            calories: { min: 300, max: 1000 }
+        metadata:
+          difficulty: "medium"
+          frequency: "common"
+          family_style: true
+          office_friendly: true
+
+    lunch:
+      - id: "standard_thali"
+        priority: 100
+        anchor:
+          role: "protein_main"
+        required:
+          - role: "protein_main"
+            count: 1
+          - role: "carb_base"
+            count: 1
+        optional:
+          - role: "veg_side"
+            max: 1
+          - role: "salad"
+            max: 1
+          - role: "dairy_side"
+            max: 1
+        forbidden:
+          - role: "breakfast_item"
+          - role: "snack"
+        realism:
+          max_main_dishes: 1
+          max_drinks: 0
+          max_total_items: 5
+        nutrition:
+          min_protein_percent: 25
+          max_fat_percent: 40
+          capacity:
+            protein: { min: 15, max: 100 }
+            calories: { min: 300, max: 1500 }
+        metadata:
+          difficulty: "medium"
+          frequency: "common"
+          family_style: true
+          office_friendly: true
+
+      - id: "light_lunch_salad"
+        priority: 80
+        anchor:
+          role: "salad"
+        required:
+          - role: "salad"
+            count: 1
+          - role: "protein_main"
+            count: 1
+        optional:
+          - role: "dairy_side"
+            max: 1
+        forbidden:
+          - role: "carb_base"
+          - role: "curry"
+        realism:
+          max_main_dishes: 1
+          max_drinks: 0
+          max_total_items: 3
+        nutrition:
+          min_protein_percent: 30
+          max_fat_percent: 35
+          capacity:
+            protein: { min: 10, max: 60 }
+            calories: { min: 150, max: 800 }
+        metadata:
+          difficulty: "easy"
+          frequency: "occasional"
+          family_style: false
+          office_friendly: true
+
+      - id: "high_protein_vegan_lunch"
+        priority: 110
+        anchor:
+          role: "protein_main"
+        required:
+          - role: "protein_main"
+            count: 1
+          - role: "carb_base"
+            count: 1
+          - role: "salad"
+            count: 1
+        optional:
+          - role: "veg_side"
+            max: 1
+        forbidden:
+          - role: "dairy_side"
+        realism:
+          max_main_dishes: 1
+          max_drinks: 0
+          max_total_items: 4
+        nutrition:
+          min_protein_percent: 35
+          max_fat_percent: 35
+          capacity:
+            protein: { min: 30, max: 120 }
+            calories: { min: 400, max: 1200 }
+        metadata:
+          difficulty: "medium"
+          frequency: "common"
+          family_style: true
+          office_friendly: true
+
+    dinner:
+      - id: "light_dinner_plate"
+        priority: 100
+        anchor:
+          role: "protein_main"
+        required:
+          - role: "protein_main"
+            count: 1
+          - role: "veg_side"
+            count: 1
+        optional:
+          - role: "carb_base"
+            max: 1
+          - role: "salad"
+            max: 1
+        forbidden:
+          - role: "beverage"
+          - role: "snack"
+        realism:
+          max_main_dishes: 1
+          max_drinks: 0
+          max_total_items: 4
+        nutrition:
+          min_protein_percent: 30
+          max_fat_percent: 30
+          capacity:
+            protein: { min: 15, max: 90 }
+            calories: { min: 200, max: 1200 }
+        metadata:
+          difficulty: "medium"
+          frequency: "common"
+          family_style: true
+          office_friendly: false
+
+      - id: "high_protein_vegan_dinner"
+        priority: 110
+        anchor:
+          role: "protein_main"
+        required:
+          - role: "protein_main"
+            count: 1
+          - role: "veg_side"
+            count: 1
+        optional:
+          - role: "salad"
+            max: 1
+        forbidden:
+          - role: "dairy_side"
+          - role: "beverage"
+        realism:
+          max_main_dishes: 1
+          max_drinks: 0
+          max_total_items: 3
+        nutrition:
+          min_protein_percent: 40
+          max_fat_percent: 30
+          capacity:
+            protein: { min: 25, max: 100 }
+            calories: { min: 300, max: 1000 }
+        metadata:
+          difficulty: "medium"
+          frequency: "common"
+          family_style: true
+          office_friendly: false
+
+    snack:
+      - id: "solid_snack"
+        priority: 100
+        anchor:
+          role: "snack"
+        required:
+          - role: "snack"
+            count: 1
+        optional:
+          - role: "beverage"
+            max: 1
+          - role: "fruit"
+            max: 1
+        forbidden:
+          - role: "protein_main"
+          - role: "carb_base"
+        realism:
+          max_main_dishes: 1
+          max_drinks: 1
+          max_total_items: 2
+        nutrition:
+          min_protein_percent: 10
+          max_fat_percent: 45
+          capacity:
+            protein: { min: 5, max: 60 }
+            calories: { min: 100, max: 1000 }
+        metadata:
+          difficulty: "easy"
+          frequency: "common"
+          family_style: false
+          office_friendly: true
+          
+      - id: "beverage_snack"
+        priority: 90
+        anchor:
+          role: "beverage"
+        required:
+          - role: "beverage"
+            count: 1
+        optional:
+          - role: "snack"
+            max: 1
+          - role: "fruit"
+            max: 1
+        forbidden:
+          - role: "protein_main"
+          - role: "carb_base"
+        realism:
+          max_main_dishes: 0
+          max_drinks: 1
+          max_total_items: 2
+        nutrition:
+          min_protein_percent: 5
+          max_fat_percent: 35
+          capacity:
+            protein: { min: 0, max: 40 }
+            calories: { min: 20, max: 500 }
+        metadata:
+          difficulty: "easy"
+          frequency: "common"
+          family_style: false
+          office_friendly: true
+
+  north_indian:
+    lunch:
+      - id: "heavy_north_indian_thali"
+        priority: 110
+        anchor:
+          role: "protein_main"
+        required:
+          - role: "protein_main"
+            count: 1
+          - role: "carb_base"
+            count: 1
+          - role: "dairy_side"
+            count: 1
+        optional:
+          - role: "veg_side"
+            max: 1
+          - role: "salad"
+            max: 1
+        forbidden:
+          - role: "breakfast_item"
+        realism:
+          max_main_dishes: 1
+          max_drinks: 0
+          max_total_items: 5
+        nutrition:
+          min_protein_percent: 25
+          max_fat_percent: 45
+          capacity:
+            protein: { min: 30, max: 80 }
+            calories: { min: 500, max: 1200 }
+        metadata:
+          difficulty: "hard"
+          frequency: "occasional"
+          family_style: true
+          office_friendly: false
+
+  south_indian:
+    breakfast:
+      - id: "classic_south_indian_bfast"
+        priority: 110
+        anchor:
+          role: "combo_meal"
+        required:
+          - role: "combo_meal"
+            count: 1
+        optional:
+          - role: "beverage"
+            max: 1
+          - role: "veg_side"  # Chutney/Sambar usually categorized here or as condiments
+            max: 2
+        forbidden:
+          - role: "protein_main"
+        realism:
+          max_main_dishes: 1
+          max_drinks: 1
+          max_total_items: 4
+        nutrition:
+          min_protein_percent: 15
+          max_fat_percent: 30
+          capacity:
+            protein: { min: 10, max: 30 }
+            calories: { min: 250, max: 600 }
+        metadata:
+          difficulty: "medium"
+          frequency: "common"
+          family_style: true
+          office_friendly: false

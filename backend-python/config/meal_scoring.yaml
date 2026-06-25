@@ -1,0 +1,28 @@
+# Meal Scoring Weights Configuration
+# Total weights for candidate meal scoring (Soft Constraints)
+
+weights:
+  nutrition_accuracy: 30
+  suitability: 20
+  realism_pairing: 15
+  preparation_ease: 10
+  budget_cost: 10
+  pantry_availability: 5
+  weekly_variety: 5
+  user_preference: 5
+
+# Confidence Score Categories
+confidence:
+  nutrition: 100
+  variety: 100
+  suitability: 100
+  budget: 100
+  preparation: 100
+  shopping: 100
+
+# Penalty values for soft constraint violations
+penalties:
+  prep_time_exceeded: 15
+  budget_exceeded: 20
+  low_variety: 10
+  poor_pairing: 25

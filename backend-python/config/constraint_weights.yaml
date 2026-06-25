@@ -1,0 +1,19 @@
+# Constraint Thresholds and Limits
+
+hard_constraints:
+  max_calorie_variance_pct: 5
+  max_protein_variance_pct: 5
+  enforce_allergies: true
+  enforce_diet_type: true
+  enforce_meal_suitability: true
+
+soft_constraints:
+  preferred_regional_match_pct: 60
+  target_unique_proteins_per_week: 4
+  max_prep_time_weekday_breakfast_min: 15
+  max_prep_time_weekday_lunch_min: 30
+  max_prep_time_weekend_min: 90
+
+shopping_optimization:
+  target_ingredient_reuse_factor: 1.5 # Meals per primary ingredient
+  batch_cook_dinner_bonus: 20 # Score bonus if dinner reuses lunch protein
