@@ -131,9 +131,9 @@ __pycache__/
 *.pyc
 
 # Machine Learning Models & Data
-*.pkl
-*.joblib
-*.model
+# *.pkl
+# *.joblib
+# *.model
 checksums.sha256
 backend-python/data/*_processed*.csv
 backend-python/data/gif_link_audit_*.csv
