@@ -291,8 +291,11 @@ const Workout = () => {
   const [currentReps, setCurrentReps] = useState(0);
   const [isResting, setIsResting] = useState(false);
   const [restTimeLeft, setRestTimeLeft] = useState(0);
+  const [restEndTime, setRestEndTime] = useState(0); // For background-safe timers
   const [exerciseTimeLeft, setExerciseTimeLeft] = useState(0);
+  const [exerciseEndTime, setExerciseEndTime] = useState(0); // For background-safe timers
   const [skippedExercises, setSkippedExercises] = useState(new Set());
+  const [completedSetsMap, setCompletedSetsMap] = useState({});
   // ✅ FIX: Pre-hydrate exerciseStatus from localStorage so red ticks survive refresh without a network call.
   const [exerciseStatus, setExerciseStatus] = useState(() => {
     try {
@@ -1298,22 +1301,49 @@ const Workout = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency - runs once on mount
 
+  const playTimerBeep = useCallback(() => {
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return;
+      const ctx = new AudioContext();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(800, ctx.currentTime);
+      gain.gain.setValueAtTime(0.1, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.5);
+    } catch (e) {
+      console.warn('Audio playback failed', e);
+    }
+  }, []);
+
   useEffect(() => {
     let timer;
-    if (isResting && restTimeLeft > 0) {
+    if (isResting && restEndTime > 0) {
       timer = setInterval(() => {
-        setRestTimeLeft((prev) => prev - 1);
-      }, 1000);
-    } else if (isResting && restTimeLeft <= 0) {
-      setIsResting(false);
-      setCurrentSet((prev) => prev + 1);
-      setCurrentReps(0);
-      if (activeExercise && isTimedExercise(activeExercise)) {
-        setExerciseTimeLeft(getExerciseDurationSeconds(activeExercise) || 300);
-      }
+        const remaining = Math.ceil((restEndTime - Date.now()) / 1000);
+        if (remaining > 0) {
+          setRestTimeLeft(remaining);
+        } else {
+          setRestTimeLeft(0);
+          setIsResting(false);
+          setCurrentSet((prev) => prev + 1);
+          setCurrentReps(0);
+          playTimerBeep();
+          if (activeExercise && isTimedExercise(activeExercise)) {
+            const duration = getExerciseDurationSeconds(activeExercise) || 300;
+            setExerciseTimeLeft(duration);
+            setExerciseEndTime(Date.now() + duration * 1000);
+          }
+        }
+      }, 500);
     }
     return () => clearInterval(timer);
-  }, [isResting, restTimeLeft, activeExercise, getExerciseDurationSeconds, isTimedExercise]);
+  }, [isResting, restEndTime, activeExercise, getExerciseDurationSeconds, isTimedExercise, playTimerBeep]);
 
   useEffect(() => {
     if (
@@ -1327,19 +1357,26 @@ const Workout = () => {
       return undefined;
     }
 
-    if (exerciseTimeLeft > 0) {
+    if (exerciseEndTime > 0) {
       const timer = setInterval(() => {
-        setExerciseTimeLeft((prev) => Math.max(0, prev - 1));
-      }, 1000);
+        const remaining = Math.max(0, Math.ceil((exerciseEndTime - Date.now()) / 1000));
+        setExerciseTimeLeft(remaining);
+        if (remaining === 0) {
+          clearInterval(timer);
+          playTimerBeep();
+          const targetSets = getTargetSets(activeExercise);
+          setCompletedSetsMap(prev => ({...prev, [activeExercise.name]: currentSet}));
+          if (currentSet >= targetSets) {
+            handleExerciseCompleteRef.current?.();
+          } else {
+            const rDuration = getRestSeconds(activeExercise);
+            setRestTimeLeft(rDuration);
+            setRestEndTime(Date.now() + rDuration * 1000);
+            setIsResting(true);
+          }
+        }
+      }, 500);
       return () => clearInterval(timer);
-    }
-
-    const targetSets = getTargetSets(activeExercise);
-    if (currentSet >= targetSets) {
-      handleExerciseCompleteRef.current?.();
-    } else {
-      setRestTimeLeft(getRestSeconds(activeExercise));
-      setIsResting(true);
     }
 
     return undefined;
@@ -1348,11 +1385,30 @@ const Workout = () => {
     isResting,
     isDoneSession,
     activeExercise,
-    exerciseTimeLeft,
+    exerciseEndTime,
     currentSet,
     exerciseNeedsCamera,
     isTimedExercise,
+    playTimerBeep,
   ]);
+
+  // Add voice coaching for form feedback
+  useEffect(() => {
+    if (formFeedback) {
+      if (typeof window !== 'undefined' && window.speechSynthesis) {
+        // Cancel any ongoing speech to avoid queueing up old feedback
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(formFeedback);
+        msg.rate = 1.1; // Slightly faster for workout pacing
+        msg.pitch = 1.0;
+        window.speechSynthesis.speak(msg);
+      }
+      
+      // Auto-clear feedback after 3.5 seconds to prevent it from getting stuck
+      const timer = setTimeout(() => setFormFeedback(null), 3500);
+      return () => clearTimeout(timer);
+    }
+  }, [formFeedback]);
 
   const toDayIndex = useCallback((value, fallback = 0) => {
     const parsed = Number(value);
@@ -1695,6 +1751,7 @@ const Workout = () => {
       setIsResting(false);
       setFormFeedback(null);
       setExerciseTimeLeft(0);
+      setExerciseEndTime(0);
       setCompletedExercisesCount(0);
       setSkippedExercises(new Set());
       setExerciseStatus({});
@@ -1766,9 +1823,12 @@ const Workout = () => {
     setFormFeedback(null);
     setIsDoneSession(false);
     if (isTimedExercise(activeExercise)) {
-      setExerciseTimeLeft(getExerciseDurationSeconds(activeExercise) || 300);
+      const duration = getExerciseDurationSeconds(activeExercise) || 300;
+      setExerciseTimeLeft(duration);
+      setExerciseEndTime(Date.now() + duration * 1000);
     } else {
       setExerciseTimeLeft(0);
+      setExerciseEndTime(0);
     }
 
     if (!exerciseNeedsCamera(activeExercise)) {
@@ -1797,9 +1857,12 @@ const Workout = () => {
     setFormFeedback(null);
     setIsDoneSession(false);
     if (isTimedExercise(ex)) {
-      setExerciseTimeLeft(getExerciseDurationSeconds(ex) || 300);
+      const duration = getExerciseDurationSeconds(ex) || 300;
+      setExerciseTimeLeft(duration);
+      setExerciseEndTime(Date.now() + duration * 1000);
     } else {
       setExerciseTimeLeft(0);
+      setExerciseEndTime(0);
     }
   };
 
@@ -1812,9 +1875,12 @@ const Workout = () => {
     setFormFeedback(null);
     setIsDoneSession(false);
     if (isTimedExercise(nextExercise)) {
-      setExerciseTimeLeft(getExerciseDurationSeconds(nextExercise) || 300);
+      const duration = getExerciseDurationSeconds(nextExercise) || 300;
+      setExerciseTimeLeft(duration);
+      setExerciseEndTime(Date.now() + duration * 1000);
     } else {
       setExerciseTimeLeft(0);
+      setExerciseEndTime(0);
     }
 
     if (!isCameraOn) return;
@@ -1857,6 +1923,7 @@ const Workout = () => {
 
     setIsDoneSession(true);
     setExerciseTimeLeft(0);
+    setExerciseEndTime(0);
 
     const isPartialSession = skippedExercises.size > 0;
     const statusPayload = {
@@ -1950,6 +2017,7 @@ const Workout = () => {
 
     setIsDoneSession(true);
     setExerciseTimeLeft(0);
+    setExerciseEndTime(0);
     await finishSession(true, {
       exerciseStatus: nextStatus,
       skippedExercises: nextSkipped,
@@ -1965,10 +2033,13 @@ const Workout = () => {
     const targetSets = getTargetSets(activeExercise);
 
     if (repsCount >= targetReps) {
+      setCompletedSetsMap(prev => ({...prev, [activeExercise.name]: currentSet}));
       if (currentSet >= targetSets) {
          handleExerciseComplete();
       } else {
-         setRestTimeLeft(getRestSeconds(activeExercise));
+         const duration = getRestSeconds(activeExercise);
+         setRestTimeLeft(duration);
+         setRestEndTime(Date.now() + duration * 1000);
          setIsResting(true);
       }
     }
@@ -2504,9 +2575,18 @@ const Workout = () => {
                       <>
                         <div style={{fontSize:'32px', fontWeight:'800', color:'var(--app-text)', marginBottom:'10px'}}>{activeExercise.name}</div>
                         <div style={{fontSize:'16px', color:'#a5b4fc', marginBottom:'30px', fontFamily:'monospace'}}>
-                          {activeExerciseTimed
-                            ? `${activeExerciseTargetSets} SETS x ${formatDurationClock(activeExerciseDuration)} TIMER`
-                            : `${activeExercise.sets} SETS x ${activeExercise.reps} REPS`}
+                          {(() => {
+                            const targetSets = activeExerciseTimed ? activeExerciseTargetSets : activeExercise.sets;
+                            const doneSets = completedSetsMap[activeExercise.name] || 0;
+                            const isFullyDone = exerciseStatus[getExerciseStatusKey(activeExercise)] === 'completed';
+                            const displaySets = isFullyDone ? targetSets : doneSets;
+                            
+                            if (displaySets > 0) {
+                              return `${displaySets}/${targetSets} SETS COMPLETED x ${activeExerciseTimed ? formatDurationClock(activeExerciseDuration) + ' TIMER' : activeExercise.reps + ' REPS'}`;
+                            } else {
+                              return `${targetSets} SETS x ${activeExerciseTimed ? formatDurationClock(activeExerciseDuration) + ' TIMER' : activeExercise.reps + ' REPS'}`;
+                            }
+                          })()}
                         </div>
                         <div style={{...styles.gifLargeContainer, ...workoutLayout.previewMedia}}>
                           {renderActiveExerciseMedia()}
@@ -2548,11 +2628,14 @@ const Workout = () => {
                       </div>
                     )}
                     
-                    {formFeedback && !isResting && activeExercisePoseTrackable && (
-                       <div style={{background: 'rgba(239, 68, 68, 0.2)', color: '#ef4444', padding: '10px', borderRadius: '8px', marginBottom: '15px', fontWeight: 'bold', fontSize: '14px'}}>
-                         ⚠️ {formFeedback}
-                       </div>
-                    )}
+                    {formFeedback && !isResting && activeExercisePoseTrackable && (() => {
+                       const isPos = ['Great job!', 'Keep it up!', 'Perfect form!', 'You got this!', 'Nice work!'].includes(formFeedback);
+                       return (
+                         <div style={{background: isPos ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)', color: isPos ? '#4ade80' : '#ef4444', padding: '10px', borderRadius: '8px', marginBottom: '15px', fontWeight: 'bold', fontSize: '14px'}}>
+                           {isPos ? '✅' : '⚠️'} {formFeedback}
+                         </div>
+                       );
+                    })()}
 
                     {/* Priority 1: AI Variation Suggestion Card */}
                     {variationResult && (
@@ -2684,33 +2767,37 @@ const Workout = () => {
                           </div>
                         )}
 
-                        {formFeedback && !isResting && activeExercisePoseTrackable && (
-                            <div style={{
-                                position: 'absolute', 
-                                top: '50%', 
-                                left: '50%', 
-                                transform: 'translate(-50%, -50%)', 
-                                background: 'rgba(239, 68, 68, 0.9)', 
-                                color: 'var(--app-text)', 
-                                padding: '20px 40px', 
-                                borderRadius: '16px', 
-                                zIndex: 30, 
-                                fontWeight: '900', 
-                                fontSize: '32px',
-                                textAlign: 'center',
-                                border: '4px solid #fff',
-                                boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
-                                animation: 'pulseBorder 1s infinite'
-                            }}>
-                             ⚠️ INCORRECT POSTURE<br/>
-                             <span style={{fontSize: '18px', fontWeight: '500', opacity: 0.9}}>{formFeedback}</span>
-                           </div>
-                        )}
+                        {formFeedback && !isResting && activeExercisePoseTrackable && (() => {
+                            const isPos = ['Great job!', 'Keep it up!', 'Perfect form!', 'You got this!', 'Nice work!'].includes(formFeedback);
+                            return (
+                              <div style={{
+                                  position: 'absolute', 
+                                  top: '50%', 
+                                  left: '50%', 
+                                  transform: 'translate(-50%, -50%)', 
+                                  background: isPos ? 'rgba(34, 197, 94, 0.9)' : 'rgba(239, 68, 68, 0.9)', 
+                                  color: 'var(--app-text)', 
+                                  padding: '20px 40px', 
+                                  borderRadius: '16px', 
+                                  zIndex: 30, 
+                                  fontWeight: '900', 
+                                  fontSize: '32px',
+                                  textAlign: 'center',
+                                  border: '4px solid #fff',
+                                  boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
+                                  animation: 'pulseBorder 1s infinite'
+                              }}>
+                               {isPos ? '✅ EXCELLENT' : '⚠️ INCORRECT POSTURE'}<br/>
+                               <span style={{fontSize: '18px', fontWeight: '500', opacity: 0.9}}>{formFeedback}</span>
+                             </div>
+                            );
+                        })()}
                         {isCameraOn && activeExercisePoseTrackable && (
                           <PoseDetector
                             videoRef={videoRef}
                             isActive={isCameraOn && !isResting}
                             exercise={activeExercise}
+                            currentReps={currentReps}
                             onRepUpdate={handleRepUpdate}
                             onFormFeedback={setFormFeedback}
                             onLoadingChange={setPoseLoadingStatus}
@@ -2744,8 +2831,26 @@ const Workout = () => {
                            <div style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'var(--overlay-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', zIndex: 30}}>
                              <div style={{fontSize: '32px', color: 'var(--app-text-muted)', marginBottom: '10px', fontWeight: '800'}}>RECOVERY TIME</div>
                              <div style={{fontSize: '100px', fontWeight: '900', color: '#f59e0b'}}>{restTimeLeft}</div>
-                             <div style={{fontSize: '18px', color: 'var(--app-text)', marginTop: '20px'}}>Next: Set {currentSet + 1} of {activeExercise.name}</div>
-                             <button onClick={() => setRestTimeLeft(0)} style={{marginTop: '30px', background: 'var(--btn-skip-bg)', border: 'none', color: 'var(--btn-skip-text)', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold'}}>Skip Rest</button>
+                             <div style={{fontSize: '24px', color: '#22c55e', fontWeight: 'bold', marginBottom: '5px'}}>Set {currentSet}/{activeExerciseTimed ? activeExerciseTargetSets : activeExercise.sets} Completed!</div>
+                             <div style={{fontSize: '18px', color: 'var(--app-text)', marginTop: '10px', marginBottom: '30px'}}>Next: Set {currentSet + 1} of {activeExercise.name}</div>
+                             <div style={{display: 'flex', gap: '15px'}}>
+                               <button onClick={() => {
+                                 const newTime = Math.max(0, restTimeLeft - 10);
+                                 setRestTimeLeft(newTime);
+                                 setRestEndTime(Date.now() + newTime * 1000);
+                               }} style={{background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '12px 20px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold'}}>-10s</button>
+                               
+                               <button onClick={() => {
+                                 setRestTimeLeft(0);
+                                 setRestEndTime(Date.now() - 100);
+                               }} style={{background: 'var(--btn-skip-bg)', border: 'none', color: 'var(--btn-skip-text)', padding: '12px 24px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '16px'}}>Skip Rest</button>
+                               
+                               <button onClick={() => {
+                                 const newTime = restTimeLeft + 30;
+                                 setRestTimeLeft(newTime);
+                                 setRestEndTime(Date.now() + newTime * 1000);
+                               }} style={{background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '12px 20px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold'}}>+30s</button>
+                             </div>
                            </div>
                         )}
                       </>

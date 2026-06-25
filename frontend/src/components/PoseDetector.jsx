@@ -66,10 +66,25 @@ const SPEED_CATEGORY = {
 
 // ─── ANGLE MATH ──
 const calcAngle = (a, b, c) => {
-  const rad = Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
-  let deg = Math.abs(rad * 180 / Math.PI);
-  if (deg > 180) deg = 360 - deg;
-  return deg;
+  // Vector BA (from b to a)
+  const ba = { x: a.x - b.x, y: a.y - b.y, z: (a.z || 0) - (b.z || 0) };
+  // Vector BC (from b to c)
+  const bc = { x: c.x - b.x, y: c.y - b.y, z: (c.z || 0) - (b.z || 0) };
+  
+  // Dot product
+  const dotProduct = ba.x * bc.x + ba.y * bc.y + ba.z * bc.z;
+  
+  // Magnitudes
+  const magBA = Math.sqrt(ba.x * ba.x + ba.y * ba.y + ba.z * ba.z);
+  const magBC = Math.sqrt(bc.x * bc.x + bc.y * bc.y + bc.z * bc.z);
+  
+  if (magBA * magBC === 0) return 0;
+  
+  // Clamp to prevent NaN due to floating point precision
+  const cosTheta = Math.max(-1.0, Math.min(1.0, dotProduct / (magBA * magBC)));
+  
+  // Angle in radians converted to degrees
+  return Math.abs(Math.acos(cosTheta) * 180 / Math.PI);
 };
 
 // ─── Adaptive EMA smoother ──
@@ -214,6 +229,7 @@ export default function PoseDetector({
   videoRef,
   isActive,
   exercise,
+  currentReps = 0,
   onRepUpdate,
   onFormFeedback,
   onLoadingChange, // Bug #2 Fix: Callback to notify parent about loading status
@@ -243,6 +259,10 @@ export default function PoseDetector({
       // Auto-dismiss after 3 seconds
       warmingTimerRef.current = setTimeout(() => {
         onLoadingChange?.('ready');
+        // Hide ready message after 2 seconds
+        warmingTimerRef.current = setTimeout(() => {
+            onLoadingChange?.('hidden');
+        }, 2000);
       }, 3000);
     } else {
       onLoadingChange?.('initializing');
@@ -285,6 +305,18 @@ export default function PoseDetector({
     lastSeenAt: 0,
     lostFrames: 0,
   });
+
+  // Sync internal rep count when parent resets it (e.g. new set starts)
+  useEffect(() => {
+    if (currentReps === 0) {
+      stateRef.current.reps = 0;
+      stateRef.current.stage = 'rest';
+    } else {
+      stateRef.current.reps = currentReps;
+    }
+  }, [currentReps]);
+
+  const minVisibilityTimerRef = useRef(0);
 
   // ─── Initialise MediaPipe ──
   useEffect(() => {
@@ -456,7 +488,7 @@ export default function PoseDetector({
       if (
         stableEnough &&
         formCheck.warning !== lastWarningRef.current &&
-        (now - stateRef.current.lastFeedbackTime > 2500)
+        (now - stateRef.current.lastFeedbackTime > 5000)
       ) {
         onFormFeedback?.(formCheck.warning);
         stateRef.current.lastFeedbackTime = now;
@@ -464,7 +496,10 @@ export default function PoseDetector({
       }
     } else {
       warningStabilityRef.current = { warning: '', count: 0 };
-      if (!formCheck.warning) lastWarningRef.current = '';
+      if (!formCheck.warning && lastWarningRef.current !== '') {
+        onFormFeedback?.(null);
+        lastWarningRef.current = '';
+      }
     }
 
     // ─── REP COUNTING — 3-phase state machine with ROM validation ──
@@ -498,6 +533,12 @@ export default function PoseDetector({
             s.baselineAnkleY = ankleY;
             s.peakAnkleY = ankleY;
             onRepUpdate?.(s.reps);
+
+            if (s.reps > 0 && s.reps % 3 === 0 && (now - s.lastFeedbackTime > 5000)) {
+                const phrases = ['Great job!', 'Keep it up!', 'Perfect form!', 'You got this!', 'Nice work!'];
+                onFormFeedback?.(phrases[Math.floor(Math.random() * phrases.length)]);
+                s.lastFeedbackTime = now;
+            }
           } else {
             s.stage = 'rest';
             s.baselineAnkleY = ankleY;
@@ -517,6 +558,7 @@ export default function PoseDetector({
       }
 
       // Track angle extremes during the rep for ROM validation
+      s.lastTrackAngle = trackAngle;
       s.minAngleInRep = Math.min(s.minAngleInRep, trackAngle);
       s.maxAngleInRep = Math.max(s.maxAngleInRep, trackAngle);
 
@@ -539,6 +581,12 @@ export default function PoseDetector({
             s.minAngleInRep = 999;
             s.maxAngleInRep = 0;
             onRepUpdate?.(s.reps);
+
+            if (s.reps > 0 && s.reps % 3 === 0 && (now - s.lastFeedbackTime > 5000)) {
+                const phrases = ['Great job!', 'Keep it up!', 'Perfect form!', 'You got this!', 'Nice work!'];
+                onFormFeedback?.(phrases[Math.floor(Math.random() * phrases.length)]);
+                s.lastFeedbackTime = now;
+            }
           } else {
             // Partial rep — reset without counting
             s.stage = 'rest';
@@ -570,6 +618,12 @@ export default function PoseDetector({
             s.minAngleInRep = 999;
             s.maxAngleInRep = 0;
             onRepUpdate?.(s.reps);
+
+            if (s.reps > 0 && s.reps % 3 === 0 && (now - s.lastFeedbackTime > 5000)) {
+                const phrases = ['Great job!', 'Keep it up!', 'Perfect form!', 'You got this!', 'Nice work!'];
+                onFormFeedback?.(phrases[Math.floor(Math.random() * phrases.length)]);
+                s.lastFeedbackTime = now;
+            }
           } else {
             s.stage = 'rest';
             s.minAngleInRep = 999;
@@ -629,16 +683,39 @@ export default function PoseDetector({
     ctx.shadowBlur = 0;
 
     // ─── ANGLE ARC + TEXT on key joints ──
-    const drawAngleArc = (a, b, c, angle, label) => {
+    const drawAngleArc = (a, b, c, angle, label, isPrimary = false) => {
       if (a.v < 0.4 || b.v < 0.4 || c.v < 0.4) return;
       const radius = 25;
       const startAng = Math.atan2(a.y - b.y, a.x - b.x);
       const endAng   = Math.atan2(c.y - b.y, c.x - b.x);
 
+      let arcColor = '#22c55e'; // default green
+      let textColor = '#4ade80';
+
+      if (isPrimary && cfg.up !== cfg.down) {
+        const extended = Math.max(cfg.up, cfg.down);
+        const contracted = Math.min(cfg.up, cfg.down);
+        // Warning zone if they hyper-extend or over-contract past safe limits
+        if (angle > extended + 15 || angle < contracted - 15) {
+          arcColor = '#ef4444'; // Red (Danger)
+          textColor = '#f87171';
+        } else if (angle > extended + 5 || angle < contracted - 5) {
+          arcColor = '#f59e0b'; // Yellow (Warning)
+          textColor = '#fbbf24';
+        } else {
+          arcColor = '#3b82f6'; // Blue (Safe Target Zone)
+          textColor = '#60a5fa';
+        }
+      } else {
+         // Generic secondary joint coloring
+         arcColor = angle < 90 ? '#ef4444' : angle < 140 ? '#f59e0b' : '#22c55e';
+         textColor = angle < 90 ? '#f87171' : angle < 140 ? '#fbbf24' : '#4ade80';
+      }
+
       // Arc
       ctx.beginPath();
       ctx.arc(b.x, b.y, radius, startAng, endAng, false);
-      ctx.strokeStyle = angle < 90 ? '#ef4444' : angle < 140 ? '#f59e0b' : '#22c55e';
+      ctx.strokeStyle = arcColor;
       ctx.lineWidth = 2;
       ctx.stroke();
 
@@ -650,19 +727,19 @@ export default function PoseDetector({
       const metrics = ctx.measureText(text);
       ctx.fillStyle = 'rgba(0,0,0,0.6)';
       ctx.fillRect(tx - 2, ty - 12, metrics.width + 6, 16);
-      ctx.fillStyle = angle < 90 ? '#f87171' : angle < 140 ? '#fbbf24' : '#4ade80';
+      ctx.fillStyle = textColor;
       ctx.fillText(text, tx, ty);
     };
 
     // Show key angles per pattern
     const showAngles = {
-      CURL:    () => { drawAngleArc(l_sh, l_el, l_wr, leftElbow, 'L Elbow'); drawAngleArc(r_sh, r_el, r_wr, rightElbow, 'R Elbow'); },
-      PRESS:   () => { drawAngleArc(l_sh, l_el, l_wr, leftElbow, 'L Elbow'); drawAngleArc(r_sh, r_el, r_wr, rightElbow, 'R Elbow'); },
-      SQUAT:   () => { drawAngleArc(l_hi, l_kn, l_an, leftKnee, 'L Knee'); drawAngleArc(r_hi, r_kn, r_an, rightKnee, 'R Knee'); drawAngleArc(l_sh, l_hi, l_kn, leftHip, 'L Hip'); },
-      HINGE:   () => { drawAngleArc(l_sh, l_hi, l_kn, leftHip, 'L Hip'); drawAngleArc(r_sh, r_hi, r_kn, rightHip, 'R Hip'); },
-      LUNGE:   () => { drawAngleArc(l_hi, l_kn, l_an, leftKnee, 'L Knee'); drawAngleArc(r_hi, r_kn, r_an, rightKnee, 'R Knee'); },
-      RAISE:   () => { drawAngleArc(l_hi, l_sh, l_el, leftShoulder, 'L Shoulder'); drawAngleArc(r_hi, r_sh, r_el, rightShoulder, 'R Shoulder'); },
-      CORE:    () => { drawAngleArc(l_sh, l_hi, l_kn, leftHip, 'L Hip'); drawAngleArc(r_sh, r_hi, r_kn, rightHip, 'R Hip'); },
+      CURL:    () => { drawAngleArc(l_sh, l_el, l_wr, leftElbow, 'L Elbow', true); drawAngleArc(r_sh, r_el, r_wr, rightElbow, 'R Elbow', true); },
+      PRESS:   () => { drawAngleArc(l_sh, l_el, l_wr, leftElbow, 'L Elbow', true); drawAngleArc(r_sh, r_el, r_wr, rightElbow, 'R Elbow', true); },
+      SQUAT:   () => { drawAngleArc(l_hi, l_kn, l_an, leftKnee, 'L Knee', true); drawAngleArc(r_hi, r_kn, r_an, rightKnee, 'R Knee', true); drawAngleArc(l_sh, l_hi, l_kn, leftHip, 'L Hip'); },
+      HINGE:   () => { drawAngleArc(l_sh, l_hi, l_kn, leftHip, 'L Hip', true); drawAngleArc(r_sh, r_hi, r_kn, rightHip, 'R Hip', true); },
+      LUNGE:   () => { drawAngleArc(l_hi, l_kn, l_an, leftKnee, 'L Knee', true); drawAngleArc(r_hi, r_kn, r_an, rightKnee, 'R Knee', true); },
+      RAISE:   () => { drawAngleArc(l_hi, l_sh, l_el, leftShoulder, 'L Shoulder', true); drawAngleArc(r_hi, r_sh, r_el, rightShoulder, 'R Shoulder', true); },
+      CORE:    () => { drawAngleArc(l_sh, l_hi, l_kn, leftHip, 'L Hip', true); drawAngleArc(r_sh, r_hi, r_kn, rightHip, 'R Hip', true); },
       CALF:    () => { drawAngleArc(l_hi, l_kn, l_an, leftKnee, 'L Knee'); },
     };
     (showAngles[pattern] || (() => {
@@ -689,8 +766,47 @@ export default function PoseDetector({
       }
     }
 
-    // ─── Rep stage indicator (small HUD) ──
+    // ─── Rep stage indicator and Gauge HUD ──
     if (isConfident) {
+      // Draw massive progress ring for visual coaching
+      if (s.lastTrackAngle && cfg.up !== cfg.down) {
+        const extended = Math.max(cfg.up, cfg.down);
+        const contracted = Math.min(cfg.up, cfg.down);
+        let progress = (extended - s.lastTrackAngle) / (extended - contracted);
+        progress = Math.max(0, Math.min(1, progress));
+        
+        // Draw the ring (canvas is mirrored horizontally, so drawing at x=60 renders it on the right)
+        const cx = 60;
+        const cy = 60;
+        const r = 40;
+        
+        // Background ring
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+        ctx.lineWidth = 10;
+        ctx.stroke();
+        
+        // Progress ring
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, -Math.PI / 2, (-Math.PI / 2) + (2 * Math.PI * progress), false);
+        ctx.strokeStyle = mainColor;
+        ctx.lineWidth = 10;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+        
+        // Text inside ring
+        ctx.font = 'bold 18px Inter, sans-serif';
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(`${Math.round(progress * 100)}%`, cx, cy);
+      }
+
+      // Reset text alignment for other UI
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'alphabetic';
+
       const stageLabel = s.stage === 'rest' ? 'READY' : s.stage === 'contracting' ? '⬇ DOWN' : '⬆ UP';
       const stageColor = s.stage === 'rest' ? '#a1a1aa' : s.stage === 'contracting' ? '#f59e0b' : '#22c55e';
       ctx.font = 'bold 14px Inter, sans-serif';
