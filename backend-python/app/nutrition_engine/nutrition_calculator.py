@@ -53,15 +53,19 @@ def calculate_base_daily_targets(user_profile: Dict[str, Any]) -> Dict[str, floa
     tdee = bmr * activity_multipliers.get(act_norm, 1.2)
     
     # Goal adjustments
-    if goal_norm == "muscle_gain":
-        target_cal = tdee + 300
-        protein_g = weight_kg * 2.0
-    elif goal_norm == "fat_loss":
-        target_cal = tdee - 500
-        protein_g = weight_kg * 1.8
+    if "target_calories" in user_profile and "target_protein" in user_profile:
+        target_cal = user_profile["target_calories"]
+        protein_g = user_profile["target_protein"]
     else:
-        target_cal = tdee
-        protein_g = weight_kg * 1.4
+        if goal_norm == "muscle_gain":
+            target_cal = tdee + 300
+            protein_g = weight_kg * 2.0
+        elif goal_norm == "fat_loss":
+            target_cal = tdee - 500
+            protein_g = weight_kg * 1.8
+        else:
+            target_cal = tdee
+            protein_g = weight_kg * 1.4
         
     fat_g = weight_kg * 0.8
     carbs_cals = target_cal - ((protein_g * 4) + (fat_g * 9))
@@ -175,59 +179,72 @@ class WeeklyMacroPlanner:
 
 class MealMacroDistributor:
     """
-    Distributes daily targets into specific meals dynamically based on workout intensity.
+    Distributes daily macro targets across meals based on workout intensity.
+
+    RATIOS format: (cal_ratio, protein_ratio, carb_ratio, fat_ratio)
+    All four ratios in each intensity level must sum to 1.0 across meals.
+
+    Design notes:
+    - Higher intensity = more pre/post-workout carbs → higher lunch/dinner cal share
+    - Protein distribution follows NUTRITION_RULES.protein_distribution targets
+    - Snack is intentionally smaller in calories on rest days, larger on hard days
     """
-    
-    # Ratios: (Calories, Protein)
+
+    # Each tuple: (calories, protein, carbs, fat)
     RATIOS = {
+        # Rest day: balanced, slightly lighter lunch, no workout fuel needed
         "rest": {
-            "breakfast": (0.22, 0.22),
-            "lunch": (0.35, 0.30),
-            "snack": (0.13, 0.18),
-            "dinner": (0.30, 0.30)
+            "breakfast": (0.25, 0.22, 0.25, 0.28),
+            "lunch":     (0.32, 0.30, 0.33, 0.30),
+            "snack":     (0.10, 0.15, 0.10, 0.10),
+            "dinner":    (0.33, 0.33, 0.32, 0.32),
         },
+        # Light day: slight calorie shift toward lunch
         "light": {
-            "breakfast": (0.22, 0.22),
-            "lunch": (0.35, 0.30),
-            "snack": (0.13, 0.18),
-            "dinner": (0.30, 0.30)
+            "breakfast": (0.24, 0.22, 0.24, 0.27),
+            "lunch":     (0.33, 0.30, 0.34, 0.31),
+            "snack":     (0.11, 0.15, 0.11, 0.11),
+            "dinner":    (0.32, 0.33, 0.31, 0.31),
         },
+        # Moderate day: standard distribution
         "moderate": {
-            "breakfast": (0.22, 0.22),
-            "lunch": (0.35, 0.30),
-            "snack": (0.13, 0.18),
-            "dinner": (0.30, 0.30)
+            "breakfast": (0.23, 0.22, 0.23, 0.26),
+            "lunch":     (0.34, 0.30, 0.35, 0.32),
+            "snack":     (0.12, 0.15, 0.12, 0.12),
+            "dinner":    (0.31, 0.33, 0.30, 0.30),
         },
+        # Hard day: more fuel at lunch (pre-workout window), protein-heavy dinner
         "hard": {
-            "breakfast": (0.22, 0.22),
-            "lunch": (0.35, 0.30),
-            "snack": (0.13, 0.18),
-            "dinner": (0.30, 0.30)
+            "breakfast": (0.22, 0.22, 0.22, 0.24),
+            "lunch":     (0.35, 0.28, 0.37, 0.33),
+            "snack":     (0.13, 0.17, 0.13, 0.13),
+            "dinner":    (0.30, 0.33, 0.28, 0.30),
         },
+        # Very hard: maximize carb availability pre-workout, high protein dinner
         "very_hard": {
-            "breakfast": (0.22, 0.22),
-            "lunch": (0.35, 0.30),
-            "snack": (0.13, 0.18),
-            "dinner": (0.30, 0.30)
-        }
+            "breakfast": (0.20, 0.20, 0.20, 0.22),
+            "lunch":     (0.37, 0.27, 0.40, 0.34),
+            "snack":     (0.14, 0.18, 0.14, 0.14),
+            "dinner":    (0.29, 0.35, 0.26, 0.30),
+        },
     }
 
     def distribute(self, daily_target: Dict[str, Any]) -> Dict[str, Dict[str, float]]:
         intensity = daily_target.get("intensity", "moderate")
         ratios = self.RATIOS.get(intensity, self.RATIOS["moderate"])
-        
-        cal = daily_target["calories"]
-        pro = daily_target["protein"]
+
+        cal   = daily_target["calories"]
+        pro   = daily_target["protein"]
         carbs = daily_target["carbs"]
-        fat = daily_target["fat"]
-        
+        fat   = daily_target["fat"]
+
         distributed = {}
-        for meal, (cal_ratio, pro_ratio) in ratios.items():
+        for meal, (cal_r, pro_r, carb_r, fat_r) in ratios.items():
             distributed[meal] = {
-                "calories": cal * cal_ratio,
-                "protein": pro * pro_ratio,
-                "carbs": carbs * cal_ratio,  # Using cal ratio for carbs/fat as simple approximation
-                "fat": fat * cal_ratio
+                "calories": cal   * cal_r,
+                "protein":  pro   * pro_r,
+                "carbs":    carbs * carb_r,
+                "fat":      fat   * fat_r,
             }
-            
+
         return distributed

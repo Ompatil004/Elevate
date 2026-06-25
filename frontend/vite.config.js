@@ -7,13 +7,7 @@ export default defineConfig({
     port: 5173,
     strictPort: false, // Fall back to next port if 5173 is busy
     proxy: {
-      // Proxy Python backend calls - eliminates CORS entirely
-      '/api/python': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/python/, ''),
-      },
-      // Proxy Node backend auth/profile/user routes
+      // All /api traffic (including /api/python) goes through Node so auth + CSRF apply.
       '/api': {
         target: 'http://localhost:5000',
         changeOrigin: true,

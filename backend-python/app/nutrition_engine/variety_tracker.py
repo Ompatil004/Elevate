@@ -1,5 +1,6 @@
 from typing import Set, List, Dict
 from .food_utils import get_food_family
+from app.nutrition_engine.config import NUTRITION_RULES
 
 REGION_ALIASES = {
     'North India':      'North Indian',
@@ -34,14 +35,17 @@ class WeeklyVarietyTracker:
         
         # New Phase 4 Strict Trackers
         self.item_history: Dict[str, int] = {}
-        self.daily_food_history: Dict[int, Set[str]] = {}
+        self.daily_food_history: Dict[int, Set[str]] = {}      # food NAMES per day
+        self.daily_all_foods_used: Dict[int, Set[str]] = {}    # food IDs across ALL meals today
         self.daily_protein_history: Dict[int, Set[str]] = {}
         self.daily_carb_history: Dict[int, Set[str]] = {}
         self.vegetable_history: Dict[int, Set[str]] = {}
         self.meal_identity_history: Dict[str, int] = {}
         self.meal_appearance_counts: Dict[str, int] = {}  # tracks total appearances per meal_id
-        self.daily_cuisine_history: Dict[int, Set[str]] = {}
-        self.daily_cooking_style_history: Dict[int, Set[str]] = {}
+        self.daily_cuisine_history: Dict[int, List[str]] = {}
+        self.daily_cooking_style_history: Dict[int, List[str]] = {}
+        self.cooking_style_history: List[str] = []
+        self.meal_signature_usage: Dict[str, int] = {}
         
     def get_snapshot(self) -> Dict:
         return {
@@ -56,13 +60,16 @@ class WeeklyVarietyTracker:
             "family_history": list(self.family_history),
             "item_history": dict(self.item_history),
             "daily_food_history": {k: set(v) for k, v in self.daily_food_history.items()},
+            "daily_all_foods_used": {k: set(v) for k, v in self.daily_all_foods_used.items()},
             "daily_protein_history": {k: set(v) for k, v in self.daily_protein_history.items()},
             "daily_carb_history": {k: set(v) for k, v in self.daily_carb_history.items()},
             "vegetable_history": {k: set(v) for k, v in self.vegetable_history.items()},
             "meal_identity_history": dict(self.meal_identity_history),
             "meal_appearance_counts": dict(self.meal_appearance_counts),
-            "daily_cuisine_history": {k: set(v) for k, v in getattr(self, 'daily_cuisine_history', {}).items()},
-            "daily_cooking_style_history": {k: set(v) for k, v in getattr(self, 'daily_cooking_style_history', {}).items()},
+            "daily_cuisine_history": {k: list(v) for k, v in getattr(self, 'daily_cuisine_history', {}).items()},
+            "daily_cooking_style_history": {k: list(v) for k, v in getattr(self, 'daily_cooking_style_history', {}).items()},
+            "cooking_style_history": list(getattr(self, 'cooking_style_history', [])),
+            "meal_signature_usage": dict(getattr(self, 'meal_signature_usage', {})),
         }
 
     def restore_snapshot(self, snapshot: Dict):
@@ -77,16 +84,24 @@ class WeeklyVarietyTracker:
         self.family_history = list(snapshot.get("family_history", []))
         self.item_history = dict(snapshot.get("item_history", {}))
         self.daily_food_history = {k: set(v) for k, v in snapshot.get("daily_food_history", {}).items()}
+        self.daily_all_foods_used = {k: set(v) for k, v in snapshot.get("daily_all_foods_used", {}).items()}
         self.daily_protein_history = {k: set(v) for k, v in snapshot.get("daily_protein_history", {}).items()}
         self.daily_carb_history = {k: set(v) for k, v in snapshot.get("daily_carb_history", {}).items()}
         self.vegetable_history = {k: set(v) for k, v in snapshot.get("vegetable_history", {}).items()}
         self.meal_identity_history = dict(snapshot.get("meal_identity_history", {}))
         self.meal_appearance_counts = dict(snapshot.get("meal_appearance_counts", {}))
-        self.daily_cuisine_history = {k: set(v) for k, v in snapshot.get("daily_cuisine_history", {}).items()}
-        self.daily_cooking_style_history = {k: set(v) for k, v in snapshot.get("daily_cooking_style_history", {}).items()}
+        self.daily_cuisine_history = {k: list(v) for k, v in snapshot.get("daily_cuisine_history", {}).items()}
+        self.daily_cooking_style_history = {k: list(v) for k, v in snapshot.get("daily_cooking_style_history", {}).items()}
+        self.cooking_style_history = list(snapshot.get("cooking_style_history", []))
+        self.meal_signature_usage = dict(snapshot.get("meal_signature_usage", {}))
         
     def meal_history(self, meal_type: str) -> Set[str]:
         return getattr(self, f'{meal_type.lower()}_history', set())
+
+    def get_days_foods_used(self, day_num: int) -> Set[str]:
+        """Returns the set of food_ids already assigned to ANY meal slot today.
+        Used by weekly_optimizer to pass as excluded_foods to candidate_generator."""
+        return set(self.daily_all_foods_used.get(day_num, set()))
 
     # --- V6 Interfaces ---
     
@@ -186,7 +201,7 @@ class WeeklyVarietyTracker:
 
         return penalty
 
-    def record_meal_selection(self, meal_id: str, foods: List[str], protein_source: str, carb_source: str, vegetables: List[str], day_num: int, cuisine: str = None, cooking_style: str = None):
+    def record_meal_selection(self, meal_id: str, foods: List[str], protein_source: str, carb_source: str, vegetables: List[str], day_num: int, cuisine: str = None, cooking_style: str = None, meal_signature: str = None, food_ids: List[str] = None):
         self.meal_identity_history[meal_id] = day_num
         self.meal_appearance_counts[meal_id] = self.meal_appearance_counts.get(meal_id, 0) + 1
         
@@ -194,6 +209,17 @@ class WeeklyVarietyTracker:
             self.daily_food_history[day_num] = set()
         for f in foods:
             self.daily_food_history[day_num].add(f.lower().strip())
+
+        # Track food_ids across ALL meal slots for cross-meal exclusion
+        if day_num not in self.daily_all_foods_used:
+            self.daily_all_foods_used[day_num] = set()
+        if food_ids:
+            for fid in food_ids:
+                self.daily_all_foods_used[day_num].add(str(fid).lower().strip())
+        else:
+            # Fallback: use food names as ids when food_ids not provided
+            for f in foods:
+                self.daily_all_foods_used[day_num].add(f.lower().strip())
             
         if day_num not in self.daily_protein_history:
             self.daily_protein_history[day_num] = set()
@@ -214,59 +240,63 @@ class WeeklyVarietyTracker:
             
         if cuisine:
             if day_num not in self.daily_cuisine_history:
-                self.daily_cuisine_history[day_num] = set()
-            self.daily_cuisine_history[day_num].add(cuisine)
+                self.daily_cuisine_history[day_num] = []
+            self.daily_cuisine_history[day_num].append(cuisine)
             
         if cooking_style:
             if day_num not in self.daily_cooking_style_history:
-                self.daily_cooking_style_history[day_num] = set()
-            self.daily_cooking_style_history[day_num].add(cooking_style)
+                self.daily_cooking_style_history[day_num] = []
+            self.daily_cooking_style_history[day_num].append(cooking_style)
+            self.cooking_style_history.append(cooking_style)
+            
+        if meal_signature:
+            self.meal_signature_usage[meal_signature] = self.meal_signature_usage.get(meal_signature, 0) + 1
 
-    def is_same_day_duplicate(self, foods: List[str], day_num: int) -> bool:
+    def is_duplicate_meal(self, meal_id: str, foods: List[str], protein_source: str, carb_source: str, day_num: int, meal_type: str, cuisine: str = None, cooking_style: str = None) -> bool:
+        # 1. Same exact food: Cannot repeat within X days.
+        limit = int(NUTRITION_RULES["variety"].get(f"{meal_type.lower()}_max_frequency_days", 7))
+        
+        # We can't check same_day duplicate directly because the user wants "Same exact food Cannot repeat within N days"
+        # but specifically tailored to the meal_type's rule. Let's adjust is_same_day_duplicate
+        # Only truly neutral, tiny-portion staple sides are exempt from the
+        # repeat check. Main carbs like rotis and rice are NOT exempt so the
+        # engine is forced to diversify them across the week.
         exempt_foods = {
-            'sambar', 
-            'multigrain roti',
-            'whole wheat chapati',
-            'boiled rice (uble chawal)'
+            'sambar',
+            'boiled rice (uble chawal)',
         }
-        daily_foods = self.daily_food_history.get(day_num, set())
         for f in foods:
             f_clean = f.lower().strip()
             if f_clean in exempt_foods:
                 continue
-            if f_clean in daily_foods:
-                return True
-        return False
+            for d in range(max(1, day_num - limit + 1), day_num + 1):
+                if f_clean in self.daily_food_history.get(d, set()):
+                    return True
 
-    def is_duplicate_meal(self, meal_id: str, foods: List[str], protein_source: str, carb_source: str, day_num: int, cuisine: str = None, cooking_style: str = None) -> bool:
-        # 1. Same-day food duplicates check
-        if self.is_same_day_duplicate(foods, day_num):
-            return True
-
-        # 2. Hard cap: no meal_id more than 2 times in the full week
-        all_appearances = sum(
-            1 for d, mid in self.meal_identity_history.items()
-            if mid == meal_id
-        ) if isinstance(self.meal_identity_history, dict) else 0
-        # Actually meal_identity_history maps meal_id -> last_day, not day -> meal_id
-        # So count by tracking appearances separately
-        appearances = self.meal_appearance_counts.get(meal_id, 0)
-        if appearances >= 2:
-            return True
-
-        # 3. No duplicate meal identity in last 2 days (reduced from 4 to allow more variety)
+        # 2. Same meal identity: Cannot repeat within X days.
+        limit_meal = limit
         last_eaten = self.meal_identity_history.get(meal_id)
-        if last_eaten is not None and (day_num - last_eaten) <= 2:
+        if last_eaten is not None and (day_num - last_eaten) < limit_meal:
             return True
 
-        # 4. Protein source rotation in the same day (removed strict block)
-        # Handled by scorer penalties
+        # 3. Same protein source: Maximum X consecutive meals.
+        limit_protein = int(NUTRITION_RULES["variety"]["protein_source_consecutive_max"])
+        if protein_source and len(self.protein_history) >= limit_protein:
+            p_clean = protein_source.lower().strip()
+            if all(p == p_clean for p in self.protein_history[-limit_protein:]):
+                return True
 
-        # 5. Carb source rotation in the same day (removed strict block)
-        # Handled by scorer penalties
+        # 4. Same cuisine: Maximum X times/day.
+        limit_cuisine = int(NUTRITION_RULES["variety"]["cuisine_daily_max"])
+        if cuisine:
+            cuisine_count = self.daily_cuisine_history.get(day_num, []).count(cuisine)
+            if cuisine_count >= limit_cuisine:
+                return True
 
-        # 6. Over-representation of cooking style in the same day
-        # Removed strict block on cooking style since it's common to eat Curry twice a day.
-        # It is now handled by the variety penalty score in meal_scorer.py
+        # 5. Same cooking method: Maximum X consecutive meals.
+        limit_cooking = int(NUTRITION_RULES["variety"]["cooking_style_consecutive_max"])
+        if cooking_style and len(self.cooking_style_history) >= limit_cooking:
+            if all(c == cooking_style for c in self.cooking_style_history[-limit_cooking:]):
+                return True
 
         return False

@@ -8,12 +8,13 @@ class TestCandidateGenerator(unittest.TestCase):
     def setUp(self):
         base_dir = os.path.join(os.path.dirname(__file__), '..')
         
-        metadata_path = os.path.join(base_dir, 'data', 'food_knowledge_base.json')
+        ingredient_db_path = os.path.join(base_dir, 'data', 'ingredient_database.json')
+        recipe_db_path = os.path.join(base_dir, 'data', 'recipe_database.json')
         relationship_path = os.path.join(base_dir, 'data', 'food_relationship_graph.json')
         nutrition_path = os.path.join(base_dir, 'data', 'nutrition_production_final_v4.csv')
         template_path = os.path.join(base_dir, 'config', 'meal_templates.yaml')
         
-        self.food_graph = FoodGraph(metadata_path, relationship_path, nutrition_path)
+        self.food_graph = FoodGraph(ingredient_db_path, recipe_db_path, relationship_path, nutrition_path)
         self.template_manager = TemplateManager(template_path)
         self.candidate_generator = CandidateGenerator(self.food_graph)
 

@@ -29,7 +29,8 @@ def generate_meal_kb():
     breakfast_carbs = [
         ("Oatmeal (Oats Porridge)", "bowl"), ("Poha", "bowl"), ("Semolina Upma (Suji/Rava Upma)", "bowl"),
         ("Idli", "serving"), ("Plain Dosa", "piece"), ("Masala Dosa", "piece"), ("Besan Chilla", "piece"),
-        ("Moong Dal Chilla", "piece")
+        ("Moong Dal Chilla", "piece"), ("Neer Dosa", "piece"), ("Adai", "piece"), ("Pesarattu", "piece"),
+        ("Ragi Dosa", "piece")
     ]
     
     # 2. Proteins
@@ -178,69 +179,72 @@ def generate_meal_kb():
 
     # GENERATE BREAKFASTS
     for carb, c_unit in breakfast_carbs:
-        if "Dosa" in carb or "Idli" in carb:
-            add_meal(
-                m_id=f"{carb.replace(' ', '_').lower()}_breakfast",
-                name=f"{carb} Breakfast",
-                m_type="breakfast",
-                diet="Vegan",
-                anchor="combo_meal",
-                foods_with_ratios=[
-                    (carb, c_unit, 2.0 if "Idli" in carb else 1.0, 1.0, 4.0),
-                    ("Sambar", "bowl", 1.0, 0.5, 3.0),
-                    ("Coconut Chutney (Nariyal Ki Chutney)", "tbsp", 2.0, 1.0, 5.0)
-                ],
-                p_src="dal & pulses",
-                c_src="dosa" if "Dosa" in carb else "idli",
-                vegs=["coconut", "tomato"]
-            )
+        if "Dosa" in carb or "Idli" in carb or "Adai" in carb or "Pesarattu" in carb:
+            for v, (chutney, s_unit) in enumerate([("Coconut Chutney (Nariyal Ki Chutney)", "tbsp"), ("Mint and Coriander Chutney (Pudinay Aur Dhaniye Ki Chutney)", "tbsp"), ("Tomato Chutney", "tbsp")]):
+                add_meal(
+                    m_id=f"{carb.replace(' ', '_').lower()}_var{v}_breakfast",
+                    name=f"{carb} with {chutney.split('(')[0].strip()}",
+                    m_type="breakfast",
+                    diet="Vegan",
+                    anchor="combo_meal",
+                    foods_with_ratios=[
+                        (carb, c_unit, 2.0 if "Idli" in carb else 1.0, 1.0, 4.0),
+                        ("Sambar", "bowl", 1.0, 0.5, 3.0),
+                        (chutney, s_unit, 2.0, 1.0, 5.0)
+                    ],
+                    p_src="dal & pulses",
+                    c_src="dosa" if "Dosa" in carb or "Adai" in carb or "Pesarattu" in carb else "idli",
+                    vegs=["coconut", "tomato"]
+                )
         elif "Chilla" in carb:
-            add_meal(
-                m_id=f"{carb.replace(' ', '_').lower()}_breakfast",
-                name=f"{carb} Breakfast",
-                m_type="breakfast",
-                diet="Vegetarian",
-                anchor="combo_meal",
-                foods_with_ratios=[
-                    (carb, c_unit, 2.0, 1.0, 4.0),
-                    ("Mint and Coriander Chutney (Pudinay Aur Dhaniye Ki Chutney)", "tbsp", 2.0, 1.0, 5.0),
-                    ("Plain Yogurt (Curd)", "bowl", 0.5, 0.5, 2.0)
-                ],
-                p_src="dal & pulses",
-                c_src="chilla",
-                vegs=["mint", "coriander"]
-            )
+            for v, side in enumerate([("Mint and Coriander Chutney (Pudinay Aur Dhaniye Ki Chutney)", "tbsp"), ("Plain Yogurt (Curd)", "bowl"), ("Tomato Chutney", "tbsp")]):
+                add_meal(
+                    m_id=f"{carb.replace(' ', '_').lower()}_var{v}_breakfast",
+                    name=f"{carb} with {side[0].split('(')[0].strip()}",
+                    m_type="breakfast",
+                    diet="Vegetarian" if "Yogurt" in side[0] else "Vegan",
+                    anchor="combo_meal",
+                    foods_with_ratios=[
+                        (carb, c_unit, 2.0, 1.0, 4.0),
+                        (side[0], side[1], 2.0 if side[1] == "tbsp" else 0.5, 0.5, 5.0)
+                    ],
+                    p_src="dal & pulses",
+                    c_src="chilla",
+                    vegs=["mint", "coriander"]
+                )
         elif "Poha" in carb or "Upma" in carb:
-            add_meal(
-                m_id=f"{carb.replace(' ', '_').lower()}_breakfast",
-                name=f"{carb} Breakfast",
-                m_type="breakfast",
-                diet="Vegan",
-                anchor="combo_meal",
-                foods_with_ratios=[
-                    (carb, c_unit, 1.0, 0.5, 3.0),
-                    ("Sprout Salad", "bowl", 0.5, 0.5, 2.0)
-                ],
-                p_src="dal & pulses",
-                c_src="poha" if "Poha" in carb else "upma",
-                vegs=["onion", "tomato"]
-            )
+            for v, side in enumerate([("Sprout Salad", "bowl"), ("Mint and Coriander Chutney (Pudinay Aur Dhaniye Ki Chutney)", "tbsp"), ("Plain Yogurt (Curd)", "bowl")]):
+                add_meal(
+                    m_id=f"{carb.replace(' ', '_').lower()}_var{v}_breakfast",
+                    name=f"{carb} with {side[0].split('(')[0].strip()}",
+                    m_type="breakfast",
+                    diet="Vegetarian" if "Yogurt" in side[0] else "Vegan",
+                    anchor="combo_meal",
+                    foods_with_ratios=[
+                        (carb, c_unit, 1.0, 0.5, 3.0),
+                        (side[0], side[1], 0.5 if side[1] == "bowl" else 2.0, 0.5, 3.0)
+                    ],
+                    p_src="dal & pulses",
+                    c_src="poha" if "Poha" in carb else "upma",
+                    vegs=["onion", "tomato"]
+                )
         elif "Oats" in carb:
-            add_meal(
-                m_id=f"{carb.replace(' ', '_').lower()}_breakfast",
-                name=f"{carb} Breakfast",
-                m_type="breakfast",
-                diet="Vegetarian",
-                anchor="combo_meal",
-                foods_with_ratios=[
-                    (carb, c_unit, 1.0, 0.5, 3.0),
-                    ("Banana", "piece", 1.0, 1.0, 2.0),
-                    ("Almonds", "piece", 10.0, 5.0, 20.0)
-                ],
-                p_src="milk",
-                c_src="oats",
-                vegs=[]
-            )
+            for v, fruit in enumerate([("Banana", "piece"), ("Apple", "piece")]):
+                add_meal(
+                    m_id=f"{carb.replace(' ', '_').lower()}_var{v}_breakfast",
+                    name=f"{carb} with {fruit[0]}",
+                    m_type="breakfast",
+                    diet="Vegetarian",
+                    anchor="combo_meal",
+                    foods_with_ratios=[
+                        (carb, c_unit, 1.0, 0.5, 3.0),
+                        (fruit[0], fruit[1], 1.0, 1.0, 2.0),
+                        ("Almonds", "piece", 10.0, 5.0, 20.0)
+                    ],
+                    p_src="milk",
+                    c_src="oats",
+                    vegs=[]
+                )
 
     # Sandwich/Egg Breakfasts
     for egg_style, e_unit in [("Boiled Egg", "piece"), ("Scrambled Eggs", "bowl"), ("Omelette", "piece")]:
@@ -271,7 +275,10 @@ def generate_meal_kb():
         ("Greek Yogurt", "bowl", "Vegetarian", "yogurt"),
         ("Banana", "piece", "Vegan", "fruit"),
         ("Apple", "piece", "Vegan", "fruit"),
-        ("Protein Shake", "glass", "Vegetarian", "supplement")
+        ("Protein Shake", "glass", "Vegetarian", "supplement"),
+        ("Sweet Potato Chaat", "bowl", "Vegan", "sweet potato"),
+        ("Peanut Sundal", "bowl", "Vegan", "nuts"),
+        ("Roasted Millet Bhel", "bowl", "Vegan", "millet")
     ]
     for s_name, s_unit, s_diet, s_psrc in snacks:
         add_meal(

@@ -140,23 +140,28 @@ class MealEngine:
         return by_day
 
     def _scale_meal_item(self, item: Dict, factor: float) -> Dict:
-        scaled = dict(item)
-        for key in ('calories', 'protein', 'carbs', 'fat', 'fiber'):
-            value = float(item.get('nutrition', {}).get(key, item.get(key, 0)) or 0)
-            adjusted = value * factor
-            scaled[key] = round(adjusted) if key == 'calories' else round(adjusted, 1)
+        import copy
+        scaled = copy.deepcopy(item)  # FULL deep copy
         
-        # Ensure both name and food_name are populated for compatibility
+        nutrition = scaled.setdefault('nutrition', {})
+        for key in ('calories', 'protein', 'carbs', 'fat', 'fiber'):
+            # Source of truth: nutrition sub-dict (set by portion_optimizer)
+            value = float(nutrition.get(key, scaled.get(key, 0)) or 0)
+            adjusted = round(value * factor, 1 if key != 'calories' else 0)
+            nutrition[key] = adjusted    # update sub-dict
+            scaled[key] = adjusted       # keep flat key in sync
+        
+        # food_name / name consistency
         food_name = scaled.get('food_name') or scaled.get('name', '')
         scaled['name'] = food_name
         scaled['food_name'] = food_name
         
-        # Ensure serving is populated from serving_qty and serving_unit if missing
-        if 'serving' not in scaled and 'serving_qty' in scaled and 'serving_unit' in scaled:
+        # serving string
+        if 'serving' not in scaled and 'serving_qty' in scaled:
             qty = scaled['serving_qty']
             if isinstance(qty, float) and qty.is_integer():
                 qty = int(qty)
-            scaled['serving'] = f"{qty} {scaled['serving_unit']}"
+            scaled['serving'] = f"{qty} {scaled.get('serving_unit', '')}"
             
         return scaled
 
@@ -165,22 +170,20 @@ class MealEngine:
         adjusted_weekly = {}
         adjusted_targets_by_day = {}
 
-        # Map V6 "Day_1" to "Monday", etc.
-        day_mapping = {
-            "Day_1": "Monday",
-            "Day_2": "Tuesday",
-            "Day_3": "Wednesday",
-            "Day_4": "Thursday",
-            "Day_5": "Friday",
-            "Day_6": "Saturday",
-            "Day_7": "Sunday"
-        }
+        # V6 now keys weekly_plan by day name (Monday..Sunday) directly.
+        # Keep a fallback mapping for any legacy Day_N keys that may exist in the cache.
+        _DAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+        _legacy_to_name = {f"Day_{i+1}": name for i, name in enumerate(_DAY_NAMES)}
+        # Reverse: day_name -> Day_N key used in plan_week() daily_targets
+        _name_to_legacy = {name: f"Day_{i+1}" for i, name in enumerate(_DAY_NAMES)}
 
         raw_plan = weekly_plan.get('weekly_plan', {})
+        # daily_targets is still keyed as Day_1..Day_7 from WeeklyMacroPlanner.plan_week()
         daily_targets = weekly_plan.get('daily_targets', {})
 
         for v6_day, meals in raw_plan.items():
-            day_name = day_mapping.get(v6_day, v6_day)
+            # Resolve to a human-readable day name
+            day_name = _legacy_to_name.get(v6_day, v6_day)  # already a name if V6 new-style
             day_intensity = self._normalize_intensity(intensity_by_day.get(day_name, 'moderate'))
             factor = self.intensity_multipliers.get(day_intensity, 1.0)
 
@@ -191,8 +194,9 @@ class MealEngine:
                     scaled_item = self._scale_meal_item(item, factor)
                     adjusted_weekly[day_name][meal_type].append(scaled_item)
 
-            # Retrieve the planned target for this day from V6 daily_targets
-            planned_target = daily_targets.get(v6_day, {})
+            # Retrieve the planned target: try legacy Day_N key first, then day_name directly
+            legacy_key = _name_to_legacy.get(day_name, v6_day)
+            planned_target = daily_targets.get(legacy_key) or daily_targets.get(day_name) or daily_targets.get(v6_day, {})
             adjusted_targets_by_day[day_name] = {
                 'calories': round(planned_target.get('calories', 2000)),
                 'protein': round(planned_target.get('protein', 150), 1),
@@ -329,23 +333,50 @@ class MealEngine:
         so that swaps have the same or very similar macro values.
         Results are sorted by nutritional similarity (closest protein+calorie first).
         """
+        from app.nutrition_engine.food_utils import get_food_family
         nodes = self.engine.food_graph.get_all_nodes()
         
-        # 1. Find the target node and its family
+        # 1. Find the target node and its family (multi-step fallback)
         target_node = None
         target_family = None
+        food_name_lower = food_name.lower().strip()
+        
+        # Step 1a: exact match
         for fid, node in nodes.items():
             node_name = node.get("food_name", "").lower().strip()
-            if node_name == food_name.lower().strip() or node.get("name", "").lower().strip() == food_name.lower().strip():
+            if node_name == food_name_lower or node.get("name", "").lower().strip() == food_name_lower:
                 target_node = node
                 target_family = node.get("semantics", {}).get("family")
                 break
-                
-        if not target_node or not target_family:
+        
+        # Step 1b: substring match (handles "Tossed Salad" → finds any salad node)
+        if not target_node:
+            for fid, node in nodes.items():
+                node_name = node.get("food_name", "").lower().strip()
+                if food_name_lower in node_name or node_name in food_name_lower:
+                    target_node = node
+                    target_family = node.get("semantics", {}).get("family")
+                    break
+        
+        # Step 1c: infer family from food_utils (now uses granular families)
+        if not target_family:
+            target_family = get_food_family(food_name, "")
+        
+        # Step 1d: meal-type-based last-resort fallback
+        if not target_family or target_family == "Other":
+            meal_type_family_map = {
+                'breakfast': 'South Indian Breakfast',
+                'lunch': 'Roti',
+                'dinner': 'Rice',
+                'snack': 'Fruit',
+            }
+            target_family = meal_type_family_map.get(meal_type.lower(), 'Roti')
+            
+        if not target_family:
             return []
 
         # Use the passed targets or fall back to the original food's own nutrition at default serving
-        orig_nutrition = target_node.get("nutrition", {})
+        orig_nutrition = target_node.get("nutrition", {}) if target_node else {}
         orig_serving_g = orig_nutrition.get("serving_size_g", 100.0) or 100.0
         orig_cal_per_100g = orig_nutrition.get("calories", 0)
         orig_prot_per_100g = orig_nutrition.get("protein", 0)
@@ -353,36 +384,69 @@ class MealEngine:
         # If caller provided target_calories, use those; otherwise use the food's own default serving nutrition
         if target_calories and target_calories > 0:
             cal_target = target_calories
-        else:
+        elif orig_cal_per_100g > 0:
             cal_target = (orig_cal_per_100g / 100.0) * orig_serving_g
+        else:
+            # Default reasonable calorie target per food item based on meal type
+            default_cal_by_meal = {'breakfast': 200, 'lunch': 250, 'dinner': 250, 'snack': 150}
+            cal_target = default_cal_by_meal.get(meal_type.lower(), 200)
         
         if target_protein and target_protein > 0:
             prot_target = target_protein
-        else:
+        elif orig_prot_per_100g > 0:
             prot_target = (orig_prot_per_100g / 100.0) * orig_serving_g
+        else:
+            prot_target = cal_target * 0.15 / 4  # default 15% protein by calories
 
         # 2. Extract User Diet
         user_diet = profile.get("diet_type") or profile.get("dietary_preference", "NonVeg")
         if user_diet in ('Veg', 'Vegetarian'):
             user_diet = 'Vegetarian'
-        elif user_diet in ('Non-Veg', 'NonVeg'):
+        elif user_diet in ('Non-Veg', 'NonVeg', 'Non Vegetarian'):
             user_diet = 'NonVeg'
             
-        # 3. Find alternatives in same family and compatible diet
-        options = []
-        for fid, node in nodes.items():
-            if node == target_node:
-                continue
-            
-            node_diet = node.get("identity", {}).get("diet", "NonVeg")
-            if user_diet == "Vegan" and node_diet != "Vegan":
-                continue
-            if user_diet == "Vegetarian" and node_diet == "NonVeg":
-                continue
-                
-            family = node.get("semantics", {}).get("family")
-            if family == target_family:
-                options.append(node)
+        def _collect_options_for_family(family_name: str) -> List:
+            """Collect all graph nodes matching a family + diet filter."""
+            opts = []
+            for fid, node in nodes.items():
+                if node == target_node:
+                    continue
+                node_diet = node.get("identity", {}).get("diet", "NonVeg")
+                if user_diet == "Vegan" and node_diet != "Vegan":
+                    continue
+                if user_diet == "Vegetarian" and node_diet == "NonVeg":
+                    continue
+                # Also check diet via node-level food_utils family inference
+                node_fname = node.get("food_name", "")
+                node_sg = node.get("semantics", {}).get("swap_group", "")
+                node_family = node.get("semantics", {}).get("family") or get_food_family(node_fname, node_sg)
+                if node_family == family_name:
+                    opts.append(node)
+            return opts
+
+        # 3. Find alternatives in same family — broaden if too few results
+        options = _collect_options_for_family(target_family)
+        
+        # Broadening fallback: if fewer than 3 options in the specific family,
+        # add foods from a related broader family
+        if len(options) < 3:
+            broader_map = {
+                'Roti': 'South Indian Breakfast',
+                'South Indian Breakfast': 'Paratha',
+                'Paratha': 'Roti',
+                'Rice': 'Roti',
+                'Dal': 'Curry',
+                'Chicken': 'Meat',
+                'Meat': 'Chicken',
+                'Fish': 'Chicken',
+                'Paneer': 'Tofu',
+                'Tofu': 'Paneer',
+                'Eggs': 'Chicken',
+            }
+            broader_family = broader_map.get(target_family)
+            if broader_family:
+                extras = _collect_options_for_family(broader_family)
+                options.extend(extras)
 
         # 4. Scale each option's nutrition to match cal_target and compute similarity score
         def _scale_and_score(node):
@@ -424,7 +488,6 @@ class MealEngine:
                 serving_unit = default_unit
             else:
                 # Convert grams to the food's natural unit using its serving_size_g
-                natural_serving_g = node.get("servings", {}).get("default_qty", 1) or 1
                 natural_unit_g = n.get("serving_size_g", 100.0) or 100.0
                 units_needed = grams_needed / natural_unit_g
                 units_needed = max(0.5, round(units_needed * 2) / 2)  # round to nearest 0.5
@@ -476,6 +539,7 @@ class MealEngine:
                 'swap_group':   target_family,
             })
         return results
+
 
 _meal_engine = None
 

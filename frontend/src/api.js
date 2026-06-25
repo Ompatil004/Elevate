@@ -48,7 +48,7 @@ const FitnessAPI = axios.create({
     headers: {
         'Content-Type': 'application/json'
     },
-    timeout: 60000,
+    timeout: 120000,
     withCredentials: true,  // SEC-1: send HttpOnly cookie on every request
 });
 
@@ -94,6 +94,82 @@ AuthAPI.interceptors.response.use(
     }
 );
 
+const _slimStringList = (value, maxItems = 24) =>
+    (Array.isArray(value) ? value : [])
+        .slice(0, maxItems)
+        .map((item) => (typeof item === 'string' ? item : String(item ?? '')).trim())
+        .filter(Boolean);
+
+const _pickWorkoutProfile = (profile) => {
+    if (!profile || typeof profile !== 'object' || Array.isArray(profile)) return {};
+    const userId = profile.user_id || profile._id || profile.id;
+    return {
+        ...(userId ? { user_id: String(userId) } : {}),
+        age: profile.age,
+        weight: profile.weight,
+        height: profile.height,
+        gender: profile.gender,
+        goal: profile.goal,
+        experience: profile.experience,
+        days_per_week: profile.days_per_week,
+        equipment: _slimStringList(profile.equipment),
+        body_issues: _slimStringList(profile.body_issues),
+        streak: typeof profile.streak === 'number' ? profile.streak : undefined,
+        consistency: typeof profile.consistency === 'number' ? profile.consistency : undefined,
+        firstWorkoutDay: profile.firstWorkoutDay,
+        registrationDate: profile.registrationDate,
+        is_new_user_week: profile.is_new_user_week,
+    };
+};
+
+const _slimWorkoutDayForNutrition = (day) => {
+    if (!day || typeof day !== 'object') return day;
+    return {
+        day: day.day,
+        day_of_week: day.day_of_week,
+        type: day.type,
+        focus: day.focus,
+        note: day.note,
+        exercises: Array.isArray(day.exercises)
+            ? day.exercises.map((ex) => ({
+                name: ex?.name,
+                sets: ex?.sets,
+                reps: ex?.reps,
+            }))
+            : [],
+    };
+};
+
+const _pickNutritionPayload = (payload) => {
+    if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return {};
+    const weekly = payload.weekly_workout_plan;
+    return {
+        age: payload.age,
+        weight: payload.weight,
+        height: payload.height,
+        gender: payload.gender,
+        goal: payload.goal,
+        dietary_preference: payload.dietary_preference,
+        allergies: _slimStringList(payload.allergies),
+        activity_level: payload.activity_level || 'Moderate',
+        workout_intensity: payload.workout_intensity || 'moderate',
+        weekly_workout_plan: Array.isArray(weekly) ? weekly.map(_slimWorkoutDayForNutrition) : [],
+    };
+};
+
+const _slimFitnessPayload = (url, data) => {
+    const path = String(url || '').split('?')[0];
+    if (path === '/workout' || path === '/workout/async' || path === '/workout/cache/invalidate') {
+        return _pickWorkoutProfile(data);
+    }
+    if (path === '/nutrition' || path === '/nutrition/daily') {
+        return path === '/nutrition/daily' && data && typeof data === 'object' && !Array.isArray(data)
+            ? { ...data, profile: _pickNutritionPayload(data.profile) }
+            : _pickNutritionPayload(data);
+    }
+    return data;
+};
+
 // ARCH-7: Wrap FitnessAPI with circuit breaker to protect against Python backend downtime.
 // The interceptor checks the breaker state BEFORE sending each request.
 FitnessAPI.interceptors.request.use(
@@ -111,6 +187,17 @@ FitnessAPI.interceptors.request.use(
             const csrf = await getCsrfToken();
             if (csrf) config.headers['x-csrf-token'] = csrf;
         }
+
+        if (config.data && typeof config.data === 'object') {
+            config.data = _slimFitnessPayload(config.url, config.data);
+            if (import.meta.env.DEV) {
+                const bytes = new TextEncoder().encode(JSON.stringify(config.data)).length;
+                if (bytes > 256 * 1024) {
+                    console.warn('[FitnessAPI] Large payload after slimming:', bytes, 'bytes for', config.url);
+                }
+            }
+        }
+
         if (import.meta.env.DEV) {
             console.log('[FitnessAPI] Request:', config.method?.toUpperCase(), config.baseURL + config.url);
         }
@@ -230,7 +317,7 @@ export const generateNutritionPlan = (payload) => {
     const { signal } = nutritionRequestController;
 
     if (import.meta.env.DEV) console.log('[generateNutritionPlan] Making new request to /nutrition');
-    nutritionRequestInFlight = FitnessAPI.post('/nutrition', payload, { signal })
+    nutritionRequestInFlight = FitnessAPI.post('/nutrition', _pickNutritionPayload(payload), { signal })
         .then((response) => {
             if (import.meta.env.DEV) console.log('[generateNutritionPlan] Request successful');
             return response;
@@ -272,7 +359,10 @@ export const clearWorkoutPlanCache = () => {
 };
 
 export const suggestDailyMeals = (profileData, intensityFocus) =>
-    FitnessAPI.post('/nutrition/daily', { profile: profileData, intensity_focus: intensityFocus });
+    FitnessAPI.post('/nutrition/daily', {
+        profile: _pickNutritionPayload(profileData),
+        intensity_focus: intensityFocus,
+    });
 
 const _pickChatProfile = (profile, includeSensitive = false) => {
     if (!profile || typeof profile !== 'object') return {};
@@ -383,7 +473,7 @@ export const generateWorkout = (profileData) => {
     const { signal } = workoutRequestController;
 
     if (import.meta.env.DEV) console.log('[generateWorkout] Making new request to /workout');
-    workoutRequestInFlight = FitnessAPI.post('/workout', profileData, { signal })
+    workoutRequestInFlight = FitnessAPI.post('/workout', _pickWorkoutProfile(profileData), { signal })
         .then((response) => {
             if (import.meta.env.DEV) console.log('[generateWorkout] Request successful');
             return response;
@@ -424,7 +514,7 @@ export const generateWorkoutAsync = async (
     maxWait = 60000,
     abortSignal = null
 ) => {
-    const startRes = await FitnessAPI.post('/workout/async', profileData);
+    const startRes = await FitnessAPI.post('/workout/async', _pickWorkoutProfile(profileData));
     const startData = startRes.data;
 
     if (startData.status === 'complete') {
@@ -513,7 +603,7 @@ export const generateWorkoutAsync = async (
 /** Invalidate the server-side plan cache when profile changes significantly. */
 export const invalidateWorkoutCache = async (profileData) => {
     try {
-        await FitnessAPI.post('/workout/cache/invalidate', profileData);
+        await FitnessAPI.post('/workout/cache/invalidate', _pickWorkoutProfile(profileData));
     } catch {
         // best-effort – silent on failure
     }

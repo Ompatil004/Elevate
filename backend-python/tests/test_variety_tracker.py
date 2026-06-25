@@ -1,85 +1,87 @@
 import sys
 import os
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from app.deterministic_meal_engine import WeeklyVarietyTracker as OldTracker
-from app.nutrition_engine.variety_tracker import WeeklyVarietyTracker as NewTracker
+from app.nutrition_engine.variety_tracker import WeeklyVarietyTracker
 
-def test_variety_tracker_equivalence():
-    old_tracker = OldTracker()
-    new_tracker = NewTracker()
+def test_variety_tracker_basic():
+    tracker = WeeklyVarietyTracker()
     
-    # Mock meals to record
-    meal1 = [
-        {"food_name": "Chicken Curry", "swap_group": "chicken/meat"},
-        {"food_name": "White Rice", "swap_group": "rice"},
-        {"food_name": "Cucumber Salad", "swap_group": "vegetable"}
-    ]
-    meal2 = [
-        {"food_name": "Paneer Tikka", "swap_group": "paneer"},
-        {"food_name": "Roti", "swap_group": "bread & roti"}
-    ]
-    meal3 = [
-        {"food_name": "Dal Makhani", "swap_group": "dal & pulses"},
-        {"food_name": "Jeera Rice", "swap_group": "rice"}
-    ]
+    # Verify initial empty histories
+    assert len(tracker.daily_cuisine_history) == 0
+    assert len(tracker.protein_history) == 0
     
-    # Record meals
-    for tracker in (old_tracker, new_tracker):
-        tracker.record_meal('lunch', meal1)
-        tracker.record_cuisine('North India')
-        tracker.record_template(1)
-        
-        tracker.record_meal('dinner', meal2)
-        tracker.record_cuisine('North India')
-        tracker.record_template(2)
-        
-        tracker.record_meal('lunch', meal3)
-        tracker.record_cuisine('All India')
-        tracker.record_template(1)
-        
-    # Assert Internal State Parity
-    assert old_tracker.protein_history == new_tracker.protein_history
-    assert old_tracker.carb_history == new_tracker.carb_history
-    assert old_tracker.cuisine_history == new_tracker.cuisine_history
-    assert old_tracker.template_history == new_tracker.template_history
-    assert old_tracker.family_history == new_tracker.family_history
-    assert old_tracker.lunch_history == new_tracker.lunch_history
-    assert old_tracker.dinner_history == new_tracker.dinner_history
+    # Record some meals
+    tracker.record_meal_selection(
+        meal_id="meal_1",
+        foods=["Chicken Curry", "White Rice"],
+        protein_source="chicken/meat",
+        carb_source="rice",
+        vegetables=[],
+        day_num=1,
+        cuisine="North Indian",
+        cooking_style="Curry",
+        meal_signature="protein_main-carb_base",
+        food_ids=["chicken_curry_id", "white_rice_id"]
+    )
+    
+    # Check that tracking works
+    assert "chicken/meat" in tracker.protein_history
+    assert "rice" in tracker.carb_history
+    assert "North Indian" in tracker.daily_cuisine_history[1]
+    
+    # Calculate penalty for repeating cuisine
+    # Note: calculate_variety_penalty penalizes recent items in item_history and family_history
+    tracker.record_food("food_a", "Curry", 1)
+    pen = tracker.calculate_variety_penalty("food_a", "Curry", 2)
+    # Eaten 1 day ago (2 - 1 = 1 < 3), penalty should be >= 50
+    assert pen >= 50, "Recent food repeat should trigger a variety penalty"
 
-    # Scenario 1: Same food, same carb, same protein
-    candidate_1 = [
-        {"food_name": "Chicken Curry", "swap_group": "chicken/meat"},
-        {"food_name": "Brown Rice", "swap_group": "rice"}
-    ]
-    old_pen_1 = old_tracker.variety_penalty('lunch', candidate_1, 1, 'North India')
-    new_pen_1 = new_tracker.variety_penalty('lunch', candidate_1, 1, 'North India')
-    assert old_pen_1 == new_pen_1, f"Penalty 1 mismatch: Old {old_pen_1} != New {new_pen_1}"
+def test_variety_tracker_snapshot():
+    tracker = WeeklyVarietyTracker()
     
-    # Scenario 2: Completely new food, different template, different cuisine
-    candidate_2 = [
-        {"food_name": "Fish Curry", "swap_group": "fish & seafood"},
-        {"food_name": "Quinoa", "swap_group": "oats & cereals"}
-    ]
-    old_pen_2 = old_tracker.variety_penalty('dinner', candidate_2, 3, 'South India')
-    new_pen_2 = new_tracker.variety_penalty('dinner', candidate_2, 3, 'South India')
-    assert old_pen_2 == new_pen_2, f"Penalty 2 mismatch: Old {old_pen_2} != New {new_pen_2}"
+    # Record a meal on day 1
+    tracker.record_meal_selection(
+        meal_id="meal_1",
+        foods=["Chicken Curry"],
+        protein_source="chicken/meat",
+        carb_source="rice",
+        vegetables=[],
+        day_num=1,
+        cuisine="North Indian",
+        cooking_style="Curry",
+        meal_signature="protein_main",
+        food_ids=["chicken_curry_id"]
+    )
     
-    # Scenario 3: Breakfast repeat
-    candidate_3 = [
-        {"food_name": "Oats Porridge", "swap_group": "oats & cereals"}
-    ]
-    # Record it once
-    old_tracker.record_meal('breakfast', candidate_3)
-    new_tracker.record_meal('breakfast', candidate_3)
+    # Take a snapshot
+    snapshot = tracker.get_snapshot()
     
-    # Check penalty for repeat
-    old_pen_3 = old_tracker.variety_penalty('breakfast', candidate_3, 0, 'All India')
-    new_pen_3 = new_tracker.variety_penalty('breakfast', candidate_3, 0, 'All India')
-    assert old_pen_3 == new_pen_3, f"Penalty 3 mismatch: Old {old_pen_3} != New {new_pen_3}"
+    # Record another meal
+    tracker.record_meal_selection(
+        meal_id="meal_2",
+        foods=["Fish Fry"],
+        protein_source="fish/seafood",
+        carb_source="rice",
+        vegetables=[],
+        day_num=1,
+        cuisine="South Indian",
+        cooking_style="Fried",
+        meal_signature="protein_main",
+        food_ids=["fish_fry_id"]
+    )
     
-    print("SUCCESS: Weekly Variety Tracker outputs and states are 100% identical across all scenarios.")
+    assert "fish/seafood" in tracker.protein_history
+    
+    # Restore the snapshot
+    tracker.restore_snapshot(snapshot)
+    
+    # Check that fish is removed but chicken remains
+    assert "fish/seafood" not in tracker.protein_history
+    assert "chicken/meat" in tracker.protein_history
 
 if __name__ == "__main__":
-    test_variety_tracker_equivalence()
+    test_variety_tracker_basic()
+    test_variety_tracker_snapshot()
+    print("All Variety Tracker tests passed!")

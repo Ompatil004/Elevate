@@ -1,6 +1,26 @@
 import re
 from typing import List, Dict, Tuple
 from app.nutrition_engine.food_utils import get_primary_unit
+from app.nutrition_engine.config import NUTRITION_RULES
+
+# Per-food calorie caps: prevents any single side item from being over-scaled
+# Keys are substrings matched against food_name.lower()
+FOOD_CALORIE_CAPS = {
+    'salad':   150,   # max 150 cal for any salad
+    'raita':   100,   # max 100 cal
+    'kachumber': 120,
+    'kosambari': 120,
+    'tossed':  150,
+    'chutney':  50,
+    'pickle':   30,
+    'achar':    30,
+    'tea':      80,
+    'coffee':   100,
+}
+
+# Overrides for salad-like foods: max bowls regardless of protein target
+SALAD_MAX_BOWLS = 1.5
+SALAD_KEYWORDS = {'salad', 'raita', 'kachumber', 'kosambari', 'tossed', 'pachadi'}
 
 def _format_serving(qty: float, unit: str, name: str = '', cal: float = 0.0) -> str:
     """Produce a clean human-readable serving string based on database unit and quantity."""
@@ -42,6 +62,11 @@ def _format_serving(qty: float, unit: str, name: str = '', cal: float = 0.0) -> 
     n_str = f"{qty:.1f}".rstrip('0').rstrip('.')
     return f"{n_str} {unit}"
 
+def _get_portion_profile(food_name: str, unit: str, base_qty: float) -> List[float]:
+    # Deprecated: Static lists capped quantities too low for high-calorie goals (e.g., max 250g rice).
+    # We now rely on dynamic p_step, p_min, and p_max to allow proper scaling.
+    return None
+
 class PortionOptimizer:
     """
     Step-based portion optimizer compatible with V6 Semantic Graph nodes.
@@ -49,6 +74,77 @@ class PortionOptimizer:
     """
     def __init__(self):
         pass
+
+    def get_max_capacity(self, components: List[Dict]) -> Tuple[float, float]:
+        """Calculates the absolute maximum calories and protein a plate can provide based on household constraints."""
+        if not components:
+            return 0.0, 0.0
+            
+        max_cal = 0.0
+        max_pro = 0.0
+        
+        for c in components:
+            servings = c.get('servings', {})
+            nutrition = c.get('nutrition', {})
+            
+            def get_val(keys, default=None):
+                for k in keys:
+                    if servings and k in servings and servings[k] is not None:
+                        return servings[k]
+                    if k in c and c[k] is not None:
+                        return c[k]
+                return default
+
+            db_base_qty = float(get_val(['default', 'typical', 'serving_quantity'], 1.0) or 1.0)
+            db_unit = str(get_val(['unit', 'serving_unit'], 'g'))
+            internal_ratio = float(c.get('semantics', {}).get('internal_ratio', db_base_qty))
+            primary_unit = get_primary_unit(str(c.get('food_name', '')))
+            portion_rules = c.get('portion_rules', {})
+            
+            if primary_unit:
+                unit = primary_unit
+            elif portion_rules:
+                unit = str(portion_rules.get('unit', db_unit))
+            else:
+                unit = db_unit
+
+            if portion_rules:
+                p_max = float(portion_rules.get('max_qty', internal_ratio * 2.0))
+            else:
+                p_max = float(get_val(['maximum', 'portion_max'], internal_ratio * 2.0) or internal_ratio * 2.0)
+                p_max = max(p_max, internal_ratio * 5.0)
+                
+            food_name_lower = str(c.get('food_name', '')).lower()
+            if 'whey' in food_name_lower or 'protein powder' in food_name_lower:
+                p_max = min(p_max, 1.0)
+            if 'chutney' in food_name_lower or 'pickle' in food_name_lower:
+                p_max = min(p_max, float(NUTRITION_RULES["portions"]["chutney_pickle_max_tbsp"]))
+            if 'salad' in food_name_lower or 'raita' in food_name_lower:
+                if unit in ('bowl', 'bowls', 'plate', 'plates'):
+                    p_max = min(p_max, float(NUTRITION_RULES["portions"]["salad_raita_max_bowl"]))
+            if any(drink in food_name_lower for drink in ('milkshake', 'smoothie', 'juice', 'drink', 'lassi', 'chaas', 'buttermilk', 'coffee', 'tea', 'water', 'lemonade')):
+                if unit in ('glass', 'glasses', 'cup', 'cups', 'mug', 'mugs'):
+                    p_max = min(p_max, 1.0)
+                    
+            if unit != db_unit and internal_ratio > 0:
+                base_qty = internal_ratio
+            else:
+                base_qty = db_base_qty
+                
+            if not nutrition and 'calories_kcal' in c:
+                base_cal = float(c.get('calories_kcal', 0))
+                base_pro = float(c.get('protein_g', 0))
+            else:
+                base_cal = float(nutrition.get('calories', 0))
+                base_pro = float(nutrition.get('protein', 0))
+                
+            cal_per_unit = base_cal / base_qty if base_qty > 0 else 0
+            pro_per_unit = base_pro / base_qty if base_qty > 0 else 0
+            
+            max_cal += p_max * cal_per_unit
+            max_pro += p_max * pro_per_unit
+            
+        return max_cal, max_pro
 
     def optimize_portions(self, components: List[Dict], target_macros: Dict) -> List[Dict]:
         """
@@ -97,16 +193,20 @@ class PortionOptimizer:
             else:
                 p_min = float(get_val(['minimum', 'portion_min'], internal_ratio * 0.5) or internal_ratio * 0.5)
                 p_max = float(get_val(['maximum', 'portion_max'], internal_ratio * 2.0) or internal_ratio * 2.0)
-                p_max = max(p_max, internal_ratio * 3.0)
+                p_max = max(p_max, internal_ratio * 5.0)
                 
             food_name_lower = str(c.get('food_name', '')).lower()
             if 'whey' in food_name_lower or 'protein powder' in food_name_lower:
                 p_max = min(p_max, 1.0) # Cap at 1 scoop/glass
             if 'chutney' in food_name_lower or 'pickle' in food_name_lower:
-                p_max = min(p_max, 2.0) # Max 2 tbsp
-            if 'salad' in food_name_lower or 'raita' in food_name_lower:
+                p_max = min(p_max, float(NUTRITION_RULES["portions"]["chutney_pickle_max_tbsp"])) # Max 2 tbsp
+            if any(kw in food_name_lower for kw in SALAD_KEYWORDS):
                 if unit in ('bowl', 'bowls', 'plate', 'plates'):
-                    p_max = min(p_max, 1.0) # Max 1 bowl/plate
+                    p_max = min(p_max, SALAD_MAX_BOWLS)  # Max 1.5 bowl for salad/raita
+                    p_min = max(0.5, p_min)              # Min 0.5 bowl
+            elif 'salad' in food_name_lower or 'raita' in food_name_lower:
+                if unit in ('bowl', 'bowls', 'plate', 'plates'):
+                    p_max = min(p_max, float(NUTRITION_RULES["portions"]["salad_raita_max_bowl"])) # Max 1 bowl/plate
             if any(drink in food_name_lower for drink in ('milkshake', 'smoothie', 'juice', 'drink', 'lassi', 'chaas', 'buttermilk', 'coffee', 'tea', 'water', 'lemonade')):
                 if unit in ('glass', 'glasses', 'cup', 'cups', 'mug', 'mugs'):
                     p_max = min(p_max, 1.0) # Cap at 1 glass/cup for drinks
@@ -139,12 +239,15 @@ class PortionOptimizer:
             cal_per_unit = base_cal / base_qty if base_qty > 0 else 0
             pro_per_unit = base_pro / base_qty if base_qty > 0 else 0
             
+            portion_profile = _get_portion_profile(food_name_lower, unit, base_qty)
+            
             state.append({
                 'raw_c': c,
                 'internal_ratio': internal_ratio,
                 'p_min': p_min,
                 'p_max': p_max,
                 'p_step': p_step,
+                'portion_profile': portion_profile,
                 'cal_per_unit': cal_per_unit,
                 'pro_per_unit': pro_per_unit,
                 'base_qty': base_qty,
@@ -152,58 +255,94 @@ class PortionOptimizer:
                 'qty': internal_ratio
             })
 
-        # Global Multiplier Search (from 0.5 to 3.0)
-        best_multiplier = 1.0
+        # Priority Order Scaling & Independent Multipliers
         best_score = float('-inf')
         best_state = []
         
-        m = 0.5
-        while m <= 3.0:
-            current_state = []
-            total_cal = 0.0
-            total_pro = 0.0
-            
-            for s in state:
-                raw_qty = s['internal_ratio'] * m
-                # round to nearest step
-                step = s['p_step']
-                stepped_qty = round(raw_qty / step) * step
-                
-                # cap to min/max
-                clamped_qty = max(s['p_min'], min(s['p_max'], stepped_qty))
-                
-                cal = clamped_qty * s['cal_per_unit']
-                pro = clamped_qty * s['pro_per_unit']
-                
-                current_state.append({
-                    'qty': clamped_qty,
-                    'cal': cal,
-                    'pro': pro
-                })
-                total_cal += cal
-                total_pro += pro
-                
-            # Score this multiplier
-            cal_diff = abs(total_cal - target_cal) / target_cal if target_cal > 0 else 0
-            pro_diff = abs(total_pro - target_pro) / target_pro if target_pro > 0 else 0
-            
-            score = -(cal_diff * 2.0 + pro_diff * 1.5)
-            
-            if total_pro < target_pro * 0.8:
-                score -= 10.0
-                
-            if total_cal > target_cal * 1.15:
-                score -= 10.0
-                
-            if score > best_score:
-                best_score = score
-                best_multiplier = m
-                best_state = current_state
-                
-            m += 0.05
-            
+        multipliers = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5]
+        
+        for m_pro in multipliers:
+            for m_carb in multipliers:
+                for m_other in multipliers:
+                    current_state = []
+                    total_cal = 0.0
+                    total_pro = 0.0
+                    
+                    for s in state:
+                        c_raw = s['raw_c']
+                        cat = c_raw.get('semantics', {}).get('category', '')
+                        pdensity = c_raw.get('semantics', {}).get('protein_density', 0)
+                        
+                        if pdensity > 0.12 or cat in ['Dal & Pulses', 'Paneer & Tofu', 'Meat & Chicken', 'Eggs', 'Seafood', 'Dairy']:
+                            m = m_pro
+                        elif cat in ['Rice', 'Whole Grains', 'Millets & Whole Grains', 'Breakfast', 'Breads & Roti', 'Oats & Cereals']:
+                            m = m_carb
+                        else:
+                            m = min(m_other, float(NUTRITION_RULES["portions"]["side_dish_multiplier_max"]))
+                            
+                        raw_qty = s['internal_ratio'] * m
+                        # Household bounds snapping
+                        portion_profile = s.get('portion_profile')
+                        if portion_profile:
+                            stepped_qty = min(portion_profile, key=lambda x: abs(x - raw_qty))
+                        else:
+                            step = s['p_step']
+                            stepped_qty = round(raw_qty / step) * step
+                        
+                        # Apply ±20% household bound preference (soft penalty below) and hard p_min/p_max
+                        clamped_qty = max(s['p_min'], min(s['p_max'], stepped_qty))
+                        
+                        cal = clamped_qty * s['cal_per_unit']
+                        pro = clamped_qty * s['pro_per_unit']
+
+                        # ── Calorie cap for side foods (salad, raita, chutney, etc.) ─────
+                        food_name_check = str(s['raw_c'].get('food_name', '')).lower()
+                        for cap_kw, cap_val in FOOD_CALORIE_CAPS.items():
+                            if cap_kw in food_name_check and cal > cap_val and s['cal_per_unit'] > 0:
+                                capped_qty = cap_val / s['cal_per_unit']
+                                # Round capped_qty to nearest step
+                                step = s['p_step']
+                                capped_qty = max(s['p_min'], min(s['p_max'], round(capped_qty / step) * step))
+                                cal = capped_qty * s['cal_per_unit']
+                                pro = capped_qty * s['pro_per_unit']
+                                clamped_qty = capped_qty
+                                break
+                        
+                        current_state.append({
+                            'qty': clamped_qty,
+                            'cal': cal,
+                            'pro': pro,
+                            'm': m
+                        })
+                        total_cal += cal
+                        total_pro += pro
+                        
+                    # Score this combination
+                    cal_diff = abs(total_cal - target_cal) / target_cal if target_cal > 0 else 0
+                    pro_diff = abs(total_pro - target_pro) / target_pro if target_pro > 0 else 0
+                    
+                    score = -(cal_diff * 2.0 + pro_diff * 1.5)
+                    
+                    # Penalize divergence between plate components (we want balanced meals)
+                    divergence = abs(m_pro - m_carb) + abs(m_carb - m_other)
+                    score -= (divergence * 0.2)
+                    
+                    # Penalize straying too far from household base (1.0)
+                    deviation = abs(m_pro - 1.0) + abs(m_carb - 1.0) + abs(m_other - 1.0)
+                    score -= (deviation * 0.1)
+                    
+                    if total_pro < target_pro * 0.8:
+                        score -= 10.0
+                        
+                    if total_cal > target_cal * 1.15:
+                        score -= 10.0
+                        
+                    if score > best_score:
+                        best_score = score
+                        best_state = current_state
+                        
         if not best_state:
-            # Fallback if somehow loop didn't hit (shouldn't happen)
+            # Fallback
             best_state = [{'qty': s['internal_ratio']} for s in state]
 
         result = []

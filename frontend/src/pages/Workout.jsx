@@ -921,10 +921,7 @@ const Workout = () => {
 
         console.log('🏋️ Fetching workout plan...', forceRefresh ? '(Force Refresh)' : '(Cache Check)');
 
-        const token = localStorage.getItem('token');
-        if (!token) {
-          throw new Error('No authentication token found');
-        }
+        // Authentication is handled via HttpOnly cookies (SEC-1)
 
         // ✅ FIX: Use fresh profile from API instead of stale localStorage.user
         // localStorage.user only has {id, name, email} — no fitness profile fields!
@@ -1480,14 +1477,7 @@ const Workout = () => {
         }
 
         try {
-          // Check if user is logged in
-          const token = localStorage.getItem('token');
-          if (!token) {
-            showError('Please log in to swap rest days.', 3000);
-            navigate('/login');
-            return;
-          }
-          
+          // Check if user is logged in (Authentication is handled via HttpOnly cookies)
           // Get user email - try localStorage first, then fetch from API if needed
           let email = '';
           
@@ -1625,12 +1615,7 @@ const Workout = () => {
     }
 
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        showError('Please log in to swap workout days.', 3000);
-        navigate('/login');
-        return;
-      }
+      // Authentication is handled via HttpOnly cookies
 
       const email = await getSwapEmail();
       if (!email) {

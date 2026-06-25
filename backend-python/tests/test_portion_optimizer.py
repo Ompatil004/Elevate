@@ -2,73 +2,129 @@ import sys
 import os
 
 # Add backend-python to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from app.deterministic_meal_engine import optimize_portions as old_optimize
-from app.nutrition_engine.portion_optimizer import optimize_portions as new_optimize
+from app.nutrition_engine.portion_optimizer import PortionOptimizer
 
-def test_portion_optimizer_equivalence():
-    # Mock some components matching the structure of pd.Series -> dict conversion
+def test_portion_optimizer_basic():
+    optimizer = PortionOptimizer()
+    
     mock_components = [
         {
             "food_id": "1",
             "food_name": "White Rice",
-            "serving_quantity": 100,
-            "serving_unit": "g",
-            "portion_min": 50,
-            "portion_max": 300,
-            "portion_step": 25,
-            "calories_kcal": 130,
-            "protein_g": 2.7,
-            "carbohydrates_g": 28,
-            "fat_g": 0.3,
-            "swap_group": "rice",
-            "meal_role": "carb_base",
-            "budget_level": "Low",
-            "availability": "common",
-            "region": "All India"
+            "servings": {
+                "typical": 100.0,
+                "unit": "g",
+                "minimum": 50.0,
+                "maximum": 300.0,
+            },
+            "nutrition": {
+                "calories": 130.0,
+                "protein": 2.7,
+                "carbs": 28.0,
+                "fat": 0.3,
+                "fiber": 0.4
+            },
+            "semantics": {
+                "category": "Rice",
+                "meal_role": "carb_base",
+                "internal_ratio": 100.0,
+                "protein_density": 0.08
+            }
         },
         {
             "food_id": "2",
-            "food_name": "Dal Tadka",
-            "serving_quantity": 1,
-            "serving_unit": "bowl",
-            "portion_min": 0.5,
-            "portion_max": 2,
-            "portion_step": 0.5,
-            "calories_kcal": 150,
-            "protein_g": 7,
-            "carbohydrates_g": 20,
-            "fat_g": 5,
-            "swap_group": "dal & pulses",
-            "meal_role": "protein_main",
-            "budget_level": "Low",
-            "availability": "common",
-            "region": "North India"
+            "food_name": "Paneer Tikka",
+            "servings": {
+                "typical": 100.0,
+                "unit": "g",
+                "minimum": 50.0,
+                "maximum": 250.0,
+            },
+            "nutrition": {
+                "calories": 250.0,
+                "protein": 18.0,
+                "carbs": 5.0,
+                "fat": 17.0,
+                "fiber": 1.0
+            },
+            "semantics": {
+                "category": "Paneer & Tofu",
+                "meal_role": "protein_main",
+                "internal_ratio": 100.0,
+                "protein_density": 0.28
+            }
         }
     ]
     
-    target_cal = 400
+    target_macros = {
+        "calories": 500,
+        "protein": 25
+    }
     
-    print("Running old engine optimizer...")
-    old_result, old_cal = old_optimize(mock_components, target_cal)
+    result = optimizer.optimize_portions(mock_components, target_macros)
     
-    print("Running new engine optimizer...")
-    new_result, new_cal = new_optimize(mock_components, target_cal)
+    assert len(result) == 2, "Should return 2 components"
     
-    # Assert total calories are identical
-    assert old_cal == new_cal, f"Calorie mismatch: Old={old_cal}, New={new_cal}"
+    total_cal = sum(item["nutrition"]["calories"] for item in result)
+    total_pro = sum(item["nutrition"]["protein"] for item in result)
     
-    # Assert result items are identical
-    assert len(old_result) == len(new_result), "Result length mismatch"
+    # Assert macros are optimized reasonably close to target
+    assert 400 <= total_cal <= 600, f"Calorie optimized {total_cal} is not close to target 500"
+    assert 18 <= total_pro <= 35, f"Protein optimized {total_pro} is not close to target 25"
     
-    for old_item, new_item in zip(old_result, new_result):
-        # We need to ignore differences in object reference for _raw, but compare contents
-        old_raw = old_item.pop('_raw')
-        new_raw = new_item.pop('_raw')
-        assert old_item == new_item, f"Mismatch found:\nOld: {old_item}\nNew: {new_item}"
-        
-    print("SUCCESS: Portion Optimizer Migration Test Passed! Outputs are 100% identical.")
+    # Assert portion limits are respected
+    for item in result:
+        qty = item["serving_qty"]
+        if item["food_id"] == "1":
+            assert 50 <= qty <= 300, f"White Rice quantity {qty} out of bounds [50, 300]"
+        elif item["food_id"] == "2":
+            assert 50 <= qty <= 250, f"Paneer Tikka quantity {qty} out of bounds [50, 250]"
+
+def test_portion_optimizer_salad_cap():
+    optimizer = PortionOptimizer()
+    
+    mock_components = [
+        {
+            "food_id": "3",
+            "food_name": "Onion Cucumber Raita",
+            "servings": {
+                "typical": 1.0,
+                "unit": "bowl",
+                "minimum": 0.5,
+                "maximum": 2.0,
+            },
+            "nutrition": {
+                "calories": 80.0,
+                "protein": 3.0,
+                "carbs": 8.0,
+                "fat": 4.0,
+                "fiber": 1.0
+            },
+            "semantics": {
+                "category": "Dairy",
+                "meal_role": "dairy_side",
+                "internal_ratio": 1.0,
+                "protein_density": 0.15
+            }
+        }
+    ]
+    
+    # Raita is capped at 100 calories or 1.5 bowls by portion optimizer rules
+    target_macros = {
+        "calories": 500,
+        "protein": 30
+    }
+    
+    result = optimizer.optimize_portions(mock_components, target_macros)
+    
+    assert len(result) == 1
+    raita_item = result[0]
+    assert raita_item["nutrition"]["calories"] <= 120, f"Raita calories {raita_item['nutrition']['calories']} exceeded cap limit"
+    assert raita_item["serving_qty"] <= 1.5, f"Raita quantity {raita_item['serving_qty']} exceeded salad cap limit"
 
 if __name__ == "__main__":
-    test_portion_optimizer_equivalence()
+    test_portion_optimizer_basic()
+    test_portion_optimizer_salad_cap()
+    print("All Portion Optimizer tests passed!")

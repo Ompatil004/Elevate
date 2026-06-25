@@ -14,13 +14,13 @@ class TestMealScorer(unittest.TestCase):
                 "food_id": "1",
                 "semantics": {"meal_role": "protein_main", "family": "poultry"},
                 "compatibility": {"carb_base": 100},
-                "nutrition": {"calories": 300, "protein": 30, "carbs": 10, "fat": 15}
+                "nutrition": {"calories": 300, "protein": 30, "carbs": 10, "fat": 15, "fiber": 2.0}
             },
             {
                 "food_id": "2",
                 "semantics": {"meal_role": "carb_base", "family": "grain"},
                 "compatibility": {"protein_main": 100},
-                "nutrition": {"calories": 200, "protein": 5, "carbs": 40, "fat": 2}
+                "nutrition": {"calories": 200, "protein": 5, "carbs": 40, "fat": 2, "fiber": 2.0}
             }
         ]
 
@@ -34,7 +34,7 @@ class TestMealScorer(unittest.TestCase):
         
         breakdown = score_dict["breakdown"]
         self.assertGreaterEqual(breakdown["macro_score"], 90, "Macros are perfectly matched, should be near 100")
-        self.assertEqual(breakdown["semantic_score"], 100, "100 compatibility should yield 100 semantic score")
+        self.assertEqual(breakdown["semantic_score"], 110.0, "1.2 compatibility in matrix should yield 110 semantic score")
         self.assertEqual(breakdown["realism_score"], 100, "Valid plate should have 100 realism score")
         self.assertEqual(breakdown["variety_score"], 100, "Mock tracker has 0 penalty")
 
