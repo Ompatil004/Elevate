@@ -1201,25 +1201,28 @@ function Dashboard({ onLogout }) {
           // Walk backwards from today, day by day
           const dateCursor = new Date();
           dateCursor.setHours(0, 0, 0, 0);
+          const todayStrForStreak = getLocalDateStr(new Date());
           for (let attempts = 0; attempts < 365; attempts++) {
             if (dateCursor < registrationDate) {
               break;
             }
 
             const dateKey = getLocalDateStr(dateCursor);
+            const isToday = dateKey === todayStrForStreak;
             const entry = trendsByDate.get(dateKey);
 
-            if (!entry) break; // No record for this date = streak broken
-
-            const mealDone = !!entry.meal_completed;
-            const workoutDone = !!entry.workout_completed;
-            // Streak is only extended if user actually completes the main daily tasks.
+            const mealDone = entry ? !!entry.meal_completed : false;
+            const workoutDone = entry ? !!entry.workout_completed : false;
             const dayCompleted = workoutDone || mealDone;
 
             if (dayCompleted) {
               currentStreak++;
               dateCursor.setDate(dateCursor.getDate() - 1);
+            } else if (isToday) {
+              // It's normal if today isn't done yet, just move to yesterday
+              dateCursor.setDate(dateCursor.getDate() - 1);
             } else {
+              // A past day was missed, streak broken
               break;
             }
           }
@@ -1265,10 +1268,14 @@ function Dashboard({ onLogout }) {
           let currentStreak = 0;
           const dateCursor = new Date();
           dateCursor.setHours(0, 0, 0, 0);
+          const todayStrForStreakFallback = getLocalDateStr(new Date());
           for (let i = 0; i < 365; i++) {
             const dateKey = getLocalDateStr(dateCursor);
+            const isToday = dateKey === todayStrForStreakFallback;
             if (uniqueDays.has(dateKey)) {
               currentStreak++;
+              dateCursor.setDate(dateCursor.getDate() - 1);
+            } else if (isToday) {
               dateCursor.setDate(dateCursor.getDate() - 1);
             } else {
               break;
