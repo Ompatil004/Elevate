@@ -85,6 +85,16 @@ async def _generate_and_save_new_plan(user_id: str, profile: dict) -> dict:
             meal_plan = new_plan_result
             stats = {}
             shopping_list = {}
+
+        # V6 engine returns Day_1..Day_7 keys but frontend expects Monday..Sunday.
+        # Remap here so every day shows its own unique meals.
+        _DAY_KEY_MAP = {
+            "Day_1": "Monday",  "Day_2": "Tuesday", "Day_3": "Wednesday",
+            "Day_4": "Thursday","Day_5": "Friday",  "Day_6": "Saturday",
+            "Day_7": "Sunday"
+        }
+        if isinstance(meal_plan, dict) and any(k in _DAY_KEY_MAP for k in meal_plan):
+            meal_plan = {_DAY_KEY_MAP.get(k, k): v for k, v in meal_plan.items()}
             
     except Exception as e:
         print(f"Error generating meal plan: {e}")
