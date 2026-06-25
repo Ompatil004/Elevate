@@ -18,6 +18,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app/ ./app/
 COPY data/ ./data/
 COPY models/ ./models/
+COPY config/ ./config/
 COPY server.py ./
 
 EXPOSE 8000
