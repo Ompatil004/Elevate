@@ -505,7 +505,8 @@ async def _load_or_generate_user_weekly_plan(user_doc: Dict[str, Any]) -> Dict[s
             )
             logger.info("Successfully rolled forward nutrition plan with workout plan.")
         except Exception as meal_err:
-            logger.warning("Could not regenerate nutrition plan during week rollover: %s", meal_err)
+            logger.exception("Nutrition generation failed during week rollover")
+            raise
 
     week_metadata = _build_week_metadata(
         weekly_plan,

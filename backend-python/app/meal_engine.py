@@ -29,6 +29,9 @@ class MealEngine:
         base_dir = os.path.dirname(__file__)
         data_dir = os.path.join(base_dir, '..', 'data')
         config_dir = os.path.join(base_dir, '..', 'config')
+        print(f"[MealEngine] Config directory resolved to: {config_dir}")
+        print(f"[MealEngine] Config directory exists: {os.path.exists(config_dir)}")
+        print(f"[MealEngine] Templates exist: {os.path.exists(os.path.join(config_dir, 'meal_templates.yaml'))}")
         self.engine = NutritionEngineV6(data_dir=data_dir, config_dir=config_dir)
         
         self.intensity_multipliers = {
