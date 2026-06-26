@@ -5,7 +5,7 @@ from app.nutrition_engine.config import NUTRITION_RULES
 
 # Per-food calorie caps: prevents any single side item from being over-scaled
 # Keys are substrings matched against food_name.lower()
-FOOD_CALORIE_CAPS = {
+FOOD_CALORIE_CAPS = NUTRITION_RULES.get("food_calorie_caps", {
     'salad':   150,   # max 150 cal for any salad
     'raita':   100,   # max 100 cal
     'kachumber': 120,
@@ -16,10 +16,10 @@ FOOD_CALORIE_CAPS = {
     'achar':    30,
     'tea':      80,
     'coffee':   100,
-}
+})
 
 # Overrides for salad-like foods: max bowls regardless of protein target
-SALAD_MAX_BOWLS = 1.5
+SALAD_MAX_BOWLS = float(NUTRITION_RULES.get("portions", {}).get("salad_raita_max_bowl", 1.0))
 SALAD_KEYWORDS = {'salad', 'raita', 'kachumber', 'kosambari', 'tossed', 'pachadi'}
 
 def _format_serving(qty: float, unit: str, name: str = '', cal: float = 0.0) -> str:
@@ -116,7 +116,7 @@ class PortionOptimizer:
                 
             food_name_lower = str(c.get('food_name', '')).lower()
             if 'whey' in food_name_lower or 'protein powder' in food_name_lower:
-                p_max = min(p_max, 1.0)
+                p_max = min(p_max, float(NUTRITION_RULES.get("portions", {}).get("whey_max_scoop", 1.0)))
             if 'chutney' in food_name_lower or 'pickle' in food_name_lower:
                 p_max = min(p_max, float(NUTRITION_RULES["portions"]["chutney_pickle_max_tbsp"]))
             if 'salad' in food_name_lower or 'raita' in food_name_lower:
@@ -124,7 +124,7 @@ class PortionOptimizer:
                     p_max = min(p_max, float(NUTRITION_RULES["portions"]["salad_raita_max_bowl"]))
             if any(drink in food_name_lower for drink in ('milkshake', 'smoothie', 'juice', 'drink', 'lassi', 'chaas', 'buttermilk', 'coffee', 'tea', 'water', 'lemonade')):
                 if unit in ('glass', 'glasses', 'cup', 'cups', 'mug', 'mugs'):
-                    p_max = min(p_max, 1.0)
+                    p_max = min(p_max, float(NUTRITION_RULES.get("portions", {}).get("drink_max_glass", 1.0)))
                     
             if unit != db_unit and internal_ratio > 0:
                 base_qty = internal_ratio
@@ -197,19 +197,19 @@ class PortionOptimizer:
                 
             food_name_lower = str(c.get('food_name', '')).lower()
             if 'whey' in food_name_lower or 'protein powder' in food_name_lower:
-                p_max = min(p_max, 1.0) # Cap at 1 scoop/glass
+                p_max = min(p_max, float(NUTRITION_RULES.get("portions", {}).get("whey_max_scoop", 1.0))) # Cap at configured max whey
             if 'chutney' in food_name_lower or 'pickle' in food_name_lower:
                 p_max = min(p_max, float(NUTRITION_RULES["portions"]["chutney_pickle_max_tbsp"])) # Max 2 tbsp
             if any(kw in food_name_lower for kw in SALAD_KEYWORDS):
                 if unit in ('bowl', 'bowls', 'plate', 'plates'):
-                    p_max = min(p_max, SALAD_MAX_BOWLS)  # Max 1.5 bowl for salad/raita
-                    p_min = max(0.5, p_min)              # Min 0.5 bowl
+                    p_max = min(p_max, SALAD_MAX_BOWLS)  # Max configured bowl for salad/raita
+                    p_min = max(float(NUTRITION_RULES.get("portions", {}).get("salad_raita_min_bowl", 0.5)), p_min) # Min bowl
             elif 'salad' in food_name_lower or 'raita' in food_name_lower:
                 if unit in ('bowl', 'bowls', 'plate', 'plates'):
-                    p_max = min(p_max, float(NUTRITION_RULES["portions"]["salad_raita_max_bowl"])) # Max 1 bowl/plate
+                    p_max = min(p_max, float(NUTRITION_RULES["portions"]["salad_raita_max_bowl"])) # Max configured bowl/plate
             if any(drink in food_name_lower for drink in ('milkshake', 'smoothie', 'juice', 'drink', 'lassi', 'chaas', 'buttermilk', 'coffee', 'tea', 'water', 'lemonade')):
                 if unit in ('glass', 'glasses', 'cup', 'cups', 'mug', 'mugs'):
-                    p_max = min(p_max, 1.0) # Cap at 1 glass/cup for drinks
+                    p_max = min(p_max, float(NUTRITION_RULES.get("portions", {}).get("drink_max_glass", 1.0))) # Cap at configured max drinks
                 
             if unit in ('piece', 'pieces', 'unit', 'number', 'slice', 'sandwich', 'medium fruit'):
                 p_step = 1.0

@@ -13,9 +13,24 @@ variety:
 portions:
   chutney_pickle_max_tbsp: 2.0
   salad_raita_max_bowl: 1.0
+  salad_raita_min_bowl: 0.5
+  whey_max_scoop: 1.0
+  drink_max_glass: 1.0
   condiment_max_calories_percent: 15.0
   side_dish_max_calories_percent: 40.0
   side_dish_multiplier_max: 1.0
+
+food_calorie_caps:
+  salad: 150
+  raita: 100
+  kachumber: 120
+  kosambari: 120
+  tossed: 150
+  chutney: 50
+  pickle: 30
+  achar: 30
+  tea: 80
+  coffee: 100
 
 retry_limits:
   candidate: 20
@@ -131,3 +146,26 @@ performance:
   max_candidates_per_meal: 15
   max_templates_evaluated: 5
   max_optimization_per_meal: 1
+
+# ── Candidate Generation Tuning ───────────────────────────────────────────
+# Tune these values based on Phase 0 diagnostic output.
+# diversity_filter.top_n_percent: fraction of passing candidates kept before
+# random sampling.  Start at 0.50; raise toward 0.80 only if acceptance rate
+# remains below 10% after Phase 1 template-driven generation is in place.
+candidate_generation:
+  diversity_filter:
+    top_n_percent: 0.50   # baseline — tune up in 0.10 increments based on metrics
+  acceptance_rate_warning_threshold: 0.05  # log WARNING if acceptance_rate < this
+
+# ── Daily Validator Tolerances ────────────────────────────────────────────
+# Allowed calorie / protein deviation per attempt before "Failed Day" fires.
+# Keeping these in config avoids burying magic numbers in weekly_optimizer.py.
+daily_validator:
+  calories:
+    first_attempt: 0.12   # 12% deviation allowed on attempt 1 (was 5%)
+    second_attempt: 0.15  # 15% on attempt 2
+    final: 0.20           # 20% on all subsequent attempts
+  protein:
+    first_attempt: 0.12
+    second_attempt: 0.15
+    final: 0.20

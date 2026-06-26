@@ -1,6 +1,6 @@
 import os
 import logging
-from typing import Dict, Any
+from typing import Dict, Any,List
 
 from app.nutrition_engine.food_graph import FoodGraph
 from app.nutrition_engine.template_manager import TemplateManager
@@ -91,7 +91,7 @@ class NutritionEngineV6:
         return {
             "status": "success" if validation_report["is_valid"] else "error",
             "validation_report": validation_report,
-            "weekly_plan": weekly_plan if validation_report["is_valid"] else None,
+            "weekly_plan": weekly_plan,
             "stats": stats,
             "daily_targets": daily_targets
         }

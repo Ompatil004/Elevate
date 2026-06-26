@@ -1,6 +1,8 @@
 import os
 import json
 import logging
+import datetime
+import time
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Any, Set, Tuple
 from types import MappingProxyType
@@ -17,6 +19,29 @@ from app.nutrition_engine.food_utils import get_meal_suitability
 from app.nutrition_engine.config import NUTRITION_RULES
 
 logger = logging.getLogger(__name__)
+
+# ── Phase 0 Diagnostics ───────────────────────────────────────────────────
+# JSONL file that accumulates one structured record per generate_candidates() call.
+# Writing is best-effort: if the file cannot be written (permissions, disk full, etc.)
+# the exception is caught and logged so meal generation is never blocked.
+_METRICS_LOG_DIR  = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    "logs"
+)
+_METRICS_LOG_PATH = os.path.join(_METRICS_LOG_DIR, "candidate_generation_metrics.jsonl")
+
+
+def _write_candidate_metrics(record: dict) -> None:
+    """Append one JSON object to the candidate-generation metrics JSONL file.
+
+    Best-effort: any I/O error is swallowed so it never interrupts meal generation.
+    """
+    try:
+        os.makedirs(_METRICS_LOG_DIR, exist_ok=True)
+        with open(_METRICS_LOG_PATH, "a", encoding="utf-8") as fh:
+            fh.write(json.dumps(record, ensure_ascii=False) + "\n")
+    except Exception:
+        logger.exception("[CandidateGenerator] Failed to write candidate metrics — ignoring")
 
 # ── Meal-type suitability score thresholds ────────────────────────────────
 # Foods scoring below these thresholds for a given meal type are rejected.
@@ -277,9 +302,9 @@ class CandidateGenerator:
         self._user_pattern_cache[profile_str] = (allergy_regex, never_regex)
         return allergy_regex, never_regex
 
-    def _is_safe_meal(self, plate: List[Dict], user_profile: Dict) -> bool:
+    def _is_safe_meal_with_reason(self, plate: List[Dict], user_profile: Dict) -> Tuple[bool, str]:
         if not user_profile:
-            return True
+            return True, ""
             
         allergy_pattern, never_pattern = self._get_user_patterns(user_profile)
             
@@ -289,19 +314,25 @@ class CandidateGenerator:
             allergens = item.get('allergens', '').lower()
             
             # Check blocklist
-            if self.blocklist_pattern and self.blocklist_pattern.search(name):
-                return False
+            if self.blocklist_pattern:
+                _m = self.blocklist_pattern.search(name)
+                if _m:
+                    logger.debug(
+                        "[blocklist] '%s' rejected — matched keyword '%s'",
+                        item.get('food_name', ''), _m.group(0),
+                    )
+                    return False, "blocklist_match"
                 
             # Check allergies (against name and allergens field)
             if allergy_pattern:
                 if allergy_pattern.search(name) or allergy_pattern.search(allergens):
-                    return False
+                    return False, "allergy_match"
                     
             # Check never recommend
             if never_pattern and never_pattern.search(name):
-                return False
+                return False, "never_recommend_match"
                 
-        return True
+        return True, ""
 
     def generate_candidates(
         self,
@@ -325,6 +356,7 @@ class CandidateGenerator:
                          the quick quality filter for calorie-bound checking.
         """
         import random as _rng
+        _t_start = time.perf_counter()
         rng = _rng.Random(day_seed)
 
         excluded_foods  = excluded_foods or set()
@@ -343,11 +375,41 @@ class CandidateGenerator:
         target_cuisine  = (user_profile or {}).get('cuisine_preference', '')
 
         candidates = []
+
+        # ── Phase 0: Full rejection statistics ───────────────────────────────
+        # Each key maps to one specific rejection rule.  Counters are incremented
+        # inside the filter loop and written to the JSONL metrics file at the end.
+        rejection_stats: Dict[str, int] = {
+            "template_mismatch":      0,   # legacy catch-all (should stay ~0 now)
+            "empty_plate":            0,   # plate had no items
+            "missing_role":           0,   # template required-role count not met
+            "forbidden_role":         0,   # template forbidden role present in plate
+            "meal_type_mismatch":     0,   # food fails hard meal-type suitability
+            "meal_suitability_failure":0,  # food below meal-type suitability score
+            "breakfast_structure":    0,   # breakfast structural rule violated
+            "snack_structure":        0,   # snack structural rule violated
+            "duplicate_dish_family":  0,   # two items share the same dish_family
+            "duplicate_protein_main": 0,   # two protein_main items with same primary_ingredient
+            "duplicate_carb_base":    0,   # two items with carb_base role
+            "duplicate_side_category":0,   # two items with same side category
+            "cuisine_compat":         0,   # incompatible cuisine mix (soft → currently tracked only)
+            "daily_diversity":        0,   # dish_family already used earlier today
+            "weekly_diversity":       0,   # food already used this week
+            "protein_threshold":      0,   # plate cannot reach minimum protein
+            "calorie_threshold":      0,   # plate outside calorie feasibility bounds
+            "missing_required_role":  0,   # protein/carb/veg structural shortfall
+            "allergy":                0,   # allergy / never-recommend violation
+            "diet":                   0,   # diet incompatibility
+            "duplicate_food_id":      0,   # duplicate food_id within a plate
+            "duplicate_food_name":    0,   # duplicate food_name within a plate
+        }
         gen_stats = {
-            "total_candidates": 0,
-            "passed_structure": 0,
-            "failed_structure": 0,
-            "failed_quality": 0,
+            "total_candidates":   0,
+            "passed_structure":   0,
+            "failed_structure":   0,
+            "failed_quality":     0,
+            "passed_quick_filter": 0,
+            "used_fallback":      False,
         }
 
         if not daily_rules:
@@ -364,9 +426,9 @@ class CandidateGenerator:
             meal_type, diet_type, template, rng, max_prep_time, allowed_complexity, excluded_foods
         )
 
-        # SOURCE 2: Dynamic Semantic Generation (goal-aware, diversity-weighted)
+        # SOURCE 2: Dynamic Semantic Generation — template-driven (Phase 1A)
         dynamic_candidates = self._get_dynamic_candidates(
-            meal_type, diet_type, rng, excluded_foods, goal, target_cuisine, daily_context
+            template, meal_type, diet_type, rng, excluded_foods, goal, target_cuisine, daily_context
         )
 
         raw_candidates = blueprint_candidates + dynamic_candidates
@@ -375,12 +437,33 @@ class CandidateGenerator:
 
         safe_candidates = []
         for meal in raw_candidates:
-            if not self._is_safe_meal(meal, user_profile):
+            # Allergy / never-recommend check
+            safe_ok, safe_reason = self._is_safe_meal_with_reason(meal, user_profile)
+            if not safe_ok:
+                if safe_reason in rejection_stats:
+                    rejection_stats[safe_reason] += 1
+                else:
+                    rejection_stats[safe_reason] = 1
                 gen_stats["failed_structure"] += 1
                 continue
 
-            if not self._is_valid_composition(meal, meal_type, template):
+            # Structural composition check — returns (bool, reason_str)
+            comp_ok, comp_reason = self._is_valid_composition_with_reason(
+                meal, meal_type, template
+            )
+            if not comp_ok:
+                # Map reason string to the appropriate rejection counter
+                if comp_reason in rejection_stats:
+                    rejection_stats[comp_reason] += 1
+                else:
+                    rejection_stats["template_mismatch"] += 1
                 gen_stats["failed_structure"] += 1
+                logger.debug(
+                    "[%s] Plate rejected — %s | foods=%s",
+                    meal_type,
+                    comp_reason,
+                    [i.get('food_name', '') for i in meal],
+                )
                 continue
 
             # Hard post-validation: no duplicate food_ids within the plate
@@ -389,22 +472,38 @@ class CandidateGenerator:
                 for item in meal
             ]
             if len(set(plate_ids)) != len(plate_ids):
+                rejection_stats["duplicate_food_id"] += 1
                 gen_stats["failed_structure"] += 1
                 continue
 
             # Hard post-validation: no duplicate food names (case-insensitive)
             plate_names = [item.get("food_name", "").lower().strip() for item in meal]
             if len(set(plate_names)) != len(plate_names):
+                rejection_stats["duplicate_food_name"] += 1
                 gen_stats["failed_structure"] += 1
                 continue
 
-            # Quick Quality Filter — hard reject + soft penalty
-            qf_pass, qf_penalty = self._quick_quality_filter(
+            # Quick Quality Filter — returns (passed, penalty, reason)
+            qf_pass, qf_penalty, qf_reason = self._quick_quality_filter_with_reason(
                 meal, meal_type, daily_protein, daily_calories, goal
             )
             if not qf_pass:
+                if qf_reason in rejection_stats:
+                    rejection_stats[qf_reason] += 1
+                else:
+                    rejection_stats["calorie_threshold"] += 1
                 gen_stats["failed_quality"] += 1
+                logger.debug(
+                    "[%s] Quick-filter hard reject — %s | foods=%s",
+                    meal_type,
+                    qf_reason,
+                    [i.get('food_name', '') for i in meal],
+                )
                 continue
+
+            # Track soft cuisine incompatibility for diagnostics (not a reject)
+            if qf_reason == "cuisine_compat":
+                rejection_stats["cuisine_compat"] += 1
 
             # Attach penalty score for use by meal_scorer
             for item in meal:
@@ -412,11 +511,26 @@ class CandidateGenerator:
 
             safe_candidates.append(meal)
             gen_stats["passed_structure"] += 1
+            gen_stats["passed_quick_filter"] += 1
 
             if len(safe_candidates) >= max_candidates:
                 break   # performance cap
 
-        diverse_candidates = self._diversity_filter(safe_candidates, top_n_percent=0.5)
+        # ── Phase 1B: YAML-configurable diversity filter ──────────────────
+        cg_cfg = NUTRITION_RULES.get("candidate_generation", {})
+        df_pct = cg_cfg.get("diversity_filter", {}).get("top_n_percent", 0.50)
+        
+        # Simple proxy scoring function for the diversity filter
+        def _score_plate(plate):
+            score = 0.0
+            for item in plate:
+                sem = item.get("semantics", {})
+                score += min(sem.get("protein_density", 0.0) / 0.30, 1.0)
+                if target_cuisine and sem.get("cuisine", "") == target_cuisine:
+                    score += 0.5
+            return score
+            
+        diverse_candidates = self._diversity_filter(safe_candidates, top_n_percent=df_pct, score_fn=_score_plate)
 
         if len(diverse_candidates) > count:
             candidates = rng.sample(diverse_candidates, count)
@@ -424,8 +538,8 @@ class CandidateGenerator:
             candidates = diverse_candidates
 
         # If still empty — build a guaranteed fallback plate
+        used_fallback = False
         if not candidates:
-            # Estimate target calories for this meal type
             meal_cals_estimate = 0
             if daily_calories > 0:
                 try:
@@ -435,7 +549,6 @@ class CandidateGenerator:
                     cal_ratio = ratios.get(meal_type.lower(), (0.25, 0, 0, 0))[0]
                     meal_cals_estimate = daily_calories * cal_ratio
                 except Exception:
-                    # Fallback default ratios
                     default_ratios = {'breakfast': 0.25, 'lunch': 0.35, 'dinner': 0.30, 'snack': 0.10}
                     meal_cals_estimate = daily_calories * default_ratios.get(meal_type.lower(), 0.25)
 
@@ -444,12 +557,68 @@ class CandidateGenerator:
             )
             if fallback:
                 candidates = [fallback]
+                used_fallback = True
                 gen_stats["used_fallback"] = True
-                logger.warning(
-                    f"[CandidateGenerator] Used fallback meal builder for {meal_type} "
-                    f"(goal={goal}). No quality candidates found after "
-                    f"{gen_stats['total_candidates']} attempts."
-                )
+
+        # ── Phase 0: Log summary + write JSONL metrics ────────────────────
+        _elapsed_ms = int((time.perf_counter() - _t_start) * 1000)
+        total_attempts  = gen_stats["total_candidates"]
+        final_count     = len(candidates)
+        passed_qf       = gen_stats["passed_quick_filter"]
+        acceptance_rate = final_count / max(total_attempts, 1)
+
+        _warn_threshold = cg_cfg.get("acceptance_rate_warning_threshold", 0.05)
+
+        # Human-readable summary log (always)
+        _rej_lines = "\n".join(
+            f"    {k:<26}: {v}"
+            for k, v in rejection_stats.items()
+            if v > 0
+        ) or "    (none)"
+        logger.info(
+            "[CandidateGenerator][%s] Summary:\n"
+            "  Attempts             : %d\n"
+            "  Rejected by:\n%s\n"
+            "  Passed quick filter  : %d\n"
+            "  Final candidates     : %d\n"
+            "  Acceptance rate      : %.1f%%"
+            "%s",
+            meal_type, total_attempts,
+            _rej_lines,
+            passed_qf,
+            final_count,
+            acceptance_rate * 100,
+            "  ← WARNING: below threshold" if acceptance_rate < _warn_threshold else "",
+        )
+        if used_fallback:
+            logger.warning(
+                "[CandidateGenerator] Used fallback meal builder for %s "
+                "(goal=%s). No quality candidates found after %d attempts.",
+                meal_type, goal, total_attempts,
+            )
+        if acceptance_rate < _warn_threshold and total_attempts > 0:
+            logger.warning(
+                "[CandidateGenerator][%s] Acceptance rate %.1f%% is below %.0f%% threshold. "
+                "Top rejection cause: %s",
+                meal_type,
+                acceptance_rate * 100,
+                _warn_threshold * 100,
+                max(rejection_stats, key=rejection_stats.get, default="none"),
+            )
+
+        # Structured JSONL record — best-effort
+        _metrics_record = {
+            "timestamp":          datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
+            "meal_type":          meal_type,
+            "attempts":           total_attempts,
+            "passed_quick_filter": passed_qf,
+            "final_candidates":   final_count,
+            "acceptance_rate":    round(acceptance_rate, 6),
+            "used_fallback":      used_fallback,
+            "generation_time_ms": _elapsed_ms,
+            "rejections":         {k: v for k, v in rejection_stats.items() if v > 0},
+        }
+        _write_candidate_metrics(_metrics_record)
 
         return candidates, gen_stats
 
@@ -468,7 +637,7 @@ class CandidateGenerator:
         # Template role validation (required and forbidden roles)
         if template:
             is_blueprint = any(item.get("semantics", {}).get("meal_id") for item in plate)
-            roles_in_plate = [item.get("semantics", {}).get("meal_role", "") for item in plate]
+            roles_in_plate = [item.get("template_role") or item.get("semantics", {}).get("meal_role", "") for item in plate]
             
             # Enforce required roles for dynamic combos, with combo_meal flexibility
             if not is_blueprint:
@@ -589,6 +758,240 @@ class CandidateGenerator:
                 return False
 
         return True
+
+    def _is_valid_composition_with_reason(
+        self, plate: List[Dict], meal_type: str, template: Dict = None
+    ) -> Tuple[bool, str]:
+        """Thin wrapper around _is_valid_composition that also returns a rejection reason.
+
+        Duplicates the check sequence so each early-return can be labelled.
+        The labels map directly to keys in rejection_stats inside generate_candidates().
+
+        Reason labels are intentionally granular so the JSONL metrics file shows
+        *which* rule fired instead of a single overloaded ``template_mismatch``:
+          empty_plate, missing_role, forbidden_role, duplicate_food_id,
+          duplicate_dish_family, meal_type_mismatch, meal_suitability_failure,
+          breakfast_structure, snack_structure, missing_required_role.
+        """
+        if not plate:
+            return False, "empty_plate"
+
+        # Resolve each item's effective role: dynamically-assigned template_role
+        # takes precedence, falling back to the dataset's synthesized meal_role.
+        # NEVER read/write semantics["meal_role"] destructively here.
+        roles_in_plate = [
+            item.get("template_role") or item.get("semantics", {}).get("meal_role", "")
+            for item in plate
+        ]
+
+        if template:
+            is_blueprint = any(item.get("semantics", {}).get("meal_id") for item in plate)
+
+            if not is_blueprint:
+                for req in template.get("required", []):
+                    req_role  = req.get("role")
+                    req_count = req.get("count", 1)
+                    match_count = roles_in_plate.count(req_role)
+                    if match_count < req_count:
+                        self._log_composition_reject(
+                            "missing_role", meal_type, template, plate,
+                            roles_in_plate, detail=f"role '{req_role}' x{req_count} "
+                            f"required, found {match_count}",
+                        )
+                        return False, "missing_role"
+
+            for forb in template.get("forbidden", []):
+                if forb.get("role") in roles_in_plate:
+                    self._log_composition_reject(
+                        "forbidden_role", meal_type, template, plate,
+                        roles_in_plate, detail=f"forbidden role '{forb.get('role')}' present",
+                    )
+                    return False, "forbidden_role"
+
+        food_ids = [
+            str(item.get("food_id") or item.get("food_name", "")).lower().strip()
+            for item in plate
+        ]
+        if len(set(food_ids)) != len(food_ids):
+            return False, "duplicate_food_id"
+
+        dish_families = [
+            item.get("semantics", {}).get("dish_family", "other") for item in plate
+        ]
+        non_other = [df for df in dish_families if df != "other"]
+        if len(non_other) != len(set(non_other)):
+            # Quality rule retained — log which foods collide on dish_family.
+            if logger.isEnabledFor(logging.DEBUG):
+                seen: Dict[str, str] = {}
+                for item in plate:
+                    fam = item.get("semantics", {}).get("dish_family", "other")
+                    if fam == "other":
+                        continue
+                    fn = item.get("food_name", "")
+                    if fam in seen:
+                        logger.debug(
+                            "[%s] duplicate_dish_family — '%s' & '%s' share dish_family=%s",
+                            meal_type, seen[fam], fn, fam,
+                        )
+                    else:
+                        seen[fam] = fn
+            return False, "duplicate_dish_family"
+
+        threshold = SUITABILITY_THRESHOLDS.get(meal_type.lower(), 50)
+        for item in plate:
+            fn = item.get("food_name", "")
+            if not self._is_meal_type_suitable(fn, meal_type):
+                self._log_composition_reject(
+                    "meal_type_mismatch", meal_type, template, plate,
+                    roles_in_plate, detail=f"'{fn}' not suitable for {meal_type}",
+                )
+                return False, "meal_type_mismatch"
+            if get_meal_suitability(fn, meal_type) < threshold:
+                self._log_composition_reject(
+                    "meal_suitability_failure", meal_type, template, plate,
+                    roles_in_plate,
+                    detail=f"'{fn}' suitability {get_meal_suitability(fn, meal_type)} < {threshold}",
+                )
+                return False, "meal_suitability_failure"
+
+        # ── Structural composition heuristics ────────────────────────────────
+        # Category sets below MUST match the strings actually used in the dataset
+        # (data/ingredient_database.json).  Phantom names left over from an older
+        # schema (e.g. "Meat & Chicken", "Paneer & Tofu", "Seafood") silently
+        # disabled protein detection for chicken/fish/paneer dishes — fixed here.
+        _PROTEIN_CATS = {
+            "Dal & Pulses", "Chicken/Meat", "Paneer", "Eggs", "Fish/Seafood",
+            # legacy aliases kept for forward-compatibility:
+            "Meat & Chicken", "Paneer & Tofu", "Seafood",
+        }
+        _CURRY_CATS = {
+            "Dal & Pulses", "Chicken/Meat", "Paneer",
+            "Meat & Chicken", "Paneer & Tofu",
+        }
+        _CARB_CATS = {
+            "Rice", "Whole Grains", "Millets & Whole Grains", "Breakfast",
+            "Breads & Roti", "Oats & Cereals",
+        }
+        _VEG_CATS = {"Vegetables", "Leafy Greens", "Salad"}
+
+        curry_count = salad_count = 0
+        has_rice = has_dal = has_protein = has_carb = has_veg = has_snack_item = False
+        snack_allowed_cats = ['fruit', 'dairy', 'protein snack', 'nuts', 'smoothie', 'beverage']
+        df = "other"
+
+        for item, role in zip(plate, roles_in_plate):
+            name = item.get("food_name", "").lower()
+            sem  = item.get("semantics", {})
+            cat  = sem.get("category", "")
+            styles   = sem.get("cooking_style", "")
+            pdensity = sem.get("protein_density", 0)
+            df       = sem.get("dish_family", "other")
+
+            if df in ("curry", "korma", "dal", "sambar") or \
+               "Gravy" in styles or "Curry" in styles or \
+               cat in _CURRY_CATS:
+                curry_count += 1
+            if "salad" in name or "raita" in name or cat == "Salad":
+                salad_count += 1
+            if df in ("rice", "plain_rice", "fried_rice", "pulao", "biryani") or \
+               "rice" in name or "pulao" in name or "biryani" in name:
+                has_rice = True
+            if df == "dal" or "dal" in name or "sambar" in name:
+                has_dal = True
+            # Role-aware protein detection: trust an explicit protein role, the
+            # corrected category set, or a high protein density.
+            if role in ("protein_main", "curry") or pdensity > 0.12 or cat in _PROTEIN_CATS:
+                has_protein = True
+            if role == "carb_base" or cat in _CARB_CATS:
+                has_carb = True
+            if role in ("veg_side", "salad") or cat in _VEG_CATS:
+                has_veg = True
+            if cat.lower() in snack_allowed_cats or "fruit" in name or "smoothie" in name or "shake" in name or "nut" in name:
+                has_snack_item = True
+
+        mt = meal_type.lower()
+        if mt == "breakfast":
+            if curry_count >= 2 or salad_count >= 1 or (has_rice and has_dal):
+                self._log_composition_reject(
+                    "breakfast_structure", meal_type, template, plate, roles_in_plate,
+                    detail=f"curry={curry_count} salad={salad_count} "
+                    f"rice={has_rice} dal={has_dal}",
+                )
+                return False, "breakfast_structure"
+        elif mt == "lunch":
+            if not (has_protein and has_carb and has_veg):
+                if not (has_protein and has_carb):
+                    self._log_composition_reject(
+                        "missing_required_role", meal_type, template, plate, roles_in_plate,
+                        detail=f"protein={has_protein} carb={has_carb} veg={has_veg}",
+                    )
+                    return False, "missing_required_role"
+        elif mt == "dinner":
+            if not (has_protein and has_carb):
+                self._log_composition_reject(
+                    "missing_required_role", meal_type, template, plate, roles_in_plate,
+                    detail=f"protein={has_protein} carb={has_carb}",
+                )
+                return False, "missing_required_role"
+        elif mt == "snack":
+            if df in _MEAL_TYPE_BLOCKED_FAMILIES.get('snack', set()) or \
+               (has_rice and has_dal) or has_rice:
+                self._log_composition_reject(
+                    "snack_structure", meal_type, template, plate, roles_in_plate,
+                    detail=f"df={df} rice={has_rice} dal={has_dal}",
+                )
+                return False, "snack_structure"
+            if not has_snack_item:
+                return False, "missing_required_role"
+
+        return True, ""
+
+    def _log_composition_reject(
+        self,
+        reason: str,
+        meal_type: str,
+        template: Dict,
+        plate: List[Dict],
+        roles_in_plate: List[str],
+        detail: str = "",
+    ) -> None:
+        """Emit a structured DEBUG record describing a composition rejection.
+
+        Shows template id, meal type, required/detected/missing roles and a
+        per-food ``name -> meal_role / dish_family / category`` breakdown so the
+        cause can be diagnosed from logs without re-reading the validator code.
+        """
+        if not logger.isEnabledFor(logging.DEBUG):
+            return
+        template = template or {}
+        required_roles = [r.get("role") for r in template.get("required", [])]
+        detected = [r for r in roles_in_plate if r]
+        missing = [r for r in required_roles if roles_in_plate.count(r) < 1]
+        food_lines = []
+        for item in plate:
+            sem = item.get("semantics", {})
+            food_lines.append(
+                f"    {item.get('food_name', '?')} -> "
+                f"meal_role={item.get('template_role') or sem.get('meal_role', '')} "
+                f"dish_family={sem.get('dish_family', 'other')} "
+                f"category={sem.get('category', '')}"
+            )
+        logger.debug(
+            "[%s][Template %s] reject=%s %s\n"
+            "  Required roles: %s\n"
+            "  Detected roles: %s\n"
+            "  Missing roles : %s\n"
+            "  Foods:\n%s",
+            meal_type.upper(),
+            template.get("template_id", template.get("id", "?")),
+            reason,
+            f"({detail})" if detail else "",
+            required_roles or "(none)",
+            detected or "(none)",
+            missing or "(none)",
+            "\n".join(food_lines) or "    (empty)",
+        )
+
 
     def _get_blueprint_candidates(
         self,
@@ -781,9 +1184,9 @@ class CandidateGenerator:
             )
             # Only reject if clearly out of range (pre-optimization estimate, not exact)
             # Using scaling factor range [0.3, 3.0] to check feasibility
-            if raw_cals * 3.0 < cal_min:    # cannot possibly reach minimum even at 3x scale
+            if raw_cals * 4.0 < cal_min:    # cannot possibly reach minimum even at 4x scale
                 return False, 0.0
-            if raw_cals * 0.3 > cal_max:    # cannot possibly scale down to maximum even at 0.3x
+            if raw_cals * 0.2 > cal_max:    # cannot possibly scale down to maximum even at 0.2x
                 return False, 0.0
 
         # ── Soft: incompatible cuisine mix ───────────────────────────────
@@ -813,6 +1216,88 @@ class CandidateGenerator:
                 penalty += (count - 1) * 8.0
 
         return True, penalty
+
+    def _quick_quality_filter_with_reason(
+        self,
+        plate: List[Dict],
+        meal_type: str,
+        daily_protein: float,
+        daily_calories: float,
+        goal: str,
+    ) -> Tuple[bool, float, str]:
+        """Thin wrapper around _quick_quality_filter that also returns a reason string.
+
+        Returns (passed, penalty, reason) where reason is a rejection_stats key or
+        'cuisine_compat' for soft-penalty cuisine incompatibility (plate still passes).
+        """
+        if not plate:
+            return False, 0.0, "empty_plate"
+
+        cal_bounds = NUTRITION_RULES.get('calorie_distribution', {}).get(meal_type.lower(), {})
+        cal_min = cal_bounds.get('min', 0.08) * daily_calories
+        cal_max = cal_bounds.get('max', 0.45) * daily_calories
+
+        used_dish_families: set = set()
+        used_protein_mains: set = set()
+        cuisine_votes: dict = {}
+        cooking_style_votes: dict = {}
+        compat_map = NUTRITION_RULES.get('cuisine_compatibility', {})
+        penalty = 0.0
+
+        for item in plate:
+            sem  = item.get('semantics', {})
+            df   = sem.get('dish_family', 'other')
+            pi   = sem.get('primary_ingredient', 'other')
+            cu   = sem.get('cuisine', '') or ''
+            cs   = sem.get('cooking_style', '') or ''
+            role = sem.get('meal_role', '')
+
+            if df != 'other':
+                if df in used_dish_families:
+                    return False, 0.0, "duplicate_dish_family"
+                used_dish_families.add(df)
+
+            if role == 'protein_main' and pi != 'other':
+                if pi in used_protein_mains:
+                    return False, 0.0, "duplicate_protein_main"
+                used_protein_mains.add(pi)
+
+            if cu:
+                cuisine_votes[cu] = cuisine_votes.get(cu, 0) + 1
+            if cs:
+                cooking_style_votes[cs] = cooking_style_votes.get(cs, 0) + 1
+
+        if daily_calories > 0:
+            raw_cals = sum(float(i.get('nutrition', {}).get('calories', 0)) for i in plate)
+            if raw_cals * 4.0 < cal_min:
+                return False, 0.0, "calorie_threshold"
+            if raw_cals * 0.2 > cal_max:
+                return False, 0.0, "calorie_threshold"
+
+        cuisine_soft_flag = ""
+        detected_cuisines = set(cuisine_votes.keys())
+        if len(detected_cuisines) >= 2:
+            cuisine_groups = []
+            for cu in detected_cuisines:
+                for group_name, group_members in compat_map.items():
+                    if cu in group_members:
+                        cuisine_groups.append(group_name)
+                        break
+                else:
+                    cuisine_groups.append(cu)
+            if len(set(cuisine_groups)) >= 2:
+                penalty += 30.0
+                cuisine_soft_flag = "cuisine_compat"
+
+        for cu, count in cuisine_votes.items():
+            if count > 1:
+                penalty += (count - 1) * 10.0
+        for cs, count in cooking_style_votes.items():
+            if count > 1:
+                penalty += (count - 1) * 8.0
+
+        return True, penalty, cuisine_soft_flag
+
 
     def _build_fallback_meal(
         self,
@@ -906,8 +1391,81 @@ class CandidateGenerator:
         )
         return plate
 
+    def _pick_food_for_role(
+        self,
+        role: str,
+        meal_type: str,
+        diet_type: str,
+        used_df: Set[str],
+        used_ids: Set[str],
+        valid_ings: List[Dict],
+        rng,
+        goal_score_fn,
+    ) -> Optional[Dict]:
+        """Pick one food item that satisfies a template slot role.
+
+        Respects:
+        - Diet compatibility (already filtered into valid_ings)
+        - Meal-type suitability (already filtered into valid_ings)
+        - No dish_family collision with items already placed on this plate (used_df)
+        - No food_id collision with items already placed (used_ids)
+
+        Returns a deep-unfrozen copy of the food node, or None if no candidate found.
+        """
+        # Role → category/dish_family hints for weighted sampling
+        _ROLE_CATEGORIES: Dict[str, Set[str]] = {
+            "protein_main":   {'Dal & Pulses', 'Paneer & Tofu', 'Meat & Chicken',
+                               'Eggs', 'Seafood', 'Soya & Tofu'},
+            "carb_base":      {'Rice', 'Whole Grains', 'Millets & Whole Grains',
+                               'Breakfast', 'Breads & Roti', 'Oats & Cereals'},
+            "curry":          {'Dal & Pulses', 'Vegetables', 'Paneer & Tofu',
+                               'Meat & Chicken'},
+            "veg_side":       {'Vegetables', 'Leafy Greens'},
+            "salad":          {'Salad'},
+            "dairy_side":     {'Dairy & Eggs', 'Curd & Yogurt'},
+            "combo_meal":     {'Dal & Pulses', 'Paneer & Tofu', 'Meat & Chicken',
+                               'Rice', 'Breads & Roti'},
+            "beverage":       {'Beverages'},
+        }
+        preferred_cats = _ROLE_CATEGORIES.get(role, set())
+
+        # Split candidates into preferred (match role categories) and fallback
+        preferred = []
+        fallback  = []
+        for ing in valid_ings:
+            fid = str(ing.get('food_id', ing.get('food_name', ''))).lower()
+            df  = ing.get('semantics', {}).get('dish_family', 'other')
+            cat = ing.get('semantics', {}).get('category', '')
+
+            if fid in used_ids:
+                continue
+            if df != 'other' and df in used_df:
+                continue
+
+            if cat in preferred_cats or not preferred_cats:
+                preferred.append(ing)
+            else:
+                fallback.append(ing)
+
+        if not preferred:
+            logger.debug(
+                "[_pick_food_for_role][%s] No preferred-category food for role='%s'; "
+                "falling back. valid_cats=%s",
+                meal_type, role,
+                {i.get('semantics', {}).get('category') for i in valid_ings},
+            )
+        pool = preferred or fallback
+        if not pool:
+            return None
+
+        scores = [max(0.001, goal_score_fn(ing)) for ing in pool]
+        total  = sum(scores)
+        weights = [s / total for s in scores]
+        return _unfreeze(rng.choices(pool, weights=weights, k=1)[0])
+
     def _get_dynamic_candidates(
         self,
+        template: Dict[str, Any],
         meal_type: str,
         diet_type: str,
         rng,
@@ -916,13 +1474,14 @@ class CandidateGenerator:
         target_cuisine: str = '',
         daily_context: 'DailyMealContext' = None,
     ) -> List[List[Dict]]:
-        """
-        Goal-aware dynamic candidate generation.
+        """Template-driven dynamic candidate generation (Phase 1A).
 
-        Uses a weighted-sampling strategy instead of uniform random sampling:
-          score = 0.45*protein_density + 0.25*role_match + 0.15*cuisine_match + 0.15*compatibility
-        Weights shift by goal. Scores are further multiplied by DailyMealContext.diversity_weight()
-        to reduce probability of repeating dominant ingredients seen earlier in the day.
+        The generator fills whatever slots `template["required"]` defines.
+        It never knows the shape of a meal — the template does.
+        This means adding a vegetable slot, a raita slot, or a millet slot to
+        any template automatically populates that slot here without code changes.
+
+        Weighted sampling is goal-aware and diversity-penalised by DailyMealContext.
         """
         excluded_foods  = excluded_foods or set()
         daily_context   = daily_context or DailyMealContext()
@@ -940,13 +1499,14 @@ class CandidateGenerator:
         # Expected meal roles per meal_type (for role_match score)
         _EXPECTED_ROLES = {
             'breakfast': {'carb_base', 'protein_main'},
-            'lunch':     {'protein_main', 'curry', 'carb_base'},
+            'lunch':     {'protein_main', 'curry', 'carb_base', 'veg_side'},
             'dinner':    {'protein_main', 'curry', 'carb_base'},
             'snack':     {'dairy_side', 'salad', 'protein_main'},
         }
         expected_roles = _EXPECTED_ROLES.get(meal_type.lower(), set())
 
-        valid_ings = []
+        # Pre-filter: diet + meal-type suitability + exclusion
+        valid_ings: List[Dict] = []
         for ing in ingredients:
             ing_diet = 'Vegan' if ing.get('identity', {}).get('is_vegan') else (
                 'Vegetarian' if ing.get('identity', {}).get('is_vegetarian') else 'NonVeg'
@@ -958,23 +1518,24 @@ class CandidateGenerator:
                 continue
             if not self._is_meal_type_suitable(fn, meal_type):
                 continue
-
-            suitability = get_meal_suitability(fn, meal_type)
-            if suitability >= threshold and self._is_diet_compatible(ing_diet, diet_type):
-                valid_ings.append(ing)
+            if get_meal_suitability(fn, meal_type) < threshold:
+                continue
+            if not self._is_diet_compatible(ing_diet, diet_type):
+                continue
+            valid_ings.append(ing)
 
         if not valid_ings:
             return []
 
         def _goal_score(node: dict) -> float:
             sem  = node.get('semantics', {})
-            pd   = min(sem.get('protein_density', 0.0) / 0.30, 1.0)  # normalize to [0,1]
+            pd   = min(sem.get('protein_density', 0.0) / 0.30, 1.0)
             role = sem.get('meal_role', '')
             cu   = sem.get('cuisine', '') or ''
 
             role_score    = 1.0 if role in expected_roles else 0.3
             cuisine_score = 1.0 if (target_cuisine and cu == target_cuisine) else 0.5
-            compat_score  = 0.5   # placeholder; future: use relationship graph score
+            compat_score  = 0.5
 
             base = (
                 w_pd    * pd +
@@ -982,63 +1543,84 @@ class CandidateGenerator:
                 w_cuis  * cuisine_score +
                 w_compat * compat_score
             )
-            # Apply within-day diversity penalty
             return base * daily_context.diversity_weight(node)
 
-        scores = [max(0.001, _goal_score(ing)) for ing in valid_ings]
-        total_score = sum(scores)
-        weights = [s / total_score for s in scores]
+        # Determine required slots from template; fall back to a sensible default
+        required_slots = template.get("required", [])
+        if not required_slots:
+            # Template has no required slots — use a bare protein+carb default so
+            # dynamic generation still produces something useful.
+            required_slots = [
+                {"role": "protein_main", "count": 1},
+                {"role": "carb_base",    "count": 1},
+            ]
+            logger.debug(
+                "[_get_dynamic_candidates][%s] Template has no required slots; "
+                "using default [protein_main, carb_base]",
+                meal_type,
+            )
 
-        # Sample protein pool (high protein_density)
-        protein_pool_size = max(3, int(len(valid_ings) * 0.12))
-        proteins = rng.choices(valid_ings, weights=weights, k=protein_pool_size)
-        # Remove duplicates preserving first occurrence
-        seen = set()
-        proteins_dedup = []
-        for p in proteins:
-            pid = str(p.get('food_id', p.get('food_name', ''))).lower()
-            if pid not in seen:
-                seen.add(pid)
-                proteins_dedup.append(p)
-        proteins = proteins_dedup
+        # Generate N candidate plates, each filled slot-by-slot from the template
+        perf = NUTRITION_RULES.get('performance', {})
+        n_dynamic = perf.get('max_candidates_per_meal', 15)
 
-        # Sample carb pool (carb categories)
-        carb_categories = {'Rice', 'Whole Grains', 'Millets & Whole Grains',
-                           'Breakfast', 'Breads & Roti', 'Oats & Cereals'}
-        carb_ings = [i for i in valid_ings if i.get('semantics', {}).get('category') in carb_categories]
-        carb_scores = [max(0.001, _goal_score(i)) for i in carb_ings] if carb_ings else []
+        combos: List[List[Dict]] = []
+        for _attempt in range(n_dynamic * 3):   # over-sample; duplicates are later filtered
+            plate: List[Dict] = []
+            used_df:  Set[str] = set()
+            used_ids: Set[str] = set()
+            plate_valid = True
 
-        if carb_ings and carb_scores:
-            carb_pool_size = max(3, int(len(carb_ings) * 0.25))
-            carb_total = sum(carb_scores)
-            carb_weights = [s / carb_total for s in carb_scores]
-            carbs_sample = rng.choices(carb_ings, weights=carb_weights, k=carb_pool_size)
-            seen_c = set()
-            carbs = []
-            for c in carbs_sample:
-                cid = str(c.get('food_id', c.get('food_name', ''))).lower()
-                if cid not in seen_c:
-                    seen_c.add(cid)
-                    carbs.append(c)
-        else:
-            carbs = []
+            for slot in required_slots:
+                slot_role  = slot.get("role", "")
+                slot_count = slot.get("count", 1)
 
-        combos = []
-        for p in proteins:
-            for c in carbs:
-                pid = str(p.get('food_id', p.get('food_name', ''))).lower()
-                cid = str(c.get('food_id', c.get('food_name', ''))).lower()
-                p_df = p.get('semantics', {}).get('dish_family', 'other')
-                c_df = c.get('semantics', {}).get('dish_family', 'other')
-                # Skip if they share the same dish_family
-                if p_df != 'other' and p_df == c_df:
-                    continue
-                if pid != cid and pid not in excluded_foods and cid not in excluded_foods:
-                    combos.append([_unfreeze(p), _unfreeze(c)])
+                for _ in range(slot_count):
+                    food = self._pick_food_for_role(
+                        role=slot_role,
+                        meal_type=meal_type,
+                        diet_type=diet_type,
+                        used_df=used_df,
+                        used_ids=used_ids,
+                        valid_ings=valid_ings,
+                        rng=rng,
+                        goal_score_fn=_goal_score,
+                    )
+                    if food is None:
+                        logger.debug(
+                            "[_get_dynamic_candidates][%s] No food found for slot role='%s' — skipping plate",
+                            meal_type, slot_role,
+                        )
+                        plate_valid = False
+                        break
+
+                    fid = str(food.get('food_id', food.get('food_name', ''))).lower()
+                    df  = food.get('semantics', {}).get('dish_family', 'other')
+                    
+                    if "semantics" not in food:
+                        food["semantics"] = {}
+                    # GUARDRAIL: assign the template slot role to a SEPARATE field.
+                    # Never write food["semantics"]["meal_role"] — that would destroy
+                    # the dataset's original metadata. Validators read template_role
+                    # first, then fall back to semantics.meal_role.
+                    food["template_role"] = slot_role
+
+                    used_ids.add(fid)
+                    used_df.add(df)
+                    plate.append(food)
+
+                if not plate_valid:
+                    break
+
+            if plate_valid and plate:
+                combos.append(plate)
+
+            if len(combos) >= n_dynamic:
+                break
 
         return combos
 
-    def _diversity_filter(self, candidates: List[List[Dict]], top_n_percent: float = 0.5) -> List[List[Dict]]:
+    def _diversity_filter(self, candidates: List[List[Dict]], top_n_percent: float = 0.5, score_fn=None) -> List[List[Dict]]:
         """
         Filters candidates by abstract Meal Signature to avoid clustered variants.
         """
@@ -1061,6 +1643,10 @@ class CandidateGenerator:
                 seen_signatures.add(signature)
                 diverse_candidates.append(plate)
                 
+        # Sort by score if provided so we keep the best diverse candidates
+        if score_fn:
+            diverse_candidates.sort(key=score_fn, reverse=True)
+            
         # Keep only the requested top percentage based on variety
         num_keep = max(1, int(len(diverse_candidates) * top_n_percent))
         return diverse_candidates[:num_keep]

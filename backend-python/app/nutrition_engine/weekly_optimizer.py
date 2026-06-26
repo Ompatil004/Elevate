@@ -121,9 +121,9 @@ class WeeklyOptimizer:
                 best_day_macros = None
                 best_combined_diff = 999.0
                 
-                # We only need 1 attempt per day. If macros are slightly off, we accept it rather than 
-                # regenerating all 4 meals from scratch (which causes combinatorial timeouts).
-                while not day_plan_valid and attempts < 1:
+                # Use configuration-driven daily retry limit instead of hardcoding attempts < 1
+                max_daily_attempts = int(NUTRITION_RULES.get("validation_thresholds", {}).get("daily_retry_limit") or NUTRITION_RULES.get("retry_limits", {}).get("day", 5))
+                while not day_plan_valid and attempts < max_daily_attempts:
                     attempts += 1
                     
                     # Snapshot before this attempt
@@ -479,17 +479,21 @@ class WeeklyOptimizer:
                         best_day_plan = day_plan
                         best_day_macros = day_total_macros
                         
-                    # Soft Constraint Relaxation
+                    # Soft Constraint Relaxation — tolerances driven by nutrition_rules.yaml
+                    # [daily_validator.calories/protein.first_attempt / second_attempt / final]
+                    _dv = NUTRITION_RULES.get("daily_validator", {})
+                    _dv_cal = _dv.get("calories", {})
+                    _dv_pro = _dv.get("protein", {})
                     if attempts <= 2:
-                        allowed_cal_var = 0.05
-                        allowed_pro_var = 0.05
+                        allowed_cal_var = _dv_cal.get("first_attempt", 0.12)
+                        allowed_pro_var = _dv_pro.get("first_attempt", 0.12)
                     elif attempts <= 4:
-                        allowed_cal_var = 0.08
-                        allowed_pro_var = 0.08
+                        allowed_cal_var = _dv_cal.get("second_attempt", 0.15)
+                        allowed_pro_var = _dv_pro.get("second_attempt", 0.15)
                     else:
-                        allowed_cal_var = 0.12
-                        allowed_pro_var = 0.15
-                        
+                        allowed_cal_var = _dv_cal.get("final", 0.20)
+                        allowed_pro_var = _dv_pro.get("final", 0.20)
+
                     if cal_diff_pct <= allowed_cal_var and pro_diff_pct <= allowed_pro_var:
                         day_plan_valid = True
                         best_day_plan = day_plan
