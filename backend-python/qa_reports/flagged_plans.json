@@ -1,0 +1,755 @@
+[
+  {
+    "profile": {
+      "user_id": "qa_user_0",
+      "target_calories": 2171,
+      "target_protein": 139,
+      "diet_type": "Vegan",
+      "allergies": [
+        "Soy"
+      ],
+      "dislikes": []
+    },
+    "flags": [
+      "Day Day_5 Calorie Skew > 15% (2655.0 vs 2171)",
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Premium Sorse Ilish (Light)' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_1",
+      "target_calories": 3095,
+      "target_protein": 198,
+      "diet_type": "High Protein",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Tossed Salad' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_2",
+      "target_calories": 2828,
+      "target_protein": 126,
+      "diet_type": "Vegan",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Food 'Dhaba Style Adai' repeated > 5 times.",
+      "Meal Identity 'unknown' repeated > 3 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_3",
+      "target_calories": 2794,
+      "target_protein": 148,
+      "diet_type": "Standard",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Tossed Salad' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_4",
+      "target_calories": 2114,
+      "target_protein": 117,
+      "diet_type": "Vegetarian",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Greek Yogurt With Berries' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_5",
+      "target_calories": 2343,
+      "target_protein": 136,
+      "diet_type": "Vegetarian",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Greek Yogurt With Berries' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_6",
+      "target_calories": 1504,
+      "target_protein": 177,
+      "diet_type": "Keto",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Food 'Boiled Rice (Uble Chawal)' repeated > 5 times.",
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Day Day_2 Calorie Skew > 15% (1751.5 vs 1504)",
+      "Day Day_6 Calorie Skew > 15% (2242.0 vs 1504)",
+      "Day Day_1 Calorie Skew > 15% (2864.0 vs 1504)",
+      "Day Day_5 Calorie Skew > 15% (2155.0 vs 1504)"
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_7",
+      "target_calories": 2720,
+      "target_protein": 144,
+      "diet_type": "Vegetarian",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Tossed Salad' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_8",
+      "target_calories": 2906,
+      "target_protein": 171,
+      "diet_type": "High Protein",
+      "allergies": [
+        "Seafood"
+      ],
+      "dislikes": []
+    },
+    "flags": [
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Mushroom Matar' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_9",
+      "target_calories": 1951,
+      "target_protein": 159,
+      "diet_type": "Vegetarian",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Greek Yogurt With Berries' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_10",
+      "target_calories": 1869,
+      "target_protein": 140,
+      "diet_type": "Vegan",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Authentic Soya Chunks Pulao' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_11",
+      "target_calories": 3119,
+      "target_protein": 106,
+      "diet_type": "Standard",
+      "allergies": [
+        "Gluten"
+      ],
+      "dislikes": []
+    },
+    "flags": [
+      "Food 'Boiled Rice (Uble Chawal)' repeated > 5 times.",
+      "Meal Identity 'unknown' repeated > 3 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_12",
+      "target_calories": 3008,
+      "target_protein": 87,
+      "diet_type": "Vegan",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Day Day_7 Calorie Skew > 15% (2195.5 vs 3008)",
+      "Day Day_3 Calorie Skew > 15% (2157.0 vs 3008)",
+      "Day Day_6 Calorie Skew > 15% (2415.0 vs 3008)",
+      "Food 'Mint And Coriander Chutney (Pudinay Aur Dhaniye Ki Chutney)' repeated > 5 times.",
+      "Day Day_5 Calorie Skew > 15% (2536.5 vs 3008)"
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_13",
+      "target_calories": 2063,
+      "target_protein": 160,
+      "diet_type": "High Protein",
+      "allergies": [
+        "Seafood"
+      ],
+      "dislikes": []
+    },
+    "flags": [
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Tossed Salad' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_14",
+      "target_calories": 2326,
+      "target_protein": 91,
+      "diet_type": "Vegan",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Mint And Coriander Chutney (Pudinay Aur Dhaniye Ki Chutney)' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_15",
+      "target_calories": 2583,
+      "target_protein": 192,
+      "diet_type": "High Protein",
+      "allergies": [
+        "Gluten"
+      ],
+      "dislikes": []
+    },
+    "flags": [
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Greek Yogurt With Berries' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_16",
+      "target_calories": 2044,
+      "target_protein": 170,
+      "diet_type": "High Protein",
+      "allergies": [
+        "Gluten"
+      ],
+      "dislikes": []
+    },
+    "flags": [
+      "Food 'Low Oil Kambu Koozh' repeated > 5 times.",
+      "Meal Identity 'unknown' repeated > 3 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_17",
+      "target_calories": 1988,
+      "target_protein": 179,
+      "diet_type": "Keto",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Day Day_1 Calorie Skew > 15% (2520.0 vs 1988)",
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Cucumber Tomato Salad' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_18",
+      "target_calories": 2371,
+      "target_protein": 141,
+      "diet_type": "Standard",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Food 'Stuffed Okra (Bharwa Bhindi)' repeated > 5 times.",
+      "Meal Identity 'unknown' repeated > 3 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_19",
+      "target_calories": 2796,
+      "target_protein": 114,
+      "diet_type": "Vegan",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Food 'Pearl Millet Infant Food (Bajra Shishu Aahaar)' repeated > 5 times.",
+      "Meal Identity 'unknown' repeated > 3 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_20",
+      "target_calories": 2398,
+      "target_protein": 166,
+      "diet_type": "Standard",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Tossed Salad' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_21",
+      "target_calories": 1725,
+      "target_protein": 96,
+      "diet_type": "Vegan",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Food 'Street-Style (Healthy) Gongura Pappu' repeated > 5 times.",
+      "Meal Identity 'unknown' repeated > 3 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_22",
+      "target_calories": 1805,
+      "target_protein": 150,
+      "diet_type": "Keto",
+      "allergies": [
+        "Soy"
+      ],
+      "dislikes": []
+    },
+    "flags": [
+      "Food 'Jowar Roti' repeated > 5 times.",
+      "Day Day_1 Calorie Skew > 15% (2131.5 vs 1805)",
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Day Day_4 Calorie Skew > 15% (2320.0 vs 1805)"
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_23",
+      "target_calories": 2983,
+      "target_protein": 94,
+      "diet_type": "Vegan",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Food 'Semolina Upma (Suji/Rava Upma)' repeated > 5 times.",
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Day Day_6 Calorie Skew > 15% (2464.5 vs 2983)"
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_24",
+      "target_calories": 2745,
+      "target_protein": 111,
+      "diet_type": "Vegetarian",
+      "allergies": [
+        "Gluten",
+        "Eggs"
+      ],
+      "dislikes": []
+    },
+    "flags": [
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Greek Yogurt With Berries' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_25",
+      "target_calories": 2876,
+      "target_protein": 165,
+      "diet_type": "High Protein",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Food 'Tomato Onion Raita (Tamatar Aur Onion Ka Raita)' repeated > 5 times.",
+      "Meal Identity 'unknown' repeated > 3 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_26",
+      "target_calories": 1612,
+      "target_protein": 132,
+      "diet_type": "Standard",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Greek Yogurt With Berries' repeated > 5 times.",
+      "Day Day_1 Calorie Skew > 15% (2213.5 vs 1612)"
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_27",
+      "target_calories": 1668,
+      "target_protein": 160,
+      "diet_type": "Vegetarian",
+      "allergies": [
+        "Gluten"
+      ],
+      "dislikes": []
+    },
+    "flags": [
+      "Day Day_2 Calorie Skew > 15% (1962.5 vs 1668)",
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Poached Egg' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_28",
+      "target_calories": 3070,
+      "target_protein": 220,
+      "diet_type": "High Protein",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Greek Yogurt With Berries' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_29",
+      "target_calories": 2320,
+      "target_protein": 175,
+      "diet_type": "Standard",
+      "allergies": [
+        "Seafood"
+      ],
+      "dislikes": []
+    },
+    "flags": [
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Tossed Salad' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_30",
+      "target_calories": 2146,
+      "target_protein": 164,
+      "diet_type": "High Protein",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Greek Yogurt With Berries' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_31",
+      "target_calories": 2061,
+      "target_protein": 169,
+      "diet_type": "Vegetarian",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Greek Yogurt With Berries' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_32",
+      "target_calories": 2917,
+      "target_protein": 159,
+      "diet_type": "High Protein",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Tossed Salad' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_33",
+      "target_calories": 2491,
+      "target_protein": 155,
+      "diet_type": "Vegetarian",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Greek Yogurt With Berries' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_34",
+      "target_calories": 2759,
+      "target_protein": 134,
+      "diet_type": "Standard",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Greek Yogurt With Berries' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_35",
+      "target_calories": 2218,
+      "target_protein": 163,
+      "diet_type": "Keto",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Greek Yogurt With Berries' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_36",
+      "target_calories": 1832,
+      "target_protein": 156,
+      "diet_type": "Standard",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Day Day_3 Calorie Skew > 15% (2210.5 vs 1832)",
+      "Day Day_1 Calorie Skew > 15% (2458.5 vs 1832)",
+      "Day Day_7 Calorie Skew > 15% (2132.0 vs 1832)",
+      "Food 'Tossed Salad' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_37",
+      "target_calories": 2822,
+      "target_protein": 142,
+      "diet_type": "Standard",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Cucumber Tomato Salad' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_38",
+      "target_calories": 3141,
+      "target_protein": 103,
+      "diet_type": "Vegan",
+      "allergies": [
+        "Seafood"
+      ],
+      "dislikes": []
+    },
+    "flags": [
+      "Day Day_1 Calorie Skew > 15% (2617.0 vs 3141)",
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Sambar' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_39",
+      "target_calories": 2019,
+      "target_protein": 138,
+      "diet_type": "Standard",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Tossed Salad' repeated > 5 times.",
+      "Day Day_5 Calorie Skew > 15% (2383.0 vs 2019)"
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_40",
+      "target_calories": 2818,
+      "target_protein": 196,
+      "diet_type": "High Protein",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Tomato Chicken' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_41",
+      "target_calories": 1685,
+      "target_protein": 178,
+      "diet_type": "Standard",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Day Day_7 Calorie Skew > 15% (2293.5 vs 1685)",
+      "Day Day_5 Calorie Skew > 15% (2041.0 vs 1685)",
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Day Day_6 Calorie Skew > 15% (2411.5 vs 1685)",
+      "Food 'Tossed Salad' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_42",
+      "target_calories": 2863,
+      "target_protein": 123,
+      "diet_type": "Vegetarian",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Tossed Salad' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_43",
+      "target_calories": 1782,
+      "target_protein": 139,
+      "diet_type": "Standard",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Day Day_1 Calorie Skew > 15% (2147.0 vs 1782)",
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Greek Yogurt With Berries' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_44",
+      "target_calories": 2178,
+      "target_protein": 177,
+      "diet_type": "Keto",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Day Day_1 Calorie Skew > 15% (2816.5 vs 2178)",
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Greek Yogurt With Berries' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_45",
+      "target_calories": 2575,
+      "target_protein": 161,
+      "diet_type": "Standard",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Greek Yogurt With Berries' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_46",
+      "target_calories": 2706,
+      "target_protein": 173,
+      "diet_type": "High Protein",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Tossed Salad' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_47",
+      "target_calories": 1679,
+      "target_protein": 152,
+      "diet_type": "High Protein",
+      "allergies": [
+        "Eggs",
+        "Nuts"
+      ],
+      "dislikes": []
+    },
+    "flags": [
+      "Day Day_1 Calorie Skew > 15% (2327.5 vs 1679)",
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Day Day_4 Calorie Skew > 15% (2036.0 vs 1679)",
+      "Food 'Tossed Salad' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_48",
+      "target_calories": 3021,
+      "target_protein": 164,
+      "diet_type": "Vegetarian",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Tossed Salad' repeated > 5 times."
+    ]
+  },
+  {
+    "profile": {
+      "user_id": "qa_user_49",
+      "target_calories": 3119,
+      "target_protein": 175,
+      "diet_type": "Vegetarian",
+      "allergies": [],
+      "dislikes": []
+    },
+    "flags": [
+      "Meal Identity 'unknown' repeated > 3 times.",
+      "Food 'Greek Yogurt With Berries' repeated > 5 times."
+    ]
+  }
+]

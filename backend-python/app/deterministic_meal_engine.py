@@ -91,11 +91,19 @@ REGION_ALIASES = {
 }
 
 # Foods to exclude from recommendations — unrealistic for daily meal planning
+# Words that identify a food as a non-meal (raw bases, desserts, sugary drinks).
+# NOTE: overly-broad descriptors were removed because they falsely rejected healthy
+# composite dishes (verified against nutrition_production_final_v4.csv):
+#   - 'sauce'   matched 17 valid mains (e.g. "Paneer In Butter Sauce",
+#               "Baked Eggs In Tomato Sauce", "Spaghetti With Paneer Balls...").
+#   - 'filling' was redundant with the more-specific 'curd filling' (same 2 dessert
+#               items) while risking future false positives.
+# Genuine unhealthy/non-meal filters are intentionally retained below.
 FOOD_NAME_BLOCKLIST = [
     'stock', 'consomme', 'icing', 'gateau', 'fondant', 'aspic',
     'gelatin', 'sorbet', 'mousse', 'truffle', 'caviar', 'foie gras',
-    'jam', 'jelly', 'filling', 'syrup', 'punch', 'fruit squash', 'drink squash', 'cordial',
-    'fudge', 'frosting', 'sauce', 'glaze', 'curd filling'
+    'jam', 'jelly', 'syrup', 'punch', 'fruit squash', 'drink squash', 'cordial',
+    'fudge', 'frosting', 'glaze', 'curd filling'
 ]
 
 

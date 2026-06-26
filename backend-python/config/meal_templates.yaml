@@ -26,8 +26,8 @@ regions:
           min_protein_percent: 20
           max_fat_percent: 35
           capacity:
-            protein: { min: 10, max: 70 }
-            calories: { min: 200, max: 1000 }
+            protein: { min: 10, max: 200 }
+            calories: { min: 200, max: 2500 }
         metadata:
           difficulty: "medium"
           frequency: "common"
@@ -59,8 +59,8 @@ regions:
           min_protein_percent: 25
           max_fat_percent: 25
           capacity:
-            protein: { min: 5, max: 50 }
-            calories: { min: 150, max: 800 }
+            protein: { min: 5, max: 200 }
+            calories: { min: 150, max: 2500 }
         metadata:
           difficulty: "easy"
           frequency: "common"
@@ -89,8 +89,8 @@ regions:
           min_protein_percent: 30
           max_fat_percent: 35
           capacity:
-            protein: { min: 20, max: 80 }
-            calories: { min: 300, max: 1000 }
+            protein: { min: 20, max: 200 }
+            calories: { min: 300, max: 2500 }
         metadata:
           difficulty: "medium"
           frequency: "common"
@@ -125,10 +125,45 @@ regions:
           min_protein_percent: 25
           max_fat_percent: 40
           capacity:
-            protein: { min: 15, max: 100 }
-            calories: { min: 300, max: 1500 }
+            protein: { min: 15, max: 200 }
+            calories: { min: 300, max: 2500 }
         metadata:
           difficulty: "medium"
+          frequency: "common"
+          family_style: true
+          office_friendly: true
+
+      - id: "simple_veg_thali"
+        priority: 90
+        anchor:
+          role: "curry"
+        required:
+          - role: "curry"
+            count: 1
+          - role: "carb_base"
+            count: 1
+        optional:
+          - role: "veg_side"
+            max: 1
+          - role: "salad"
+            max: 1
+          - role: "dairy_side"
+            max: 1
+        forbidden:
+          - role: "breakfast_item"
+          - role: "snack"
+        realism:
+          max_main_dishes: 2
+          max_drinks: 0
+          max_total_items: 4
+        nutrition:
+          min_protein_percent: 10
+          max_fat_percent: 45
+          capacity:
+            protein: { min: 5, max: 200 }
+            calories: { min: 300, max: 2500 }
+        metadata:
+          difficulty: "easy"
           frequency: "common"
           family_style: true
           office_friendly: true
@@ -156,8 +191,8 @@ regions:
           min_protein_percent: 30
           max_fat_percent: 35
           capacity:
-            protein: { min: 10, max: 60 }
-            calories: { min: 150, max: 800 }
+            protein: { min: 10, max: 200 }
+            calories: { min: 150, max: 2500 }
         metadata:
           difficulty: "easy"
           frequency: "occasional"
@@ -188,8 +223,8 @@ regions:
           min_protein_percent: 35
           max_fat_percent: 35
           capacity:
-            protein: { min: 30, max: 120 }
-            calories: { min: 400, max: 1200 }
+            protein: { min: 30, max: 200 }
+            calories: { min: 400, max: 2500 }
         metadata:
           difficulty: "medium"
           frequency: "common"
@@ -222,10 +257,43 @@ regions:
           min_protein_percent: 30
           max_fat_percent: 30
           capacity:
-            protein: { min: 15, max: 90 }
-            calories: { min: 200, max: 1200 }
+            protein: { min: 15, max: 200 }
+            calories: { min: 200, max: 2500 }
         metadata:
           difficulty: "medium"
+          frequency: "common"
+          family_style: true
+          office_friendly: false
+
+      - id: "curry_roti_combo"
+        priority: 95
+        anchor:
+          role: "curry"
+        required:
+          - role: "curry"
+            count: 1
+          - role: "carb_base"
+            count: 1
+        optional:
+          - role: "salad"
+            max: 1
+          - role: "dairy_side"
+            max: 1
+        forbidden:
+          - role: "beverage"
+          - role: "snack"
+        realism:
+          max_main_dishes: 1
+          max_drinks: 0
+          max_total_items: 4
+        nutrition:
+          min_protein_percent: 10
+          max_fat_percent: 45
+          capacity:
+            protein: { min: 5, max: 200 }
+            calories: { min: 200, max: 2500 }
+        metadata:
+          difficulty: "easy"
           frequency: "common"
           family_style: true
           office_friendly: false
@@ -253,8 +321,8 @@ regions:
           min_protein_percent: 40
           max_fat_percent: 30
           capacity:
-            protein: { min: 25, max: 100 }
-            calories: { min: 300, max: 1000 }
+            protein: { min: 25, max: 200 }
+            calories: { min: 300, max: 2500 }
         metadata:
           difficulty: "medium"
           frequency: "common"
@@ -285,8 +353,8 @@ regions:
           min_protein_percent: 10
           max_fat_percent: 45
           capacity:
-            protein: { min: 5, max: 60 }
-            calories: { min: 100, max: 1000 }
+            protein: { min: 5, max: 200 }
+            calories: { min: 100, max: 2500 }
         metadata:
           difficulty: "easy"
           frequency: "common"
@@ -316,8 +384,8 @@ regions:
           min_protein_percent: 5
           max_fat_percent: 35
           capacity:
-            protein: { min: 0, max: 40 }
-            calories: { min: 20, max: 500 }
+            protein: { min: 0, max: 200 }
+            calories: { min: 20, max: 2500 }
         metadata:
           difficulty: "easy"
           frequency: "common"
@@ -352,8 +420,8 @@ regions:
           min_protein_percent: 25
           max_fat_percent: 45
           capacity:
-            protein: { min: 30, max: 80 }
-            calories: { min: 500, max: 1200 }
+            protein: { min: 30, max: 200 }
+            calories: { min: 500, max: 2500 }
         metadata:
           difficulty: "hard"
           frequency: "occasional"
@@ -384,8 +452,8 @@ regions:
           min_protein_percent: 15
           max_fat_percent: 30
           capacity:
-            protein: { min: 10, max: 30 }
-            calories: { min: 250, max: 600 }
+            protein: { min: 10, max: 200 }
+            calories: { min: 250, max: 2500 }
         metadata:
           difficulty: "medium"
           frequency: "common"

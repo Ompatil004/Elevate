@@ -10,8 +10,9 @@ from app.nutrition_engine.variety_tracker import WeeklyVarietyTracker
 class TestGoldenProfiles(unittest.TestCase):
     def setUp(self):
         self.food_graph = FoodGraph(
-            "data/food_knowledge_base.json", 
-            "data/food_relationship_graph.json", 
+            "data/ingredient_database.json",
+            "data/recipe_database.json",
+            "data/food_relationship_graph.json",
             "data/nutrition_production_final_v4.csv"
         )
         self.template_manager = TemplateManager("config/meal_templates.yaml")

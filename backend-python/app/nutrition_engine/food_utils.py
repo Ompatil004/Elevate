@@ -11,16 +11,28 @@ def get_food_family(name: str, swap_group: str) -> str:
     if sg == 'yogurt/curd' or 'curd' in n or 'yogurt' in n: return 'Yogurt'
     if 'oats' in n or 'oatmeal' in n or 'porridge' in n or 'muesli' in n: return 'Oats'
     if 'dosa' in n or 'idli' in n or 'uttapam' in n or 'paniyaram' in n: return 'South Indian Breakfast'
-    if 'paratha' in n or 'thepla' in n or 'cheela' in n or 'chilla' in n: return 'North Indian Breakfast'
-    if 'khichdi' in n or 'biryani' in n or 'pulao' in n or 'rice' in n or 'bisi bele' in n: return 'Cooked Staple'
-    if 'roti' in n or 'chapati' in n or 'phulka' in n or 'naan' in n: return 'Cooked Staple'
-    if 'dal' in n or 'lentil' in n or 'sambar' in n or 'rasam' in n: return 'Cooked Staple'
-    if 'chicken' in n or sg == 'chicken/meat': return 'Cooked Staple'
-    if 'fish' in n or sg == 'fish & seafood': return 'Cooked Staple'
-    if 'paneer' in n or sg == 'paneer': return 'Cooked Staple'
-    if 'egg' in n or sg == 'eggs': return 'Cooked Staple'
-    if 'sabzi' in n or 'curry' in n or sg == 'vegetable': return 'Cooked Staple'
-    if 'pasta' in n or 'noodles' in n or 'thukpa' in n: return 'Cooked Staple'
+    if 'paratha' in n or 'thepla' in n or 'cheela' in n or 'chilla' in n: return 'Paratha'
+    # ── Granular families for swap-option matching ──────────────────────────
+    # Rice-based staples
+    if 'biryani' in n or 'pulao' in n: return 'Rice'
+    if 'khichdi' in n or 'bisi bele' in n: return 'Rice'
+    if 'rice' in n: return 'Rice'
+    # Roti / Bread family — so swaps for roti only return other breads
+    if 'roti' in n or 'chapati' in n or 'phulka' in n or 'naan' in n: return 'Roti'
+    if 'bread' in n or 'toast' in n: return 'Roti'
+    # Dal & Lentils
+    if 'dal' in n or 'lentil' in n or 'sambar' in n or 'rasam' in n: return 'Dal'
+    # Animal proteins — separate families for better swaps
+    if 'chicken' in n or sg == 'chicken/meat': return 'Chicken'
+    if 'mutton' in n or 'lamb' in n or 'pork' in n or 'beef' in n: return 'Meat'
+    if 'fish' in n or 'prawn' in n or 'seafood' in n or sg == 'fish & seafood': return 'Fish'
+    if 'egg' in n or sg == 'eggs': return 'Eggs'
+    # Paneer / Tofu
+    if 'paneer' in n or sg == 'paneer': return 'Paneer'
+    if 'tofu' in n or sg == 'tofu & soy' or 'soya' in n or 'soy' in n: return 'Tofu'
+    # Vegetables / Curry / Sabzi
+    if 'sabzi' in n or 'curry' in n or 'masala' in n: return 'Curry'
+    if 'pasta' in n or 'noodles' in n or 'thukpa' in n: return 'Pasta'
     
     return sg.title() if sg else 'Other'
 
@@ -44,14 +56,14 @@ def get_primary_unit(food_name: str) -> str:
     if 'egg' in n and not any(x in n for x in ['curry', 'bhurji', 'salad', 'nog', 'soup']): return 'piece'
     if 'chutney' in n: return 'tbsp'
     if 'pickle' in n or 'achar' in n: return 'tbsp'
-    if 'butter' in n or 'oil' in n or 'ghee' in n: return 'tsp'
+    if n in ['butter', 'oil', 'ghee', 'olive oil', 'mustard oil', 'coconut oil', 'sesame oil', 'peanut oil', 'sunflower oil', 'canola oil']: return 'tsp'
     if 'whey' in n or 'protein powder' in n: return 'scoop'
     if 'tea' in n or 'coffee' in n: return 'cup'
     if 'buttermilk' in n or 'chaas' in n or 'lassi' in n or 'drink' in n or 'juice' in n: return 'glass'
     if 'milk' in n and 'shake' not in n: return 'glass'
     if 'shake' in n or 'smoothie' in n: return 'glass'
     if 'banana' in n or 'apple' in n or 'orange' in n or 'guava' in n: return 'medium fruit'
-    if 'salad' in n or 'kosambari' in n or 'kachumber' in n: return 'bowl'
+    if 'salad' in n or 'kosambari' in n or 'kachumber' in n or 'tossed' in n: return 'bowl'
     if 'raita' in n or 'pachadi' in n: return 'bowl'
     if 'dal' in n or 'lentil' in n or 'sambar' in n or 'rasam' in n: return 'bowl'
     if 'soup' in n or 'shorba' in n or 'broth' in n: return 'bowl'
@@ -83,14 +95,14 @@ def get_meal_suitability(food_name: str, meal_type: str) -> int:
         if 'sabzi' in n or 'curry' in n or 'gravy' in n: return 20
         if 'salad' in n and 'fruit' not in n: return 25
         if 'khichdi' in n or 'pulao' in n or 'biryani' in n: return 10
-        return 80 # default decent suitability for other foods
+        return 60  # Lowered default: only clearly breakfast-appropriate foods get 80+
         
     elif m == 'lunch':
         if 'fish' in n or 'chicken' in n or 'paneer' in n or 'dal' in n or 'rajma' in n or 'chole' in n: return 100
         if 'rice' in n or 'roti' in n or 'chapati' in n or 'paratha' in n: return 100
         if 'salad' in n or 'raita' in n: return 100
         if 'curry' in n or 'sabzi' in n: return 100
-        if 'poha' in n or 'upma' in n or 'oats' in n: return 30
+        if 'poha' in n or 'upma' in n or 'oats' in n: return 0
         return 80
         
     elif m == 'dinner':
@@ -100,7 +112,7 @@ def get_meal_suitability(food_name: str, meal_type: str) -> int:
         if 'salad' in n or 'raita' in n: return 90
         if 'rajma' in n or 'chole' in n or 'dal makhani' in n: return 40 # A bit heavy for dinner
         if 'biryani' in n or 'paratha' in n or 'fried' in n: return 30 # Heavy
-        if 'poha' in n or 'upma' in n: return 40
+        if 'poha' in n or 'upma' in n: return 0
         return 80
         
     elif m == 'snack':
@@ -111,6 +123,6 @@ def get_meal_suitability(food_name: str, meal_type: str) -> int:
         if 'egg' in n and 'curry' not in n: return 90
         if 'fish' in n or 'chicken curry' in n or 'rajma' in n or 'dal' in n: return 0
         if 'rice' in n or 'roti' in n or 'chapati' in n: return 0
-        return 60
+        return 55  # Lowered snack default to stay below threshold of 60
         
     return 100

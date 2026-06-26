@@ -1,6 +1,7 @@
 import logging
 from typing import Dict, List, Any
 import math
+from app.nutrition_engine.config import NUTRITION_RULES
 
 logger = logging.getLogger(__name__)
 
@@ -12,16 +13,16 @@ class MealScorer:
     def __init__(self, variety_tracker=None):
         self.variety_tracker = variety_tracker
         
-        # New Scoring Weights based on user specifications
-        self.WEIGHT_MACRO = 0.25
-        self.WEIGHT_SEMANTICS = 0.20
-        self.WEIGHT_COMPLETENESS = 0.15
-        self.WEIGHT_REALISM = 0.15
-        self.WEIGHT_VARIETY = 0.15
+        # New Scoring Weights based on user specifications: 60% Nutrition, 40% Culinary
+        self.WEIGHT_MACRO = 0.60
+        self.WEIGHT_SEMANTICS = 0.10
+        self.WEIGHT_COMPLETENESS = 0.05
+        self.WEIGHT_REALISM = 0.10
+        self.WEIGHT_VARIETY = 0.10
         self.WEIGHT_PORTION = 0.05
-        self.WEIGHT_BUDGET = 0.05
+        self.WEIGHT_BUDGET = 0.00
 
-    def score_candidate_plate(self, plate: List[Dict], target_macros: Dict, current_day: int) -> Dict[str, Any]:
+    def score_candidate_plate(self, plate: List[Dict], target_macros: Dict, current_day: int, meal_type: str = "unknown", goal: str = "Maintenance", previous_meals: List = None) -> Dict[str, Any]:
         """
         Scores a plate against macros, semantics, and realism.
         Returns a dictionary with the total score and a breakdown.
@@ -30,7 +31,7 @@ class MealScorer:
             return {"total_score": 0, "breakdown": {}}
             
         # 1. Macro Accuracy (25%)
-        macro_score = self._score_macros(plate, target_macros)
+        macro_score = self._score_macros(plate, target_macros, goal)
         
         # 2. Semantic Compatibility (25%)
         semantic_score = self._score_semantics(plate)
@@ -62,6 +63,13 @@ class MealScorer:
             (budget_score * self.WEIGHT_BUDGET)
         )
         
+        logger.debug(
+            f"Meal Score | Day {current_day} | {meal_type} | Goal: {goal} | "
+            f"Macro: {macro_score:.1f}, Sem: {semantic_score:.1f}, "
+            f"Comp: {completeness_score:.1f}, Real: {realism_score:.1f}, "
+            f"Var: {variety_score:.1f}, Port: {portion_score:.1f} -> Total: {total_score:.1f}"
+        )
+        
         return {
             "total_score": round(total_score, 2),
             "breakdown": {
@@ -75,38 +83,104 @@ class MealScorer:
             }
         }
 
-    def _score_macros(self, plate: List[Dict], target: Dict) -> float:
-        total_p = sum(node['nutrition']['protein'] for node in plate)
-        total_c = sum(node['nutrition']['carbs'] for node in plate)
-        total_f = sum(node['nutrition']['fat'] for node in plate)
-        total_cal = sum(node['nutrition']['calories'] for node in plate)
+    def score_culinary(self, plate: List[Dict], current_day: int) -> float:
+        """
+        Fast evaluation of the aesthetic/culinary value of a plate.
+        Does not require macro portions to be optimized.
+        """
+        if not plate:
+            return 0.0
+            
+        semantic_score = self._score_semantics(plate)
+        completeness_score = self._score_completeness(plate)
+        realism_score = self._score_realism(plate)
+        variety_score = self._score_variety(plate, current_day)
         
-        if target.get('calories', 0) <= 0:
+        # We re-weight this to be out of 100 based on the weights used in score_candidate_plate
+        # The culinary weights sum to 0.40 (10 + 5 + 10 + 10 + 5 portion)
+        # We'll just sum them up directly using the same weights to keep relative scoring intact.
+        total_culinary = (
+            (semantic_score * self.WEIGHT_SEMANTICS) +
+            (completeness_score * self.WEIGHT_COMPLETENESS) +
+            (realism_score * self.WEIGHT_REALISM) +
+            (variety_score * self.WEIGHT_VARIETY)
+        )
+        return total_culinary
+
+    def _score_macros(self, plate: List[Dict], target: Dict, goal: str) -> float:
+        total_p = sum(node['nutrition'].get('protein', 0) for node in plate)
+        total_c = sum(node['nutrition'].get('carbs', 0) for node in plate)
+        total_f = sum(node['nutrition'].get('fat', 0) for node in plate)
+        total_cal = sum(node['nutrition'].get('calories', 0) for node in plate)
+        
+        cal_target = target.get('calories', 0)
+        pro_target = target.get('protein', 0)
+        carb_target = target.get('carbs', 0)
+        fat_target = target.get('fat', 0)
+
+        if cal_target <= 0:
             return 100.0
             
-        # Standard deviation approach from target
-        cal_diff = abs(total_cal - target['calories']) / target['calories']
-        p_diff = abs(total_p - target['protein']) / target['protein'] if target['protein'] > 0 else 0
-        
-        # Convert diff to a 0-100 score (10% diff = 90 score)
-        score = 100 - ((cal_diff * 0.6 + p_diff * 0.4) * 100)
+        cal_diff = abs(total_cal - cal_target) / max(cal_target, 1)
+        p_diff = abs(total_p - pro_target) / max(pro_target, 1)
+        c_diff = abs(total_c - carb_target) / max(carb_target, 1) if carb_target > 0 else 0.0
+        f_diff = abs(total_f - fat_target) / max(fat_target, 1) if fat_target > 0 else 0.0
+
+        # Goal-aware continuous macro scoring
+        if goal == "Weight Loss":
+            w_cal, w_pro, w_carb, w_fat = 0.45, 0.30, 0.15, 0.10
+        elif goal == "Muscle Gain":
+            w_cal, w_pro, w_carb, w_fat = 0.25, 0.45, 0.20, 0.10
+        else: # Maintenance
+            w_cal, w_pro, w_carb, w_fat = 0.35, 0.30, 0.20, 0.15
+
+        # Normalize weights if some macros are omitted in target
+        denom = w_cal + w_pro
+        if carb_target > 0:
+            denom += w_carb
+        if fat_target > 0:
+            denom += w_fat
+            
+        w_cal /= denom
+        w_pro /= denom
+        w_carb = w_carb / denom if carb_target > 0 else 0.0
+        w_fat = w_fat / denom if fat_target > 0 else 0.0
+
+        # Convert diff to a 0-100 score
+        score = 100 - ( (cal_diff * w_cal + p_diff * w_pro + c_diff * w_carb + f_diff * w_fat) * 100 )
         return max(0.0, min(100.0, score))
 
     def _score_semantics(self, plate: List[Dict]) -> float:
-        if len(plate) <= 1:
-            return 100.0 # Single item is inherently compatible with itself
+        # Phase 3: Evaluate compatibility matrix
+        matrix = NUTRITION_RULES.get("compatibility_matrix", {})
+        if not matrix:
+            return 100.0
             
-        anchor = plate[0] # The candidate generator puts the anchor first
-        total_comp = 0
-        comparisons = 0
+        score = 100.0
+        roles = [node['semantics'].get('meal_role') for node in plate if node.get('semantics', {}).get('meal_role')]
         
-        for item in plate[1:]:
-            role = item['semantics'].get('meal_role', 'unknown')
-            comp = anchor.get('compatibility', {}).get(role, 50)
-            total_comp += comp
-            comparisons += 1
-            
-        return total_comp / comparisons if comparisons > 0 else 50.0
+        # Check all unique pairs
+        for i in range(len(roles)):
+            for j in range(i + 1, len(roles)):
+                role_a = roles[i]
+                role_b = roles[j]
+                
+                # Check A -> B
+                compat_a = matrix.get(role_a, {}).get(role_b, 1.0)
+                # Check B -> A
+                compat_b = matrix.get(role_b, {}).get(role_a, 1.0)
+                
+                # Use the lowest compatibility score
+                compat = min(compat_a, compat_b)
+                
+                if compat < 1.0:
+                    penalty = (1.0 - compat) * 100
+                    score -= penalty
+                elif compat > 1.0:
+                    bonus = (compat - 1.0) * 50  # Cap bonus scaling to avoid massive inflation
+                    score += bonus
+                    
+        return max(0.0, score)
 
     def _score_completeness(self, plate: List[Dict]) -> float:
         # Give higher score if the plate has 2-4 items, signifying a complete meal
@@ -137,31 +211,18 @@ class MealScorer:
         if 'protein_main' not in roles and 'carb_base' not in roles and 'combo_meal' not in roles:
             score -= 50
             
+        # Phase 3: Reward Food Group Diversity
+        food_groups = [node['semantics'].get('category') for node in plate if node.get('semantics', {}).get('category')]
+        unique_groups = len(set(food_groups))
+        if unique_groups >= 3:
+            score += 10
+            
         # Texture/Temperature variety
         styles = [node['semantics'].get('cooking_style', 'Mixed') for node in plate]
         if 'Soup' in styles and 'Salad' in styles:
             score += 10  # Good contrast
         if styles.count('Dry') > 2:
             score -= 20  # Too dry
-            
-        # Phase 5: Meal Satisfaction Heuristics
-        food_names_lower = [str(node.get('food_name', '')).lower() for node in plate]
-        
-        # 1. Curries/Gravy pair wonderfully with Carb bases
-        if 'Gravy' in styles or 'Curry' in styles or any('curry' in fn or 'dal' in fn for fn in food_names_lower):
-            if 'carb_base' in roles or any('rice' in fn or 'roti' in fn or 'chapati' in fn or 'paratha' in fn for fn in food_names_lower):
-                score += 15
-                
-        # 2. Dry dishes need Dal, Raita, or Chutney to not feel too dry
-        if styles.count('Dry') > 0 or any('dry' in fn or 'tikk' in fn for fn in food_names_lower):
-            if 'dairy_side' in roles or 'salad' in roles or 'Soup' in styles or any('raita' in fn or 'chutney' in fn or 'dal' in fn for fn in food_names_lower):
-                score += 10
-            else:
-                score -= 10
-                
-        # 3. Protein pairing satisfaction (e.g. Eggs + Bread)
-        if any('egg' in fn for fn in food_names_lower) and any('bread' in fn or 'toast' in fn for fn in food_names_lower):
-            score += 10
             
         # Satiety / Volume density heuristic
         # If total volume is high but calories are low, good for weight loss
@@ -177,26 +238,58 @@ class MealScorer:
         if not self.variety_tracker:
             return 100.0
             
-        score = 100.0
         shopping_efficiency_bonus = 0.0
+        
+        # Compute abstract Meal Signature
+        sig_parts = []
+        for item in plate:
+            sem = item.get("semantics", {})
+            cat = sem.get("category", "")
+            cuisine = sem.get("cuisine", "")
+            sig_parts.append(f"{cat}-{cuisine}")
+        
+        sig_parts.sort()
+        signature = "|".join(sig_parts)
+        
+        # Get historical usage count
+        usage_count = getattr(self.variety_tracker, "meal_signature_usage", {}).get(signature, 0)
+        
+        # Exponential Decay (Decay factor 1.5)
+        decay_factor = 1.5
+        score = 100.0 * math.exp(-usage_count / decay_factor)
         
         for node in plate:
             family = node['semantics'].get('family')
             food_name = node.get('food_name', '')
             
             penalty = self.variety_tracker.calculate_variety_penalty(node.get('food_id', ''), family, current_day)
-            score -= (penalty * 10)
+            score -= (penalty * 5) # reduced multiplier since signature decay does heavy lifting
             
-            # Grocery reuse (Shopping Efficiency)
-            # If the food was eaten on previous days, it's efficient to reuse groceries
-            # But we don't want it every day (which is penalized by variety)
-            # A sweet spot is 1-2 days ago.
-            past_days = [d for d, foods in self.variety_tracker.daily_food_history.items() if d < current_day and food_name.lower().strip() in foods]
-            if past_days:
-                shopping_efficiency_bonus += 5.0
+            # Grocery Optimization: Raw ingredient reuse scoring
+            ingredients = node.get('recipe', {}).get('ingredients', [])
+            if not ingredients and 'ingredients' in node:
+                ingredients = node.get('ingredients', [])
                 
-        # Shopping efficiency caps out at 20
-        score += min(20.0, shopping_efficiency_bonus)
+            raw_ings = []
+            if not ingredients:
+                raw_ings = [food_name.lower().strip()]
+            else:
+                raw_ings = [ing.get('item', '').lower().strip() if isinstance(ing, dict) else str(ing).lower().strip() for ing in ingredients]
+                
+            for ing in raw_ings:
+                if not ing: continue
+                # Check if ingredient was used in previous days
+                past_used = False
+                for d, foods in self.variety_tracker.daily_food_history.items():
+                    if d < current_day:
+                        if any(ing in f.lower() or f.lower() in ing for f in foods):
+                            past_used = True
+                            break
+                
+                if past_used:
+                    shopping_efficiency_bonus += 10.0
+                else:
+                    score -= 5.0 # Penalty for introducing completely new raw ingredient
             
         return max(0.0, min(100.0, score))
 

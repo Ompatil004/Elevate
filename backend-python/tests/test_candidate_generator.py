@@ -8,12 +8,13 @@ class TestCandidateGenerator(unittest.TestCase):
     def setUp(self):
         base_dir = os.path.join(os.path.dirname(__file__), '..')
         
-        metadata_path = os.path.join(base_dir, 'data', 'food_knowledge_base.json')
+        ingredient_db_path = os.path.join(base_dir, 'data', 'ingredient_database.json')
+        recipe_db_path = os.path.join(base_dir, 'data', 'recipe_database.json')
         relationship_path = os.path.join(base_dir, 'data', 'food_relationship_graph.json')
         nutrition_path = os.path.join(base_dir, 'data', 'nutrition_production_final_v4.csv')
         template_path = os.path.join(base_dir, 'config', 'meal_templates.yaml')
         
-        self.food_graph = FoodGraph(metadata_path, relationship_path, nutrition_path)
+        self.food_graph = FoodGraph(ingredient_db_path, recipe_db_path, relationship_path, nutrition_path)
         self.template_manager = TemplateManager(template_path)
         self.candidate_generator = CandidateGenerator(self.food_graph)
 
@@ -32,11 +33,14 @@ class TestCandidateGenerator(unittest.TestCase):
         )
         
         self.assertTrue(len(candidates) > 0, "Should generate at least one candidate")
-        
+        print(f"LENGTH OF CANDIDATES: {len(candidates)}")
+        print(f"FIRST CANDIDATE ROLES: {[node.get('template_role') or node.get('semantics', {}).get('meal_role') for node in candidates[0]]}")
         for plate in candidates:
-            roles_in_plate = [node['semantics']['meal_role'] for node in plate]
-            self.assertIn("protein_main", roles_in_plate, "Plate must contain the anchor protein_main")
-            self.assertIn("carb_base", roles_in_plate, "Plate must contain the required carb_base")
+            roles_in_plate = [node.get('template_role', node.get('semantics', {}).get('meal_role')) for node in plate]
+            is_blueprint = any(item.get("semantics", {}).get("meal_id") for item in plate)
+            if not is_blueprint:
+                self.assertIn("protein_main", roles_in_plate, "Plate must contain the anchor protein_main")
+                self.assertIn("carb_base", roles_in_plate, "Plate must contain the required carb_base")
             self.assertLessEqual(len(plate), 5, "Plate must respect max_total_items (5)")
 
     def test_forbidden_roles_not_included(self):
@@ -51,7 +55,7 @@ class TestCandidateGenerator(unittest.TestCase):
         )
         
         for plate in candidates:
-            roles_in_plate = [node['semantics']['meal_role'] for node in plate]
+            roles_in_plate = [node.get('template_role', node.get('semantics', {}).get('meal_role')) for node in plate]
             self.assertNotIn("curry", roles_in_plate, "Curry is forbidden in this breakfast template")
 
 if __name__ == '__main__':

@@ -143,8 +143,18 @@ if (process.env.NODE_ENV === 'production' && corsOrigins.includes('*')) {
 }
 app.use(cors({ origin: corsOrigins, credentials: true }));
 // SEC-40: Enforce conservative body-size limits to reduce payload abuse / memory pressure.
-app.use(express.json({ limit: '100kb' }));
-app.use(express.urlencoded({ extended: false, limit: '100kb' }));
+// Python proxy routes use a dedicated parser so only one JSON middleware runs per request.
+const PYTHON_JSON_LIMIT = process.env.PYTHON_JSON_LIMIT || '10mb';
+const DEFAULT_JSON_LIMIT = '100kb';
+const jsonParserForPython = express.json({ limit: PYTHON_JSON_LIMIT });
+const jsonParserDefault = express.json({ limit: DEFAULT_JSON_LIMIT });
+app.use((req, res, next) => {
+    if (req.path.startsWith('/api/python') || req.path.startsWith('/api/v1/python')) {
+        return jsonParserForPython(req, res, next);
+    }
+    return jsonParserDefault(req, res, next);
+});
+app.use(express.urlencoded({ extended: false, limit: DEFAULT_JSON_LIMIT }));
 
 // SEC-36: Baseline security headers (helmet-lite without extra dependency).
 app.use((req, res, next) => {
@@ -200,6 +210,12 @@ app.use((req, res, next) => {
 app.use((err, req, res, next) => {
     if (!err) return next();
     const msg = String(err?.message || '').toLowerCase();
+    if (err.type === 'entity.too.large' || err.status === 413) {
+        return res.status(413).json({
+            message: 'Request payload too large. Try refreshing the page or clearing cached plans.',
+            code: 'PAYLOAD_TOO_LARGE',
+        });
+    }
     if (msg.includes('csrf')) {
         return res.status(403).json({
             message: 'CSRF token validation failed',
