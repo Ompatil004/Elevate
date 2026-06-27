@@ -274,7 +274,21 @@ class FoodGraph:
                     target_unit = "tbsp"
                     target_serving_g = 15.0
                     p_min, p_max, p_step, p_pref = 0.5, 2.0, 0.5, 1.0
-                
+                elif (
+                    "egg" in food_name_lower
+                    and not any(kw in food_name_lower for kw in [
+                        "curry", "bhurji", "salad", "omelette", "omelet",
+                        "sandwich", "baked", "nog", "eggplant", "noodle",
+                        "white", "pepper", "sauce", "fried rice", "pulao"
+                    ])
+                ):
+                    # Plain boiled/poached egg — enforce per-egg serving bounds
+                    # without overriding macros (those come correctly from CSV).
+                    is_standard = True
+                    target_unit = "piece"
+                    target_serving_g = db_serving_g   # keep as-is, just set bounds
+                    p_min, p_max, p_step, p_pref = 1.0, 4.0, 1.0, 2.0
+
                 # Perform macro scaling for standard items
                 if is_standard:
                     is_wheat_roti = any(kw in food_name_lower for kw in ["chapati", "roti", "phulka"]) and not any(kw in food_name_lower for kw in ["jowar", "bajra", "makki", "multigrain", "soya", "bhakri"])
