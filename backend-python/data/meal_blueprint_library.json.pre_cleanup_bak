@@ -51181,7 +51181,7 @@
     "diet_type": "Vegetarian",
     "anchor_role": "snack",
     "foods": [
-      "Chana"
+      "Roasted Chana"
     ],
     "protein_source": "chana",
     "carb_source": "none",
@@ -51500,7 +51500,7 @@
     "diet_type": "Vegan",
     "anchor_role": "snack",
     "foods": [
-      "Millet Bhel"
+      "Roasted Millet Bhel"
     ],
     "protein_source": "millet",
     "carb_source": "none",
@@ -53547,6 +53547,49 @@
     "rules": []
   },
   {
+    "meal_id": "oatmeal_oats_porridge_banana_almonds_breakfast",
+    "meal_name": "Oatmeal with Banana and Almonds",
+    "meal_type": "breakfast",
+    "diet_type": "Vegetarian",
+    "anchor_role": "combo_meal",
+    "foods": [
+      "Oatmeal (Oats Porridge)",
+      "Banana",
+      "Almonds"
+    ],
+    "protein_source": "nuts",
+    "carb_source": "milk",
+    "vegetables": [],
+    "difficulty": "easy",
+    "prep_time": 15,
+    "version": "3.0",
+    "cuisine": "Pan Indian",
+    "cooking_style": "Mixed",
+    "internal_ratio": {
+      "Oatmeal (Oats Porridge)": 1.0,
+      "Banana": 1.0,
+      "Almonds": 10.0
+    },
+    "portion_rules": {
+      "Oatmeal (Oats Porridge)": {
+        "min_qty": 0.5,
+        "max_qty": 3.0,
+        "unit": "bowl"
+      },
+      "Banana": {
+        "min_qty": 1.0,
+        "max_qty": 3.0,
+        "unit": "piece"
+      },
+      "Almonds": {
+        "min_qty": 5.0,
+        "max_qty": 30.0,
+        "unit": "piece"
+      }
+    },
+    "rules": []
+  },
+  {
     "meal_id": "oatmeal_oats_porridge_banana_walnuts_breakfast",
     "meal_name": "Oatmeal with Banana and Walnuts",
     "meal_type": "breakfast",
@@ -53582,6 +53625,49 @@
         "unit": "piece"
       },
       "Walnuts": {
+        "min_qty": 5.0,
+        "max_qty": 30.0,
+        "unit": "piece"
+      }
+    },
+    "rules": []
+  },
+  {
+    "meal_id": "oatmeal_oats_porridge_apple_almonds_breakfast",
+    "meal_name": "Oatmeal with Apple and Almonds",
+    "meal_type": "breakfast",
+    "diet_type": "Vegetarian",
+    "anchor_role": "combo_meal",
+    "foods": [
+      "Oatmeal (Oats Porridge)",
+      "Apple",
+      "Almonds"
+    ],
+    "protein_source": "nuts",
+    "carb_source": "milk",
+    "vegetables": [],
+    "difficulty": "easy",
+    "prep_time": 15,
+    "version": "3.0",
+    "cuisine": "Pan Indian",
+    "cooking_style": "Mixed",
+    "internal_ratio": {
+      "Oatmeal (Oats Porridge)": 1.0,
+      "Apple": 1.0,
+      "Almonds": 10.0
+    },
+    "portion_rules": {
+      "Oatmeal (Oats Porridge)": {
+        "min_qty": 0.5,
+        "max_qty": 3.0,
+        "unit": "bowl"
+      },
+      "Apple": {
+        "min_qty": 1.0,
+        "max_qty": 3.0,
+        "unit": "piece"
+      },
+      "Almonds": {
         "min_qty": 5.0,
         "max_qty": 30.0,
         "unit": "piece"
@@ -55281,6 +55367,42 @@
         "unit": "bowl"
       },
       "Tomato Chutney (Tamatar Ki Chutney)": {
+        "min_qty": 0.5,
+        "max_qty": 3.0,
+        "unit": "bowl"
+      }
+    },
+    "rules": []
+  },
+  {
+    "meal_id": "poha_sprout_salad_breakfast",
+    "meal_name": "Poha with Sprout Salad",
+    "meal_type": "breakfast",
+    "diet_type": "Vegan",
+    "anchor_role": "combo_meal",
+    "foods": [
+      "Poha",
+      "Sprout Salad"
+    ],
+    "protein_source": "poha",
+    "carb_source": "poha",
+    "vegetables": [],
+    "difficulty": "easy",
+    "prep_time": 15,
+    "version": "3.0",
+    "cuisine": "Pan Indian",
+    "cooking_style": "Mixed",
+    "internal_ratio": {
+      "Poha": 1.0,
+      "Sprout Salad": 0.5
+    },
+    "portion_rules": {
+      "Poha": {
+        "min_qty": 0.5,
+        "max_qty": 3.0,
+        "unit": "bowl"
+      },
+      "Sprout Salad": {
         "min_qty": 0.5,
         "max_qty": 3.0,
         "unit": "bowl"
@@ -58501,13 +58623,42 @@
     "rules": []
   },
   {
+    "meal_id": "sprout_salad_plain_snack",
+    "meal_name": "Sprout Salad Snack",
+    "meal_type": "snack",
+    "diet_type": "Vegan",
+    "anchor_role": "snack",
+    "foods": [
+      "Sprout Salad"
+    ],
+    "protein_source": "protein",
+    "carb_source": "none",
+    "vegetables": [],
+    "difficulty": "easy",
+    "prep_time": 15,
+    "version": "3.0",
+    "cuisine": "Pan Indian",
+    "cooking_style": "Mixed",
+    "internal_ratio": {
+      "Sprout Salad": 1.0
+    },
+    "portion_rules": {
+      "Sprout Salad": {
+        "min_qty": 0.5,
+        "max_qty": 3.0,
+        "unit": "bowl"
+      }
+    },
+    "rules": []
+  },
+  {
     "meal_id": "roasted_chana_bhuna_chana_plain_snack",
     "meal_name": "Roasted Chana Snack",
     "meal_type": "snack",
     "diet_type": "Vegan",
     "anchor_role": "snack",
     "foods": [
-      "Chana (Bhuna Chana)"
+      "Roasted Chana (Bhuna Chana)"
     ],
     "protein_source": "protein",
     "carb_source": "none",
@@ -58525,6 +58676,35 @@
         "min_qty": 0.5,
         "max_qty": 3.0,
         "unit": "bowl"
+      }
+    },
+    "rules": []
+  },
+  {
+    "meal_id": "peanut_sundal_plain_snack",
+    "meal_name": "Peanut Sundal Snack",
+    "meal_type": "snack",
+    "diet_type": "Vegan",
+    "anchor_role": "snack",
+    "foods": [
+      "Peanut Sundal"
+    ],
+    "protein_source": "protein",
+    "carb_source": "none",
+    "vegetables": [],
+    "difficulty": "easy",
+    "prep_time": 15,
+    "version": "3.0",
+    "cuisine": "Pan Indian",
+    "cooking_style": "Mixed",
+    "internal_ratio": {
+      "Peanut Sundal": 1.0
+    },
+    "portion_rules": {
+      "Peanut Sundal": {
+        "min_qty": 5.0,
+        "max_qty": 30.0,
+        "unit": "piece"
       }
     },
     "rules": []
@@ -58554,6 +58734,35 @@
         "min_qty": 5.0,
         "max_qty": 30.0,
         "unit": "piece"
+      }
+    },
+    "rules": []
+  },
+  {
+    "meal_id": "roasted_millet_bhel_plain_snack",
+    "meal_name": "Roasted Millet Bhel Snack",
+    "meal_type": "snack",
+    "diet_type": "Vegan",
+    "anchor_role": "snack",
+    "foods": [
+      "Roasted Millet Bhel"
+    ],
+    "protein_source": "protein",
+    "carb_source": "none",
+    "vegetables": [],
+    "difficulty": "easy",
+    "prep_time": 15,
+    "version": "3.0",
+    "cuisine": "Pan Indian",
+    "cooking_style": "Mixed",
+    "internal_ratio": {
+      "Roasted Millet Bhel": 1.0
+    },
+    "portion_rules": {
+      "Roasted Millet Bhel": {
+        "min_qty": 0.5,
+        "max_qty": 3.0,
+        "unit": "bowl"
       }
     },
     "rules": []
@@ -58617,6 +58826,35 @@
     "rules": []
   },
   {
+    "meal_id": "sweet_potato_chaat_plain_snack",
+    "meal_name": "Sweet Potato Chaat Snack",
+    "meal_type": "snack",
+    "diet_type": "Vegan",
+    "anchor_role": "snack",
+    "foods": [
+      "Sweet Potato Chaat"
+    ],
+    "protein_source": "protein",
+    "carb_source": "none",
+    "vegetables": [],
+    "difficulty": "easy",
+    "prep_time": 15,
+    "version": "3.0",
+    "cuisine": "Pan Indian",
+    "cooking_style": "Mixed",
+    "internal_ratio": {
+      "Sweet Potato Chaat": 1.0
+    },
+    "portion_rules": {
+      "Sweet Potato Chaat": {
+        "min_qty": 0.5,
+        "max_qty": 3.0,
+        "unit": "bowl"
+      }
+    },
+    "rules": []
+  },
+  {
     "meal_id": "boiled_egg_ubla_anda_plain_snack",
     "meal_name": "Boiled Egg Snack",
     "meal_type": "snack",
@@ -58673,52 +58911,5 @@
       }
     },
     "rules": []
-  },
-  {
-    "meal_id": "maha_nonveg_lunch_1",
-    "meal_name": "Maharashtrian Non-Veg Lunch",
-    "cuisine": "Maharashtrian",
-    "region": "West India",
-    "meal_type": "lunch",
-    "diet_type": "NonVeg",
-    "anchor_role": "combo_meal",
-    "slots": {
-      "protein": {
-        "food_group": "non_veg_protein",
-        "cuisine": "Maharashtrian"
-      },
-      "staple": {
-        "food_group": "starch",
-        "dish_family": "bhakri_or_rice"
-      },
-      "vegetable": {
-        "food_group": "vegetable"
-      },
-      "side": {
-        "food_group": "side"
-      }
-    }
-  },
-  {
-    "meal_id": "maha_nonveg_dinner_1",
-    "meal_name": "Maharashtrian Non-Veg Dinner",
-    "cuisine": "Maharashtrian",
-    "region": "West India",
-    "meal_type": "dinner",
-    "diet_type": "NonVeg",
-    "anchor_role": "combo_meal",
-    "slots": {
-      "protein": {
-        "food_group": "non_veg_protein",
-        "cuisine": "Maharashtrian"
-      },
-      "staple": {
-        "food_group": "starch",
-        "dish_family": "bhakri_or_rice"
-      },
-      "vegetable": {
-        "food_group": "vegetable"
-      }
-    }
   }
 ]

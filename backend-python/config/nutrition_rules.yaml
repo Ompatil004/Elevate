@@ -1,15 +1,19 @@
 # nutrition_rules.yaml
 # Centralized rules engine for the Elevate Nutrition Engine
+# Single source of truth — all engine behaviour is driven from here.
+# Python code must NEVER hardcode values that belong in this file.
 
+# ── Variety Rules ─────────────────────────────────────────────────────────────
 variety:
   breakfast_max_frequency_days: 3
   lunch_max_frequency_days: 4
   dinner_max_frequency_days: 4
   snack_max_frequency_days: 3
   protein_source_consecutive_max: 3
-  cuisine_daily_max: 3
+  cuisine_daily_max: 2        # max distinct cuisines per day  (was 3; now consistent with validation_thresholds)
   cooking_style_consecutive_max: 3
 
+# ── Portions — condiment / side / drink hard caps ─────────────────────────────
 portions:
   chutney_pickle_max_tbsp: 2.0
   salad_raita_max_bowl: 1.0
@@ -20,6 +24,45 @@ portions:
   side_dish_max_calories_percent: 40.0
   side_dish_multiplier_max: 1.0
 
+# ── Per-Category Serving Limits (Part 4) ──────────────────────────────────────
+# Consumed by PortionOptimizer and FoodGraph for realistic household servings.
+# All values are in the stated unit.
+serving_limits:
+  chapati:    {unit: piece, min: 1,   max: 4,   step: 1,   pref: 2}
+  roti:       {unit: piece, min: 1,   max: 4,   step: 1,   pref: 2}
+  bhakri:     {unit: piece, min: 1,   max: 3,   step: 1,   pref: 2}
+  paratha:    {unit: piece, min: 1,   max: 3,   step: 1,   pref: 1}
+  thepla:     {unit: piece, min: 1,   max: 4,   step: 1,   pref: 2}
+  naan:       {unit: piece, min: 1,   max: 3,   step: 1,   pref: 1}
+  bread:      {unit: slice, min: 1,   max: 4,   step: 1,   pref: 2}
+  rice:       {unit: bowl,  min: 0.5, max: 2.0, step: 0.5, pref: 1.0}
+  khichdi:    {unit: bowl,  min: 1.0, max: 2.0, step: 0.5, pref: 1.0}
+  biryani:    {unit: plate, min: 0.5, max: 1.5, step: 0.5, pref: 1.0}
+  pulao:      {unit: plate, min: 0.5, max: 1.5, step: 0.5, pref: 1.0}
+  dal:        {unit: bowl,  min: 1.0, max: 2.0, step: 0.5, pref: 1.0}
+  sambar:     {unit: bowl,  min: 1.0, max: 2.0, step: 0.5, pref: 1.0}
+  kadhi:      {unit: bowl,  min: 1.0, max: 2.0, step: 0.5, pref: 1.0}
+  rasam:      {unit: bowl,  min: 1.0, max: 2.0, step: 0.5, pref: 1.0}
+  curry:      {unit: bowl,  min: 1.0, max: 2.0, step: 0.5, pref: 1.0}
+  sabzi:      {unit: bowl,  min: 1.0, max: 2.0, step: 0.5, pref: 1.0}
+  yogurt:     {unit: bowl,  min: 0.5, max: 2.0, step: 0.5, pref: 1.0}
+  curd:       {unit: bowl,  min: 0.5, max: 2.0, step: 0.5, pref: 1.0}
+  raita:      {unit: bowl,  min: 0.5, max: 1.0, step: 0.5, pref: 0.5}
+  salad:      {unit: bowl,  min: 0.5, max: 1.0, step: 0.5, pref: 1.0}
+  soup:       {unit: bowl,  min: 1.0, max: 2.0, step: 0.5, pref: 1.0}
+  egg:        {unit: piece, min: 1,   max: 4,   step: 1,   pref: 2}
+  idli:       {unit: piece, min: 2,   max: 6,   step: 1,   pref: 4}
+  dosa:       {unit: piece, min: 1,   max: 2,   step: 1,   pref: 1}
+  chutney:    {unit: tbsp,  min: 0.5, max: 2.0, step: 0.5, pref: 1.0}
+  pickle:     {unit: tbsp,  min: 0.5, max: 2.0, step: 0.5, pref: 1.0}
+  milk:       {unit: glass, min: 1.0, max: 2.0, step: 0.5, pref: 1.0}
+  smoothie:   {unit: glass, min: 1.0, max: 1.0, step: 0.5, pref: 1.0}
+  shake:      {unit: glass, min: 1.0, max: 1.0, step: 0.5, pref: 1.0}
+  whey:       {unit: scoop, min: 1.0, max: 1.0, step: 0.5, pref: 1.0}
+  tea:        {unit: cup,   min: 1.0, max: 1.0, step: 0.5, pref: 1.0}
+  coffee:     {unit: cup,   min: 1.0, max: 1.0, step: 0.5, pref: 1.0}
+
+# ── Food Calorie Caps — max calories for any single side/condiment ─────────────
 food_calorie_caps:
   salad: 150
   raita: 100
@@ -32,21 +75,70 @@ food_calorie_caps:
   tea: 80
   coffee: 100
 
+# ── Retry Limits (single authoritative source) ────────────────────────────────
 retry_limits:
   candidate: 20
   meal: 10
-  day: 5
+  day: 3
   week: 2
 
+# ── Validation Thresholds ─────────────────────────────────────────────────────
 validation_thresholds:
   macro_tolerance_percent: 12
-  daily_retry_limit: 5
-  weekly_retry_limit: 3
+  daily_retry_limit: 3          # must match retry_limits.day
+  weekly_retry_limit: 2         # must match retry_limits.week
   max_duplicate_meals: 1
   max_same_protein_per_week: 3
-  max_same_cuisine_per_day: 2
+  max_same_cuisine_per_day: 2   # must match variety.cuisine_daily_max
   max_same_cooking_style_per_day: 2
 
+# ── Nutrition Validation (Part 5) ─────────────────────────────────────────────
+# Rules for rejecting structurally invalid foods from entering the engine.
+# Applied at FoodGraph load time.
+nutrition_validation:
+  reject_if:
+    calories_lte: 0      # reject any food where calories <= 0 (unless zero_cal_allowed)
+    protein_lt: 0        # reject if protein < 0
+    carbs_lt: 0          # reject if carbs < 0
+    fat_lt: 0            # reject if fat < 0
+  zero_cal_allowed:
+    - water
+    - black coffee
+    - plain tea
+    - green tea
+    - herbal tea
+
+# ── Data Validation ───────────────────────────────────────────────────────────
+data_validation:
+  required_csv_columns:
+    - food_id
+    - food_name
+    - category
+    - meal_type
+    - diet_type
+    - serving_size_g
+    - calories_kcal
+    - protein_g
+    - carbohydrates_g
+    - fat_g
+    - region
+  required_node_fields:
+    - food_id
+    - food_name
+    - nutrition
+  required_nutrition_fields:
+    - calories
+    - protein
+    - carbs
+    - fat
+
+# ── Calorie Validation ────────────────────────────────────────────────────────
+calorie_validation:
+  enabled: true
+  tolerance_pct: 25
+  correction_policy: log_only   # options: log_only | auto_correct
+
+# ── Compatibility Matrix ──────────────────────────────────────────────────────
 compatibility_matrix:
   protein_main:
     carb_base: 1.2
@@ -54,7 +146,7 @@ compatibility_matrix:
     salad: 0.9
     dairy_side: 0.9
   curry:
-    carb_base: 1.3 # Excellent combination (e.g. Sabji + Roti)
+    carb_base: 1.3
     veg_side: 0.8
     salad: 0.9
     dairy_side: 0.9
@@ -65,21 +157,18 @@ compatibility_matrix:
     dairy_side: 0.9
   dairy_side:
     salad: 0.4
-    dairy_side: 0.0 # Prevents duplicate raitas
+    dairy_side: 0.0
     protein_main: 0.9
     carb_base: 0.9
     veg_side: 0.8
   salad:
-    salad: 0.0 # Prevents duplicate salads
+    salad: 0.0
     dairy_side: 0.4
     protein_main: 0.9
     curry: 0.9
     carb_base: 0.8
 
-# ── Cuisine Compatibility ─────────────────────────────────────────────────
-# Defines which cuisine groups can coexist in the same meal.
-# A meal is compatible if ALL cuisines present belong to the same group.
-# Incompatible mixes (e.g. Italian + Pan Indian) receive a soft penalty.
+# ── Cuisine Compatibility ─────────────────────────────────────────────────────
 cuisine_compatibility:
   Pan Indian:
     - Pan Indian
@@ -88,9 +177,23 @@ cuisine_compatibility:
     - East Indian
     - West Indian
     - North East Indian
+    - Maharashtrian
+    - Gujarati
     - All India
   South Indian:
     - South Indian
+    - Pan Indian
+    - All India
+  Maharashtrian:
+    - Maharashtrian
+    - Pan Indian
+    - All India
+  Gujarati:
+    - Gujarati
+    - Pan Indian
+    - All India
+  North Indian:
+    - North Indian
     - Pan Indian
     - All India
   Italian:
@@ -107,26 +210,22 @@ cuisine_compatibility:
     - Lebanese
     - Continental
 
-# ── Protein Distribution Targets ─────────────────────────────────────────
-# target: fraction of daily_protein this meal should deliver
-# tolerance: acceptable deviation before soft penalty kicks in
-# Below (target - tolerance) = hard minimum check (reject candidate)
+# ── Protein Distribution Targets ──────────────────────────────────────────────
 protein_distribution:
   breakfast:
     target: 0.22
-    tolerance: 0.05  # acceptable: 17% – 27% of daily protein
+    tolerance: 0.05
   lunch:
     target: 0.30
-    tolerance: 0.05  # acceptable: 25% – 35% of daily protein
+    tolerance: 0.05
   dinner:
     target: 0.30
-    tolerance: 0.05  # acceptable: 25% – 35% of daily protein
+    tolerance: 0.05
   snack:
     target: 0.15
-    tolerance: 0.05  # acceptable: 10% – 20% of daily protein
+    tolerance: 0.05
 
-# ── Calorie Distribution Bounds ──────────────────────────────────────────
-# Hard limits: candidates violating these are rejected before optimization.
+# ── Calorie Distribution Bounds ───────────────────────────────────────────────
 calorie_distribution:
   breakfast:
     min: 0.15
@@ -141,31 +240,383 @@ calorie_distribution:
     min: 0.08
     max: 0.20
 
-# ── Performance Limits ───────────────────────────────────────────────────
+# ── Performance Limits ────────────────────────────────────────────────────────
 performance:
-  max_candidates_per_meal: 15
-  max_templates_evaluated: 5
+  max_candidates_per_meal: 10
+  max_templates_evaluated: 3
   max_optimization_per_meal: 1
+  oversample_factor: 2
 
-# ── Candidate Generation Tuning ───────────────────────────────────────────
-# Tune these values based on Phase 0 diagnostic output.
-# diversity_filter.top_n_percent: fraction of passing candidates kept before
-# random sampling.  Start at 0.50; raise toward 0.80 only if acceptance rate
-# remains below 10% after Phase 1 template-driven generation is in place.
+# ── Candidate Generation Tuning ───────────────────────────────────────────────
 candidate_generation:
   diversity_filter:
-    top_n_percent: 0.50   # baseline — tune up in 0.10 increments based on metrics
-  acceptance_rate_warning_threshold: 0.05  # log WARNING if acceptance_rate < this
+    top_n_percent: 0.50
+  acceptance_rate_warning_threshold: 0.05
 
-# ── Daily Validator Tolerances ────────────────────────────────────────────
-# Allowed calorie / protein deviation per attempt before "Failed Day" fires.
-# Keeping these in config avoids burying magic numbers in weekly_optimizer.py.
+# ── Candidate Selection (top_k must not exceed max_candidates_per_meal) ────────
+candidate_selection:
+  top_k: 10        # was 15 — fixed to match max_candidates_per_meal
+  temperature: 1.0
+
+# ── Daily Validator Tolerances ────────────────────────────────────────────────
 daily_validator:
   calories:
-    first_attempt: 0.12   # 12% deviation allowed on attempt 1 (was 5%)
-    second_attempt: 0.15  # 15% on attempt 2
-    final: 0.20           # 20% on all subsequent attempts
+    first_attempt: 0.03
+    second_attempt: 0.05
+    final: 0.08
   protein:
-    first_attempt: 0.12
-    second_attempt: 0.15
-    final: 0.20
+    first_attempt: 0.03
+    second_attempt: 0.05
+    final: 0.08
+
+# ── Meal Blueprint Configuration (Part 3) ─────────────────────────────────────
+# Configuration-driven meal composition rules consumed by CandidateGenerator
+# and Validators.  Never hardcode meal sizes in Python.
+#
+# slot_roles maps each slot label to the candidate's expected food_group or meal_role.
+# optional_choose_one: only ONE of these optional slots is filled per meal.
+meal_blueprints:
+  breakfast:
+    required:
+      - main_breakfast       # carb_base or breakfast food
+      - protein_or_dairy     # egg, paneer, curd, yogurt, whey
+    optional_choose_one:
+      - fruit
+      - healthy_drink
+    max_foods: 3
+    slot_roles:
+      main_breakfast:    [carb_base, breakfast]
+      protein_or_dairy:  [protein_main, dairy_side]
+      fruit:             [fruit, salad]
+      healthy_drink:     [dairy_side, beverage]
+
+  lunch:
+    required:
+      - carb
+      - protein
+      - vegetable
+    optional_choose_one:
+      - salad
+      - soup
+      - raita
+      - chutney
+    max_foods: 4
+    slot_roles:
+      carb:       [carb_base]
+      protein:    [protein_main, curry]
+      vegetable:  [veg_side]
+      salad:      [salad]
+      soup:       [soup]
+      raita:      [dairy_side]
+      chutney:    [condiment]
+
+  dinner:
+    required:
+      - carb
+      - protein
+      - vegetable
+    optional_choose_one:
+      - salad
+      - soup
+      - raita
+    max_foods: 4
+    slot_roles:
+      carb:       [carb_base]
+      protein:    [protein_main, curry]
+      vegetable:  [veg_side]
+      salad:      [salad]
+      soup:       [soup]
+      raita:      [dairy_side]
+
+  snack:
+    required:
+      - snack_item
+    optional_choose_one:
+      - drink
+    max_foods: 2
+    slot_roles:
+      snack_item: [protein_main, dairy_side, salad, fruit]
+      drink:      [dairy_side, beverage]
+
+# ── Meal Rules ─────────────────────────────────────────────────────────────────
+# Structural rules for plate validation (read by weekly_validator / candidate_generator)
+meal_rules:
+  never_two_starches: true        # no two carb_base items in same plate
+  never_two_dairy_sides: true     # no two raita/yogurt items in same plate
+  never_two_salads: true          # no two salad items in same plate
+  max_proteins_per_plate: 2       # max protein_main + curry roles per plate
+  breakfast_max_heavy_carbs: 1    # max rice/roti at breakfast
+
+# ── Breakfast Rotation Categories & Patterns ──────────────────────────────────
+breakfast_rotation:
+  categories:
+    - South Indian
+    - North Indian
+    - Maharashtrian
+    - Egg Based
+    - Oats & Cereals
+    - Millets
+    - Smoothies
+    - Fruit
+    - Traditional
+  patterns:
+    South Indian:   [dosa, idli, uttapam, upma, pongal, paniyaram, appam, south indian]
+    North Indian:   [paratha, puri, bhature, thepla, north indian]
+    Maharashtrian:  [poha, sabudana, thalipeeth, misal, maharashtrian]
+    Egg Based:      [egg, omelette, bhurji, scrambled]
+    Oats & Cereals: [oats, cereal, muesli, cornflakes, porridge]
+    Millets:        [millet, ragi, jowar, bajra]
+    Smoothies:      [smoothie, shake, milkshake]
+    Fruit:          [fruit, apple, banana, papaya]
+    Traditional:    [cheela, chilla, khichdi, traditional]
+
+# ── Variety Penalties & Limits ────────────────────────────────────────────────
+variety_penalties:
+  same_food_consecutive_days: 15
+  same_food_second_occurrence: 25
+  same_food_third_occurrence:  50
+  same_dish_family_per_week:   8
+  same_breakfast_category_consecutive: 20
+  same_cuisine_per_week:       5
+
+variety_limits:
+  food_repeat_limit:         2
+  dish_family_limit:         3
+  protein_repeat_limit:      2
+  breakfast_template_limit:  2
+  cuisine_repeat_limit:      4
+
+# ── Compatibility Patterns ────────────────────────────────────────────────────
+compatibility:
+  starch_patterns:
+    - rice
+    - chapati
+    - roti
+    - naan
+    - paratha
+    - bread
+    - sandwich
+    - burger
+    - toast
+    - wrap
+    - roll
+    - pasta
+    - noodles
+    - macaroni
+    - bhakri
+    - phulka
+  sandwich_patterns:
+    - sandwich
+    - burger
+    - toast
+    - wrap
+    - roll
+
+# ── Regional Preferences (Part 7) ─────────────────────────────────────────────
+# default_region is used when the user profile has no explicit region set.
+# Scoring weights are soft — foods from other regions are never rejected.
+regional_preferences:
+  default_region: Maharashtra
+  cuisine_priority:
+    - Maharashtrian
+    - Pan Indian
+    - North Indian
+    - South Indian
+    - Gujarati
+  user_region_weight: 0.90      # boost for user's own cuisine
+  pan_indian_weight:  0.10      # residual weight for Pan Indian
+  cuisine_priority_weight: 0.90
+
+# ── Regional Distribution (Part 9) ───────────────────────────────────────────
+# Controls what fraction of weekly meals come from each cuisine tier.
+# Tier 1 = user's home cuisine; Tier 2 = Pan Indian; Tier 3 = other.
+regional_distribution:
+  home_cuisine_fraction: 0.70   # ~70% of meals from home cuisine
+  pan_indian_fraction:   0.20   # ~20% from Pan Indian
+  other_fraction:        0.10   # ~10% from any other cuisine
+
+# ── Regional Cuisine Keyword Map (Part 6) ──────────────────────────────────────
+# Used by food_graph.py as the fallback when regional_cuisine metadata is missing.
+# Priority order:
+#   1. Dataset `region` column (primary — trust the data)
+#   2. This keyword map (config-driven, edit here — no Python changes needed)
+#   3. Pan Indian default
+#   4. Keyword heuristic is ONLY triggered by this table — no other hardcoding.
+#
+# Each entry: one or more substrings matched case-insensitively against food_name.
+# First match wins. Keep entries sorted from most-specific to most-general.
+cuisine_keyword_map:
+  Maharashtrian:
+    - poha
+    - sabudana
+    - bhakri
+    - pitla
+    - pithla
+    - varan
+    - amti
+    - thalipeeth
+    - misal
+    - usal
+    - kothimbir
+    - solkadhi
+    - sol kadhi
+    - puran poli
+    - batata vada
+    - zhunka
+    - junka
+    - katachi
+    - pav bhaji
+    - shev bhaji
+
+  South Indian:
+    - idli
+    - dosa
+    - uttapam
+    - upma
+    - pongal
+    - sambar
+    - rasam
+    - vada
+    - paniyaram
+    - appam
+    - puttu
+    - avial
+    - payasam
+    - curd rice
+    - poriyal
+    - kootu
+    - thoran
+    - chettinad
+    - meen curry
+    - pesarattu
+    - adai
+
+  Gujarati:
+    - dhokla
+    - thepla
+    - khakhra
+    - handvo
+    - farsan
+    - khandvi
+    - undhiyu
+    - gujarati kadhi
+    - muthiya
+    - locho
+
+  North Indian:
+    - chole bhature
+    - dal makhani
+    - kadhi chawal
+    - rajma chawal
+    - aloo gobhi
+    - shahi paneer
+    - butter chicken
+    - korma
+    - dum aloo
+    - baingan bharta
+    - sarson da saag
+    - makki di roti
+    - chole kulche
+    - amritsari fish
+    - pindi chole
+    - lasooni palak
+
+  Bengali:
+    - ilish
+    - machher
+    - shorshe
+    - kosha
+    - mishti doi
+    - chingri
+
+
+
+# ── Dataset Region Values ─────────────────────────────────────────────────────
+# Canonical region strings as they appear in the CSV.
+# food_graph.py normalises CSV region → cuisine using this map.
+# Add new regions here as the dataset grows.
+dataset_region_to_cuisine:
+  "All India":                  "Pan Indian"
+  "North India":                "North Indian"
+  "South India":                "South Indian"
+  "East India":                 "Bengali"
+  "Northeast India":            "North East Indian"
+  "West India (Maharashtrian)": "Maharashtrian"
+  "West India (Gujarati)":      "Gujarati"
+  "Pan Indian":                 "Pan Indian"
+
+# ── Meal Size Limits ──────────────────────────────────────────────────────────
+# Keep consistent with meal_blueprints.max_foods above.
+meal_sizes:
+  breakfast:
+    preferred: 2
+    max: 3
+  lunch:
+    preferred: 3
+    max: 4
+  dinner:
+    preferred: 3
+    max: 4
+  snack:
+    preferred: 1
+    max: 2
+
+# ── Meal Compatibility Scoring ────────────────────────────────────────────────
+compatibility_scoring:
+  rewards:
+    rice_dal_veg: 15
+    chapati_sabzi_dal: 15
+    idli_sambar: 10
+    poha_curd: 10
+    oats_fruit: 10
+  penalties:
+    rice_sandwich: 20
+    milkshake_curry: 20
+    two_heavy_starches: 15
+    three_dairy_items: 15
+    soup_raita_salad_together: 15
+
+# ── Config-Driven Meal Suitability Blocks ─────────────────────────────────────
+# Substrings matched against food_name (case-insensitive).
+# food_utils.py reads these at import time.  Add/remove entries here only.
+meal_suitability_blocks:
+  breakfast_only:
+    - poha
+    - upma
+    - idli
+    - dosa
+    - cheela
+    - chilla
+    - uttapam
+    - appam
+    - paniyaram
+    - sabudana khichdi
+
+  blocked_all_meals:
+    - burfi
+    - barfi
+    - ladoo
+    - laddoo
+    - halwa
+    - mithai
+    - jalebi
+    - gulab jamun
+    - rasgulla
+    - peda
+    - modak
+    - shrikhand
+    - malpua
+    - chikki
+    - rewari
+    - frosting
+    - icing
+    - sweet
+    - dessert
+    - kheer
+    - payasam
+    - ice cream
+    - pastry
+    - cake
+    - pudding
+    - rasmalai
+    - gulabjamun

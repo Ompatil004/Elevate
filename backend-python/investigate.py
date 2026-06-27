@@ -1,4 +1,4 @@
-﻿import os
+import os
 import json
 import re
 from collections import Counter
@@ -30,7 +30,7 @@ user_profile = {
     "never_recommend": []
 }
 
-original_is_safe_meal = generator._is_safe_meal
+original_is_safe_meal = generator._is_safe_meal_with_reason
 original_is_valid_composition = generator._is_valid_composition_with_reason
 original_quick_quality_filter = generator._quick_quality_filter_with_reason
 
@@ -158,7 +158,11 @@ lunch_bps = [bp for bp in generator.meal_blueprints if bp.get('meal_type', '').l
 for bp in lunch_bps[:3]:
     bp_id = bp.get('meal_id', 'unknown')
     required_roles = set(r.get('role', '') for r in templates[0].get('required', []))
-    actual_roles = set(item.get('semantics', {}).get('meal_role', '') for item in bp.get('plate', []))
+    actual_roles = set()
+    for food_name in bp.get('foods', []):
+        node = generator.name_to_node.get(food_name.lower().strip())
+        if node:
+            actual_roles.add(node.get('semantics', {}).get('meal_role', ''))
     missing = required_roles - actual_roles
     print(f"Blueprint ID: {bp_id}")
     print(f"Required: {required_roles}")

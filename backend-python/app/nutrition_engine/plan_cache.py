@@ -1,7 +1,7 @@
 import logging
 import hashlib
 import json
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
@@ -19,7 +19,11 @@ class WeeklyPlanManager:
         relevant_data = {
             "target_calories": user_profile.get("target_calories", 0),
             "target_protein": user_profile.get("target_protein", 0),
-            "diet_type": user_profile.get("diet_type", "Standard"),
+            # Include both keys so a change to either invalidates the cached plan
+            "diet_type": user_profile.get("diet_type") or user_profile.get("dietary_preference", "NonVeg"),
+            "dietary_preference": user_profile.get("dietary_preference") or user_profile.get("diet_type", "NonVeg"),
+            "cuisine_preference": user_profile.get("cuisine_preference", ""),
+            "region": user_profile.get("region", ""),
             "allergies": sorted(user_profile.get("allergies", [])),
             "dislikes": sorted(user_profile.get("dislikes", []))
         }

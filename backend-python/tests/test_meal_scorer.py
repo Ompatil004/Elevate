@@ -2,6 +2,12 @@ import unittest
 from app.nutrition_engine.meal_scorer import MealScorer
 
 class MockVarietyTracker:
+    def __init__(self):
+        self.item_history = {}
+        self.weekly_food_counts = {}
+        self.weekly_dish_family_counts = {}
+        self.daily_food_history = {}
+
     def calculate_variety_penalty(self, food_id, family, current_day):
         return 0 # No penalty
 

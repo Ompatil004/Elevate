@@ -22,7 +22,7 @@ class MealScorer:
         self.WEIGHT_PORTION = 0.05
         self.WEIGHT_BUDGET = 0.00
 
-    def score_candidate_plate(self, plate: List[Dict], target_macros: Dict, current_day: int, meal_type: str = "unknown", goal: str = "Maintenance", previous_meals: List = None) -> Dict[str, Any]:
+    def score_candidate_plate(self, plate: List[Dict], target_macros: Dict, current_day: int, meal_type: str = "unknown", goal: str = "Maintenance", previous_meals: List = None, preferred_region: str = None) -> Dict[str, Any]:
         """
         Scores a plate against macros, semantics, and realism.
         Returns a dictionary with the total score and a breakdown.
@@ -45,29 +45,62 @@ class MealScorer:
         realism_score = self._score_realism(plate)
         
         # 5. Weekly Variety (10%)
-        variety_score = self._score_variety(plate, current_day)
+        variety_score = self._score_variety(plate, current_day, meal_type)
         
         # 6. Portion Realism (5%)
         portion_score = self._score_portion(plate)
         
         # 7. Budget & Availability (5%) - Stubbed for future expansion
-        budget_score = 100
+        budget_score = 100.0
+
+        # 8. Regional Score (Phase 7 preference boost)
+        reg_cfg = NUTRITION_RULES.get("regional_preferences", {})
+        default_pref = reg_cfg.get("default_region", "Maharashtra")
+        from app.nutrition_engine.food_graph import normalize_cuisine_name
+        pref_reg = normalize_cuisine_name(preferred_region or default_pref or "Maharashtrian").lower().strip()
         
-        total_score = (
-            (macro_score * self.WEIGHT_MACRO) +
-            (semantic_score * self.WEIGHT_SEMANTICS) +
-            (completeness_score * self.WEIGHT_COMPLETENESS) +
-            (realism_score * self.WEIGHT_REALISM) +
-            (variety_score * self.WEIGHT_VARIETY) +
-            (portion_score * self.WEIGHT_PORTION) +
-            (budget_score * self.WEIGHT_BUDGET)
-        )
+        priority_list = [normalize_cuisine_name(c).lower().strip() for c in reg_cfg.get("cuisine_priority", [])]
+        
+        item_scores = []
+        for item in plate:
+            _rc = item.get("semantics", {}).get("regional_cuisine", "Pan Indian")
+            item_region = (str(_rc.get("primary", "Pan Indian")) if isinstance(_rc, dict) else str(_rc)).lower().strip()
+            
+            # Map aliases for Pan Indian / All India
+            if item_region in ("pan indian", "pan_indian", "all india", "all_india"):
+                item_region = "pan indian"
+                
+            if item_region == pref_reg:
+                item_scores.append(100.0)
+            elif item_region in priority_list:
+                idx = priority_list.index(item_region)
+                score = max(40.0, 100.0 - idx * 15.0)
+                item_scores.append(score)
+            elif item_region == "pan indian":
+                item_scores.append(80.0)
+            else:
+                item_scores.append(40.0)
+                
+        regional_score = sum(item_scores) / len(item_scores)
+        
+        # 60% nutrition / 40% culinary weight distribution
+        nutrition_score = macro_score
+        culinary_score = (
+            (semantic_score * 0.08) +
+            (completeness_score * 0.04) +
+            (realism_score * 0.08) +
+            (variety_score * 0.08) +
+            (portion_score * 0.04) +
+            (regional_score * 0.08)
+        ) / 0.40
+        
+        total_score = (nutrition_score * 0.60) + (culinary_score * 0.40)
         
         logger.debug(
             f"Meal Score | Day {current_day} | {meal_type} | Goal: {goal} | "
             f"Macro: {macro_score:.1f}, Sem: {semantic_score:.1f}, "
             f"Comp: {completeness_score:.1f}, Real: {realism_score:.1f}, "
-            f"Var: {variety_score:.1f}, Port: {portion_score:.1f} -> Total: {total_score:.1f}"
+            f"Var: {variety_score:.1f}, Port: {portion_score:.1f}, Reg: {regional_score:.1f} -> Total: {total_score:.1f}"
         )
         
         return {
@@ -79,6 +112,7 @@ class MealScorer:
                 "realism_score": round(realism_score, 2),
                 "variety_score": round(variety_score, 2),
                 "portion_score": round(portion_score, 2),
+                "regional_score": round(regional_score, 2),
                 "budget_score": round(budget_score, 2)
             }
         }
@@ -179,21 +213,125 @@ class MealScorer:
                 elif compat > 1.0:
                     bonus = (compat - 1.0) * 50  # Cap bonus scaling to avoid massive inflation
                     score += bonus
-                    
+
+        # Phase 7: Continuous compatibility scoring with rewards and penalties from YAML
+        scoring_cfg = NUTRITION_RULES.get("compatibility_scoring", {})
+        yaml_rewards = scoring_cfg.get("rewards", {})
+        yaml_penalties = scoring_cfg.get("penalties", {})
+
+        # Lowercase helper variables
+        food_names_lower = [str(node.get("food_name", "")).lower() for node in plate]
+        families_lower = [str(node.get("semantics", {}).get("dish_family") or node.get("semantics", {}).get("family", "")).lower() for node in plate]
+        categories_lower = [str(node.get("semantics", {}).get("category", "")).lower() for node in plate]
+
+        has_rice = any("rice" in name or "pulao" in name or "biryani" in name or "bath" in name for name in food_names_lower)
+        has_sandwich = any("sandwich" in name or "burger" in name or "toast" in name or "wrap" in name or "roll" in name for name in food_names_lower)
+        has_chapati = any("chapati" in name or "roti" in name or "phulka" in name or "naan" in name or "paratha" in name for name in food_names_lower)
+        has_dal = any("dal" in name or "sambar" in name or "rasam" in name or "lentil" in name or family == "dal" for name, family in zip(food_names_lower, families_lower))
+        has_veg = any(family in ("sabzi", "stir_fry", "poriyal", "dry_sabzi") or cat == "vegetables" for family, cat in zip(families_lower, categories_lower))
+        has_idli = any("idli" in name for name in food_names_lower)
+        has_sambar = any("sambar" in name for name in food_names_lower)
+        has_poha = any("poha" in name for name in food_names_lower)
+        has_curd = any("curd" in name or "yogurt" in name or "raita" in name or cat == "dairy" for name, cat in zip(food_names_lower, categories_lower))
+        has_oats = any("oats" in name or "oat" in name for name in food_names_lower)
+        has_fruit = any(cat == "fruits" or any(f in name for f in ("fruit", "apple", "banana", "berry", "berries", "mango", "orange", "pomegranate")) for name, cat in zip(food_names_lower, categories_lower))
+
+        # Check Rewards
+        if has_rice and has_dal and has_veg:
+            score += yaml_rewards.get("rice_dal_veg", 15)
+        if has_chapati and has_veg and has_dal:
+            score += yaml_rewards.get("chapati_sabzi_dal", 15)
+        if has_idli and has_sambar:
+            score += yaml_rewards.get("idli_sambar", 10)
+        if has_poha and has_curd:
+            score += yaml_rewards.get("poha_curd", 10)
+        if has_oats and has_fruit:
+            score += yaml_rewards.get("oats_fruit", 10)
+
+        # Check Penalties
+        # 1. Rice + Sandwich
+        if has_rice and has_sandwich:
+            score -= yaml_penalties.get("rice_sandwich", 20)
+        # 2. Milkshake + Curry
+        has_milkshake = any("milkshake" in name or "smoothie" in name or "shake" in name for name in food_names_lower)
+        has_curry = any("curry" in name or "gravy" in name or "dal" in name or family == "dal" for name, family in zip(food_names_lower, families_lower))
+        if has_milkshake and has_curry:
+            score -= yaml_penalties.get("milkshake_curry", 20)
+        # 3. Two heavy starches
+        starch_patterns = NUTRITION_RULES.get("compatibility", {}).get("starch_patterns", [])
+        heavy_starch_count = 0
+        for node in plate:
+            name_l = node.get("food_name", "").lower()
+            role = node.get("semantics", {}).get("meal_role", "")
+            if role == "carb_base" or any(p in name_l for p in starch_patterns):
+                heavy_starch_count += 1
+        if heavy_starch_count >= 2:
+            score -= yaml_penalties.get("two_heavy_starches", 15)
+        # 4. Three dairy items
+        dairy_count = 0
+        for node in plate:
+            name_l = node.get("food_name", "").lower()
+            cat = node.get("semantics", {}).get("category", "").lower()
+            if cat == "dairy" or any(d in name_l for d in ("milk", "curd", "yogurt", "paneer", "raita", "cheese")):
+                dairy_count += 1
+        if dairy_count >= 3:
+            score -= yaml_penalties.get("three_dairy_items", 15)
+        # 5. Soup, raita and salad together
+        has_soup = any("soup" in name or "shorba" in name for name in food_names_lower)
+        has_raita_item = any("raita" in name for name in food_names_lower)
+        has_salad_item = any("salad" in name or "kachumber" in name or "kosambari" in name for name in food_names_lower)
+        if has_soup and has_raita_item and has_salad_item:
+            score -= yaml_penalties.get("soup_raita_salad_together", 15)
+
         return max(0.0, score)
 
     def _score_completeness(self, plate: List[Dict]) -> float:
-        # Give higher score if the plate has 2-4 items, signifying a complete meal
-        # (This is a simplified completeness check)
+        """
+        Rewards plates that are structurally complete:
+        - Base score from number of items
+        - Bonus for having a vegetable component (+10)
+        - Bonus for having a side dish/salad/raita/soup component (+10)
+        - Bonus for having fruit or dairy (good for breakfast) (+5)
+        These bonuses replaced the old hard blueprint fail, so good meals score higher.
+        """
         length = len(plate)
         if length == 1:
-            return 50.0
+            base = 45.0
         elif length == 2:
-            return 80.0
+            base = 70.0
         elif 3 <= length <= 4:
-            return 100.0
+            base = 85.0
+        elif length == 5:
+            base = 90.0
         else:
-            return 90.0
+            base = 80.0
+
+        # Structural bonuses (soft rewards instead of hard failures)
+        has_vegetable = False
+        has_side = False
+        has_fruit_dairy = False
+
+        for item in plate:
+            cat = (item.get("semantics", {}).get("category", "") or "").lower()
+            name_lower = (item.get("food_name", "") or "").lower()
+            df = (item.get("semantics", {}).get("dish_family", "") or "").lower()
+
+            if cat in ("vegetables", "leafy greens", "salad") or df in ("sabzi", "stir_fry", "poriyal"):
+                has_vegetable = True
+            if any(w in name_lower for w in ("salad", "raita", "kachumber", "kosambari", "chutney", "soup", "shorba", "papad")):
+                has_side = True
+            if cat in ("fruits",) or any(w in name_lower for w in ("fruit", "curd", "yogurt", "milk", "dairy")):
+                has_fruit_dairy = True
+
+        bonus = 0.0
+        if has_vegetable:
+            bonus += 8.0
+        if has_side:
+            bonus += 7.0
+        if has_fruit_dairy:
+            bonus += 5.0
+
+        return min(100.0, base + bonus)
 
     def _score_realism(self, plate: List[Dict]) -> float:
         score = 100.0
@@ -234,7 +372,7 @@ class MealScorer:
             
         return max(0.0, min(100.0, score))
 
-    def _score_variety(self, plate: List[Dict], current_day: int) -> float:
+    def _score_variety(self, plate: List[Dict], current_day: int, meal_type: str = "unknown") -> float:
         if not self.variety_tracker:
             return 100.0
             
@@ -258,12 +396,58 @@ class MealScorer:
         decay_factor = 1.5
         score = 100.0 * math.exp(-usage_count / decay_factor)
         
+        # Load penalties from config
+        penalties_cfg = NUTRITION_RULES.get("variety_penalties", {})
+        same_food_consec = float(penalties_cfg.get("same_food_consecutive_days", 15))
+        same_food_second = float(penalties_cfg.get("same_food_second_occurrence", 25))
+        same_food_third = float(penalties_cfg.get("same_food_third_occurrence", 50))
+        same_family_wk = float(penalties_cfg.get("same_dish_family_per_week", 8))
+        same_cuisine_wk = float(penalties_cfg.get("same_cuisine_per_week", 5))
+        
+        # Consecutive breakfast category penalty
+        if meal_type.lower() == 'breakfast':
+            current_cat = None
+            for item in plate:
+                if 'breakfast_category' in item.get('semantics', {}):
+                    current_cat = item['semantics']['breakfast_category']
+                    break
+            if current_cat:
+                yesterday_cat = self.variety_tracker.daily_breakfast_category.get(current_day - 1)
+                if yesterday_cat == current_cat:
+                    consec_penalty = float(penalties_cfg.get("same_breakfast_category_consecutive", 20))
+                    score -= consec_penalty
+                    
+        # Cuisine repeat penalty
+        cuisine = plate[0].get("semantics", {}).get("cuisine")
+        if cuisine:
+            cuisine_count = self.variety_tracker.weekly_cuisine_counts.get(cuisine, 0)
+            if cuisine_count >= 3:
+                score -= same_cuisine_wk
+        
         for node in plate:
-            family = node['semantics'].get('family')
+            family = node['semantics'].get('dish_family') or node['semantics'].get('family', 'other')
+            family_clean = str(family).lower().strip()
             food_name = node.get('food_name', '')
+            food_id = str(node.get('food_id', '')).lower().strip()
             
-            penalty = self.variety_tracker.calculate_variety_penalty(node.get('food_id', ''), family, current_day)
-            score -= (penalty * 5) # reduced multiplier since signature decay does heavy lifting
+            # Continuous soft variety penalties
+            # 1. Same food consecutive days
+            last_day = self.variety_tracker.item_history.get(food_id)
+            if last_day is not None and last_day == current_day - 1:
+                score -= same_food_consec
+                
+            # 2. Same food repeats
+            food_count = self.variety_tracker.weekly_food_counts.get(food_id, 0)
+            if food_count == 1:
+                score -= same_food_second
+            elif food_count >= 2:
+                score -= same_food_third
+                
+            # 3. Same dish family repeats
+            if family_clean != "other":
+                fam_count = self.variety_tracker.weekly_dish_family_counts.get(family_clean, 0)
+                if fam_count >= 3:
+                    score -= same_family_wk
             
             # Grocery Optimization: Raw ingredient reuse scoring
             ingredients = node.get('recipe', {}).get('ingredients', [])

@@ -47,6 +47,16 @@ class WeeklyVarietyTracker:
         self.cooking_style_history: List[str] = []
         self.meal_signature_usage: Dict[str, int] = {}
         
+        # V6 Weekly counters & breakfast rotation trackers
+        self.weekly_protein_counts: Dict[str, int] = {}
+        self.weekly_carb_counts: Dict[str, int] = {}
+        self.weekly_breakfast_category_counts: Dict[str, int] = {}
+        self.weekly_cuisine_counts: Dict[str, int] = {}
+        self.weekly_cooking_style_counts: Dict[str, int] = {}
+        self.daily_breakfast_category: Dict[int, str] = {}
+        self.weekly_food_counts: Dict[str, int] = {}
+        self.weekly_dish_family_counts: Dict[str, int] = {}
+        
     def get_snapshot(self) -> Dict:
         return {
             "breakfast_history": set(self.breakfast_history),
@@ -70,6 +80,14 @@ class WeeklyVarietyTracker:
             "daily_cooking_style_history": {k: list(v) for k, v in getattr(self, 'daily_cooking_style_history', {}).items()},
             "cooking_style_history": list(getattr(self, 'cooking_style_history', [])),
             "meal_signature_usage": dict(getattr(self, 'meal_signature_usage', {})),
+            "weekly_protein_counts": dict(getattr(self, 'weekly_protein_counts', {})),
+            "weekly_carb_counts": dict(getattr(self, 'weekly_carb_counts', {})),
+            "weekly_breakfast_category_counts": dict(getattr(self, 'weekly_breakfast_category_counts', {})),
+            "weekly_cuisine_counts": dict(getattr(self, 'weekly_cuisine_counts', {})),
+            "weekly_cooking_style_counts": dict(getattr(self, 'weekly_cooking_style_counts', {})),
+            "daily_breakfast_category": dict(getattr(self, 'daily_breakfast_category', {})),
+            "weekly_food_counts": dict(getattr(self, 'weekly_food_counts', {})),
+            "weekly_dish_family_counts": dict(getattr(self, 'weekly_dish_family_counts', {})),
         }
 
     def restore_snapshot(self, snapshot: Dict):
@@ -93,7 +111,15 @@ class WeeklyVarietyTracker:
         self.daily_cuisine_history = {k: list(v) for k, v in snapshot.get("daily_cuisine_history", {}).items()}
         self.daily_cooking_style_history = {k: list(v) for k, v in snapshot.get("daily_cooking_style_history", {}).items()}
         self.cooking_style_history = list(snapshot.get("cooking_style_history", []))
-        self.meal_signature_usage = dict(snapshot.get("meal_signature_usage", {}))
+        self.meal_signature_usage = dict(snapshot.get("meal_signature_usage", [] if isinstance(snapshot.get("meal_signature_usage"), list) else snapshot.get("meal_signature_usage", {})))
+        self.weekly_protein_counts = dict(snapshot.get("weekly_protein_counts", {}))
+        self.weekly_carb_counts = dict(snapshot.get("weekly_carb_counts", {}))
+        self.weekly_breakfast_category_counts = dict(snapshot.get("weekly_breakfast_category_counts", {}))
+        self.weekly_cuisine_counts = dict(snapshot.get("weekly_cuisine_counts", {}))
+        self.weekly_cooking_style_counts = dict(snapshot.get("weekly_cooking_style_counts", {}))
+        self.daily_breakfast_category = dict(snapshot.get("daily_breakfast_category", {}))
+        self.weekly_food_counts = dict(snapshot.get("weekly_food_counts", {}))
+        self.weekly_dish_family_counts = dict(snapshot.get("weekly_dish_family_counts", {}))
         
     def meal_history(self, meal_type: str) -> Set[str]:
         return getattr(self, f'{meal_type.lower()}_history', set())
@@ -127,8 +153,12 @@ class WeeklyVarietyTracker:
 
     def record_food(self, food_id: str, family: str, current_day: int):
         self.item_history[food_id] = current_day
+        fid_clean = food_id.lower().strip()
+        self.weekly_food_counts[fid_clean] = self.weekly_food_counts.get(fid_clean, 0) + 1
         if family not in ('Drink', 'Fruit', 'Salad', 'Raita', 'Yogurt', 'Other', 'Vegetable'):
             self.family_history.append(family)
+            fam_clean = family.lower().strip()
+            self.weekly_dish_family_counts[fam_clean] = self.weekly_dish_family_counts.get(fam_clean, 0) + 1
 
     # --- Legacy Interfaces (Still supported for transition) ---
 
@@ -151,8 +181,10 @@ class WeeklyVarietyTracker:
                 self.carb_history.append(sg)
 
     def record_cuisine(self, region: str):
+        if not region:
+            return
         r = REGION_ALIASES.get(region, region)
-        self.cuisine_history.append(r)
+        self.cuisine_history.append(str(r).lower().strip())
 
     def record_template(self, bp_idx: int):
         self.template_history.append(bp_idx)
@@ -190,9 +222,11 @@ class WeeklyVarietyTracker:
                 penalty += min(15, freq * 5)
 
         # Repeated cuisine
-        r = REGION_ALIASES.get(region, region)
-        cuisine_freq = self.cuisine_history.count(r)
-        penalty += min(10, cuisine_freq * 3)
+        if region:
+            r = REGION_ALIASES.get(region, region)
+            r_clean = str(r).lower().strip()
+            cuisine_freq = self.cuisine_history.count(r_clean)
+            penalty += min(10, cuisine_freq * 3)
 
         # Repeated template
         tmpl_freq = self.template_history.count(bp_idx)
@@ -201,7 +235,7 @@ class WeeklyVarietyTracker:
 
         return penalty
 
-    def record_meal_selection(self, meal_id: str, foods: List[str], protein_source: str, carb_source: str, vegetables: List[str], day_num: int, cuisine: str = None, cooking_style: str = None, meal_signature: str = None, food_ids: List[str] = None):
+    def record_meal_selection(self, meal_id: str, foods: List[str], protein_source: str, carb_source: str, vegetables: List[str], day_num: int, cuisine: str = None, cooking_style: str = None, meal_signature: str = None, food_ids: List[str] = None, breakfast_category: str = None):
         self.meal_identity_history[meal_id] = day_num
         self.meal_appearance_counts[meal_id] = self.meal_appearance_counts.get(meal_id, 0) + 1
         
@@ -224,14 +258,18 @@ class WeeklyVarietyTracker:
         if day_num not in self.daily_protein_history:
             self.daily_protein_history[day_num] = set()
         if protein_source:
-            self.daily_protein_history[day_num].add(protein_source.lower().strip())
-            self.protein_history.append(protein_source.lower().strip())
+            p_clean = protein_source.lower().strip()
+            self.daily_protein_history[day_num].add(p_clean)
+            self.protein_history.append(p_clean)
+            self.weekly_protein_counts[p_clean] = self.weekly_protein_counts.get(p_clean, 0) + 1
             
         if day_num not in self.daily_carb_history:
             self.daily_carb_history[day_num] = set()
         if carb_source:
-            self.daily_carb_history[day_num].add(carb_source.lower().strip())
-            self.carb_history.append(carb_source.lower().strip())
+            c_clean = carb_source.lower().strip()
+            self.daily_carb_history[day_num].add(c_clean)
+            self.carb_history.append(c_clean)
+            self.weekly_carb_counts[c_clean] = self.weekly_carb_counts.get(c_clean, 0) + 1
             
         if day_num not in self.vegetable_history:
             self.vegetable_history[day_num] = set()
@@ -239,15 +277,23 @@ class WeeklyVarietyTracker:
             self.vegetable_history[day_num].add(v.lower().strip())
             
         if cuisine:
+            cuisine_clean = str(cuisine).lower().strip()
             if day_num not in self.daily_cuisine_history:
                 self.daily_cuisine_history[day_num] = []
-            self.daily_cuisine_history[day_num].append(cuisine)
+            self.daily_cuisine_history[day_num].append(cuisine_clean)
+            self.weekly_cuisine_counts[cuisine_clean] = self.weekly_cuisine_counts.get(cuisine_clean, 0) + 1
+            self.record_cuisine(cuisine_clean)
             
         if cooking_style:
             if day_num not in self.daily_cooking_style_history:
                 self.daily_cooking_style_history[day_num] = []
             self.daily_cooking_style_history[day_num].append(cooking_style)
             self.cooking_style_history.append(cooking_style)
+            self.weekly_cooking_style_counts[cooking_style] = self.weekly_cooking_style_counts.get(cooking_style, 0) + 1
+            
+        if breakfast_category:
+            self.weekly_breakfast_category_counts[breakfast_category] = self.weekly_breakfast_category_counts.get(breakfast_category, 0) + 1
+            self.daily_breakfast_category[day_num] = breakfast_category
             
         if meal_signature:
             self.meal_signature_usage[meal_signature] = self.meal_signature_usage.get(meal_signature, 0) + 1
@@ -274,10 +320,11 @@ class WeeklyVarietyTracker:
                     return True
 
         # 2. Same meal identity: Cannot repeat within X days.
-        limit_meal = limit
-        last_eaten = self.meal_identity_history.get(meal_id)
-        if last_eaten is not None and (day_num - last_eaten) < limit_meal:
-            return True
+        if meal_id != 'dynamic_meal':
+            limit_meal = limit
+            last_eaten = self.meal_identity_history.get(meal_id)
+            if last_eaten is not None and (day_num - last_eaten) < limit_meal:
+                return True
 
         # 3. Same protein source: Maximum X consecutive meals.
         limit_protein = int(NUTRITION_RULES["variety"]["protein_source_consecutive_max"])
@@ -289,7 +336,8 @@ class WeeklyVarietyTracker:
         # 4. Same cuisine: Maximum X times/day.
         limit_cuisine = int(NUTRITION_RULES["variety"]["cuisine_daily_max"])
         if cuisine:
-            cuisine_count = self.daily_cuisine_history.get(day_num, []).count(cuisine)
+            cuisine_clean = str(cuisine).lower().strip()
+            cuisine_count = self.daily_cuisine_history.get(day_num, []).count(cuisine_clean)
             if cuisine_count >= limit_cuisine:
                 return True
 

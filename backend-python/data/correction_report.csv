@@ -1,0 +1,1443 @@
+Food Name,Field Changed,Old Value,New Value,Reference Page (IFCT),Reason,Confidence
+Cheese And Pineapple Sandwich (Cheese Aur Ananas Ka Sandwich),category,Fruits,Traditional Meal,N/A,Sandwiches belong to Traditional Meal,100%
+Carrot Apple Sandwich (Gajar Aur Seb Ka Sandwich),category,Fruits,Traditional Meal,N/A,Sandwiches belong to Traditional Meal,100%
+Chhena Poda,is_recommended,True,False,N/A,Unhealthy/Dessert item,100%
+Sweet Potato Chaat,is_recommended,True,False,N/A,Unhealthy/Dessert item,100%
+Aam Panna (Unsweetened),is_recommended,True,False,N/A,Unhealthy/Dessert item,100%
+Authentic Sweet Potato Chaat,is_recommended,True,False,N/A,Unhealthy/Dessert item,100%
+Light Sweet Potato Chaat,is_recommended,True,False,N/A,Unhealthy/Dessert item,100%
+Spicy Sweet Potato Chaat,is_recommended,True,False,N/A,Unhealthy/Dessert item,100%
+Hot Tea (Garam Chai),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Instant Coffee,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Espresso Coffee,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Iced Tea,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Raw Mango Drink (Aam Panna),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Fruit Punch (With Fresh Juices),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Lemonade,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Lem-O-Gin,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cumin Infused Water (Jeere/Zeere Ka Pani),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Coco Pine Cooler,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Summer Cooler,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Hot Cocoa,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Banana Milkshake (Kele Milkshake),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mango Milkshake (Aam Milkshake),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Pineapple Milkshake (Ananas Milkshake),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Orange Milkshake (Narangi Milkshake),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Egg Nog,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Lassi (Salted),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cheese And Chilli Sandwich,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Egg Sandwich (Ande Ka Sandwich),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cucumber Sandwich (Kheere Ka Sandwich),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cheese And Pineapple Sandwich (Cheese Aur Ananas Ka Sandwich),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cheese And Tomato Sandwich (Cheese Aur Tamatar Ke Sandwich),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Chicken Sandwich,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Peanut And Tomato Sandwich (Moongfali Aur Tamatar Ka Sandwich),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Rainbow Sandwich,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Club Sandwich,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Vegetarian Club Sandwich,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Pin Wheel Sandwich,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Carrot Apple Sandwich (Gajar Aur Seb Ka Sandwich),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Egg And Tomato Sandwich (Ande Aur Tamatar Ka Sandwich),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mushroom And Cheese Sandwich (Toasted),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cheese And Tomato Sandwich (Toasted) (Cheese Aur Tamatar Ke Sandwich (Toasted)),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Pea Potato Sandwich (Toasted) (Matar Aloo Ka Sandwich),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Paneer Pea Sandwich (Toasted) (Paneer Matar Ka Sandwich),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Chicken Sandwich (Toasted),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Classic Club Sandwich,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Sesame Toast,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cracked Wheat Porridge (Meetha Daliya),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Semolina Porridge (Suji/Rava Daliya),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Oatmeal Porridge,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cornflakes With Milk,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Rice Flakes (Chiwda/Aval),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Wheat Flakes,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Murmura (Puffed Rice),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Puffed Wheat (Murmure/Moori),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Boiled Egg (Ubla Anda),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Poached Egg,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Scrambled Egg (Ande Ki Bhurji),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Baked Egg,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Plain Omelette/Omelette,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Stuffed Egg Omelette/Omelette,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Brown Stock,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Vegetable Stock,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Chicken Stock,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Clear Tomato Soup (Tamatar Ka Soup),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Lentil Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Chicken Consomme (Clear Chicken Soup),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cream Of Tomato Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cream Of Green Peas Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cream Of Spinach Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cream Of Mixed Vegetable Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cream Of Mushroom Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Minestrone Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Egg Drop Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Chinese Cabbage And Meat Ball Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+French Onion Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Hot And Sour Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Talaumein Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cold Cucumber Soup (Thanda Kheere Ka Soup),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cold Summer Garden Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Chapati/Roti,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Plain Parantha/Paratha,region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Potato Parantha/Paratha (Aloo Ka Parantha/Paratha),region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Radish Parantha/Paratha (Mooli Ka Parantha/Paratha),region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Cauliflower Parantha/Paratha (Phoolgobhi Ka Parantha/Paratha),region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Dal Parantha/Paratha,region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Sprouted Moong Parantha/Paratha,region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Pea Parantha/Paratha (Matar Ka Parantha/Paratha),region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Paneer Parantha/Paratha,region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Besan And Spinach Parantha/Paratha (Besan Aur Palak Ka Parantha/Paratha),region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Tandoori Parantha/Paratha,region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Boiled Rice (Uble Chawal),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Plain Pulao,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mixed Vegetable Pulao,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mushroom Pulao,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Sprouted Moong Pulao,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Paneer Pulao,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Peanut Pulao,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Navratan Pulao,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Green Chickpeas Pulao (Choliya Pulao/Hare Chane Ka Pulao),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mutton Biryani/Biriyani,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Vegetable Biryani/Biriyani,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+"Lemon Rice (Pulihora, Elumichai Sadam, Chitranna)",region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Curd Rice (Dahi Bhaat/Dahi Chawal/ Perugu Annam/Daddojanam/Thayir Saadam),region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Tamarind Rice (Chintapandu Pulihora/Puliyodharai/Puli Sadam/Huli Anna),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spanish Rice,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Vegetable Chowmein,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Chicken Chowmein,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cheese Noodle Ring,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Penne Platter,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Pasta Hot Pot,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Chicken Lasagne,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Fettuccine With Spinach Sauce,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Naan,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Idli,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Masala Dosa,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Semolina Dosa (Suji/Rava Dosa),region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Onion Tomato Uttapam,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Paneer Kaathi Roll,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Makki Ki Roti,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Washed Moong Dal (Dhuli Moong Ki Dal),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Washed Urad Dal (Dhuli Urad Ki Dal),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Split Bengal Gram With Bottle Gourd (Channa Dal With Ghiya/Lauki),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Dry Washed Urad,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mixed Dal,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Whole Moong (Moong Ki Dal),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Whole Masoor (Masoor Ki Dal),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Whole Moth (Moth Ki Dal),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Whole Urad (Urad Ki Dal),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Moti Mahal Dal (Urad Rajmah Mix Dal),region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Black Channa Curry/Bengal Gram Curry (Kale Chane Ki Curry),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Chickpeas Curry (Safed Channa Curry),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Lobia Curry,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Soyabean Curry,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Kidney Bean Curry (Rajmah Curry),region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Sambar,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Besan Kadhi With Pakodies,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Khatta Channa,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Sprouted Moong Dal Chat,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Potato Cauliflower (Aloo Gobhi),region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Potato Capsicum (Shimla Mirch Aloo),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cabbage And Peas (Cabbage Aur Matar),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Carrot And Fenugreek Leaves (Gajar Methi),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Potato Fenugreek (Aloo Methi),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Brinjal Bhartha (Baingan Ka Bhartha),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Dry Potato (Sookhe Aloo),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Beans With Coconut (Nariyal Aur Sem/Phali; Beans Thoran),region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Cauliflower With Coconut (Nariyal Ke Saath Phoolgobhi),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Carrot And Cabbage With Coconut (Nariyal Ke Saath Cabbage Aur Gajar),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Raw Turnip With Coconut,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Raw Papaya With Coconut (Papaya Thoran),region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Stuffed Okra (Bharwa Bhindi),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Stuffed Round Gourd (Bharwa Tinde),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Stuffed Capsicum (Bharwa Shimla Mirch),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Stuffed Brinjal (Bharwa Baingan),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Stuffed Tomatoes (Bharwa Tamatar),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Pea Potato Curry (Aloo Matar),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Pea Paneer Curry (Matar Paneer),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Pea Mushroom Curry (Matar Mushroom),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Pea Curry (Matar Ki Sabzi),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Pea Vadi Curry,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Paneer Curry,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Lotus Stem Curry (Kamal Kakdi Curry),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Baked Vegetables,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cauliflower Musallam (Phoolgobhi Musallam),region,West India (Maharashtrian),Pan Indian,N/A,Invalid region fallback,100%
+Baked Vegetables With Spinach,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Baked Potato With Skin,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Baked Brinjal In Tomato Sauce,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Dum Aloo,region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Spinach Paneer (Palak Paneer),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Methi Chaman,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Sarson Ka Saag,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Jackfruit Sabzi (Kathal Ki Sabzi),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Avial,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Al Yakhani,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Paneer In Butter Sauce,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Chilli Paneer,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Kadhai Paneer,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Roghan Josh,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spinach Mutton (Palak Mutton),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mutton Yakhni,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Chicken Yakhni,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mutton Do Piaza,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mutton Chops,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Shammi Kebab,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Chicken Curry,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Chicken Kebab,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Chilli Chicken,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Fish Curry (Machli Curry),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Tomato Fish,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Fish Tikka,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Tandoori Fish,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+"Paneer, Apple And Pineapple Salad",region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Russian Salad,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Pasta Salad,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Deviled Egg,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Hawain Salad,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mixed Pulse And Vegetable Salad,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Sprouted Moong Salad,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Tossed Salad,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mixed Vegetable Salad With Curd Sauce,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Potato Salad (Aloo Ka Salaad),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Waldroff Salad,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Coleslaw,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Fruit Salad (Phalon Ka Salaad),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Tomato Onion Raita (Tamatar Aur Onion Ka Raita),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Peanut Raita (Mungfali Ka Raita),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Sprouted Moong Raita,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Bottle Gourd Raita (Ghiya/Lauki Ka Raita),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cucumber Raita (Kheere Ka Raita),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Carrot And Spinach Raita (Gajar Aur Palak Ka Raita),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mint Raita (Pudinay Ka Raita),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Potato Raita (Aloo Ka Raita),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Boondi Raita,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Saunth/Sonth Chutney With Tamarind/Imli,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Lemon Souffle,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Orange Souffle,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Vanilla Souffle,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Pineapple Souffle,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Charlotte Rousse,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Apple Snowballs,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Hot Orange Souffle,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Hot Vanilla Souffle,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Chenna Murki,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cheese Toast,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Vegetable Seekh Kebab,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Paneer Shaslik/Tikka,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Dry Mango Chutney (Sookhe Aam Ki Chutney),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Peanut Chutney (Mungfali Ki Chutney),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Coconut Chutney (Nariyal Ki Chutney),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mint And Coriander Chutney (Pudinay Aur Dhaniye Ki Chutney),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Minced Meat Patties,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cheese Patties,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Hot Cheese Souffle,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Hot Potato Souffle,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Hot Fish Souffle,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Hot Spinach Souffle,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Fruit Loaf,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Swiss Roll,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Coconut Finger,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Ginger Bread Man,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Melting Moments,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Soyabean Tikki,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Rice Moong Dal Chilla (Chawal Aur Moong Dal Ka Chilla),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Sprouted Moong Daliya,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Sprouted Moong Poha,region,West India (Maharashtrian),Pan Indian,N/A,Invalid region fallback,100%
+Paushtik Roti,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Dhokla,region,West India (Gujarati),Pan Indian,N/A,Invalid region fallback,100%
+Kashmiri Tea (Kehwa),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Steeped Hot Coffee,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Flavoured Milkshake,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Jal Jeera,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Gingo,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mintade,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Canjee,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cauliflower Canjee (Phoolgobhi Ki Canjee),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Potato Canjee (Aloo Canjee),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Vermicelli Porridge (Semiya/Seviyan Porridge),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Semolina Upma (Suji/Rava Upma),region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Vermicelli Upma (Semiya/Seviyan Upma),region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Rice Upma,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Bread Upma,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Vegetable Upma,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Poha,region,West India (Maharashtrian),Pan Indian,N/A,Invalid region fallback,100%
+Vegetable Poha,region,West India (Maharashtrian),Pan Indian,N/A,Invalid region fallback,100%
+Moong Dal Stuffed Chilla/Chilla (Moong Dal Ka Chilla/Chilla),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Paneer Stuffed Chilla/Chilla,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+French Omelette/Omelette,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Puffy Omelette/Omelette,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Orange Omelette/Omelette,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cheese And Mushroom Omelette/Omelette,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spanish Omelette/Omelette,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mixed Stock,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Meat Stock,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+White Stock,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Meat Consomme (With Mutton),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Consomme Au Julienne,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Consomme Au Vermicelli,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Green Pea Soup (Matar Ka Soup),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spinach Soup (Palak Ka Soup),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mixed Vegetable Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cheese Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mulligatawny Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cream Of Carrot Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cream Of Broccoli Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cream Of Potato Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Almond Soup (Badam Ka Soup),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cold Cucumber Cream Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cold Tomato Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Chicken Stew,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Veg Paneer Stew,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Onion-Green Chilli Parantha/Paratha (Onion Aur Hari Mirch Ka Parantha/Paratha),region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Methi Parantha/Paratha,region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Eggplant/Brinjal Rice (Vangi Bhat),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Kashmiri 'Tahar',region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cumin Pulao (Jeera/Zeera Pulao),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Peas Pulao (Matar Pulao),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Split Bengal Gram Dal And Vegetable Pulao (Channa Dal And Vegetable Pulao),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Black Channa Pulao/ Bengal Gram Pulao (Kale Chane Ka Pulao),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mutton Pulao,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Chicken Pulao,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mexican Rice,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Plain Khichdi (Plain Khichdi/Khichdi),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Instant Idli (With Semolina),region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Plain Dosa,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Masala Dosa Mixed Vegetable Fillings,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Masala Dosa Paneer Fillings,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Uttapam,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Appam,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Beans And Macaroni,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spaghetti Bolognese,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Meat And Macaroni Casserole,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spaghetti With Meat Balls And Tomato Sauce,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spaghetti With Paneer Balls And Tomato Sauce,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Lasagne With Meat Sauce,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Lasagne With Vegetables,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Home Made Egg Noodles,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Sour Lentils (Khatti Dal),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Urad Special Dehusked,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Arhar With Spinach (Arhar Dal Aur Palak),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Moong Dal With Vadi,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Rasam With Tamarind (Puli Rasam/ Chintapandu Rasam/ Charu/Saaru),region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Rasam With Lemon (Nimmakaya Rasam/Nimmakaya Charu/Elumichai Rasam/Nimbe Hannina Saaru),region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Green Gram Whole With Baghar (Sabut Moong Dal With Tadka),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Urad Sabut Special,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Kabuli Channa Curry,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Besan Gatte Curry,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Dry Masala Chops,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Minced Meat Ball Curry,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Boti Kebab,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mutton Seekh Kebab,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mushroom Matar,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Soya Chunks And Peas (Nutrinugget Matar),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Vegetable Yakhni,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spinach Mushroom (Palak Mushroom),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Roast Chicken,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Tomato Chicken,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Creamy Chicken,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Broccoli Chicken Ala King,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Ginger Chicken,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Bengal Fish Curry (Bengali Machli Curry),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Fish Finger,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Fish In Coconut Milk (Nariyal Ke Doodh Ke Saath Machli),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Prawn Curry (With Coconut) (Jhinga Curry),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Baked Stuffed Fish,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Crispy Baked Fish,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Fish Souffle,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Potato Curry (Aloo Ki Sabzi),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Egg Curry (Anda Curry),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Vegetable Curry With Coconut,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Curd With Potatoes (Dahi Aloo),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spinach And Potato (Palak Aloo),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cabbage Rolls (Dry) ((Cabbage Rolls) (Dry)),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cabbage Rolls (Curry) ((Cabbage Rolls)(Curry)),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Dry Arbi (Sookhi Arbi),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Masala Arbi,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Peas Brinjal Bhartha (Matar Baingan Bhartha),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Okra/Lady'S Fingers Fry (Bhindi Sabzi/Sabji/Subji),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Crispy Okra/Crispy Lady'S Fingers (Karare Bhindi),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Beans Foogath,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Stuffed Bittergourd (Wet) (Bharwa Karele),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Jackfruit/Kathal (Dry),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Vegetable Jalfrezi,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Vegetables Stir Fry,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Broccoli Delight,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Dhansak (Vegetarian),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cauliflower Basket,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Stuffed Bottle Gourd (Stuffed Ghiya/Lauki),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Ducheese Potato,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Roast Potatoes,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Stuffed Baked Potatoes,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Potato Nests,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Parsley Potato,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Creamed Spinach And Mushroom,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Fricassee Of Mushroom,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cauliflower Au Gratin,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spinach Souffle,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Beetroot And Egg Salad (Chukandar Aur Ande Ka Salad),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Sour Cream Potato Salad,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Tossed Green Salad,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spring Basket Salad,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cucumber And Yogurt Salad (Kheere Aur Dahi Ka Salad),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Chicken And Tomato Towers,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Jellied Sunshine Fruit Salad,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Tomato Aspic,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Frozen Frosty Fruit Salad (Phalon Ka Salaad),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Curd Dressing,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Carrot Raita (Gajar Ka Raita),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Pumpkin Raita (Kaddu Ka Raita),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mint And Peanut Raita (Pudinay Aur Moongfali Ka Raita),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spinach Raita (Palak Ka Raita),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Bathua Raita,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Pineapple Raita (Ananas Ka Raita),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Banana Raita (Kele Ka Raita),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mango Raita (Aam Ka Raita),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Guava Raita (Amarood Ka Raita),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Grapes Raita (Angoor Ka Raita),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Pear Chocholate Sunday,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Coffee Pear Alaska,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Grape And Orange Whip,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Fruit Delight,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cold Lemon Souffle,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cold Orange Souffle,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cold Pineapple Souffle,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cold Vanilla Souffle,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Stewed Fruit (With Pear),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Apricot Fool,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Hot Lemon Souffle,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Chum Chum,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Dil Bahar,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Rasbhari,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Rajbogh,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Masala Urad Dal Vada,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Khaman (Dhokla),region,West India (Gujarati),Pan Indian,N/A,Invalid region fallback,100%
+Instant Dhokla,region,West India (Gujarati),Pan Indian,N/A,Invalid region fallback,100%
+Tomato Ginger Chutney (Tamatar Adarak Ki Chutney),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mint Tomato Chutney (Pudinay Aur Tamatar Ki Chutney),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Coriander Chutney (Hare Dhaniye Ki Chutney),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Gooseberry Chutney (Amla Chutney),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Walnut Chutney (Akhrot Ki Chutney),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Saunth/Sonth Chutney With Ginger,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Gun Powder Chutney,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Dessicated Coconut Chutney (Sookhe Kase Nariyal Ki Chutney),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Curd Mint Dip,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Curd Vegetable Dip,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Tomato And Cucumber Sandwich (Tamatar Aur Kheere Ka Sandwich),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Tomato Sandwich (Grilled),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+French Sandwich (Toasted),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Peanut Butter Cucumber Sandwich,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mint And Peanut Sandwich,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Chutney Sandwich,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Chicken Walnut Sandwich (Chicken Aur Akhrot Ke Sandwich),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Rolled Sandwich,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Ribbon Sandwich,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Checker Board Sandwich,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Submarine Sandwich,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cheese Open Sandwich,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Sunset And Sunrise Open Sandwich,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Danish Luncheon Sandwich,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Chicken And Corn Open Sandwich,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Lemon Curd Filling,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Orange Gateau,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Black Forest Gateau,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Coffee Drops,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cheese Straws,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Fruit Flan,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Savoury Puffs,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Savoury Cheese Horns,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Paneer Patties,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Vegetable Patties,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Pearl Millet Infant Food (Bajra Shishu Aahaar),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Sajina,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cereal Mix,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Pulse Mix,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Shishu Ahar,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cereal Pulse Mix With Amylase Rice Flour,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Banana Groundnut Paste/Puree,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Rice Dal Porridge (Chawal Dal Ki Khichdi/Khichdi),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Lentils And Semolina Porridge (Dal Suji Porridge/Daliya),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spinach Khichdi (Palak Khichdi/Khichdi),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Vegetable Mix,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Lentils And Wheat Porridge (Dal Wheat Porridge/Daliya ),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Maize Porridge,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Besan Bathua Chilla/Chilla,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Gram Flour And Semolina Dhokla (Besan Suji Dhokla),region,West India (Gujarati),Pan Indian,N/A,Invalid region fallback,100%
+Soya Roti,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Poshtik Khichdi/Khichdi,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Sprouts Upma,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Semolina Idli (Suji/Rava Idli),region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Poshtik Chilla/Chilla,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Stuffed Bittergourd (Dry) (Bharwa Karela),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cauliflower Potato Canjee,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Creamed Spinach,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Sattu Drink,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Thandai,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cucumber Sharbat (Kheere Ka Sharbat),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Apple Oats Chia Seed Smoothie,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Semolina Milk Drink (Thari Kanji),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Saffron Milk (Kesariya Doodh),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Kesari Bath,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Putharekulu,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Chhena Poda,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Prawn Sandwich,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Watercress Sandwich,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Fish Sandwich,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Kidney Bean Sandwich With Cottage Cheese,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Afghani Chicken,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Fish Orly,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Hariyali Fish Tikka,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Chicken Manchurian,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Handi Chicken,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Lemon Chicken,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Lemon Butter Fish,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Baked Eggs In Tomato Sauce,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Egg In A Pepper,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spinach Mushroom Scrambled Egg (Palak Mushroom Bhurji),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Corn Omelette/Omelette,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cajun Chicken,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Paaner Do Pyaza,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cabbage Manchurian (Cabbage Manchurian),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Gobi 65,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Paneer Lababdar,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cauliflower Steak,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Sauteed Radishes With Green Beans,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Garlic Chutney/Poondu Chutney (Garlic Ki Chutney),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Schezwan Chutney,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Onion Chutney (Onion Ki Chutney/Vengaya Chutney),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Dates Chutney (Khajoor Ki Chutney),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Chicken Salad,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Macaroni Salad,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cabbage Raita (Cabbage Raita),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Pomegranate Raita (Anaar Ka Raita),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Onion Raita (Onion Ka Raita),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Green Chilli Raita (Hari Mirch Ka Raita),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Kale Salad,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spinach And Paneer Souffle,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Masala Souffle,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Chicken And Cheese Souffle,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Tamarind Chutney (Chintapandu Pachadi/Puli Chutney),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Pav Bhaji Masala,region,West India (Maharashtrian),Pan Indian,N/A,Invalid region fallback,100%
+Green Chutney,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Sago Khichdi/Khichdi (Sabudana Khichdi/Khichdi),region,West India (Maharashtrian),Pan Indian,N/A,Invalid region fallback,100%
+Gram Flour Chilla/Chilla (Besan Chilla/Chilla),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Khakhra,region,West India (Gujarati),Pan Indian,N/A,Invalid region fallback,100%
+Moong Bean Dosa (Pesarattu),region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Methi Thepla,region,West India (Gujarati),Pan Indian,N/A,Invalid region fallback,100%
+Rice Puttu (Ari Puttu),region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Quinoa Khichdi/Khichdi,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Khakhra Chaat,region,West India (Gujarati),Pan Indian,N/A,Invalid region fallback,100%
+Banana Appam,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Veg Manchurian,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Pav Bhaji,region,West India (Maharashtrian),Pan Indian,N/A,Invalid region fallback,100%
+Semolina Dhokla (Suji/Rava Dhokla),region,West India (Gujarati),Pan Indian,N/A,Invalid region fallback,100%
+Spicy Corn Chaat,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Whey Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Bottle Gourd Soup (Ghiya/Lauki Soup),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Baked Potato Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Pumpkin Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Paneer Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Curried Cauliflower Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Millet Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Lemon Coriander Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Garlic Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Dal Makhani,region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Dalma,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Split Bengal Gram Dal (Channa Dal),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Horsegram Dal (Kulthi Dal),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Panchmel Dal,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Dal Dhokli,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Gujarati Handvo,region,West India (Gujarati),Pan Indian,N/A,Invalid region fallback,100%
+Jowar Dosa,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Soya Seekh Kebab,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Classic Seasoned Black Beans,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Maa Chaane Ki Dal,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Garlic Chickpea Soup (Garlic Aur Chane Ka Shoraba),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mustard Sauce,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Classic Italian Pasta,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Pasta Spinach Sauce,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Curd Dip,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Channa Murmura Premix,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cracked Wheat And Green Gram Dal Premix (Dalia Moong Dal Premix),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Rice Flakes And Roasted Channa,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spinach Soup In Milk,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Vegetable Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mashed Banana With Milk,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Poha With Curd (Poha Aur Dahi),region,West India (Maharashtrian),Pan Indian,N/A,Invalid region fallback,100%
+Potato With Curd,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Vegetable Khichdi/Khichdi,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Moong Dal Mixture,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cracked Wheat Khichdi/Khichdi (Dalia Khichdi/Khichdi),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Stewed Apple,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Plum Chutney (Aloo Bukhara Ki Chutney),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Raw Mango Chutney (Kachhe Aam/Kairi Ki Chutney),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Tomato Sauce,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Tomato Puree,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Garam Masala,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Chat Masala,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Kashmiri Masala,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Rasam Powder (Rasam Masala),region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Sambar Powder (Sambar Masala),region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Bread Sauce,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Green Chilli Sauce,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Home Made Plain Noodles,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Dal Moong,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cumin Seeds Baghar (Jeera Baghar/Tadka),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Onion Tomato Baghar (Onion Tamatar Ka Tadka),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mustard Seeds Baghar (Mustard Seed Tadka),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Hot Cherry Sauce,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Tomato Chutney (Tamatar Ki Chutney),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Bengal 5 Spice Blend (Panch Phoran),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Moong Dal Chilla,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Oats Idli,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Ragi Dosa,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Vegetable Dalia (Broken Wheat),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Sprouts Salad (Moong),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Besan Chilla,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Quinoa Upma,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Methi Thepla (Low Oil),region,West India (Gujarati),Pan Indian,N/A,Invalid region fallback,100%
+Egg White Scramble With Spinach,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Soya Chunks Curry (Low Oil),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Palak Paneer (Low Fat),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Grilled Fish (Rohu/Surmai),region,West India (Maharashtrian),Pan Indian,N/A,Invalid region fallback,100%
+Rajma Curry (Low Oil),region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Chana Masala (Low Oil),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Dal Tadka (Less Ghee),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Tofu Bhurji,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mushroom Matar (Low Oil),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Chicken Stew With Veggies,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Paneer Bhurji (Low Oil),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Lauki Chana Dal,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mixed Vegetable Stew,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Grilled Chicken Breast (Indian Spices),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Masoor Dal (Light),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Baingan Bharta (Low Oil),region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Fish Curry (Kerala Style - Low Coconut),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Soya Kheema (Dry),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Moong Dal Tadka,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+"Egg Curry (Tomato Base, 2 Eggs)",region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Multigrain Roti,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Jowar Roti,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Bajra Roti,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Brown Rice (1 Cup Boiled),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Cucumber Tomato Salad,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Makhana (Fox Nuts),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Chana,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Boiled Peanuts,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Sprouts Chaat,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Greek Yogurt With Berries,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Apple With Almonds,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Boiled Eggs (2),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Whey Protein Shake,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Pumpkin Seeds,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Masala Oats (Small Bowl),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Chicken Tikka (Air Fried),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+"Mixed Veg Lemon Rice (Pulihora, Elumichai Sadam, Chitranna)",region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Fish Sandwich,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Roasted Pumpkin Seeds,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Vegetable Dalia (Broken Wheat),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Home Made Plain Noodles,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Tandoori (No Butter) Ragi Dosa,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Classic Club Sandwich,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Baked Vegetables With Spinach,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Dhokla,region,West India (Gujarati),Pan Indian,N/A,Invalid region fallback,100%
+Tandoori (No Butter) Vegetable Biryani/Biriyani,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Masala Arbi,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Roasted Pumpkin Seeds,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Quinoa Khichdi/Khichdi,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mixed Veg Lemon Chicken,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Paneer Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mixed Veg Raw Mango Drink (Aam Panna),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Danish Luncheon Sandwich,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Sour Cream Potato Salad,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Tandoori (No Butter) Mint And Coriander Chutney (Pudinay Aur Dhaniye Ki Chutney),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Tandoori (No Butter) Vegetable Khichdi/Khichdi,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Garlic Chickpea Soup (Garlic Aur Chane Ka Shoraba),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Chicken Salad,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Cheese Open Sandwich,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Tandoori (No Butter) Makki Ki Roti,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Brinjal Bhartha (Baingan Ka Bhartha),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Macaroni Salad,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mixed Veg Spring Basket Salad,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mixed Veg Dil Bahar,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Potato Parantha/Paratha (Aloo Ka Parantha/Paratha),region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Mixed Veg Fricassee Of Mushroom,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Coco Pine Cooler,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Masoor Dal (Light),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Jowar Roti,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Moong Dal Chilla,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Tandoori (No Butter) Tomato And Cucumber Sandwich (Tamatar Aur Kheere Ka Sandwich),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mixed Veg Kadhai Paneer,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Cauliflower Potato Canjee,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Tandoori (No Butter) Rice Flakes And Roasted Channa,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Chicken Tikka (Air Fried),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Tandoori (No Butter) Chicken And Cheese Souffle,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Tandoori (No Butter) Hot Potato Souffle,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Tandoori (No Butter) Home Made Plain Noodles,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Kashmiri 'Tahar',region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Egg Drop Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Tandoori (No Butter) Gram Flour Chilla/Chilla (Besan Chilla/Chilla),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Rice Flakes (Chiwda/Aval),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mixed Veg Chilli Paneer,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mixed Veg Creamed Spinach,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Vegetable Stock,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Tandoori (No Butter) Potato Fenugreek (Aloo Methi),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Baked Potato With Skin,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Tandoori (No Butter) Paneer Kaathi Roll,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Orange Gateau,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Tandoori (No Butter) Cabbage Manchurian (Cabbage Manchurian),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Mixed Veg Mexican Rice,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Sprouted Moong Salad,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Bitter Gourd Fry (Air Fried),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Soya Chunks Pulao,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Kanji,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Farm Fresh Carrot Kosambari,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Buttermilk / Chaas,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Beetroot Poriyal,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Neer Dosa,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Authentic Moringa Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Paneer Tikka (Air Fried),region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Makhana Sabzi,region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Protein Shake (Whey),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Rajma Galouti Kebab (Baked),region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Farm Fresh Roasted Chana,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Grilled Basa,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Grilled Basa,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Gongura Pappu,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Carrot Kosambari,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Kadalai Mittai,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Coconut Water,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Sorse Ilish (Light),region,East India,Pan Indian,N/A,Invalid region fallback,100%
+Authentic Peanut Sundal,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Authentic Bisi Bele Bath (Brown Rice),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Farm Fresh Tori Sabzi,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Sorse Ilish (Light),region,East India,Pan Indian,N/A,Invalid region fallback,100%
+Carrot Kosambari,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Chicken Chettinad (Low Oil),region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Light Tori Sabzi,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Kashmiri Saag,region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Authentic Ragi Dosa,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Doi Maach,region,East India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Kambu Koozh,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Roasted Chana,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Boiled Egg Salad,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Light Carrot Kosambari,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Light Oats Chilla,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Eromba,region,Northeast India,Pan Indian,N/A,Invalid region fallback,100%
+Farm Fresh Oats Paniyaram,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Machher Jhol (Less Oil),region,East India,Pan Indian,N/A,Invalid region fallback,100%
+Kambu Koozh,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Green Tea,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Farm Fresh Paneer Tikka (Air Fried),region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Paneer Tikka (Air Fried),region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Soya Chunks Pulao,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Thukpa (Chicken),region,Northeast India,Pan Indian,N/A,Invalid region fallback,100%
+Authentic Carrot Kosambari,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Authentic Brown Rice Pongal,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Tandoori Prawns,region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Ragi Dosa,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Sweet Potato Chaat,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Jaljeera,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Machher Jhol (Less Oil),region,East India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Lauki Dal,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Farm Fresh Dalma,region,East India,Pan Indian,N/A,Invalid region fallback,100%
+Authentic Kerala Red Rice,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Oats Paniyaram,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Masala Chai (Low Sugar),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Millet Bhel,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Bamboo Shoot Curry,region,Northeast India,Pan Indian,N/A,Invalid region fallback,100%
+Farm Fresh Brown Rice Pongal,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Sol Kadhi,region,West India (Maharashtrian),Pan Indian,N/A,Invalid region fallback,100%
+Boiled Egg Salad,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Lauki Dal,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Beetroot Poriyal,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Thukpa (Chicken),region,Northeast India,Pan Indian,N/A,Invalid region fallback,100%
+Adai,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Espresso,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Gongura Pappu,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Bajra Khichdi,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Farm Fresh Boiled Egg Salad,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Authentic Millet Bhel,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Quinoa Khichdi,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Farm Fresh Ragi Mudde,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Light Doi Maach,region,East India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Oats Chilla,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Peanut Sundal,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Chicken Stew (Kerala Style),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Quinoa Khichdi,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Light Makhana Sabzi,region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Oats Paniyaram,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Pesarattu,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Light Quinoa Khichdi,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Farm Fresh Kadalai Mittai,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Neer Dosa,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Ragi Mudde,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Beetroot Poriyal,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Lemon Water (No Sugar),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Authentic Ragi Mudde,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Ridge Gourd Chutney,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Light Tandoori Fish,region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Authentic Chicken Stew (Kerala Style),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Carrot Kosambari,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Eromba,region,Northeast India,Pan Indian,N/A,Invalid region fallback,100%
+Farm Fresh Kashmiri Saag,region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Kerala Red Rice,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Filter Coffee (No Sugar),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Pesarattu,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Tori Sabzi,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Bisi Bele Bath (Brown Rice),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Soya Chunks Pulao,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Meen Moilee (Healthy),region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Oats Chilla,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Chicken Chettinad (Low Oil),region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Aam Panna (Unsweetened),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Moringa Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Light Chicken Chettinad (Low Oil),region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Farm Fresh Bamboo Shoot Curry,region,Northeast India,Pan Indian,N/A,Invalid region fallback,100%
+Light Rajma Galouti Kebab (Baked),region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Meen Moilee (Healthy),region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Authentic Doi Maach,region,East India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Bajra Khichdi,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Doi Maach,region,East India,Pan Indian,N/A,Invalid region fallback,100%
+Ragi Mudde,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Authentic Dalma,region,East India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Kashmiri Saag,region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Light Bamboo Shoot Curry,region,Northeast India,Pan Indian,N/A,Invalid region fallback,100%
+Authentic Sweet Potato Chaat,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Moringa Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Millet Bhel,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Authentic Beetroot Poriyal,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Light Sorse Ilish (Light),region,East India,Pan Indian,N/A,Invalid region fallback,100%
+Authentic Kadalai Mittai,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Brown Rice Pongal,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Farm Fresh Sprouted Moong Salad,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Tandoori Fish,region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Light Millet Bhel,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Paneer Tikka (Air Fried),region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Farm Fresh Moringa Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Authentic Jowar Roti,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Light Grilled Basa,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Kerala Red Rice,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Bamboo Shoot Curry,region,Northeast India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Oats Chilla,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Dalma,region,East India,Pan Indian,N/A,Invalid region fallback,100%
+Light Kambu Koozh,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Bitter Gourd Fry (Air Fried),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Authentic Grilled Basa,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Authentic Soya Chunks Pulao,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Lauki Dal,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Light Roasted Chana,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Light Meen Moilee (Healthy),region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Light Paneer Tikka (Air Fried),region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Light Pesarattu,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Farm Fresh Soya Chunks Pulao,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Quinoa Khichdi,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Farm Fresh Pesarattu,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Light Kadalai Mittai,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Farm Fresh Bitter Gourd Fry (Air Fried),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Light Dalma,region,East India,Pan Indian,N/A,Invalid region fallback,100%
+Authentic Paneer Tikka (Air Fried),region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Tori Sabzi,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Authentic Sorse Ilish (Light),region,East India,Pan Indian,N/A,Invalid region fallback,100%
+Light Neer Dosa,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Farm Fresh Millet Bhel,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Oats Paniyaram,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Authentic Bitter Gourd Fry (Air Fried),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Farm Fresh Thukpa (Chicken),region,Northeast India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Sprouted Moong Salad,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Farm Fresh Rajma Galouti Kebab (Baked),region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Light Bisi Bele Bath (Brown Rice),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Roasted Chana,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Farm Fresh Sorse Ilish (Light),region,East India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Kashmiri Saag,region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Authentic Bajra Khichdi,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Bisi Bele Bath (Brown Rice),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Light Kashmiri Saag,region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Light Moringa Soup,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Farm Fresh Beetroot Poriyal,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Ragi Mudde,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Light Sprouted Moong Salad,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Farm Fresh Eromba,region,Northeast India,Pan Indian,N/A,Invalid region fallback,100%
+Light Brown Rice Pongal,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Light Ragi Mudde,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Peanut Sundal,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Authentic Boiled Egg Salad,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Adai,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Light Eromba,region,Northeast India,Pan Indian,N/A,Invalid region fallback,100%
+Authentic Ridge Gourd Chutney,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Light Soya Chunks Pulao,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Authentic Adai,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Light Sweet Potato Chaat,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Brown Rice Pongal,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Farm Fresh Grilled Basa,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Farm Fresh Lauki Dal,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Chicken Stew (Kerala Style),region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Light Tandoori Prawns,region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Makhana Sabzi,region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Authentic Meen Moilee (Healthy),region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Light Kerala Red Rice,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Authentic Quinoa Khichdi,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Rajma Galouti Kebab (Baked),region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Neer Dosa,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Tandoori Fish,region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Kambu Koozh,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Authentic Bamboo Shoot Curry,region,Northeast India,Pan Indian,N/A,Invalid region fallback,100%
+Authentic Oats Paniyaram,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Chicken Chettinad (Low Oil),region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Makhana Sabzi,region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Diet Tandoori Prawns,region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Light Peanut Sundal,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Farm Fresh Ridge Gourd Chutney,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Farm Fresh Tandoori Prawns,region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Authentic Makhana Sabzi,region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Spicy Sweet Potato Chaat,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Farm Fresh Tandoori Fish,region,North India,Pan Indian,N/A,Invalid region fallback,100%
+Light Thukpa (Chicken),region,Northeast India,Pan Indian,N/A,Invalid region fallback,100%
+Authentic Kambu Koozh,region,South India,Pan Indian,N/A,Invalid region fallback,100%
+Farm Fresh Peanut Sundal,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Light Lauki Dal,region,All India,Pan Indian,N/A,Invalid region fallback,100%
+Authentic Machher Jhol (Less Oil),region,East India,Pan Indian,N/A,Invalid region fallback,100%
+Fettuccine With Spinach Sauce,serving_size_g,150.0,15,N/A,Realistic condiment/spice serving size,100%
+Fettuccine With Spinach Sauce,serving_size_g,150.0,15.0,N/A,Scaled to 15g,100%
+Fettuccine With Spinach Sauce,calories_kcal,193.0,19.3,N/A,Scaled to 15g,100%
+Fettuccine With Spinach Sauce,protein_g,4.6,0.46,N/A,Scaled to 15g,100%
+Fettuccine With Spinach Sauce,carbohydrates_g,18.3,1.83,N/A,Scaled to 15g,100%
+Fettuccine With Spinach Sauce,fat_g,11.7,1.17,N/A,Scaled to 15g,100%
+Fettuccine With Spinach Sauce,fiber_g,2.8,0.28,N/A,Scaled to 15g,100%
+Fettuccine With Spinach Sauce,sugar_g,3.5,0.35,N/A,Scaled to 15g,100%
+Masala Dosa,serving_size_g,150.0,10,N/A,Realistic condiment/spice serving size,100%
+Masala Dosa,serving_size_g,150.0,10.0,N/A,Scaled to 10g,100%
+Masala Dosa,calories_kcal,411.0,27.4,N/A,Scaled to 10g,100%
+Masala Dosa,protein_g,8.2,0.55,N/A,Scaled to 10g,100%
+Masala Dosa,carbohydrates_g,48.9,3.26,N/A,Scaled to 10g,100%
+Masala Dosa,fat_g,19.6,1.31,N/A,Scaled to 10g,100%
+Masala Dosa,fiber_g,12.3,0.82,N/A,Scaled to 10g,100%
+Masala Dosa,sugar_g,3.9,0.26,N/A,Scaled to 10g,100%
+Baked Brinjal In Tomato Sauce,serving_size_g,150.0,15,N/A,Realistic condiment/spice serving size,100%
+Baked Brinjal In Tomato Sauce,serving_size_g,150.0,15.0,N/A,Scaled to 15g,100%
+Baked Brinjal In Tomato Sauce,calories_kcal,115.0,11.5,N/A,Scaled to 15g,100%
+Baked Brinjal In Tomato Sauce,protein_g,4.7,0.47,N/A,Scaled to 15g,100%
+Baked Brinjal In Tomato Sauce,carbohydrates_g,12.4,1.24,N/A,Scaled to 15g,100%
+Baked Brinjal In Tomato Sauce,fat_g,4.9,0.49,N/A,Scaled to 15g,100%
+Baked Brinjal In Tomato Sauce,fiber_g,2.0,0.2,N/A,Scaled to 15g,100%
+Baked Brinjal In Tomato Sauce,sugar_g,1.1,0.11,N/A,Scaled to 15g,100%
+Paneer In Butter Sauce,serving_size_g,150.0,15,N/A,Realistic condiment/spice serving size,100%
+Paneer In Butter Sauce,serving_size_g,150.0,15.0,N/A,Scaled to 15g,100%
+Paneer In Butter Sauce,calories_kcal,218.0,21.8,N/A,Scaled to 15g,100%
+Paneer In Butter Sauce,protein_g,10.5,1.05,N/A,Scaled to 15g,100%
+Paneer In Butter Sauce,carbohydrates_g,14.6,1.46,N/A,Scaled to 15g,100%
+Paneer In Butter Sauce,fat_g,13.2,1.32,N/A,Scaled to 15g,100%
+Paneer In Butter Sauce,fiber_g,3.1,0.31,N/A,Scaled to 15g,100%
+Paneer In Butter Sauce,sugar_g,1.1,0.11,N/A,Scaled to 15g,100%
+Mixed Vegetable Salad With Curd Sauce,serving_size_g,150.0,15,N/A,Realistic condiment/spice serving size,100%
+Mixed Vegetable Salad With Curd Sauce,serving_size_g,150.0,15.0,N/A,Scaled to 15g,100%
+Mixed Vegetable Salad With Curd Sauce,calories_kcal,90.0,9.0,N/A,Scaled to 15g,100%
+Mixed Vegetable Salad With Curd Sauce,protein_g,6.3,0.63,N/A,Scaled to 15g,100%
+Mixed Vegetable Salad With Curd Sauce,carbohydrates_g,10.5,1.05,N/A,Scaled to 15g,100%
+Mixed Vegetable Salad With Curd Sauce,fat_g,2.2,0.22,N/A,Scaled to 15g,100%
+Mixed Vegetable Salad With Curd Sauce,fiber_g,1.6,0.16,N/A,Scaled to 15g,100%
+Mixed Vegetable Salad With Curd Sauce,sugar_g,0.6,0.06,N/A,Scaled to 15g,100%
+Saunth/Sonth Chutney With Tamarind/Imli,serving_size_g,150.0,30,N/A,Realistic condiment/spice serving size,100%
+Saunth/Sonth Chutney With Tamarind/Imli,serving_size_g,150.0,30.0,N/A,Scaled to 30g,100%
+Saunth/Sonth Chutney With Tamarind/Imli,calories_kcal,212.0,42.4,N/A,Scaled to 30g,100%
+Saunth/Sonth Chutney With Tamarind/Imli,protein_g,1.5,0.3,N/A,Scaled to 30g,100%
+Saunth/Sonth Chutney With Tamarind/Imli,carbohydrates_g,50.3,10.06,N/A,Scaled to 30g,100%
+Saunth/Sonth Chutney With Tamarind/Imli,fat_g,0.2,0.04,N/A,Scaled to 30g,100%
+Saunth/Sonth Chutney With Tamarind/Imli,fiber_g,12.2,2.44,N/A,Scaled to 30g,100%
+Saunth/Sonth Chutney With Tamarind/Imli,sugar_g,3.4,0.68,N/A,Scaled to 30g,100%
+Dry Mango Chutney (Sookhe Aam Ki Chutney),serving_size_g,150.0,30,N/A,Realistic condiment/spice serving size,100%
+Dry Mango Chutney (Sookhe Aam Ki Chutney),serving_size_g,150.0,30.0,N/A,Scaled to 30g,100%
+Dry Mango Chutney (Sookhe Aam Ki Chutney),calories_kcal,607.0,121.4,N/A,Scaled to 30g,100%
+Dry Mango Chutney (Sookhe Aam Ki Chutney),protein_g,5.06,1.01,N/A,Scaled to 30g,100%
+Dry Mango Chutney (Sookhe Aam Ki Chutney),carbohydrates_g,143.45,28.69,N/A,Scaled to 30g,100%
+Dry Mango Chutney (Sookhe Aam Ki Chutney),fat_g,1.49,0.3,N/A,Scaled to 30g,100%
+Dry Mango Chutney (Sookhe Aam Ki Chutney),fiber_g,50.9,10.18,N/A,Scaled to 30g,100%
+Dry Mango Chutney (Sookhe Aam Ki Chutney),sugar_g,16.2,3.24,N/A,Scaled to 30g,100%
+Peanut Chutney (Mungfali Ki Chutney),serving_size_g,150.0,30,N/A,Realistic condiment/spice serving size,100%
+Peanut Chutney (Mungfali Ki Chutney),serving_size_g,150.0,30.0,N/A,Scaled to 30g,100%
+Peanut Chutney (Mungfali Ki Chutney),calories_kcal,645.0,129.0,N/A,Scaled to 30g,100%
+Peanut Chutney (Mungfali Ki Chutney),protein_g,29.5,5.9,N/A,Scaled to 30g,100%
+Peanut Chutney (Mungfali Ki Chutney),carbohydrates_g,24.7,4.94,N/A,Scaled to 30g,100%
+Peanut Chutney (Mungfali Ki Chutney),fat_g,47.6,9.52,N/A,Scaled to 30g,100%
+Peanut Chutney (Mungfali Ki Chutney),fiber_g,6.2,1.24,N/A,Scaled to 30g,100%
+Peanut Chutney (Mungfali Ki Chutney),sugar_g,4.4,0.88,N/A,Scaled to 30g,100%
+Coconut Chutney (Nariyal Ki Chutney),serving_size_g,150.0,30,N/A,Realistic condiment/spice serving size,100%
+Coconut Chutney (Nariyal Ki Chutney),serving_size_g,150.0,30.0,N/A,Scaled to 30g,100%
+Coconut Chutney (Nariyal Ki Chutney),calories_kcal,664.0,132.8,N/A,Scaled to 30g,100%
+Coconut Chutney (Nariyal Ki Chutney),protein_g,9.0,1.8,N/A,Scaled to 30g,100%
+Coconut Chutney (Nariyal Ki Chutney),carbohydrates_g,20.7,4.14,N/A,Scaled to 30g,100%
+Coconut Chutney (Nariyal Ki Chutney),fat_g,62.5,12.5,N/A,Scaled to 30g,100%
+Coconut Chutney (Nariyal Ki Chutney),fiber_g,5.4,1.08,N/A,Scaled to 30g,100%
+Coconut Chutney (Nariyal Ki Chutney),sugar_g,3.5,0.7,N/A,Scaled to 30g,100%
+Mint And Coriander Chutney (Pudinay Aur Dhaniye Ki Chutney),serving_size_g,150.0,30,N/A,Realistic condiment/spice serving size,100%
+Mint And Coriander Chutney (Pudinay Aur Dhaniye Ki Chutney),serving_size_g,150.0,30.0,N/A,Scaled to 30g,100%
+Mint And Coriander Chutney (Pudinay Aur Dhaniye Ki Chutney),calories_kcal,153.0,30.6,N/A,Scaled to 30g,100%
+Mint And Coriander Chutney (Pudinay Aur Dhaniye Ki Chutney),protein_g,4.2,0.84,N/A,Scaled to 30g,100%
+Mint And Coriander Chutney (Pudinay Aur Dhaniye Ki Chutney),carbohydrates_g,31.8,6.36,N/A,Scaled to 30g,100%
+Mint And Coriander Chutney (Pudinay Aur Dhaniye Ki Chutney),fat_g,0.8,0.16,N/A,Scaled to 30g,100%
+Mint And Coriander Chutney (Pudinay Aur Dhaniye Ki Chutney),fiber_g,5.3,1.06,N/A,Scaled to 30g,100%
+Mint And Coriander Chutney (Pudinay Aur Dhaniye Ki Chutney),sugar_g,3.1,0.62,N/A,Scaled to 30g,100%
+Masala Dosa Mixed Vegetable Fillings,serving_size_g,150.0,10,N/A,Realistic condiment/spice serving size,100%
+Masala Dosa Mixed Vegetable Fillings,serving_size_g,150.0,10.0,N/A,Scaled to 10g,100%
+Masala Dosa Mixed Vegetable Fillings,calories_kcal,216.0,14.4,N/A,Scaled to 10g,100%
+Masala Dosa Mixed Vegetable Fillings,protein_g,7.3,0.49,N/A,Scaled to 10g,100%
+Masala Dosa Mixed Vegetable Fillings,carbohydrates_g,34.5,2.3,N/A,Scaled to 10g,100%
+Masala Dosa Mixed Vegetable Fillings,fat_g,4.9,0.33,N/A,Scaled to 10g,100%
+Masala Dosa Mixed Vegetable Fillings,fiber_g,5.3,0.35,N/A,Scaled to 10g,100%
+Masala Dosa Mixed Vegetable Fillings,sugar_g,4.5,0.3,N/A,Scaled to 10g,100%
+Spaghetti With Meat Balls And Tomato Sauce,serving_size_g,150.0,15,N/A,Realistic condiment/spice serving size,100%
+Spaghetti With Meat Balls And Tomato Sauce,serving_size_g,150.0,15.0,N/A,Scaled to 15g,100%
+Spaghetti With Meat Balls And Tomato Sauce,calories_kcal,395.0,39.5,N/A,Scaled to 15g,100%
+Spaghetti With Meat Balls And Tomato Sauce,protein_g,14.0,1.4,N/A,Scaled to 15g,100%
+Spaghetti With Meat Balls And Tomato Sauce,carbohydrates_g,26.2,2.62,N/A,Scaled to 15g,100%
+Spaghetti With Meat Balls And Tomato Sauce,fat_g,26.6,2.66,N/A,Scaled to 15g,100%
+Spaghetti With Meat Balls And Tomato Sauce,fiber_g,6.6,0.66,N/A,Scaled to 15g,100%
+Spaghetti With Meat Balls And Tomato Sauce,sugar_g,5.2,0.52,N/A,Scaled to 15g,100%
+Spaghetti With Paneer Balls And Tomato Sauce,serving_size_g,150.0,15,N/A,Realistic condiment/spice serving size,100%
+Spaghetti With Paneer Balls And Tomato Sauce,serving_size_g,150.0,15.0,N/A,Scaled to 15g,100%
+Spaghetti With Paneer Balls And Tomato Sauce,calories_kcal,396.0,39.6,N/A,Scaled to 15g,100%
+Spaghetti With Paneer Balls And Tomato Sauce,protein_g,9.9,0.99,N/A,Scaled to 15g,100%
+Spaghetti With Paneer Balls And Tomato Sauce,carbohydrates_g,31.8,3.18,N/A,Scaled to 15g,100%
+Spaghetti With Paneer Balls And Tomato Sauce,fat_g,26.1,2.61,N/A,Scaled to 15g,100%
+Spaghetti With Paneer Balls And Tomato Sauce,fiber_g,6.7,0.67,N/A,Scaled to 15g,100%
+Spaghetti With Paneer Balls And Tomato Sauce,sugar_g,6.1,0.61,N/A,Scaled to 15g,100%
+Lasagne With Meat Sauce,serving_size_g,150.0,15,N/A,Realistic condiment/spice serving size,100%
+Lasagne With Meat Sauce,serving_size_g,150.0,15.0,N/A,Scaled to 15g,100%
+Lasagne With Meat Sauce,calories_kcal,95.0,9.5,N/A,Scaled to 15g,100%
+Lasagne With Meat Sauce,protein_g,4.4,0.44,N/A,Scaled to 15g,100%
+Lasagne With Meat Sauce,carbohydrates_g,8.1,0.81,N/A,Scaled to 15g,100%
+Lasagne With Meat Sauce,fat_g,5.1,0.51,N/A,Scaled to 15g,100%
+Lasagne With Meat Sauce,fiber_g,1.9,0.19,N/A,Scaled to 15g,100%
+Lasagne With Meat Sauce,sugar_g,1.1,0.11,N/A,Scaled to 15g,100%
+Dry Masala Chops,serving_size_g,150.0,10,N/A,Realistic condiment/spice serving size,100%
+Dry Masala Chops,serving_size_g,150.0,10.0,N/A,Scaled to 10g,100%
+Dry Masala Chops,calories_kcal,202.0,13.47,N/A,Scaled to 10g,100%
+Dry Masala Chops,protein_g,13.6,0.91,N/A,Scaled to 10g,100%
+Dry Masala Chops,carbohydrates_g,4.9,0.33,N/A,Scaled to 10g,100%
+Dry Masala Chops,fat_g,14.3,0.95,N/A,Scaled to 10g,100%
+Dry Masala Chops,fiber_g,0.0,0.0,N/A,Scaled to 10g,100%
+Dry Masala Chops,sugar_g,0.0,0.0,N/A,Scaled to 10g,100%
+Masala Arbi,serving_size_g,150.0,10,N/A,Realistic condiment/spice serving size,100%
+Masala Arbi,serving_size_g,150.0,10.0,N/A,Scaled to 10g,100%
+Masala Arbi,calories_kcal,463.0,30.87,N/A,Scaled to 10g,100%
+Masala Arbi,protein_g,7.5,0.5,N/A,Scaled to 10g,100%
+Masala Arbi,carbohydrates_g,40.4,2.69,N/A,Scaled to 10g,100%
+Masala Arbi,fat_g,29.8,1.99,N/A,Scaled to 10g,100%
+Masala Arbi,fiber_g,6.5,0.43,N/A,Scaled to 10g,100%
+Masala Arbi,sugar_g,3.3,0.22,N/A,Scaled to 10g,100%
+Masala Urad Dal Vada,serving_size_g,150.0,10,N/A,Realistic condiment/spice serving size,100%
+Masala Urad Dal Vada,serving_size_g,150.0,10.0,N/A,Scaled to 10g,100%
+Masala Urad Dal Vada,calories_kcal,212.0,14.13,N/A,Scaled to 10g,100%
+Masala Urad Dal Vada,protein_g,7.55,0.5,N/A,Scaled to 10g,100%
+Masala Urad Dal Vada,carbohydrates_g,17.33,1.16,N/A,Scaled to 10g,100%
+Masala Urad Dal Vada,fat_g,12.512,0.83,N/A,Scaled to 10g,100%
+Masala Urad Dal Vada,fiber_g,4.1,0.27,N/A,Scaled to 10g,100%
+Masala Urad Dal Vada,sugar_g,1.8,0.12,N/A,Scaled to 10g,100%
+Tomato Ginger Chutney (Tamatar Adarak Ki Chutney),serving_size_g,150.0,30,N/A,Realistic condiment/spice serving size,100%
+Tomato Ginger Chutney (Tamatar Adarak Ki Chutney),serving_size_g,150.0,30.0,N/A,Scaled to 30g,100%
+Tomato Ginger Chutney (Tamatar Adarak Ki Chutney),calories_kcal,133.0,26.6,N/A,Scaled to 30g,100%
+Tomato Ginger Chutney (Tamatar Adarak Ki Chutney),protein_g,3.2,0.64,N/A,Scaled to 30g,100%
+Tomato Ginger Chutney (Tamatar Adarak Ki Chutney),carbohydrates_g,27.3,5.46,N/A,Scaled to 30g,100%
+Tomato Ginger Chutney (Tamatar Adarak Ki Chutney),fat_g,1.0,0.2,N/A,Scaled to 30g,100%
+Tomato Ginger Chutney (Tamatar Adarak Ki Chutney),fiber_g,5.2,1.04,N/A,Scaled to 30g,100%
+Tomato Ginger Chutney (Tamatar Adarak Ki Chutney),sugar_g,3.9,0.78,N/A,Scaled to 30g,100%
+Mint Tomato Chutney (Pudinay Aur Tamatar Ki Chutney),serving_size_g,150.0,30,N/A,Realistic condiment/spice serving size,100%
+Mint Tomato Chutney (Pudinay Aur Tamatar Ki Chutney),serving_size_g,150.0,30.0,N/A,Scaled to 30g,100%
+Mint Tomato Chutney (Pudinay Aur Tamatar Ki Chutney),calories_kcal,130.0,26.0,N/A,Scaled to 30g,100%
+Mint Tomato Chutney (Pudinay Aur Tamatar Ki Chutney),protein_g,4.6,0.92,N/A,Scaled to 30g,100%
+Mint Tomato Chutney (Pudinay Aur Tamatar Ki Chutney),carbohydrates_g,24.7,4.94,N/A,Scaled to 30g,100%
+Mint Tomato Chutney (Pudinay Aur Tamatar Ki Chutney),fat_g,1.1,0.22,N/A,Scaled to 30g,100%
+Mint Tomato Chutney (Pudinay Aur Tamatar Ki Chutney),fiber_g,7.4,1.48,N/A,Scaled to 30g,100%
+Mint Tomato Chutney (Pudinay Aur Tamatar Ki Chutney),sugar_g,4.9,0.98,N/A,Scaled to 30g,100%
+Coriander Chutney (Hare Dhaniye Ki Chutney),serving_size_g,150.0,30,N/A,Realistic condiment/spice serving size,100%
+Coriander Chutney (Hare Dhaniye Ki Chutney),serving_size_g,150.0,30.0,N/A,Scaled to 30g,100%
+Coriander Chutney (Hare Dhaniye Ki Chutney),calories_kcal,128.0,25.6,N/A,Scaled to 30g,100%
+Coriander Chutney (Hare Dhaniye Ki Chutney),protein_g,4.1,0.82,N/A,Scaled to 30g,100%
+Coriander Chutney (Hare Dhaniye Ki Chutney),carbohydrates_g,24.5,4.9,N/A,Scaled to 30g,100%
+Coriander Chutney (Hare Dhaniye Ki Chutney),fat_g,1.1,0.22,N/A,Scaled to 30g,100%
+Coriander Chutney (Hare Dhaniye Ki Chutney),fiber_g,6.9,1.38,N/A,Scaled to 30g,100%
+Coriander Chutney (Hare Dhaniye Ki Chutney),sugar_g,2.1,0.42,N/A,Scaled to 30g,100%
+Gooseberry Chutney (Amla Chutney),serving_size_g,150.0,30,N/A,Realistic condiment/spice serving size,100%
+Gooseberry Chutney (Amla Chutney),serving_size_g,150.0,30.0,N/A,Scaled to 30g,100%
+Gooseberry Chutney (Amla Chutney),calories_kcal,129.0,25.8,N/A,Scaled to 30g,100%
+Gooseberry Chutney (Amla Chutney),protein_g,4.3,0.86,N/A,Scaled to 30g,100%
+Gooseberry Chutney (Amla Chutney),carbohydrates_g,26.5,5.3,N/A,Scaled to 30g,100%
+Gooseberry Chutney (Amla Chutney),fat_g,1.9,0.38,N/A,Scaled to 30g,100%
+Gooseberry Chutney (Amla Chutney),fiber_g,4.3,0.86,N/A,Scaled to 30g,100%
+Gooseberry Chutney (Amla Chutney),sugar_g,4.4,0.88,N/A,Scaled to 30g,100%
+Walnut Chutney (Akhrot Ki Chutney),serving_size_g,150.0,30,N/A,Realistic condiment/spice serving size,100%
+Walnut Chutney (Akhrot Ki Chutney),serving_size_g,150.0,30.0,N/A,Scaled to 30g,100%
+Walnut Chutney (Akhrot Ki Chutney),calories_kcal,926.0,185.2,N/A,Scaled to 30g,100%
+Walnut Chutney (Akhrot Ki Chutney),protein_g,23.6,4.72,N/A,Scaled to 30g,100%
+Walnut Chutney (Akhrot Ki Chutney),carbohydrates_g,22.3,4.46,N/A,Scaled to 30g,100%
+Walnut Chutney (Akhrot Ki Chutney),fat_g,83.6,16.72,N/A,Scaled to 30g,100%
+Walnut Chutney (Akhrot Ki Chutney),fiber_g,4.2,0.84,N/A,Scaled to 30g,100%
+Walnut Chutney (Akhrot Ki Chutney),sugar_g,3.1,0.62,N/A,Scaled to 30g,100%
+Saunth/Sonth Chutney With Ginger,serving_size_g,150.0,30,N/A,Realistic condiment/spice serving size,100%
+Saunth/Sonth Chutney With Ginger,serving_size_g,150.0,30.0,N/A,Scaled to 30g,100%
+Saunth/Sonth Chutney With Ginger,calories_kcal,126.0,25.2,N/A,Scaled to 30g,100%
+Saunth/Sonth Chutney With Ginger,protein_g,0.4,0.08,N/A,Scaled to 30g,100%
+Saunth/Sonth Chutney With Ginger,carbohydrates_g,30.9,6.18,N/A,Scaled to 30g,100%
+Saunth/Sonth Chutney With Ginger,fat_g,0.2,0.04,N/A,Scaled to 30g,100%
+Saunth/Sonth Chutney With Ginger,fiber_g,6.8,1.36,N/A,Scaled to 30g,100%
+Saunth/Sonth Chutney With Ginger,sugar_g,5.0,1.0,N/A,Scaled to 30g,100%
+Gun Powder Chutney,serving_size_g,150.0,30,N/A,Realistic condiment/spice serving size,100%
+Gun Powder Chutney,serving_size_g,150.0,30.0,N/A,Scaled to 30g,100%
+Gun Powder Chutney,calories_kcal,628.0,125.6,N/A,Scaled to 30g,100%
+Gun Powder Chutney,protein_g,44.99,9.0,N/A,Scaled to 30g,100%
+Gun Powder Chutney,carbohydrates_g,99.42,19.88,N/A,Scaled to 30g,100%
+Gun Powder Chutney,fat_g,5.59,1.12,N/A,Scaled to 30g,100%
+Gun Powder Chutney,fiber_g,20.6,4.12,N/A,Scaled to 30g,100%
+Gun Powder Chutney,sugar_g,13.1,2.62,N/A,Scaled to 30g,100%
+Dessicated Coconut Chutney (Sookhe Kase Nariyal Ki Chutney),serving_size_g,150.0,30,N/A,Realistic condiment/spice serving size,100%
+Dessicated Coconut Chutney (Sookhe Kase Nariyal Ki Chutney),serving_size_g,150.0,30.0,N/A,Scaled to 30g,100%
+Dessicated Coconut Chutney (Sookhe Kase Nariyal Ki Chutney),calories_kcal,782.0,156.4,N/A,Scaled to 30g,100%
+Dessicated Coconut Chutney (Sookhe Kase Nariyal Ki Chutney),protein_g,29.51,5.9,N/A,Scaled to 30g,100%
+Dessicated Coconut Chutney (Sookhe Kase Nariyal Ki Chutney),carbohydrates_g,84.12,16.82,N/A,Scaled to 30g,100%
+Dessicated Coconut Chutney (Sookhe Kase Nariyal Ki Chutney),fat_g,36.38,7.28,N/A,Scaled to 30g,100%
+Dessicated Coconut Chutney (Sookhe Kase Nariyal Ki Chutney),fiber_g,24.8,4.96,N/A,Scaled to 30g,100%
+Dessicated Coconut Chutney (Sookhe Kase Nariyal Ki Chutney),sugar_g,10.5,2.1,N/A,Scaled to 30g,100%
+Spicy Chutney Sandwich,serving_size_g,150.0,30,N/A,Realistic condiment/spice serving size,100%
+Spicy Chutney Sandwich,serving_size_g,150.0,30.0,N/A,Scaled to 30g,100%
+Spicy Chutney Sandwich,calories_kcal,623.0,124.6,N/A,Scaled to 30g,100%
+Spicy Chutney Sandwich,protein_g,21.8,4.36,N/A,Scaled to 30g,100%
+Spicy Chutney Sandwich,carbohydrates_g,85.1,17.02,N/A,Scaled to 30g,100%
+Spicy Chutney Sandwich,fat_g,24.0,4.8,N/A,Scaled to 30g,100%
+Spicy Chutney Sandwich,fiber_g,12.1,2.42,N/A,Scaled to 30g,100%
+Spicy Chutney Sandwich,sugar_g,16.8,3.36,N/A,Scaled to 30g,100%
+Baked Eggs In Tomato Sauce,serving_size_g,150.0,15,N/A,Realistic condiment/spice serving size,100%
+Baked Eggs In Tomato Sauce,serving_size_g,150.0,15.0,N/A,Scaled to 15g,100%
+Baked Eggs In Tomato Sauce,calories_kcal,120.0,12.0,N/A,Scaled to 15g,100%
+Baked Eggs In Tomato Sauce,protein_g,7.4,0.74,N/A,Scaled to 15g,100%
+Baked Eggs In Tomato Sauce,carbohydrates_g,5.7,0.57,N/A,Scaled to 15g,100%
+Baked Eggs In Tomato Sauce,fat_g,7.8,0.78,N/A,Scaled to 15g,100%
+Baked Eggs In Tomato Sauce,fiber_g,1.5,0.15,N/A,Scaled to 15g,100%
+Baked Eggs In Tomato Sauce,sugar_g,0.6,0.06,N/A,Scaled to 15g,100%
+Garlic Chutney/Poondu Chutney (Garlic Ki Chutney),serving_size_g,150.0,30,N/A,Realistic condiment/spice serving size,100%
+Garlic Chutney/Poondu Chutney (Garlic Ki Chutney),serving_size_g,150.0,30.0,N/A,Scaled to 30g,100%
+Garlic Chutney/Poondu Chutney (Garlic Ki Chutney),calories_kcal,638.0,127.6,N/A,Scaled to 30g,100%
+Garlic Chutney/Poondu Chutney (Garlic Ki Chutney),protein_g,8.4,1.68,N/A,Scaled to 30g,100%
+Garlic Chutney/Poondu Chutney (Garlic Ki Chutney),carbohydrates_g,51.1,10.22,N/A,Scaled to 30g,100%
+Garlic Chutney/Poondu Chutney (Garlic Ki Chutney),fat_g,43.9,8.78,N/A,Scaled to 30g,100%
+Garlic Chutney/Poondu Chutney (Garlic Ki Chutney),fiber_g,13.9,2.78,N/A,Scaled to 30g,100%
+Garlic Chutney/Poondu Chutney (Garlic Ki Chutney),sugar_g,8.2,1.64,N/A,Scaled to 30g,100%
+Schezwan Chutney,serving_size_g,150.0,30,N/A,Realistic condiment/spice serving size,100%
+Schezwan Chutney,serving_size_g,150.0,30.0,N/A,Scaled to 30g,100%
+Schezwan Chutney,calories_kcal,512.0,102.4,N/A,Scaled to 30g,100%
+Schezwan Chutney,protein_g,8.3,1.66,N/A,Scaled to 30g,100%
+Schezwan Chutney,carbohydrates_g,27.0,5.4,N/A,Scaled to 30g,100%
+Schezwan Chutney,fat_g,44.3,8.86,N/A,Scaled to 30g,100%
+Schezwan Chutney,fiber_g,6.1,1.22,N/A,Scaled to 30g,100%
+Schezwan Chutney,sugar_g,2.8,0.56,N/A,Scaled to 30g,100%
+Onion Chutney (Onion Ki Chutney/Vengaya Chutney),serving_size_g,150.0,30,N/A,Realistic condiment/spice serving size,100%
+Onion Chutney (Onion Ki Chutney/Vengaya Chutney),serving_size_g,150.0,30.0,N/A,Scaled to 30g,100%
+Onion Chutney (Onion Ki Chutney/Vengaya Chutney),calories_kcal,215.0,43.0,N/A,Scaled to 30g,100%
+Onion Chutney (Onion Ki Chutney/Vengaya Chutney),protein_g,4.5,0.9,N/A,Scaled to 30g,100%
+Onion Chutney (Onion Ki Chutney/Vengaya Chutney),carbohydrates_g,20.3,4.06,N/A,Scaled to 30g,100%
+Onion Chutney (Onion Ki Chutney/Vengaya Chutney),fat_g,12.6,2.52,N/A,Scaled to 30g,100%
+Onion Chutney (Onion Ki Chutney/Vengaya Chutney),fiber_g,2.5,0.5,N/A,Scaled to 30g,100%
+Onion Chutney (Onion Ki Chutney/Vengaya Chutney),sugar_g,1.3,0.26,N/A,Scaled to 30g,100%
+Dates Chutney (Khajoor Ki Chutney),serving_size_g,150.0,30,N/A,Realistic condiment/spice serving size,100%
+Dates Chutney (Khajoor Ki Chutney),serving_size_g,150.0,30.0,N/A,Scaled to 30g,100%
+Dates Chutney (Khajoor Ki Chutney),calories_kcal,155.0,31.0,N/A,Scaled to 30g,100%
+Dates Chutney (Khajoor Ki Chutney),protein_g,1.6,0.32,N/A,Scaled to 30g,100%
+Dates Chutney (Khajoor Ki Chutney),carbohydrates_g,32.5,6.5,N/A,Scaled to 30g,100%
+Dates Chutney (Khajoor Ki Chutney),fat_g,1.7,0.34,N/A,Scaled to 30g,100%
+Dates Chutney (Khajoor Ki Chutney),fiber_g,7.3,1.46,N/A,Scaled to 30g,100%
+Dates Chutney (Khajoor Ki Chutney),sugar_g,3.1,0.62,N/A,Scaled to 30g,100%
+Masala Souffle,serving_size_g,150.0,10,N/A,Realistic condiment/spice serving size,100%
+Masala Souffle,serving_size_g,150.0,10.0,N/A,Scaled to 10g,100%
+Masala Souffle,calories_kcal,185.0,12.33,N/A,Scaled to 10g,100%
+Masala Souffle,protein_g,9.6,0.64,N/A,Scaled to 10g,100%
+Masala Souffle,carbohydrates_g,12.0,0.8,N/A,Scaled to 10g,100%
+Masala Souffle,fat_g,11.1,0.74,N/A,Scaled to 10g,100%
+Masala Souffle,fiber_g,1.9,0.13,N/A,Scaled to 10g,100%
+Masala Souffle,sugar_g,1.4,0.09,N/A,Scaled to 10g,100%
+Tamarind Chutney (Chintapandu Pachadi/Puli Chutney),serving_size_g,150.0,30,N/A,Realistic condiment/spice serving size,100%
+Tamarind Chutney (Chintapandu Pachadi/Puli Chutney),serving_size_g,150.0,30.0,N/A,Scaled to 30g,100%
+Tamarind Chutney (Chintapandu Pachadi/Puli Chutney),calories_kcal,163.0,32.6,N/A,Scaled to 30g,100%
+Tamarind Chutney (Chintapandu Pachadi/Puli Chutney),protein_g,1.3,0.26,N/A,Scaled to 30g,100%
+Tamarind Chutney (Chintapandu Pachadi/Puli Chutney),carbohydrates_g,37.6,7.52,N/A,Scaled to 30g,100%
+Tamarind Chutney (Chintapandu Pachadi/Puli Chutney),fat_g,0.7,0.14,N/A,Scaled to 30g,100%
+Tamarind Chutney (Chintapandu Pachadi/Puli Chutney),fiber_g,7.6,1.52,N/A,Scaled to 30g,100%
+Tamarind Chutney (Chintapandu Pachadi/Puli Chutney),sugar_g,2.1,0.42,N/A,Scaled to 30g,100%
+Pav Bhaji Masala,serving_size_g,150.0,10,N/A,Realistic condiment/spice serving size,100%
+Pav Bhaji Masala,serving_size_g,150.0,10.0,N/A,Scaled to 10g,100%
+Pav Bhaji Masala,calories_kcal,576.0,38.4,N/A,Scaled to 10g,100%
+Pav Bhaji Masala,protein_g,22.8,1.52,N/A,Scaled to 10g,100%
+Pav Bhaji Masala,carbohydrates_g,72.9,4.86,N/A,Scaled to 10g,100%
+Pav Bhaji Masala,fat_g,27.4,1.83,N/A,Scaled to 10g,100%
+Pav Bhaji Masala,fiber_g,8.5,0.57,N/A,Scaled to 10g,100%
+Pav Bhaji Masala,sugar_g,12.8,0.85,N/A,Scaled to 10g,100%
+Green Chutney,serving_size_g,150.0,30,N/A,Realistic condiment/spice serving size,100%
+Green Chutney,serving_size_g,150.0,30.0,N/A,Scaled to 30g,100%
+Green Chutney,calories_kcal,119.0,23.8,N/A,Scaled to 30g,100%
+Green Chutney,protein_g,8.1,1.62,N/A,Scaled to 30g,100%
+Green Chutney,carbohydrates_g,15.0,3.0,N/A,Scaled to 30g,100%
+Green Chutney,fat_g,2.4,0.48,N/A,Scaled to 30g,100%
+Green Chutney,fiber_g,2.6,0.52,N/A,Scaled to 30g,100%
+Green Chutney,sugar_g,2.0,0.4,N/A,Scaled to 30g,100%
+Mustard Sauce,serving_size_g,150.0,15,N/A,Realistic condiment/spice serving size,100%
+Mustard Sauce,serving_size_g,150.0,15.0,N/A,Scaled to 15g,100%
+Mustard Sauce,calories_kcal,396.0,39.6,N/A,Scaled to 15g,100%
+Mustard Sauce,protein_g,10.0,1.0,N/A,Scaled to 15g,100%
+Mustard Sauce,carbohydrates_g,20.7,2.07,N/A,Scaled to 15g,100%
+Mustard Sauce,fat_g,30.4,3.04,N/A,Scaled to 15g,100%
+Mustard Sauce,fiber_g,3.3,0.33,N/A,Scaled to 15g,100%
+Mustard Sauce,sugar_g,1.1,0.11,N/A,Scaled to 15g,100%
+Pasta Spinach Sauce,serving_size_g,150.0,15,N/A,Realistic condiment/spice serving size,100%
+Pasta Spinach Sauce,serving_size_g,150.0,15.0,N/A,Scaled to 15g,100%
+Pasta Spinach Sauce,calories_kcal,128.0,12.8,N/A,Scaled to 15g,100%
+Pasta Spinach Sauce,protein_g,2.6,0.26,N/A,Scaled to 15g,100%
+Pasta Spinach Sauce,carbohydrates_g,2.6,0.26,N/A,Scaled to 15g,100%
+Pasta Spinach Sauce,fat_g,11.9,1.19,N/A,Scaled to 15g,100%
+Pasta Spinach Sauce,fiber_g,0.0,0.0,N/A,Scaled to 15g,100%
+Pasta Spinach Sauce,sugar_g,0.0,0.0,N/A,Scaled to 15g,100%
+Plum Chutney (Aloo Bukhara Ki Chutney),serving_size_g,150.0,30,N/A,Realistic condiment/spice serving size,100%
+Plum Chutney (Aloo Bukhara Ki Chutney),serving_size_g,150.0,30.0,N/A,Scaled to 30g,100%
+Plum Chutney (Aloo Bukhara Ki Chutney),calories_kcal,442.0,88.4,N/A,Scaled to 30g,100%
+Plum Chutney (Aloo Bukhara Ki Chutney),protein_g,1.2,0.24,N/A,Scaled to 30g,100%
+Plum Chutney (Aloo Bukhara Ki Chutney),carbohydrates_g,112.4,22.48,N/A,Scaled to 30g,100%
+Plum Chutney (Aloo Bukhara Ki Chutney),fat_g,0.7,0.14,N/A,Scaled to 30g,100%
+Plum Chutney (Aloo Bukhara Ki Chutney),fiber_g,11.9,2.38,N/A,Scaled to 30g,100%
+Plum Chutney (Aloo Bukhara Ki Chutney),sugar_g,15.5,3.1,N/A,Scaled to 30g,100%
+Raw Mango Chutney (Kachhe Aam/Kairi Ki Chutney),serving_size_g,150.0,30,N/A,Realistic condiment/spice serving size,100%
+Raw Mango Chutney (Kachhe Aam/Kairi Ki Chutney),serving_size_g,150.0,30.0,N/A,Scaled to 30g,100%
+Raw Mango Chutney (Kachhe Aam/Kairi Ki Chutney),calories_kcal,482.0,96.4,N/A,Scaled to 30g,100%
+Raw Mango Chutney (Kachhe Aam/Kairi Ki Chutney),protein_g,1.3,0.26,N/A,Scaled to 30g,100%
+Raw Mango Chutney (Kachhe Aam/Kairi Ki Chutney),carbohydrates_g,124.8,24.96,N/A,Scaled to 30g,100%
+Raw Mango Chutney (Kachhe Aam/Kairi Ki Chutney),fat_g,0.4,0.08,N/A,Scaled to 30g,100%
+Raw Mango Chutney (Kachhe Aam/Kairi Ki Chutney),fiber_g,30.3,6.06,N/A,Scaled to 30g,100%
+Raw Mango Chutney (Kachhe Aam/Kairi Ki Chutney),sugar_g,9.1,1.82,N/A,Scaled to 30g,100%
+Tomato Sauce,serving_size_g,150.0,15,N/A,Realistic condiment/spice serving size,100%
+Tomato Sauce,serving_size_g,150.0,15.0,N/A,Scaled to 15g,100%
+Tomato Sauce,calories_kcal,102.0,10.2,N/A,Scaled to 15g,100%
+Tomato Sauce,protein_g,2.4,0.24,N/A,Scaled to 15g,100%
+Tomato Sauce,carbohydrates_g,21.7,2.17,N/A,Scaled to 15g,100%
+Tomato Sauce,fat_g,0.8,0.08,N/A,Scaled to 15g,100%
+Tomato Sauce,fiber_g,3.6,0.36,N/A,Scaled to 15g,100%
+Tomato Sauce,sugar_g,2.1,0.21,N/A,Scaled to 15g,100%
+Garam Masala,serving_size_g,150.0,10,N/A,Realistic condiment/spice serving size,100%
+Garam Masala,serving_size_g,150.0,10.0,N/A,Scaled to 10g,100%
+Garam Masala,calories_kcal,635.0,42.33,N/A,Scaled to 10g,100%
+Garam Masala,protein_g,24.7,1.65,N/A,Scaled to 10g,100%
+Garam Masala,carbohydrates_g,65.5,4.37,N/A,Scaled to 10g,100%
+Garam Masala,fat_g,27.4,1.83,N/A,Scaled to 10g,100%
+Garam Masala,fiber_g,16.4,1.09,N/A,Scaled to 10g,100%
+Garam Masala,sugar_g,3.5,0.23,N/A,Scaled to 10g,100%
+Chat Masala,serving_size_g,150.0,10,N/A,Realistic condiment/spice serving size,100%
+Chat Masala,serving_size_g,150.0,10.0,N/A,Scaled to 10g,100%
+Chat Masala,calories_kcal,556.0,37.07,N/A,Scaled to 10g,100%
+Chat Masala,protein_g,20.5,1.37,N/A,Scaled to 10g,100%
+Chat Masala,carbohydrates_g,59.7,3.98,N/A,Scaled to 10g,100%
+Chat Masala,fat_g,24.8,1.65,N/A,Scaled to 10g,100%
+Chat Masala,fiber_g,12.3,0.82,N/A,Scaled to 10g,100%
+Chat Masala,sugar_g,8.3,0.55,N/A,Scaled to 10g,100%
+Kashmiri Masala,serving_size_g,150.0,10,N/A,Realistic condiment/spice serving size,100%
+Kashmiri Masala,serving_size_g,150.0,10.0,N/A,Scaled to 10g,100%
+Kashmiri Masala,calories_kcal,972.0,64.8,N/A,Scaled to 10g,100%
+Kashmiri Masala,protein_g,19.8,1.32,N/A,Scaled to 10g,100%
+Kashmiri Masala,carbohydrates_g,55.64,3.71,N/A,Scaled to 10g,100%
+Kashmiri Masala,fat_g,74.57,4.97,N/A,Scaled to 10g,100%
+Kashmiri Masala,fiber_g,12.8,0.85,N/A,Scaled to 10g,100%
+Kashmiri Masala,sugar_g,7.9,0.53,N/A,Scaled to 10g,100%
+Rasam Powder (Rasam Masala),serving_size_g,150.0,10,N/A,Realistic condiment/spice serving size,100%
+Rasam Powder (Rasam Masala),serving_size_g,150.0,10.0,N/A,Scaled to 10g,100%
+Rasam Powder (Rasam Masala),calories_kcal,669.0,44.6,N/A,Scaled to 10g,100%
+Rasam Powder (Rasam Masala),protein_g,30.1,2.01,N/A,Scaled to 10g,100%
+Rasam Powder (Rasam Masala),carbohydrates_g,63.0,4.2,N/A,Scaled to 10g,100%
+Rasam Powder (Rasam Masala),fat_g,29.5,1.97,N/A,Scaled to 10g,100%
+Rasam Powder (Rasam Masala),fiber_g,18.0,1.2,N/A,Scaled to 10g,100%
+Rasam Powder (Rasam Masala),sugar_g,8.7,0.58,N/A,Scaled to 10g,100%
+Sambar Powder (Sambar Masala),serving_size_g,150.0,10,N/A,Realistic condiment/spice serving size,100%
+Sambar Powder (Sambar Masala),serving_size_g,150.0,10.0,N/A,Scaled to 10g,100%
+Sambar Powder (Sambar Masala),calories_kcal,743.0,49.53,N/A,Scaled to 10g,100%
+Sambar Powder (Sambar Masala),protein_g,31.2,2.08,N/A,Scaled to 10g,100%
+Sambar Powder (Sambar Masala),carbohydrates_g,58.4,3.89,N/A,Scaled to 10g,100%
+Sambar Powder (Sambar Masala),fat_g,39.0,2.6,N/A,Scaled to 10g,100%
+Sambar Powder (Sambar Masala),fiber_g,11.2,0.75,N/A,Scaled to 10g,100%
+Sambar Powder (Sambar Masala),sugar_g,8.2,0.55,N/A,Scaled to 10g,100%
+Bread Sauce,serving_size_g,150.0,15,N/A,Realistic condiment/spice serving size,100%
+Bread Sauce,serving_size_g,150.0,15.0,N/A,Scaled to 15g,100%
+Bread Sauce,calories_kcal,166.0,16.6,N/A,Scaled to 15g,100%
+Bread Sauce,protein_g,5.2,0.52,N/A,Scaled to 15g,100%
+Bread Sauce,carbohydrates_g,13.0,1.3,N/A,Scaled to 15g,100%
+Bread Sauce,fat_g,10.6,1.06,N/A,Scaled to 15g,100%
+Bread Sauce,fiber_g,2.0,0.2,N/A,Scaled to 15g,100%
+Bread Sauce,sugar_g,1.5,0.15,N/A,Scaled to 15g,100%
+Green Chilli Sauce,serving_size_g,150.0,15,N/A,Realistic condiment/spice serving size,100%
+Green Chilli Sauce,serving_size_g,150.0,15.0,N/A,Scaled to 15g,100%
+Green Chilli Sauce,calories_kcal,111.0,11.1,N/A,Scaled to 15g,100%
+Green Chilli Sauce,protein_g,3.8,0.38,N/A,Scaled to 15g,100%
+Green Chilli Sauce,carbohydrates_g,22.1,2.21,N/A,Scaled to 15g,100%
+Green Chilli Sauce,fat_g,0.8,0.08,N/A,Scaled to 15g,100%
+Green Chilli Sauce,fiber_g,3.8,0.38,N/A,Scaled to 15g,100%
+Green Chilli Sauce,sugar_g,3.2,0.32,N/A,Scaled to 15g,100%
+Hot Cherry Sauce,serving_size_g,150.0,15,N/A,Realistic condiment/spice serving size,100%
+Hot Cherry Sauce,serving_size_g,150.0,15.0,N/A,Scaled to 15g,100%
+Hot Cherry Sauce,calories_kcal,631.0,63.1,N/A,Scaled to 15g,100%
+Hot Cherry Sauce,protein_g,0.26,0.03,N/A,Scaled to 15g,100%
+Hot Cherry Sauce,carbohydrates_g,149.56,14.96,N/A,Scaled to 15g,100%
+Hot Cherry Sauce,fat_g,0.18,0.02,N/A,Scaled to 15g,100%
+Hot Cherry Sauce,fiber_g,44.7,4.47,N/A,Scaled to 15g,100%
+Hot Cherry Sauce,sugar_g,17.5,1.75,N/A,Scaled to 15g,100%
+Tomato Chutney (Tamatar Ki Chutney),serving_size_g,150.0,30,N/A,Realistic condiment/spice serving size,100%
+Tomato Chutney (Tamatar Ki Chutney),serving_size_g,150.0,30.0,N/A,Scaled to 30g,100%
+Tomato Chutney (Tamatar Ki Chutney),calories_kcal,440.0,88.0,N/A,Scaled to 30g,100%
+Tomato Chutney (Tamatar Ki Chutney),protein_g,2.4,0.48,N/A,Scaled to 30g,100%
+Tomato Chutney (Tamatar Ki Chutney),carbohydrates_g,79.6,15.92,N/A,Scaled to 30g,100%
+Tomato Chutney (Tamatar Ki Chutney),fat_g,15.0,3.0,N/A,Scaled to 30g,100%
+Tomato Chutney (Tamatar Ki Chutney),fiber_g,15.3,3.06,N/A,Scaled to 30g,100%
+Tomato Chutney (Tamatar Ki Chutney),sugar_g,15.1,3.02,N/A,Scaled to 30g,100%
+Bengal 5 Spice Blend (Panch Phoran),serving_size_g,150.0,10,N/A,Realistic condiment/spice serving size,100%
+Bengal 5 Spice Blend (Panch Phoran),serving_size_g,150.0,10.0,N/A,Scaled to 10g,100%
+Bengal 5 Spice Blend (Panch Phoran),calories_kcal,875.0,58.33,N/A,Scaled to 10g,100%
+Bengal 5 Spice Blend (Panch Phoran),protein_g,45.37,3.02,N/A,Scaled to 10g,100%
+Bengal 5 Spice Blend (Panch Phoran),carbohydrates_g,49.64,3.31,N/A,Scaled to 10g,100%
+Bengal 5 Spice Blend (Panch Phoran),fat_g,55.0,3.67,N/A,Scaled to 10g,100%
+Bengal 5 Spice Blend (Panch Phoran),fiber_g,12.3,0.82,N/A,Scaled to 10g,100%
+Bengal 5 Spice Blend (Panch Phoran),sugar_g,5.4,0.36,N/A,Scaled to 10g,100%
+Chana Masala (Low Oil),serving_size_g,150.0,10,N/A,Realistic condiment/spice serving size,100%
+Chana Masala (Low Oil),serving_size_g,150.0,10.0,N/A,Scaled to 10g,100%
+Chana Masala (Low Oil),calories_kcal,220.0,14.67,N/A,Scaled to 10g,100%
+Chana Masala (Low Oil),protein_g,12.0,0.8,N/A,Scaled to 10g,100%
+Chana Masala (Low Oil),carbohydrates_g,35.0,2.33,N/A,Scaled to 10g,100%
+Chana Masala (Low Oil),fat_g,5.0,0.33,N/A,Scaled to 10g,100%
+Chana Masala (Low Oil),fiber_g,4.6,0.31,N/A,Scaled to 10g,100%
+Chana Masala (Low Oil),sugar_g,5.6,0.37,N/A,Scaled to 10g,100%
+Masala Oats (Small Bowl),serving_size_g,150.0,10,N/A,Realistic condiment/spice serving size,100%
+Masala Oats (Small Bowl),serving_size_g,150.0,10.0,N/A,Scaled to 10g,100%
+Masala Oats (Small Bowl),calories_kcal,130.0,8.67,N/A,Scaled to 10g,100%
+Masala Oats (Small Bowl),protein_g,5.0,0.33,N/A,Scaled to 10g,100%
+Masala Oats (Small Bowl),carbohydrates_g,22.0,1.47,N/A,Scaled to 10g,100%
+Masala Oats (Small Bowl),fat_g,3.0,0.2,N/A,Scaled to 10g,100%
+Masala Oats (Small Bowl),fiber_g,2.3,0.15,N/A,Scaled to 10g,100%
+Masala Oats (Small Bowl),sugar_g,3.2,0.21,N/A,Scaled to 10g,100%
+Diet Masala Arbi,serving_size_g,150.0,10,N/A,Realistic condiment/spice serving size,100%
+Diet Masala Arbi,serving_size_g,150.0,10.0,N/A,Scaled to 10g,100%
+Diet Masala Arbi,calories_kcal,463.0,30.87,N/A,Scaled to 10g,100%
+Diet Masala Arbi,protein_g,7.5,0.5,N/A,Scaled to 10g,100%
+Diet Masala Arbi,carbohydrates_g,40.4,2.69,N/A,Scaled to 10g,100%
+Diet Masala Arbi,fat_g,29.8,1.99,N/A,Scaled to 10g,100%
+Diet Masala Arbi,fiber_g,6.5,0.43,N/A,Scaled to 10g,100%
+Diet Masala Arbi,sugar_g,3.3,0.22,N/A,Scaled to 10g,100%
+Tandoori (No Butter) Mint And Coriander Chutney (Pudinay Aur Dhaniye Ki Chutney),serving_size_g,150.0,30,N/A,Realistic condiment/spice serving size,100%
+Tandoori (No Butter) Mint And Coriander Chutney (Pudinay Aur Dhaniye Ki Chutney),serving_size_g,150.0,30.0,N/A,Scaled to 30g,100%
+Tandoori (No Butter) Mint And Coriander Chutney (Pudinay Aur Dhaniye Ki Chutney),calories_kcal,153.0,30.6,N/A,Scaled to 30g,100%
+Tandoori (No Butter) Mint And Coriander Chutney (Pudinay Aur Dhaniye Ki Chutney),protein_g,4.2,0.84,N/A,Scaled to 30g,100%
+Tandoori (No Butter) Mint And Coriander Chutney (Pudinay Aur Dhaniye Ki Chutney),carbohydrates_g,31.8,6.36,N/A,Scaled to 30g,100%
+Tandoori (No Butter) Mint And Coriander Chutney (Pudinay Aur Dhaniye Ki Chutney),fat_g,0.8,0.16,N/A,Scaled to 30g,100%
+Tandoori (No Butter) Mint And Coriander Chutney (Pudinay Aur Dhaniye Ki Chutney),fiber_g,5.3,1.06,N/A,Scaled to 30g,100%
+Tandoori (No Butter) Mint And Coriander Chutney (Pudinay Aur Dhaniye Ki Chutney),sugar_g,3.1,0.62,N/A,Scaled to 30g,100%
+Masala Chai (Low Sugar),serving_size_g,150.0,10,N/A,Realistic condiment/spice serving size,100%
+Masala Chai (Low Sugar),serving_size_g,150.0,10.0,N/A,Scaled to 10g,100%
+Masala Chai (Low Sugar),calories_kcal,463.0,30.87,N/A,Scaled to 10g,100%
+Masala Chai (Low Sugar),protein_g,7.5,0.5,N/A,Scaled to 10g,100%
+Masala Chai (Low Sugar),carbohydrates_g,40.4,2.69,N/A,Scaled to 10g,100%
+Masala Chai (Low Sugar),fat_g,29.8,1.99,N/A,Scaled to 10g,100%
+Masala Chai (Low Sugar),fiber_g,1.1,0.07,N/A,Scaled to 10g,100%
+Masala Chai (Low Sugar),sugar_g,0.9,0.06,N/A,Scaled to 10g,100%
+Ridge Gourd Chutney,serving_size_g,150.0,30,N/A,Realistic condiment/spice serving size,100%
+Ridge Gourd Chutney,serving_size_g,150.0,30.0,N/A,Scaled to 30g,100%
+Ridge Gourd Chutney,calories_kcal,59.0,11.8,N/A,Scaled to 30g,100%
+Ridge Gourd Chutney,protein_g,2.0,0.4,N/A,Scaled to 30g,100%
+Ridge Gourd Chutney,carbohydrates_g,6.0,1.2,N/A,Scaled to 30g,100%
+Ridge Gourd Chutney,fat_g,3.0,0.6,N/A,Scaled to 30g,100%
+Ridge Gourd Chutney,fiber_g,1.3,0.26,N/A,Scaled to 30g,100%
+Ridge Gourd Chutney,sugar_g,1.0,0.2,N/A,Scaled to 30g,100%
+Authentic Ridge Gourd Chutney,serving_size_g,150.0,30,N/A,Realistic condiment/spice serving size,100%
+Authentic Ridge Gourd Chutney,serving_size_g,150.0,30.0,N/A,Scaled to 30g,100%
+Authentic Ridge Gourd Chutney,calories_kcal,59.0,11.8,N/A,Scaled to 30g,100%
+Authentic Ridge Gourd Chutney,protein_g,2.0,0.4,N/A,Scaled to 30g,100%
+Authentic Ridge Gourd Chutney,carbohydrates_g,6.0,1.2,N/A,Scaled to 30g,100%
+Authentic Ridge Gourd Chutney,fat_g,3.0,0.6,N/A,Scaled to 30g,100%
+Authentic Ridge Gourd Chutney,fiber_g,0.6,0.12,N/A,Scaled to 30g,100%
+Authentic Ridge Gourd Chutney,sugar_g,0.3,0.06,N/A,Scaled to 30g,100%
+Farm Fresh Ridge Gourd Chutney,serving_size_g,150.0,30,N/A,Realistic condiment/spice serving size,100%
+Farm Fresh Ridge Gourd Chutney,serving_size_g,150.0,30.0,N/A,Scaled to 30g,100%
+Farm Fresh Ridge Gourd Chutney,calories_kcal,59.0,11.8,N/A,Scaled to 30g,100%
+Farm Fresh Ridge Gourd Chutney,protein_g,2.0,0.4,N/A,Scaled to 30g,100%
+Farm Fresh Ridge Gourd Chutney,carbohydrates_g,6.0,1.2,N/A,Scaled to 30g,100%
+Farm Fresh Ridge Gourd Chutney,fat_g,3.0,0.6,N/A,Scaled to 30g,100%
+Farm Fresh Ridge Gourd Chutney,fiber_g,0.7,0.14,N/A,Scaled to 30g,100%
+Farm Fresh Ridge Gourd Chutney,sugar_g,0.5,0.1,N/A,Scaled to 30g,100%
+Plain Omelette/Omelette,calories_kcal,681.0,270.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Plain Omelette/Omelette,protein_g,24.2,18.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Plain Omelette/Omelette,carbohydrates_g,1.6,3.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Plain Omelette/Omelette,fat_g,64.4,21.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Plain Omelette/Omelette,fiber_g,0.0,0.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Stuffed Egg Omelette/Omelette,calories_kcal,508.0,270.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Stuffed Egg Omelette/Omelette,protein_g,21.5,18.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Stuffed Egg Omelette/Omelette,carbohydrates_g,5.8,3.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Stuffed Egg Omelette/Omelette,fat_g,44.4,21.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Stuffed Egg Omelette/Omelette,fiber_g,0.7,0.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Egg Drop Soup,calories_kcal,534.0,60.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Broth",95%
+Egg Drop Soup,protein_g,38.8,6.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Broth",95%
+Egg Drop Soup,carbohydrates_g,3.3,1.5,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Broth",95%
+Egg Drop Soup,fat_g,40.6,3.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Broth",95%
+Egg Drop Soup,fiber_g,0.0,0.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Broth",95%
+Poha,calories_kcal,736.0,519.0,"Table 1, p40",Deviated >20% from IFCT Rice flakes (A011),95%
+Poha,protein_g,15.2,9.9,"Table 1, p40",Deviated >20% from IFCT Rice flakes (A011),95%
+Poha,carbohydrates_g,87.6,115.95,"Table 1, p40",Deviated >20% from IFCT Rice flakes (A011),95%
+Poha,fat_g,35.4,1.8,"Table 1, p40",Deviated >20% from IFCT Rice flakes (A011),95%
+Poha,fiber_g,16.0,1.05,"Table 1, p40",Deviated >20% from IFCT Rice flakes (A011),95%
+French Omelette/Omelette,calories_kcal,527.0,270.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+French Omelette/Omelette,protein_g,25.1,18.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+French Omelette/Omelette,carbohydrates_g,1.0,3.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+French Omelette/Omelette,fat_g,47.2,21.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+French Omelette/Omelette,fiber_g,0.0,0.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Puffy Omelette/Omelette,calories_kcal,470.0,270.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Puffy Omelette/Omelette,protein_g,22.0,18.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Puffy Omelette/Omelette,carbohydrates_g,0.2,3.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Puffy Omelette/Omelette,fat_g,42.1,21.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Puffy Omelette/Omelette,fiber_g,0.0,0.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Orange Omelette/Omelette,calories_kcal,486.0,270.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Orange Omelette/Omelette,protein_g,22.3,18.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Orange Omelette/Omelette,carbohydrates_g,4.2,3.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Orange Omelette/Omelette,fat_g,42.1,21.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Orange Omelette/Omelette,fiber_g,0.0,0.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Cheese And Mushroom Omelette/Omelette,calories_kcal,514.0,270.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Cheese And Mushroom Omelette/Omelette,protein_g,24.2,18.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Cheese And Mushroom Omelette/Omelette,carbohydrates_g,4.2,3.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Cheese And Mushroom Omelette/Omelette,fat_g,44.6,21.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Cheese And Mushroom Omelette/Omelette,fiber_g,0.0,0.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Spanish Omelette/Omelette,calories_kcal,393.0,270.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Spanish Omelette/Omelette,protein_g,20.6,18.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Spanish Omelette/Omelette,carbohydrates_g,12.8,3.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Spanish Omelette/Omelette,fat_g,28.6,21.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Spanish Omelette/Omelette,fiber_g,2.4,0.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Appam,calories_kcal,669.0,270.0,"Table 1, p40","Deviated >20% from IFCT Rice, raw (A015) + Coconut milk",95%
+Appam,protein_g,7.8,4.5,"Table 1, p40","Deviated >20% from IFCT Rice, raw (A015) + Coconut milk",95%
+Appam,carbohydrates_g,33.2,52.5,"Table 1, p40","Deviated >20% from IFCT Rice, raw (A015) + Coconut milk",95%
+Appam,fat_g,56.6,4.5,"Table 1, p40","Deviated >20% from IFCT Rice, raw (A015) + Coconut milk",95%
+Appam,fiber_g,5.0,1.5,"Table 1, p40","Deviated >20% from IFCT Rice, raw (A015) + Coconut milk",95%
+Sprouts Upma,calories_kcal,790.0,210.0,"Table 2, p56","Deviated >20% from IFCT Green gram, whole (B013) + Semolina (A022)",95%
+Sprouts Upma,protein_g,22.0,9.0,"Table 2, p56","Deviated >20% from IFCT Green gram, whole (B013) + Semolina (A022)",95%
+Sprouts Upma,carbohydrates_g,103.88,33.0,"Table 2, p56","Deviated >20% from IFCT Green gram, whole (B013) + Semolina (A022)",95%
+Sprouts Upma,fat_g,24.12,4.5,"Table 2, p56","Deviated >20% from IFCT Green gram, whole (B013) + Semolina (A022)",95%
+Sprouts Upma,fiber_g,19.0,6.0,"Table 2, p56","Deviated >20% from IFCT Green gram, whole (B013) + Semolina (A022)",95%
+Corn Omelette/Omelette,calories_kcal,417.0,270.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Corn Omelette/Omelette,protein_g,28.4,18.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Corn Omelette/Omelette,carbohydrates_g,3.9,3.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Corn Omelette/Omelette,fat_g,32.2,21.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Corn Omelette/Omelette,fiber_g,0.0,0.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Oil",95%
+Cabbage Manchurian (Cabbage Manchurian),calories_kcal,560.0,240.0,"Table 4, p88",Deviated >20% from IFCT Cabbage (D006) + Flour + Oil,95%
+Cabbage Manchurian (Cabbage Manchurian),protein_g,1.6,4.5,"Table 4, p88",Deviated >20% from IFCT Cabbage (D006) + Flour + Oil,95%
+Cabbage Manchurian (Cabbage Manchurian),carbohydrates_g,12.1,22.5,"Table 4, p88",Deviated >20% from IFCT Cabbage (D006) + Flour + Oil,95%
+Cabbage Manchurian (Cabbage Manchurian),fat_g,56.2,15.0,"Table 4, p88",Deviated >20% from IFCT Cabbage (D006) + Flour + Oil,95%
+Cabbage Manchurian (Cabbage Manchurian),fiber_g,1.8,3.0,"Table 4, p88",Deviated >20% from IFCT Cabbage (D006) + Flour + Oil,95%
+Gobi 65,calories_kcal,695.0,360.0,"Table 4, p88",Deviated >20% from IFCT Cauliflower (D008) + Batter + Deep Fry,95%
+Gobi 65,protein_g,1.4,6.0,"Table 4, p88",Deviated >20% from IFCT Cauliflower (D008) + Batter + Deep Fry,95%
+Gobi 65,carbohydrates_g,9.0,27.0,"Table 4, p88",Deviated >20% from IFCT Cauliflower (D008) + Batter + Deep Fry,95%
+Gobi 65,fat_g,72.8,25.5,"Table 4, p88",Deviated >20% from IFCT Cauliflower (D008) + Batter + Deep Fry,95%
+Gobi 65,fiber_g,2.4,3.0,"Table 4, p88",Deviated >20% from IFCT Cauliflower (D008) + Batter + Deep Fry,95%
+Spicy Egg Drop Soup,calories_kcal,534.0,60.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Broth",95%
+Spicy Egg Drop Soup,protein_g,38.8,6.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Broth",95%
+Spicy Egg Drop Soup,carbohydrates_g,3.3,1.5,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Broth",95%
+Spicy Egg Drop Soup,fat_g,40.6,3.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Broth",95%
+Spicy Egg Drop Soup,fiber_g,0.0,0.0,"Table 12, p216","Deviated >20% from IFCT Egg, hen, whole (L002) + Broth",95%
+Tandoori (No Butter) Cabbage Manchurian (Cabbage Manchurian),calories_kcal,561.0,240.0,"Table 4, p88",Deviated >20% from IFCT Cabbage (D006) + Flour + Oil,95%
+Tandoori (No Butter) Cabbage Manchurian (Cabbage Manchurian),protein_g,1.6,4.5,"Table 4, p88",Deviated >20% from IFCT Cabbage (D006) + Flour + Oil,95%
+Tandoori (No Butter) Cabbage Manchurian (Cabbage Manchurian),carbohydrates_g,12.1,22.5,"Table 4, p88",Deviated >20% from IFCT Cabbage (D006) + Flour + Oil,95%
+Tandoori (No Butter) Cabbage Manchurian (Cabbage Manchurian),fat_g,56.2,15.0,"Table 4, p88",Deviated >20% from IFCT Cabbage (D006) + Flour + Oil,95%
+Tandoori (No Butter) Cabbage Manchurian (Cabbage Manchurian),fiber_g,1.8,3.0,"Table 4, p88",Deviated >20% from IFCT Cabbage (D006) + Flour + Oil,95%
