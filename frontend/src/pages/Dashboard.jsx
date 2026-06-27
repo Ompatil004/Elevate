@@ -782,6 +782,9 @@ function Dashboard({ onLogout }) {
       if (Number.isFinite(mealsCount)) {
         setMealsLoggedToday(Math.max(0, Math.min(3, mealsCount)));
       }
+      const cal = Number(data?.calories);
+      const details = Number.isFinite(cal) && cal > 0 ? `${Math.round(cal)} cal consumed` : 'Meal logged';
+      logActivity('meal', 'Meal Completed', details);
     });
 
     const unsubWorkoutProgress = syncBridge.subscribe(SyncTypes.WORKOUT_PROGRESS, (data) => {
@@ -789,10 +792,15 @@ function Dashboard({ onLogout }) {
       const total = Math.max(1, Number(data?.totalCount) || 1);
       const ratio = Math.max(0, Math.min(1, completed / total));
       setWorkoutProgress(ratio);
+      logActivity('workout', 'Workout In Progress', `${completed}/${total} exercises done`);
     });
 
-    const unsubWorkoutDone = syncBridge.subscribe(SyncTypes.WORKOUT_COMPLETED, () => {
+    const unsubWorkoutDone = syncBridge.subscribe(SyncTypes.WORKOUT_COMPLETED, (data) => {
       setWorkoutProgress(1);
+      const completed = Number(data?.completedCount) || 0;
+      const total = Number(data?.totalCount) || completed;
+      const details = total > 0 ? `${completed}/${total} exercises completed` : 'Workout completed';
+      logActivity('workout', 'Workout Completed 💪', details);
     });
 
     return () => {
@@ -3432,8 +3440,15 @@ title = {`${Math.round(macros.f)}g Fats`}
             </div>
             <div className="activity-list" style={{ flex: 1, overflowY: 'auto', paddingRight: '4px' }}>
               {(() => {
-                const todayStr = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-                const todaysHistory = recentHistory.filter(h => h.date === todayStr || String(h.date).includes('Today') || String(h.date).includes(new Date().getDate()));
+                const todayDateStr = new Date().toLocaleDateString('en-CA'); // "YYYY-MM-DD" in local time
+                const todaysHistory = recentHistory.filter(h => {
+                  if (h.timestamp) {
+                    return new Date(h.timestamp).toLocaleDateString('en-CA') === todayDateStr;
+                  }
+                  // fallback: entries without timestamp (legacy) — try the old heuristic
+                  const todayStr = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                  return h.date === todayStr || String(h.date).includes('Today');
+                });
                 
                 return todaysHistory.length === 0 ? (
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 20px', color: '#52525b' }}>

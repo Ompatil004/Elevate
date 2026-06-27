@@ -111,7 +111,128 @@ class WeeklyValidator:
                 if has_heavy_pro >= 2:
                     report["warnings"].append(f"Indian Family Test Failed on {day} {meal_name}: Multiple heavy protein sources (e.g. Chicken AND Paneer).")
 
-    def validate_serialized_plan(self, serialized_plan: Dict[str, Any], daily_targets: Dict[str, float]) -> Dict[str, Any]:
+    def _map_food_to_blueprint_role(self, food: Dict, template_role: str = "") -> str:
+        sem = food.get("semantics", {})
+        category = sem.get("category", "") or ""
+        dish_family = sem.get("dish_family", "") or ""
+        food_name = food.get("food_name", "")
+        food_name_lower = food_name.lower().strip()
+        role = template_role or sem.get("meal_role", "") or ""
+        
+        _PROTEIN_GROUPS = {
+            "Dal & Pulses", "Chicken/Meat", "Paneer", "Eggs", "Fish/Seafood",
+            "Meat & Chicken", "Paneer & Tofu", "Seafood", "Soya & Tofu", "protein", "protein_main"
+        }
+        _CARB_GROUPS = {
+            "Rice", "Whole Grains", "Millets & Whole Grains", "Breads & Roti", "Oats & Cereals", "carb", "carb_base"
+        }
+
+        # Priority 0: Hard name/dish_family overrides — must come before category checks
+        # Raita/pachadi is always a side dish regardless of category or food_group
+        if any(w in food_name_lower for w in ("raita", "pachadi")) or dish_family in ("raita",):
+            return "raita"
+        # Carb-based bases (sandwich, wrap, roll, toast, roti, paratha, chapati, naan, dosa, idli, poha, upma, oats, rice, bread, pasta, etc.)
+        _CARB_KEYWORDS = (
+            "sandwich", "wrap", "toast", "roll", "paratha", "parantha", 
+            "roti", "chapati", "naan", "dosa", "idli", "poha", "upma", 
+            "uttapam", "cereal", "oats", "rice", "bread", "pancake", "waffle", "cheela",
+            "chilla", "paniyaram", "appam", "koozh", "bhel", "khichdi", "bath", "sweet potato", "mudde",
+            "spaghetti", "pasta", "noodles", "macaroni"
+        )
+        _CARB_FAMILIES = (
+            "sandwich", "roll", "wrap", "toast", "roti", "paratha", 
+            "bread", "naan", "dosa", "idli", "uttapam", "poha", "upma", "rice", "pasta", "noodles",
+            "chilla", "paniyaram", "appam", "koozh", "bhel", "khichdi", "bath", "mudde"
+        )
+        if dish_family in _CARB_FAMILIES or any(w in food_name_lower for w in _CARB_KEYWORDS):
+            # If it is a carb base but contains a major protein keyword, it behaves as the protein main
+            if any(p in food_name_lower for p in ("chicken", "egg", "paneer", "tofu", "fish", "mutton", "soya", "turkey")):
+                return "protein"
+            return "carb"
+        # Soup/shorba is always a side/soup
+        if dish_family == "soup" or any(w in food_name_lower for w in ("soup", "shorba")):
+            return "soup"
+        # Chutney/pickle
+        if any(w in food_name_lower for w in ("chutney", "pickle", "achar")) or dish_family in ("chutney",):
+            return "chutney"
+        # Salad/kachumber - sprouted salads or salads with meat/dairy function as protein sources
+        if any(w in food_name_lower for w in ("salad", "kachumber", "kosambari")) or dish_family in ("salad",):
+            if any(p in food_name_lower for p in ("chicken", "egg", "paneer", "tofu", "fish", "mutton", "soya", "moong", "chana", "peanut")):
+                return "protein"
+            return "salad"
+
+        # 1. food_group/category + template_role
+        food_group = sem.get("food_group", "") or category
+        food_group_lower = food_group.lower().strip()
+        _PROTEIN_GROUPS_LOWER = {g.lower() for g in _PROTEIN_GROUPS}
+        _CARB_GROUPS_LOWER = {g.lower() for g in _CARB_GROUPS}
+        if role in ("protein_main", "curry") or food_group_lower in _PROTEIN_GROUPS_LOWER:
+            return "protein"
+        if role == "carb_base" or food_group_lower in _CARB_GROUPS_LOWER:
+            return "carb"
+            
+        # 2. dish_family
+        if dish_family in ("rice", "plain_rice", "fried_rice", "pulao", "biryani", "roti", "paratha", "bread", "naan", "dosa", "idli", "uttapam", "poha", "upma", "chilla", "paniyaram", "appam", "koozh", "bhel", "khichdi", "bath", "mudde"):
+            if any(p in food_name_lower for p in ("chicken", "egg", "paneer", "tofu", "fish", "mutton", "soya", "turkey")):
+                return "protein"
+            return "carb"
+        if dish_family in ("curry", "korma", "dal", "sambar", "egg_dish", "omelette"):
+            return "protein"
+        if dish_family == "soup":
+            return "soup"
+            
+        # 3. Normalized category field from dataset (case-insensitive and plural-robust)
+        category_lower = category.lower().strip()
+        if category_lower in ("fruits", "fruit"):
+            return "fruit"
+        if category_lower in ("salad", "salads"):
+            if any(p in food_name_lower for p in ("chicken", "egg", "paneer", "tofu", "fish", "mutton", "soya", "moong", "chana", "peanut")):
+                return "protein"
+            return "salad"
+        if category_lower in ("dairy", "dairy & eggs", "curd & yogurt"):
+            return "dairy"
+        if category_lower in ("vegetables", "vegetable", "leafy greens", "leafy green"):
+            return "vegetable"
+            
+        # 4. Configuration-driven pattern map in nutrition_rules.yaml
+        starch_patterns = NUTRITION_RULES.get("compatibility", {}).get("starch_patterns", [])
+        sandwich_patterns = NUTRITION_RULES.get("compatibility", {}).get("sandwich_patterns", [])
+        if any(p in food_name_lower for p in starch_patterns):
+            if any(p in food_name_lower for p in ("chicken", "egg", "paneer", "tofu", "fish", "mutton", "soya", "turkey")):
+                return "protein"
+            return "carb"
+        if any(p in food_name_lower for p in sandwich_patterns):
+            if any(p in food_name_lower for p in ("chicken", "egg", "paneer", "tofu", "fish", "mutton", "soya", "turkey")):
+                return "protein"
+            return "carb"
+            
+        # 5. Food name matching as absolute last resort
+        if any(w in food_name_lower for w in ("salad", "kachumber")):
+            if any(p in food_name_lower for p in ("chicken", "egg", "paneer", "tofu", "fish", "mutton", "soya", "moong", "chana", "peanut")):
+                return "protein"
+            return "salad"
+        if any(w in food_name_lower for w in ("raita", "pachadi")):
+            return "raita"
+        if any(w in food_name_lower for w in ("chutney", "pickle", "achar")):
+            return "chutney"
+        if "papad" in food_name_lower:
+            return "papad"
+        if any(w in food_name_lower for w in ("soup", "shorba")):
+            return "soup"
+        if any(w in food_name_lower for w in ("rice", "roti", "chapati", "paratha", "parantha", "naan", "bread", "oats", "poha", "upma", "dosa", "idli", "cereal", "chilla", "cheela", "paniyaram", "appam", "koozh", "bhel", "khichdi", "bath", "sweet potato", "mudde")):
+            if any(p in food_name_lower for p in ("chicken", "egg", "paneer", "tofu", "fish", "mutton", "soya", "turkey")):
+                return "protein"
+            return "carb"
+        if any(w in food_name_lower for w in ("egg", "chicken", "fish", "paneer", "tofu", "soya", "mutton", "prawn", "dal", "chana", "rajma", "sambar", "kadhi", "korma", "curry", "bhurji", "kebab", "tikka", "peanut", "peanuts", "moong", "mung", "lentil", "lentils", "bean", "beans", "chole", "gram", "almond", "almonds")):
+            return "protein"
+        if any(w in food_name_lower for w in ("curd", "yogurt", "dahi", "milk", "cheese", "lassi", "buttermilk", "chaas")):
+            return "dairy"
+        if any(w in food_name_lower for w in ("fruit", "apple", "banana", "orange", "mango", "papaya", "grapes", "melon", "guava", "pomegranate")):
+            return "fruit"
+            
+        return "other"
+
+    def validate_serialized_plan(self, serialized_plan: Dict[str, Any], daily_targets: Dict[str, float], user_profile: Dict[str, Any] = None) -> Dict[str, Any]:
         report = {
             "is_valid": True,
             "critical_errors": [],
@@ -119,20 +240,26 @@ class WeeklyValidator:
             "stats": {}
         }
         
-        base_tol = float(NUTRITION_RULES["validation_thresholds"].get("macro_tolerance_percent", 12.0))
-        warn_cal = base_tol / 100.0
-        crit_cal = (base_tol + 5.0) / 100.0
-        warn_pro = base_tol / 100.0
-        crit_pro = (base_tol + 5.0) / 100.0
+        warn_cal = 0.10
+        crit_cal = 0.15
+        warn_pro = 0.10
+        crit_pro = 0.15
+
         if not serialized_plan:
             report["is_valid"] = False
             report["critical_errors"].append("Weekly plan is empty.")
             return report
 
+        # Allergy checking setup
+        allergies = []
+        if user_profile:
+            allergies = [a.lower().strip() for a in user_profile.get("allergies", []) or user_profile.get("allergens", []) or []]
+
         for day, meals in serialized_plan.items():
             day_cal = 0.0
             day_pro = 0.0
-            meal_identities = []
+            day_foods = []
+            exempt_foods = {'sambar', 'boiled rice (uble chawal)'}
             
             for meal_name, items in meals.items():
                 if not items:
@@ -153,6 +280,20 @@ class WeeklyValidator:
                     qty = item.get('serving_qty', 0)
                     
                     foods_in_meal.append(fname)
+                    
+                    # Allergy check
+                    food_allergens = str(item.get("allergens", "")).lower().strip()
+                    for allergy in allergies:
+                        if allergy in food_allergens:
+                            report["is_valid"] = False
+                            report["critical_errors"].append(f"Allergy violation: '{allergy}' found in '{item.get('food_name')}' on {day} {meal_name}")
+
+                    # Same-day food duplicate check
+                    if fname and fname not in exempt_foods:
+                        if fname in day_foods:
+                            report["is_valid"] = False
+                            report["critical_errors"].append(f"Same-day duplicate food: '{fname}' on {day}")
+                        day_foods.append(fname)
                     
                     # Nutrition
                     nut = item.get('nutrition', {})
@@ -181,6 +322,62 @@ class WeeklyValidator:
                 if len(set(foods_in_meal)) != len(foods_in_meal):
                     report["is_valid"] = False
                     report["critical_errors"].append(f"Duplicate food in same meal: {foods_in_meal} on {day} {meal_name}")
+
+                # Blueprint validation check — aligned with generator rules (relaxed)
+                # Hard requirements: Protein + Carb (prevents truly broken meals)
+                # Soft requirements: Vegetable, Side, Fruit/Dairy (warnings only)
+                blueprint_roles = [self._map_food_to_blueprint_role(item, item.get("template_role")) for item in items]
+                mt_lower = meal_name.lower()
+
+                if mt_lower == "breakfast":
+                    has_protein = "protein" in blueprint_roles
+                    has_carb = "carb" in blueprint_roles
+                    has_dairy = "dairy" in blueprint_roles or "raita" in blueprint_roles
+                    has_fruit = "fruit" in blueprint_roles
+                    # Dairy/raita counts as protein at breakfast (curd/yogurt IS a protein source)
+                    has_protein_or_dairy = has_protein or has_dairy
+                    if not (has_protein_or_dairy and has_carb):
+                        report["is_valid"] = False
+                        report["critical_errors"].append(f"Breakfast missing protein/dairy+carb on {day}: {blueprint_roles}")
+                    elif not (has_fruit or has_dairy):
+                        report["warnings"].append(f"Breakfast on {day} missing fruit/dairy component: {blueprint_roles}")
+                elif mt_lower in ("lunch", "dinner"):
+                    has_protein = "protein" in blueprint_roles
+                    has_carb = "carb" in blueprint_roles
+                    has_veg = "vegetable" in blueprint_roles
+                    if mt_lower == "lunch":
+                        has_side = any(r in blueprint_roles for r in ("salad", "raita", "chutney", "papad"))
+                    else:
+                        has_side = any(r in blueprint_roles for r in ("soup", "salad", "raita"))
+                    if not (has_protein and has_carb):
+                        report["is_valid"] = False
+                        report["critical_errors"].append(f"{meal_name} missing protein or carb on {day}: {blueprint_roles}")
+                    else:
+                        if not has_veg:
+                            report["warnings"].append(f"{meal_name} on {day} missing vegetable component: {blueprint_roles}")
+                        if not has_side:
+                            report["warnings"].append(f"{meal_name} on {day} missing side dish (salad/raita/soup): {blueprint_roles}")
+                elif mt_lower == "snack":
+                    has_snack_item = any(r in blueprint_roles for r in ("protein", "dairy", "fruit"))
+                    if not has_snack_item:
+                        report["is_valid"] = False
+                        report["critical_errors"].append(f"Snack on {day} has no protein/dairy/fruit: {blueprint_roles}")
+
+                # ── V6 Meal Realism Warnings (observability only) ─────────────────
+                _SIZE_LIMITS = {"breakfast": 3, "lunch": 4, "dinner": 4, "snack": 2}
+                size_limit = _SIZE_LIMITS.get(mt_lower, 4)
+                non_water = [it for it in items if "water" not in it.get("food_name", "").lower()]
+                if len(non_water) > size_limit:
+                    report["warnings"].append(
+                        f"{meal_name} on {day} has {len(non_water)} items (V6 limit: {size_limit})"
+                    )
+
+                _SIDE_ROLES = {"salad", "raita", "soup", "chutney", "papad", "pickle"}
+                side_roles_in_meal = [r for r in blueprint_roles if r in _SIDE_ROLES]
+                if len(side_roles_in_meal) > 1:
+                    report["warnings"].append(
+                        f"{meal_name} on {day} has multiple sides: {side_roles_in_meal}"
+                    )
 
                 if meal_cal == 0:
                     report["is_valid"] = False

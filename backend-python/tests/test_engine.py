@@ -38,5 +38,43 @@ class TestNutritionEngine(unittest.TestCase):
         breakfast_plate = plan["Day_1"]["breakfast"]
         self.assertTrue(isinstance(breakfast_plate, list))
 
+    def test_validation_failure_graceful(self):
+        from unittest.mock import patch
+        with patch('app.nutrition_engine.weekly_optimizer.WeeklyOptimizer.generate_weekly_plan') as mock_gen:
+            mock_gen.return_value = {"plan": {}, "stats": {}}
+            profile = {
+                "weight_kg": 75,
+                "height_cm": 180,
+                "age": 28,
+                "gender": "male",
+                "activity_level": "moderate",
+                "goal": "muscle_gain",
+                "diet_type": "Vegetarian",
+                "region": "pan_indian"
+            }
+            result = self.engine.generate_plan(profile)
+            self.assertEqual(result["status"], "error")
+            self.assertEqual(result["weekly_plan"], {})
+            self.assertFalse(result["validation_report"]["is_valid"])
+
+    def test_generation_uncaught_exception_graceful(self):
+        from unittest.mock import patch
+        with patch('app.nutrition_engine.weekly_optimizer.WeeklyOptimizer.generate_weekly_plan', side_effect=RuntimeError("Solver timeout")):
+            profile = {
+                "weight_kg": 75,
+                "height_cm": 180,
+                "age": 28,
+                "gender": "male",
+                "activity_level": "moderate",
+                "goal": "muscle_gain",
+                "diet_type": "Vegetarian",
+                "region": "pan_indian"
+            }
+            result = self.engine.generate_plan(profile)
+            self.assertEqual(result["status"], "error")
+            self.assertIsNone(result["weekly_plan"])
+            self.assertFalse(result["validation_report"]["is_valid"])
+            self.assertIn("Solver timeout", result["validation_report"]["critical_errors"][0])
+
 if __name__ == '__main__':
     unittest.main()

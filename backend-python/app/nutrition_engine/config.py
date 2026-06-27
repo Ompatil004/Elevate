@@ -1,5 +1,8 @@
 import os
 import yaml
+import logging
+
+logger = logging.getLogger(__name__)
 
 CONFIG_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "config", "nutrition_rules.yaml")
 
@@ -8,7 +11,7 @@ def load_nutrition_rules():
         with open(CONFIG_FILE, "r") as f:
             return yaml.safe_load(f)
     except Exception as e:
-        print(f"Warning: Could not load nutrition_rules.yaml: {e}")
+        logger.warning(f"Could not load nutrition_rules.yaml: {e}")
         return {
             "variety": {
                 "same_food_max_frequency_days": 2,

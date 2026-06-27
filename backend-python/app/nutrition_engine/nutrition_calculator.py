@@ -53,18 +53,27 @@ def calculate_base_daily_targets(user_profile: Dict[str, Any]) -> Dict[str, floa
     tdee = bmr * activity_multipliers.get(act_norm, 1.2)
     
     # Goal adjustments
-    if "target_calories" in user_profile and "target_protein" in user_profile:
-        target_cal = user_profile["target_calories"]
-        protein_g = user_profile["target_protein"]
+    target_cal = user_profile.get("target_calories") or user_profile.get("calories") or user_profile.get("target_cal")
+    protein_g = user_profile.get("target_protein") or user_profile.get("protein") or user_profile.get("target_pro") or user_profile.get("protein_g")
+    
+    if target_cal is not None:
+        target_cal = float(target_cal)
     else:
         if goal_norm == "muscle_gain":
             target_cal = tdee + 300
-            protein_g = weight_kg * 2.0
         elif goal_norm == "fat_loss":
             target_cal = tdee - 500
-            protein_g = weight_kg * 1.8
         else:
             target_cal = tdee
+            
+    if protein_g is not None:
+        protein_g = float(protein_g)
+    else:
+        if goal_norm == "muscle_gain":
+            protein_g = weight_kg * 2.0
+        elif goal_norm == "fat_loss":
+            protein_g = weight_kg * 1.8
+        else:
             protein_g = weight_kg * 1.4
         
     fat_g = weight_kg * 0.8

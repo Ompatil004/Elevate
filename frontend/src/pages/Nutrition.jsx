@@ -355,7 +355,7 @@ function Nutrition() {
               swap_group: item.swap_group || '',
             }));
             const totals = {
-              calories: foods.reduce((s, f) => s + f.calories, 0),
+              calories: Math.round(foods.reduce((s, f) => s + f.calories, 0)),
               protein_g: Math.round(foods.reduce((s, f) => s + f.protein_g, 0) * 10) / 10,
               carbs_g: Math.round(foods.reduce((s, f) => s + f.carbs_g, 0) * 10) / 10,
               fat_g: Math.round(foods.reduce((s, f) => s + f.fat_g, 0) * 10) / 10,
@@ -370,7 +370,7 @@ function Nutrition() {
 
           // Daily totals = sum of all meal totals
           const daily_totals = {
-            calories: meals.reduce((s, m) => s + m.totals.calories, 0),
+            calories: Math.round(meals.reduce((s, m) => s + m.totals.calories, 0)),
             protein_g: Math.round(meals.reduce((s, m) => s + m.totals.protein_g, 0) * 10) / 10,
             carbs_g: Math.round(meals.reduce((s, m) => s + m.totals.carbs_g, 0) * 10) / 10,
             fat_g: Math.round(meals.reduce((s, m) => s + m.totals.fat_g, 0) * 10) / 10,
@@ -691,7 +691,7 @@ function Nutrition() {
           };
         });
         const totals = {
-          calories: updatedFoods.reduce((s, f) => s + f.calories, 0),
+          calories: Math.round(updatedFoods.reduce((s, f) => s + f.calories, 0)),
           protein_g: Math.round(updatedFoods.reduce((s, f) => s + f.protein_g, 0) * 10) / 10,
           carbs_g: Math.round(updatedFoods.reduce((s, f) => s + f.carbs_g, 0) * 10) / 10,
           fat_g: Math.round(updatedFoods.reduce((s, f) => s + f.fat_g, 0) * 10) / 10,
@@ -699,7 +699,7 @@ function Nutrition() {
         return { ...meal, foods: updatedFoods, totals };
       });
       const daily_totals = {
-        calories: updatedMeals.reduce((s, m) => s + m.totals.calories, 0),
+        calories: Math.round(updatedMeals.reduce((s, m) => s + m.totals.calories, 0)),
         protein_g: Math.round(updatedMeals.reduce((s, m) => s + m.totals.protein_g, 0) * 10) / 10,
         carbs_g: Math.round(updatedMeals.reduce((s, m) => s + m.totals.carbs_g, 0) * 10) / 10,
         fat_g: Math.round(updatedMeals.reduce((s, m) => s + m.totals.fat_g, 0) * 10) / 10,
@@ -824,7 +824,7 @@ function Nutrition() {
     );
   }
 
-  if (!weeklyPlan) {
+  if (!weeklyPlan || !Array.isArray(weeklyPlan.days) || weeklyPlan.days.length === 0) {
     return (
       <div style={styles.page}>
         <AuroraBackground />

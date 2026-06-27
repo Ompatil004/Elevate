@@ -1,4 +1,30 @@
-def get_food_family(name: str, swap_group: str) -> str:
+import os as _os
+import yaml as _yaml
+
+def _load_suitability_blocks():
+    """Load meal_suitability_blocks from nutrition_rules.yaml once at import time."""
+    _config_path = _os.path.join(
+        _os.path.dirname(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))),
+        "config", "nutrition_rules.yaml"
+    )
+    try:
+        with open(_config_path, "r") as _f:
+            _rules = _yaml.safe_load(_f)
+        _blocks = _rules.get("meal_suitability_blocks", {})
+        return (
+            tuple(_blocks.get("breakfast_only", [])),
+            tuple(_blocks.get("blocked_all_meals", [])),
+        )
+    except Exception:
+        # Fallback defaults if YAML is missing/unreadable
+        return (
+            ("poha", "upma", "idli", "dosa", "cheela", "chilla", "uttapam", "appam", "paniyaram"),
+            ("burfi", "barfi", "ladoo", "laddoo", "halwa", "mithai", "jalebi", "rasgulla"),
+        )
+
+_BREAKFAST_ONLY_FOODS, _BLOCKED_ALL_MEALS = _load_suitability_blocks()
+
+def get_food_family(name: str, swap_group: str = '') -> str:
     n = str(name).lower()
     sg = str(swap_group).lower()
     
@@ -79,42 +105,53 @@ def get_primary_unit(food_name: str) -> str:
 def get_meal_suitability(food_name: str, meal_type: str) -> int:
     """
     Returns a score from 0-100 indicating how suitable a food is for a given meal.
+
+    Hard blocking rules (breakfast_only, blocked_all_meals) are read from
+    nutrition_rules.yaml at module import time so they can be changed without
+    touching Python code.
     """
     n = str(food_name).lower()
     m = meal_type.lower()
-    
+
+    # ── Config-driven hard blocks (loaded once at import) ────────────────────
+    # 1. Foods blocked from ALL meal types (sweets/desserts)
+    if any(kw in n for kw in _BLOCKED_ALL_MEALS):
+        return 0
+
+    # 2. Foods that are breakfast-only (score 0 for lunch/dinner/snack)
+    if any(kw in n for kw in _BREAKFAST_ONLY_FOODS) and m in ('lunch', 'dinner', 'snack'):
+        return 0
+
     if m == 'breakfast':
+        if any(kw in n for kw in _BREAKFAST_ONLY_FOODS): return 100
         if 'egg' in n and 'curry' not in n: return 100
-        if 'poha' in n or 'upma' in n or 'oats' in n or 'porridge' in n or 'muesli' in n: return 100
-        if 'idli' in n or 'dosa' in n or 'cheela' in n or 'chilla' in n or 'pancake' in n: return 100
         if 'bread' in n or 'toast' in n or 'sandwich' in n: return 100
         if 'smoothie' in n or 'shake' in n or 'whey' in n: return 100
+        if 'oats' in n or 'porridge' in n or 'muesli' in n: return 100
         if 'curd rice' in n: return 40
         if 'fish' in n or 'chicken' in n or 'mutton' in n or 'pork' in n: return 0
         if 'rajma' in n or 'chole' in n or 'dal makhani' in n: return 5
         if 'sabzi' in n or 'curry' in n or 'gravy' in n: return 20
         if 'salad' in n and 'fruit' not in n: return 25
         if 'khichdi' in n or 'pulao' in n or 'biryani' in n: return 10
-        return 60  # Lowered default: only clearly breakfast-appropriate foods get 80+
-        
+        return 60
+
     elif m == 'lunch':
         if 'fish' in n or 'chicken' in n or 'paneer' in n or 'dal' in n or 'rajma' in n or 'chole' in n: return 100
         if 'rice' in n or 'roti' in n or 'chapati' in n or 'paratha' in n: return 100
         if 'salad' in n or 'raita' in n: return 100
         if 'curry' in n or 'sabzi' in n: return 100
-        if 'poha' in n or 'upma' in n or 'oats' in n: return 0
         return 80
-        
+
     elif m == 'dinner':
         if 'fish' in n or 'chicken' in n or 'paneer' in n or 'dal' in n: return 100
         if 'soup' in n or 'shorba' in n or 'broth' in n: return 100
         if 'rice' in n or 'roti' in n or 'chapati' in n: return 90
         if 'salad' in n or 'raita' in n: return 90
-        if 'rajma' in n or 'chole' in n or 'dal makhani' in n: return 40 # A bit heavy for dinner
-        if 'biryani' in n or 'paratha' in n or 'fried' in n: return 30 # Heavy
-        if 'poha' in n or 'upma' in n: return 0
+        if 'rajma' in n or 'chole' in n or 'dal makhani' in n: return 40
+        if 'biryani' in n or 'paratha' in n or 'fried' in n: return 30
         return 80
-        
+
     elif m == 'snack':
         if 'yogurt' in n or 'curd' in n or 'fruit' in n or 'apple' in n or 'banana' in n: return 100
         if 'whey' in n or 'protein powder' in n or 'shake' in n or 'smoothie' in n: return 100
@@ -123,6 +160,7 @@ def get_meal_suitability(food_name: str, meal_type: str) -> int:
         if 'egg' in n and 'curry' not in n: return 90
         if 'fish' in n or 'chicken curry' in n or 'rajma' in n or 'dal' in n: return 0
         if 'rice' in n or 'roti' in n or 'chapati' in n: return 0
-        return 55  # Lowered snack default to stay below threshold of 60
-        
+        return 55
+
     return 100
+

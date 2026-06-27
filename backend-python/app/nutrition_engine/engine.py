@@ -44,57 +44,88 @@ class NutritionEngineV6:
         logger.info(f"Generating meal plan for profile: {user_profile}")
         
         # 1. Check cache first
-        cached_plan = self.plan_manager.get_valid_plan(user_id, user_profile, week_start)
-        if cached_plan:
-            return {
-                "status": "success",
-                "validation_report": {"is_valid": True, "message": "Loaded from cache"},
-                "weekly_plan": cached_plan,
-                "stats": {"cache_hit": True},
-                "daily_targets": {}
-            }
-        # Instantiate request-scoped modules
-        variety_tracker = WeeklyVarietyTracker()
-        meal_scorer = MealScorer(variety_tracker)
-        weekly_optimizer = WeeklyOptimizer(
-            candidate_generator=self.candidate_generator,
-            meal_scorer=meal_scorer,
-            portion_optimizer=self.portion_optimizer,
-            template_manager=self.template_manager,
-            variety_tracker=variety_tracker
-        )
-        
-        # Generate the weekly layout
-        weekly_plan_result = weekly_optimizer.generate_weekly_plan(user_profile)
-        weekly_plan = weekly_plan_result.get("plan", {})
-        stats = weekly_plan_result.get("stats", {})
-        
-        # 3. Optimize ingredients (batch reuse)
-        # DISABLED: IngredientOptimizer swaps food_ids without fetching correct macros/units,
-        # violating strict food identity and causing duplicates within the same meal.
-        # weekly_plan = self.ingredient_optimizer.optimize(weekly_plan)
-        
-        # 4. Validate the generated plan holistically
-        weekly_planner = WeeklyMacroPlanner()
-        daily_targets = weekly_planner.plan_week(user_profile)
-        
-        # New Serialized Validation Step
-        validation_report = self.weekly_validator.validate_serialized_plan(weekly_plan, daily_targets)
-        
-        # 5. Save to Cache if valid
+        try:
+            cached_plan = self.plan_manager.get_valid_plan(user_id, user_profile, week_start)
+            if cached_plan:
+                return {
+                    "status": "success",
+                    "validation_report": {"is_valid": True, "message": "Loaded from cache"},
+                    "weekly_plan": cached_plan,
+                    "stats": {"cache_hit": True},
+                    "daily_targets": {}
+                }
+        except Exception as e:
+            logger.warning(f"Failed to check/load cache: {e}. Proceeding with fresh generation.")
 
-        if validation_report["is_valid"]:
-            self.plan_manager.save_plan(user_id, user_profile, week_start, weekly_plan)
-        else:
-            logger.error(f"Weekly plan failed strict serialization validation: {validation_report.get('message')}")
-        
-        return {
-            "status": "success" if validation_report["is_valid"] else "error",
-            "validation_report": validation_report,
-            "weekly_plan": weekly_plan,
-            "stats": stats,
-            "daily_targets": daily_targets
-        }
+        weekly_plan = None
+        stats = {}
+        daily_targets = {}
+        validation_report = {"is_valid": False, "critical_errors": ["Plan generation did not complete."]}
+
+        try:
+            # Instantiate request-scoped modules
+            variety_tracker = WeeklyVarietyTracker()
+            meal_scorer = MealScorer(variety_tracker)
+            weekly_optimizer = WeeklyOptimizer(
+                candidate_generator=self.candidate_generator,
+                meal_scorer=meal_scorer,
+                portion_optimizer=self.portion_optimizer,
+                template_manager=self.template_manager,
+                variety_tracker=variety_tracker
+            )
+            
+            # Generate the weekly layout
+            weekly_plan_result = weekly_optimizer.generate_weekly_plan(user_profile)
+            weekly_plan = weekly_plan_result.get("plan", {})
+            stats = weekly_plan_result.get("stats", {})
+            
+            # 3. Optimize ingredients (batch reuse)
+            # DISABLED: IngredientOptimizer swaps food_ids without fetching correct macros/units,
+            # violating strict food identity and causing duplicates within the same meal.
+            # weekly_plan = self.ingredient_optimizer.optimize(weekly_plan)
+            
+            # 4. Validate the generated plan holistically
+            weekly_planner = WeeklyMacroPlanner()
+            daily_targets = weekly_planner.plan_week(user_profile)
+            
+            # New Serialized Validation Step
+            validation_report = self.weekly_validator.validate_serialized_plan(weekly_plan, daily_targets, user_profile)
+            
+            # 5. Save to Cache if valid
+            if validation_report["is_valid"]:
+                try:
+                    self.plan_manager.save_plan(user_id, user_profile, week_start, weekly_plan)
+                except Exception as e:
+                    logger.warning(f"Failed to save plan to cache: {e}")
+            else:
+                # Log all validation failures using structured logging
+                for err in validation_report.get("critical_errors", []):
+                    logger.error(f"[VALIDATION_FAILURE] critical_error={err}")
+                for warn in validation_report.get("warnings", []):
+                    logger.warning(f"[VALIDATION_FAILURE] warning={warn}")
+            
+            return {
+                "status": "success" if validation_report["is_valid"] else "error",
+                "validation_report": validation_report,
+                "warnings": validation_report.get("warnings", []),
+                "weekly_plan": weekly_plan,
+                "stats": stats,
+                "daily_targets": daily_targets
+            }
+        except Exception as e:
+            logger.error(f"Uncaught exception during meal plan generation: {e}", exc_info=True)
+            return {
+                "status": "error",
+                "validation_report": {
+                    "is_valid": False,
+                    "critical_errors": [f"Uncaught error: {str(e)}"],
+                    "warnings": [f"Uncaught error: {str(e)}"]
+                },
+                "warnings": [f"Uncaught error: {str(e)}"],
+                "weekly_plan": None,
+                "stats": stats,
+                "daily_targets": daily_targets
+            }
 
     def generate_meal_swaps(self, user_profile: Dict[str, Any], week_start: str, day: int, meal_type: str, original_meal: Dict[str, Any], user_id: str = "mock_user", count: int = 3) -> List[Dict[str, Any]]:
         """

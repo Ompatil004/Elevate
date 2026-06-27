@@ -30,11 +30,30 @@ class WeeklyOptimizer:
         from app.nutrition_engine.serving_validator import FoodIdentityValidator
         self.identity_validator = FoodIdentityValidator(candidate_generator.food_graph)
 
+    def _get_meal_cuisine(self, candidate_plate: List[Dict]) -> str:
+        """
+        Identifies and normalizes the cuisine of a meal by scanning all its items.
+        Prioritizes non-Pan Indian cuisines if any item has one, so a Maharashtrian
+        meal that includes a Pan Indian side dish is still classified as Maharashtrian.
+        Falls back to 'Pan Indian' if no specific cuisine is found.
+        """
+        non_pan_indian = None
+        for item in candidate_plate:
+            sem = item.get('semantics', {})
+            _rc = item.get('regional_cuisine') or sem.get('regional_cuisine') or sem.get('cuisine')
+            cuisine = (_rc.get('primary') if isinstance(_rc, dict) else _rc) or 'Pan Indian'
+            cuisine_clean = str(cuisine).strip()
+            if cuisine_clean.lower() not in ('pan indian', 'pan_indian', ''):
+                if non_pan_indian is None:
+                    non_pan_indian = cuisine_clean
+        return non_pan_indian if non_pan_indian else 'Pan Indian'
+
     def generate_weekly_plan(self, user_profile: Dict[str, Any]) -> Dict[str, Any]:
         """
         Generates a full 7-day meal plan respecting strict target compliance.
         Returns a dictionary containing "plan" and "stats".
         """
+        start_time = time.perf_counter()
         stats = {
             "failure_reasons": {
                 "template_exhausted": 0,
@@ -67,12 +86,17 @@ class WeeklyOptimizer:
             user_profile['height_cm'] = user_profile['height']
             
         diet_val = user_profile.get('diet_type') or user_profile.get('dietary_preference') or 'NonVeg'
-        if diet_val in ('Veg', 'Vegetarian'):
+        diet_val_lower = str(diet_val).strip().lower()
+        if diet_val_lower in ('veg', 'vegetarian', 'lacto-vegetarian', 'lacto vegetarian'):
             user_profile['diet_type'] = 'Vegetarian'
-        elif diet_val in ('Non-Veg', 'NonVeg'):
+        elif diet_val_lower in ('non-veg', 'nonveg', 'non veg', 'non vegetarian', 'non-vegetarian',
+                                 'meat eater', 'omnivore'):
             user_profile['diet_type'] = 'NonVeg'
-        elif diet_val in ('Vegan',):
+        elif diet_val_lower in ('vegan', 'plant-based', 'plant based'):
             user_profile['diet_type'] = 'Vegan'
+        elif diet_val_lower in ('eggetarian',):
+            # Eggetarian: vegetarian + eggs (treat as Vegetarian but allow egg foods)
+            user_profile['diet_type'] = 'Vegetarian'
         else:
             user_profile['diet_type'] = diet_val
 
@@ -97,6 +121,9 @@ class WeeklyOptimizer:
             weekly_plan = {}
             week_valid = True
             week_diff_score = 0.0
+            
+            total_meal_slots = 0
+            fallback_meal_slots = 0
             
             # Full week reset for variety tracker
             self.variety_tracker.reset()
@@ -149,6 +176,7 @@ class WeeklyOptimizer:
                     ]
 
                     for meal_type_idx, (meal_type, base_target_macros) in enumerate(meal_order):
+                        total_meal_slots += 1
                         # Apply running deficit to current target, but cap min to 50% to prevent negative runaway targets
                         cals_def = running_deficit["calories"]
                         pro_def = running_deficit["protein"]
@@ -157,7 +185,7 @@ class WeeklyOptimizer:
                         
                         if meal_type == "snack":
                             cals_def = max(-base_target_macros["calories"] * 0.5, min(cals_def, base_target_macros["calories"] * 0.5))
-                            pro_def = max(-base_target_macros["protein"] * 0.5, min(pro_def, base_target_macros["protein"] * 0.5))
+                            pro_def = max(-10.0, min(pro_def, 10.0))  # cap snack protein deficit to ±10g
                             carbs_def = max(-base_target_macros["carbs"] * 0.5, min(carbs_def, base_target_macros["carbs"] * 0.5))
                             fat_def = max(-base_target_macros["fat"] * 0.5, min(fat_def, base_target_macros["fat"] * 0.5))
                         else:
@@ -186,8 +214,12 @@ class WeeklyOptimizer:
                             
                         best_plate = None
                         best_score = -1000
+                        best_score_dict = {}
                         best_effort_plate = None
                         best_effort_score = -1000
+                        best_effort_score_dict = {}
+                        is_fallback_used = False
+
                         
                         # Pass 1: Strict constraints (Rotation & Portion limits)
                         # Seed = day_num * 1000 + meal_type_idx * 100 + attempts
@@ -200,14 +232,21 @@ class WeeklyOptimizer:
                         total_target = target_counts.get(meal_type, 12)
                         per_template_count = max(2, total_target // max(1, len(feasible_templates)))
                         
+                        candidate_pool = []
                         for template in feasible_templates:
                             t0 = time.perf_counter()
                             candidates, gen_stats = self.candidate_generator.generate_candidates(
-                                template, meal_type, diet_type, count=per_template_count,
-                                user_profile=user_profile, day_seed=_seed_p1,
+                                template=template,
+                                meal_type=meal_type,
+                                diet_type=diet_type,
+                                count=per_template_count,
+                                user_profile=user_profile,
+                                day_seed=_seed_p1,
                                 excluded_foods=excluded_foods_today,
                                 daily_context=daily_context,
                                 daily_targets=daily_target,
+                                variety_tracker=self.variety_tracker,
+                                day_num=day_num,
                             )
                             logger.info(f"[{day_key} - {meal_type}] Candidate generation (count={per_template_count}): {time.perf_counter()-t0:.3f}s")
                             stats["constraint_pressure"]["total_candidates"] += gen_stats["total_candidates"]
@@ -229,14 +268,13 @@ class WeeklyOptimizer:
                                 
                             evaluated_templates += 1
                             
-                            feasible_candidates = []
                             for candidate_plate in candidates:
                                 anchor_sem = candidate_plate[0].get('semantics', {})
                                 meal_id = anchor_sem.get('meal_id', 'dynamic_meal')
                                 foods = [item['food_name'] for item in candidate_plate]
                                 protein_source = anchor_sem.get('protein_source')
                                 carb_source = anchor_sem.get('carb_source')
-                                cuisine = anchor_sem.get('cuisine')
+                                cuisine = self._get_meal_cuisine(candidate_plate)
                                 cooking_style = anchor_sem.get('cooking_style')
                                 
                                 # Enforce rotation & same-day duplicate prevention
@@ -250,7 +288,7 @@ class WeeklyOptimizer:
                                     if whey_used_today >= whey_limit:
                                         continue
                                     if meal_type == 'snack':
-                                        if target_macros['protein'] <= 25.0:
+                                        if target_macros['protein'] <= 15.0:
                                             # Prefer whole foods over whey for low protein targets
                                             continue
                                         if target_macros['protein'] > 35.0 and len(foods) < 2:
@@ -260,147 +298,219 @@ class WeeklyOptimizer:
                                 # --- FAST PRUNING ---
                                 # Check if this plate can mathematically reach the macro targets before running SciPy
                                 max_cal, max_pro = self.portion_optimizer.get_max_capacity(candidate_plate)
-                                prune_factor = 0.50 if meal_type == "snack" else 0.75
+                                # Use 0.50 for all meal types — 0.75 was too aggressive and caused near-zero acceptance
+                                prune_factor = 0.50
                                 if max_pro < target_macros['protein'] * prune_factor or max_cal < target_macros['calories'] * prune_factor:
                                     continue # Skip expensive optimization, this plate can never hit the targets
                                     
-                                cul_score = self.meal_scorer.score_culinary(candidate_plate, day_num)
-                                feasible_candidates.append((cul_score, candidate_plate))
-                            
-                            # Sort by culinary score to optimize the most realistic meals first, limit to top 1
-                            feasible_candidates.sort(key=lambda x: x[0], reverse=True)
-                            
-                            for cul_score, candidate_plate in feasible_candidates[:1]:
-                                t1 = time.perf_counter()
-                                optimized_plate = self.portion_optimizer.optimize_portions(candidate_plate, target_macros)
-                                logger.info(f"[{day_key} - {meal_type}] Portion optimization: {time.perf_counter()-t1:.3f}s")
+                                candidate_pool.append(candidate_plate)
                                 
-                                t2 = time.perf_counter()
+                            if evaluated_templates >= 5:
+                                break
+
+                        # Optimize portions and score all strict candidates
+                        scored_candidates = []
+                        for candidate_plate in candidate_pool:
+                            t1 = time.perf_counter()
+                            optimized_plate = self.portion_optimizer.optimize_portions(candidate_plate, target_macros)
+                            logger.info(f"[{day_key} - {meal_type}] Portion optimization: {time.perf_counter()-t1:.3f}s")
+                            
+                            t2 = time.perf_counter()
+                            score_dict = self.meal_scorer.score_candidate_plate(
+                                optimized_plate, 
+                                target_macros, 
+                                current_day=day_num,
+                                meal_type=meal_type,
+                                goal=user_profile.get("goal", "Maintenance"),
+                                previous_meals=[],
+                                preferred_region=user_profile.get("preferred_region") or user_profile.get("region")
+                            )
+                            logger.info(f"[{day_key} - {meal_type}] Meal scoring: {time.perf_counter()-t2:.3f}s")
+                            total_score = score_dict["total_score"]
+                            
+                            # Best effort tracking (ignores 85% rule and visual balance)
+                            if total_score > best_effort_score:
+                                best_effort_score = total_score
+                                best_effort_plate = optimized_plate
+                                best_effort_score_dict = score_dict
+                                
+                            # Enforce Visual Plate Balance
+                            if not self._is_plate_visually_balanced(optimized_plate):
+                                continue
+                                
+                            plate_p = sum(float(i['nutrition']['protein']) for i in optimized_plate)
+                            
+                            # Must hit between 85% and 115% of target protein for strict pass
+                            if plate_p < target_macros['protein'] * 0.85 or plate_p > target_macros['protein'] * 1.15:
+                                continue
+                                
+                            scored_candidates.append((optimized_plate, total_score, score_dict))
+
+                        # Perform Weighted Selection for Strict Pass
+                        if scored_candidates:
+                            # Strict consecutive breakfast category filter
+                            if meal_type.lower() == 'breakfast':
+                                yesterday_cat = self.variety_tracker.daily_breakfast_category.get(day_num - 1)
+                                if yesterday_cat:
+                                    non_consec_candidates = []
+                                    for plate, total_score, score_dict in scored_candidates:
+                                        plate_cat = None
+                                        for item in plate:
+                                            plate_cat = item.get('semantics', {}).get('breakfast_category')
+                                            if plate_cat:
+                                                break
+                                        if plate_cat != yesterday_cat:
+                                            non_consec_candidates.append((plate, total_score, score_dict))
+                                    if non_consec_candidates:
+                                        scored_candidates = non_consec_candidates
+                            
+                            import math
+                            import random as _rng
+                            scored_candidates.sort(key=lambda x: x[1], reverse=True)
+                            top_k = int(NUTRITION_RULES.get("candidate_selection", {}).get("top_k", 15))
+                            temp = float(NUTRITION_RULES.get("candidate_selection", {}).get("temperature", 1.0))
+                            top_candidates = scored_candidates[:top_k]
+                            
+                            max_score = max(item[1] for item in top_candidates)
+                            # Scaled Softmax to avoid overflow
+                            exp_scores = [math.exp((item[1] - max_score) / temp) for item in top_candidates]
+                            sum_exp = sum(exp_scores)
+                            weights = [e / sum_exp for e in exp_scores]
+                            
+                            rng_select = _rng.Random(_seed_p1)
+                            best_plate, best_score, best_score_dict = rng_select.choices(top_candidates, weights=weights, k=1)[0]
+                            
+                        # Pass 2: Fallback constraints if strict pass failed to find anything
+                        if not best_plate:
+                            is_fallback_used = True
+                            _seed_p2 = day_num * 1000 + meal_type_idx * 100 + attempts + 500
+                            candidate_pool_fb = []
+                            for template in feasible_templates[:5]:
+                                candidates, _ = self.candidate_generator.generate_candidates(
+                                    template=template,
+                                    meal_type=meal_type,
+                                    diet_type=diet_type,
+                                    count=10,
+                                    user_profile=user_profile,
+                                    day_seed=_seed_p2,
+                                    excluded_foods=excluded_foods_today,
+                                    daily_context=daily_context,
+                                    daily_targets=daily_target,
+                                    variety_tracker=self.variety_tracker,
+                                    day_num=day_num,
+                                )
+                                for candidate_plate in candidates:
+                                    anchor_sem = candidate_plate[0]['semantics']
+                                    meal_id = anchor_sem.get('meal_id')
+                                    foods = [item['food_name'] for item in candidate_plate]
+                                    
+                                    # Fallback frequency checking
+                                    if meal_id and self.variety_tracker.meal_appearance_counts.get(meal_id, 0) >= 2:
+                                        continue
+                                        
+                                    # Enforce rotation & same-day duplicate prevention in fallback
+                                    if self.variety_tracker.is_duplicate_meal(meal_id, foods, None, None, day_num, meal_type):
+                                        continue
+                                        
+                                    has_whey = any('whey' in f.lower() for f in foods)
+                                    if has_whey:
+                                        if whey_used_today >= 1:
+                                            continue
+                                        if meal_type == 'snack':
+                                            if target_macros['protein'] <= 15.0:
+                                                continue
+                                            if target_macros['protein'] > 35.0 and len(foods) < 2:
+                                                continue
+                                                
+                                    max_cal, max_pro = self.portion_optimizer.get_max_capacity(candidate_plate)
+                                    prune_factor_fb = 0.40 if meal_type == "snack" else 0.60
+                                    if max_pro < target_macros['protein'] * prune_factor_fb or max_cal < target_macros['calories'] * prune_factor_fb:
+                                        continue
+                                        
+                                    candidate_pool_fb.append(candidate_plate)
+                                    
+                            # Optimize and score fallback pool
+                            scored_candidates_fb = []
+                            for candidate_plate in candidate_pool_fb:
+                                optimized_plate = self.portion_optimizer.optimize_portions(candidate_plate, target_macros)
+                                
                                 score_dict = self.meal_scorer.score_candidate_plate(
                                     optimized_plate, 
                                     target_macros, 
                                     current_day=day_num,
                                     meal_type=meal_type,
                                     goal=user_profile.get("goal", "Maintenance"),
-                                    previous_meals=[]
+                                    previous_meals=[],
+                                    preferred_region=user_profile.get("preferred_region") or user_profile.get("region")
                                 )
-                                logger.info(f"[{day_key} - {meal_type}] Meal scoring: {time.perf_counter()-t2:.3f}s")
-                                total_score = score_dict["total_score"]
+                                total_score = score_dict["total_score"] - 30 # Penalize fallback slightly
                                 
                                 # Best effort tracking (ignores 85% rule and visual balance)
                                 if total_score > best_effort_score:
                                     best_effort_score = total_score
                                     best_effort_plate = optimized_plate
+                                    best_effort_score_dict = score_dict
                                     
                                 # Enforce Visual Plate Balance
                                 if not self._is_plate_visually_balanced(optimized_plate):
                                     continue
                                     
-                                plate_p = sum(float(i['nutrition']['protein']) for i in optimized_plate)
+                                scored_candidates_fb.append((optimized_plate, total_score, score_dict))
                                 
-                                # Must hit at least 85% of target protein for strict pass
-                                if plate_p < target_macros['protein'] * 0.85:
-                                    continue
+                            if scored_candidates_fb:
+                                # Strict consecutive breakfast category filter in fallback
+                                if meal_type.lower() == 'breakfast':
+                                    yesterday_cat = self.variety_tracker.daily_breakfast_category.get(day_num - 1)
+                                    if yesterday_cat:
+                                        non_consec_candidates_fb = []
+                                        for plate, total_score, score_dict in scored_candidates_fb:
+                                            plate_cat = None
+                                            for item in plate:
+                                                plate_cat = item.get('semantics', {}).get('breakfast_category')
+                                                if plate_cat:
+                                                    break
+                                            if plate_cat != yesterday_cat:
+                                                non_consec_candidates_fb.append((plate, total_score, score_dict))
+                                        if non_consec_candidates_fb:
+                                            scored_candidates_fb = non_consec_candidates_fb
+                                            
+                                import math
+                                import random as _rng
+                                scored_candidates_fb.sort(key=lambda x: x[1], reverse=True)
+                                top_k = int(NUTRITION_RULES.get("candidate_selection", {}).get("top_k", 15))
+                                temp = float(NUTRITION_RULES.get("candidate_selection", {}).get("temperature", 1.0))
+                                top_candidates_fb = scored_candidates_fb[:top_k]
                                 
-                                if total_score > best_score:
-                                    best_score = total_score
-                                    best_plate = optimized_plate
-                            
-                            # Early Exit: If we found an excellent plate, stop evaluating more templates
-                            if best_score >= 75:
-                                break
-                                    
-                            if evaluated_templates >= 5:
-                                break
-                        # Pass 2: Fallback constraints if strict pass failed to find anything
+                                max_score = max(item[1] for item in top_candidates_fb)
+                                exp_scores = [math.exp((item[1] - max_score) / temp) for item in top_candidates_fb]
+                                sum_exp = sum(exp_scores)
+                                weights = [e / sum_exp for e in exp_scores]
+                                
+                                rng_select_fb = _rng.Random(_seed_p2)
+                                best_plate, best_score, best_score_dict = rng_select_fb.choices(top_candidates_fb, weights=weights, k=1)[0]
+                                
+                        # Pass 4: Final Emergency Fallback
                         if not best_plate:
-                            _seed_p2 = day_num * 1000 + meal_type_idx * 100 + attempts + 500
-                            for template in feasible_templates[:5]:
-                                candidates, _ = self.candidate_generator.generate_candidates(
-                                    template, meal_type, diet_type, count=10,
-                                    user_profile=user_profile, day_seed=_seed_p2,
-                                    excluded_foods=excluded_foods_today,
-                                    daily_context=daily_context,
-                                    daily_targets=daily_target,
-                                )
-                                feasible_candidates = []
-                                for candidate_plate in candidates:
-                                    anchor_sem = candidate_plate[0]['semantics']
-                                    meal_id = anchor_sem.get('meal_id')
-                                    foods = [item['food_name'] for item in candidate_plate]
-                                    
-                                    # Pass 2 Fallback: Allow meals with at most 1 prior appearance,
-                                    # but hard-block any meal that has already appeared 2+ times this week.
-                                    # This prevents repetition even in fallback scenarios.
-                                    if meal_id and self.variety_tracker.meal_appearance_counts.get(meal_id, 0) >= 2:
-                                        continue
-                                    
-                                    # Supplement Policy Engine & Whey Limitation
-                                    has_whey = any('whey' in f.lower() for f in foods)
-                                    if has_whey:
-                                        if whey_used_today >= 1:
-                                            continue
-                                        if meal_type == 'snack':
-                                            if target_macros['protein'] <= 25.0:
-                                                continue
-                                            if target_macros['protein'] > 35.0 and len(foods) < 2:
-                                                continue
-                                                
-                                    # Fast pruning for fallback as well
-                                    max_cal, max_pro = self.portion_optimizer.get_max_capacity(candidate_plate)
-                                    prune_factor_fb = 0.40 if meal_type == "snack" else 0.60
-                                    if max_pro < target_macros['protein'] * prune_factor_fb or max_cal < target_macros['calories'] * prune_factor_fb:
-                                        continue
-                                        
-                                    cul_score = self.meal_scorer.score_culinary(candidate_plate, day_num)
-                                    feasible_candidates.append((cul_score, candidate_plate))
-                                
-                                feasible_candidates.sort(key=lambda x: x[0], reverse=True)
-                                
-                                for cul_score, candidate_plate in feasible_candidates[:1]:
-                                    optimized_plate = self.portion_optimizer.optimize_portions(candidate_plate, target_macros)
-                                    
-                                    score_dict = self.meal_scorer.score_candidate_plate(
-                                        optimized_plate, 
-                                        target_macros, 
-                                        current_day=day_num,
-                                        meal_type=meal_type,
-                                        goal=user_profile.get("goal", "Maintenance"),
-                                        previous_meals=[]
-                                    )
-                                    total_score = score_dict["total_score"] - 30 # Penalize fallback slightly
-                                    
-                                    # Best effort tracking (ignores 85% rule and visual balance)
-                                    if total_score > best_effort_score:
-                                        best_effort_score = total_score
-                                        best_effort_plate = optimized_plate
-                                        
-                                    # Enforce Visual Plate Balance
-                                    if not self._is_plate_visually_balanced(optimized_plate):
-                                        continue
-                                        
-                                    plate_p = sum(float(i['nutrition']['protein']) for i in optimized_plate)
-                                    # No strict 85% protein threshold for fallback, we rely on the score
-                                    
-                                    if total_score > best_score:
-                                        best_score = total_score
-                                        best_plate = optimized_plate
-                                
-                                # Early Exit for Fallback
-                                if best_score >= 50:
-                                    break
-                                        
-                        # Pass 3: Best Effort Fallback — still enforce food-name uniqueness within plate
-                        if not best_plate and best_effort_plate:
-                            # Guard: reject if any food_name appears twice in the plate
-                            plate_names_p3 = [item.get("food_name", "").lower().strip() for item in best_effort_plate]
-                            if len(set(plate_names_p3)) == len(plate_names_p3):
-                                best_plate = best_effort_plate
-                                logger.debug(f"Used best effort fallback for {meal_type} on day {day_num} (failed strict constraints)")
+                            logger.warning(f"Final emergency fallback triggered for {meal_type} on day {day_num}")
+                            fallback_plate = self.candidate_generator._build_fallback_meal(
+                                meal_type=meal_type,
+                                diet_type=diet_type,
+                                excluded_foods=excluded_foods_today,
+                                goal=user_profile.get("goal", "Maintenance"),
+                                meal_cals=target_macros["calories"],
+                                variety_tracker=self.variety_tracker,
+                                day_num=day_num,
+                                user_profile=user_profile
+                            )
+                            if fallback_plate:
+                                best_plate = self.portion_optimizer.optimize_portions(fallback_plate, target_macros)
+                                best_score_dict = {"total_score": 0}
                                     
                         stats["acceptance_stats"]["total_generated"] += 1
                         # 6. Apply Best Plate
                         if best_plate:
+                            if is_fallback_used:
+                                fallback_meal_slots += 1
                             stats["acceptance_stats"]["total_accepted"] += 1
                             plate_p = sum(float(i['nutrition']['protein']) for i in best_plate)
                             plate_c = sum(float(i['nutrition']['calories']) for i in best_plate)
@@ -430,12 +540,16 @@ class WeeklyOptimizer:
                             protein_source = best_plate[0]['semantics'].get('protein_source')
                             carb_source = best_plate[0]['semantics'].get('carb_source')
                             vegetables = best_plate[0]['semantics'].get('vegetables', [])
-                            cuisine = best_plate[0]['semantics'].get('cuisine')
+                            cuisine = self._get_meal_cuisine(best_plate)
                             cooking_style = best_plate[0]['semantics'].get('cooking_style')
 
                             # Update daily context with this meal's ingredients
                             daily_context.record_meal(best_plate)
                             
+                            # Attach score breakdown to selected items
+                            for item in best_plate:
+                                item["score_breakdown"] = best_score_dict.get("breakdown", {})
+
                             # Compute Meal Signature
                             sig_parts = []
                             for item in best_plate:
@@ -444,6 +558,13 @@ class WeeklyOptimizer:
                                 sig_parts.append(f"{cat}-{icuisine}")
                             sig_parts.sort()
                             meal_signature = "|".join(sig_parts)
+
+                            breakfast_category = None
+                            if meal_type.lower() == 'breakfast':
+                                for item in best_plate:
+                                    breakfast_category = item.get('semantics', {}).get('breakfast_category')
+                                    if breakfast_category:
+                                        break
 
                             self.variety_tracker.record_meal_selection(
                                 meal_id=meal_id,
@@ -456,14 +577,21 @@ class WeeklyOptimizer:
                                 cooking_style=cooking_style,
                                 meal_signature=meal_signature,
                                 food_ids=[str(i.get('food_id', i.get('food_name', ''))).lower() for i in best_plate],
+                                breakfast_category=breakfast_category,
                             )
                             
                             for item in best_plate:
-                                family = item['semantics'].get('family', 'other')
+                                family = item['semantics'].get('dish_family') or item['semantics'].get('family', 'other')
                                 self.variety_tracker.record_food(item['food_id'], family, day_num)
                         else:
-                            logger.warning(f"No valid candidates found for {meal_type} on day {day_num} (failed per-meal constraints)")
-                            day_plan[meal_type] = []
+                            logger.warning(f"No strict candidates found for {meal_type} on day {day_num}; using best-effort plate")
+                            if best_effort_plate:
+                                # Use best available candidate even if it didn't pass all strict constraints
+                                day_plan[meal_type] = best_effort_plate
+                                logger.info(f"[{day_key} - {meal_type}] Best-effort plate applied: {[i.get('food_name') for i in best_effort_plate]}")
+                            else:
+                                logger.error(f"No candidates at all for {meal_type} on day {day_num}: meal left empty")
+                                day_plan[meal_type] = []
                     
                     # 8. Strict Per-Day Validation
                     target_cal = daily_target["calories"]
@@ -484,15 +612,15 @@ class WeeklyOptimizer:
                     _dv = NUTRITION_RULES.get("daily_validator", {})
                     _dv_cal = _dv.get("calories", {})
                     _dv_pro = _dv.get("protein", {})
-                    if attempts <= 2:
-                        allowed_cal_var = _dv_cal.get("first_attempt", 0.12)
-                        allowed_pro_var = _dv_pro.get("first_attempt", 0.12)
-                    elif attempts <= 4:
-                        allowed_cal_var = _dv_cal.get("second_attempt", 0.15)
-                        allowed_pro_var = _dv_pro.get("second_attempt", 0.15)
+                    if attempts >= max_daily_attempts:
+                        allowed_cal_var = _dv_cal.get("final", 0.08)
+                        allowed_pro_var = _dv_pro.get("final", 0.08)
+                    elif attempts <= 2:
+                        allowed_cal_var = _dv_cal.get("first_attempt", 0.03)
+                        allowed_pro_var = _dv_pro.get("first_attempt", 0.03)
                     else:
-                        allowed_cal_var = _dv_cal.get("final", 0.20)
-                        allowed_pro_var = _dv_pro.get("final", 0.20)
+                        allowed_cal_var = _dv_cal.get("second_attempt", 0.05)
+                        allowed_pro_var = _dv_pro.get("second_attempt", 0.05)
 
                     if cal_diff_pct <= allowed_cal_var and pro_diff_pct <= allowed_pro_var:
                         day_plan_valid = True
@@ -521,7 +649,7 @@ class WeeklyOptimizer:
                                 protein_source = best_plate[0]['semantics'].get('protein_source')
                                 carb_source = best_plate[0]['semantics'].get('carb_source')
                                 vegetables = best_plate[0]['semantics'].get('vegetables', [])
-                                cuisine = best_plate[0]['semantics'].get('cuisine')
+                                cuisine = self._get_meal_cuisine(best_plate)
                                 cooking_style = best_plate[0]['semantics'].get('cooking_style')
                                 
                                 # Compute Meal Signature
@@ -532,6 +660,13 @@ class WeeklyOptimizer:
                                     sig_parts.append(f"{cat}-{icuisine}")
                                 sig_parts.sort()
                                 meal_signature = "|".join(sig_parts)
+
+                                breakfast_category = None
+                                if meal_type.lower() == 'breakfast':
+                                    for item in best_plate:
+                                        breakfast_category = item.get('semantics', {}).get('breakfast_category')
+                                        if breakfast_category:
+                                            break
 
                                 self.variety_tracker.record_meal_selection(
                                     meal_id=meal_id,
@@ -544,9 +679,10 @@ class WeeklyOptimizer:
                                     cooking_style=cooking_style,
                                     meal_signature=meal_signature,
                                     food_ids=[str(i.get('food_id', i.get('food_name', ''))).lower() for i in best_plate],
+                                    breakfast_category=breakfast_category,
                                 )
                                 for item in best_plate:
-                                    family = item['semantics'].get('family', 'other')
+                                    family = item['semantics'].get('dish_family') or item['semantics'].get('family', 'other')
                                     self.variety_tracker.record_food(item['food_id'], family, day_num)
                                     
                 if not best_day_plan:
@@ -560,6 +696,30 @@ class WeeklyOptimizer:
                 week_diff_score += best_combined_diff
             # ── end of per-day loop ──────────────────────────────────────────────
             
+            # Calculate duration and stats, log structured weekly summary
+            generation_duration = time.perf_counter() - start_time
+            total_generated = stats["acceptance_stats"]["total_generated"]
+            total_accepted = stats["acceptance_stats"]["total_accepted"]
+            acceptance_rate = (total_accepted / total_generated * 100.0) if total_generated > 0 else 0.0
+            fallback_rate = (fallback_meal_slots / total_meal_slots * 100.0) if total_meal_slots > 0 else 0.0
+            
+            logger.info(
+                "\n"
+                "==================================================\n"
+                "                  WEEKLY_SUMMARY                  \n"
+                "==================================================\n"
+                f"  duration_seconds:           {generation_duration:.3f}\n"
+                f"  total_meals:                {total_meal_slots}\n"
+                f"  fallback_meals:             {fallback_meal_slots}\n"
+                f"  fallback_rate:              {fallback_rate:.2f}%\n"
+                f"  total_generated_candidates: {total_generated}\n"
+                f"  total_accepted_candidates:  {total_accepted}\n"
+                f"  acceptance_rate:            {acceptance_rate:.2f}%\n"
+                f"  recovery_successes:         {stats['acceptance_stats']['recovery_successes']}\n"
+                f"  recovery_failures:          {stats['acceptance_stats']['recovery_failures']}\n"
+                "=================================================="
+            )
+
             # Always return the weekly plan after one full pass! (Never throw away 6 good days just because 1 failed)
             return {"plan": weekly_plan, "stats": stats}
 

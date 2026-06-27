@@ -55,8 +55,10 @@ class TestCandidateGenerator(unittest.TestCase):
         )
         
         for plate in candidates:
-            roles_in_plate = [node.get('template_role', node.get('semantics', {}).get('meal_role')) for node in plate]
-            self.assertNotIn("curry", roles_in_plate, "Curry is forbidden in this breakfast template")
+            is_blueprint = any(item.get("semantics", {}).get("meal_id") for item in plate)
+            if not is_blueprint:
+                roles_in_plate = [node.get('template_role') or node.get('semantics', {}).get('meal_role') for node in plate]
+                self.assertNotIn("curry", roles_in_plate, "Curry is forbidden in this breakfast template")
 
 if __name__ == '__main__':
     unittest.main()

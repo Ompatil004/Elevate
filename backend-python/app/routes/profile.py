@@ -462,10 +462,11 @@ async def update_profile(
         plan_profile = _build_plan_profile(merged_user, user_id)
 
         needs_workout_regen = any(field in WORKOUT_PLAN_FIELDS for field in changed_fields)
+        needs_nutrition_regen = any(field in NUTRITION_PLAN_FIELDS for field in changed_fields)
 
         logger.info(f"[{request_id}] Changed fields: {changed_fields}")
         logger.info(f"[{request_id}] Workout regeneration needed: {needs_workout_regen}")
-        logger.info(f"[{request_id}] Meal plan regeneration will be handled on next GET /api/meal-plan")
+        logger.info(f"[{request_id}] Nutrition regeneration needed: {needs_nutrition_regen}")
 
         plan_cache = _get_plan_cache_if_available()
         if plan_cache and needs_workout_regen:
@@ -522,7 +523,21 @@ async def update_profile(
                     'error': workout_plan_result.get('error')
                 })
 
-
+        if needs_nutrition_regen:
+            w_plan = None
+            if isinstance(workout_plan_result, dict) and workout_plan_result.get('status') == 'success':
+                w_plan = workout_plan_result.get('plan')
+            else:
+                w_plan = existing_user.get('workoutPlan', [])
+            
+            nutrition_plan_result = _generate_nutrition_plan(plan_profile, request_id, w_plan)
+            response_data['regenerated_nutrition'] = nutrition_plan_result
+            if nutrition_plan_result.get('status') == 'error':
+                response_data['errors'].append({
+                    'type': 'nutrition_regeneration',
+                    'message': 'Nutrition plan regeneration failed',
+                    'error': nutrition_plan_result.get('error')
+                })
 
         update_payload: Dict[str, Any] = {
             **update_data,
@@ -541,6 +556,55 @@ async def update_profile(
                 'workoutPlanGeneratedAt': _utcnow(),
                 'workoutPlanRegenerated': True,
             })
+
+        if isinstance(nutrition_plan_result, dict) and nutrition_plan_result.get('status') == 'success':
+            update_payload.update({
+                'latestNutritionPlan': nutrition_plan_result['plan'],
+                'nutritionPlanGeneratedAt': _utcnow(),
+                'nutritionPlanRegenerated': True,
+            })
+            try:
+                from app.routes.meal_plan import _archive_old_plans, _generate_profile_hash, ENGINE_VERSION, DATASET_VERSION
+                from app.db import get_weekly_meal_plans_collection
+                
+                meal_plan_data = nutrition_plan_result['plan']
+                weekly_plan = meal_plan_data.get("weekly_plan", meal_plan_data)
+                shopping_list = meal_plan_data.get("shopping_list", {})
+                
+                _DAY_KEY_MAP = {
+                    "Day_1": "Monday",  "Day_2": "Tuesday", "Day_3": "Wednesday",
+                    "Day_4": "Thursday","Day_5": "Friday",  "Day_6": "Saturday",
+                    "Day_7": "Sunday"
+                }
+                if isinstance(weekly_plan, dict) and any(k in _DAY_KEY_MAP for k in weekly_plan):
+                    weekly_plan = {_DAY_KEY_MAP.get(k, k): v for k, v in weekly_plan.items()}
+                
+                await _archive_old_plans(user_id)
+                profile_hash = _generate_profile_hash(plan_profile)
+                
+                now = _utcnow()
+                expires_at = now + timedelta(days=7)
+                
+                new_doc = {
+                    "user_id": user_id,
+                    "profile_hash": profile_hash,
+                    "engine_version": ENGINE_VERSION,
+                    "dataset_version": DATASET_VERSION,
+                    "week_start": now.strftime("%Y-%m-%d"),
+                    "week_end": expires_at.strftime("%Y-%m-%d"),
+                    "status": "ACTIVE",
+                    "meal_plan": weekly_plan,
+                    "shopping_list": shopping_list,
+                    "generated_at": now.isoformat(),
+                    "expires_at": expires_at.isoformat(),
+                    "created_by": "NutritionEngineV6"
+                }
+                
+                plans_col = get_weekly_meal_plans_collection()
+                await plans_col.insert_one(new_doc)
+                logger.info(f"[{request_id}] Saved regenerated meal plan to weekly_meal_plans collection")
+            except Exception as mp_exc:
+                logger.error(f"[{request_id}] Failed to save meal plan to weekly_meal_plans: {mp_exc}")
 
 
 
@@ -582,6 +646,9 @@ async def update_profile(
         workout_regen_success = bool(
             isinstance(workout_plan_result, dict) and workout_plan_result.get('status') == 'success'
         )
+        nutrition_regen_success = bool(
+            isinstance(nutrition_plan_result, dict) and nutrition_plan_result.get('status') == 'success'
+        )
 
         response_data['success'] = True
         response_data['message'] = 'Profile updated successfully'
@@ -596,7 +663,7 @@ async def update_profile(
         response_data['profile_changes'] = {
             'changed_fields': changed_fields,
             'workout_regenerated': bool(needs_workout_regen and workout_regen_success),
-            'nutrition_regenerated': False, # Will be regenerated on next fetch
+            'nutrition_regenerated': bool(needs_nutrition_regen and nutrition_regen_success),
         }
 
         # Cold-start onboarding message (empty string when not applicable)
