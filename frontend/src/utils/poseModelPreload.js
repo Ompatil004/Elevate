@@ -1,4 +1,4 @@
-export const FILESET_WASM_URL = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.34/wasm';
+export const FILESET_WASM_URL = '/wasm';
 
 export const POSE_MODEL_CANDIDATES = [
   { model: 'pose_landmarker_heavy', delegate: 'GPU' },
