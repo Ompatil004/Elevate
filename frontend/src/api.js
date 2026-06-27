@@ -619,7 +619,7 @@ export const invalidateWorkoutCache = async (profileData) => {
  * @returns {Promise} axios response
  */
 export const postSessionResult = (payload) =>
-    FitnessAPI.post('/api/workout/session-result', payload, { timeout: 15000 });
+    FitnessAPI.post('/api/workout/session-result', payload);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Priority 3: Daily check-in endpoints
@@ -629,11 +629,11 @@ export const postSessionResult = (payload) =>
  * @param {object} payload - { sleep_hours, water_ml, workout_completed, date? }
  */
 export const saveDailyLog = (payload) =>
-    FitnessAPI.post('/api/daily-log', payload, { timeout: 10000 });
+    FitnessAPI.post('/api/daily-log', payload);
 
 /** Get last 7 daily check-in logs + summary for the current user. */
 export const getWeeklyLogs = () =>
-    FitnessAPI.get('/api/daily-log/week', { timeout: 10000 });
+    FitnessAPI.get('/api/daily-log/week');
 
 // Legacy compatibility exports for activity tracking
 export const logActivityToBackend = (activityData) =>
