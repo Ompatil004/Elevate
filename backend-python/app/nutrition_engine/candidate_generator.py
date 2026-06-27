@@ -350,7 +350,15 @@ class CandidateGenerator:
             "jeera rice": "cumin pulao",
             "cucumber salad": "cucumber tomato salad",
             "multigrain bread": "whole wheat bread",
-            "missi roti": "missi roti"
+            "missi roti": "missi roti",
+            "phulka": "chapati",
+            "curd (dahi)": "greek yogurt",
+            "scrambled eggs": "scrambled egg",
+            "butter chicken": "chicken curry",
+            "kadhai chicken": "chicken curry",
+            "karahi chicken": "chicken curry",
+            "mixed vegetable curry": "mixed vegetable stew",
+            "mixed vegetable sabzi": "mixed vegetable stew",
         }
         if query_lower in aliases:
             # Re-run fuzzy match with the alias

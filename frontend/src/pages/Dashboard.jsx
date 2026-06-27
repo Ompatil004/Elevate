@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useNotification } from '../components/NotificationProvider';
 import { useTheme } from '../context/ThemeContext';
 import ConfirmDialog from '../components/ConfirmDialog';
-import { getProfile, saveTrends, getTrends, logActivityToBackend, getRecentActivities, syncActivitiesToBackend, saveDailyLog, getWeeklyLogs, generateWorkout } from '../api';
+import { getProfile, saveTrends, getTrends, logActivityToBackend, getRecentActivities, syncActivitiesToBackend, saveDailyLog, getWeeklyLogs, getWeeklyWorkoutPlan } from '../api';
 import Navbar from '../components/Navbar';
 import { preloadPoseAssets } from '../utils/poseModelPreload';
 import { QUOTES } from '../data/quotes';
@@ -903,10 +903,10 @@ function Dashboard({ onLogout }) {
 
             if (needsWarmup) {
               console.log('[Dashboard] Warming up workout plan cache in background...');
-              generateWorkout(profileData).then((workoutResponse) => {
-                const generatedPlan = Array.isArray(workoutResponse?.data?.workout) ? workoutResponse.data.workout : [];
-                if (generatedPlan.length > 0) {
-                  localStorage.setItem('workoutPlan', JSON.stringify(generatedPlan));
+              getWeeklyWorkoutPlan().then((workoutResponse) => {
+                const plan = workoutResponse?.data?.plan || workoutResponse?.data?.data?.plan || [];
+                if (plan.length > 0) {
+                  localStorage.setItem('workoutPlan', JSON.stringify(plan));
                   localStorage.setItem('workoutPlanTimestamp', new Date().toISOString());
                   localStorage.setItem('workoutPlanVersion', WORKOUT_PLAN_CACHE_VERSION);
                   console.log('[Dashboard] Background workout cache pre-warmed successfully');

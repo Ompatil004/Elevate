@@ -256,18 +256,20 @@ def _get_swap_limit_state(existing_metadata: Optional[Dict[str, Any]]) -> Dict[s
     swap_limits = existing_metadata.get("swap_limits") if isinstance(existing_metadata.get("swap_limits"), dict) else {}
     history = _normalize_swap_history(existing_metadata.get("swap_history"))
 
+    current_week_start = _current_week_start_date_iso()
+    # Only count history items from the current week
+    current_week_history = [
+        entry for entry in history 
+        if str(entry.get("timestamp", "")) >= current_week_start
+    ]
+
     try:
         max_swaps = int(swap_limits.get("max_swaps_per_week", DEFAULT_WEEKLY_SWAP_LIMIT))
         max_swaps = max(1, max_swaps)
     except Exception:
         max_swaps = DEFAULT_WEEKLY_SWAP_LIMIT
 
-    try:
-        stored_swaps_used = int(swap_limits.get("swaps_used", 0) or 0)
-    except Exception:
-        stored_swaps_used = 0
-
-    swaps_used = max(len(history), stored_swaps_used)
+    swaps_used = len(current_week_history)
     swaps_remaining = max(0, max_swaps - swaps_used)
 
     return {
@@ -334,13 +336,26 @@ def _build_week_metadata(
 ) -> Dict[str, Any]:
     existing_metadata = existing_metadata if isinstance(existing_metadata, dict) else {}
 
-    swap_history = _normalize_swap_history(existing_metadata.get("swap_history"))
-    if isinstance(new_swap_record, dict):
-        swap_history.append(new_swap_record)
-    swap_history = swap_history[-MAX_SWAP_HISTORY_ITEMS:]
+    # Self-healing: If the plan contains no swapped days, we reset the week's swap history.
+    # This prevents users from getting locked out of swaps if their plan was regenerated/reset.
+    has_swaps_in_plan = any(day.get("is_swapped") for day in weekly_plan if isinstance(day, dict))
+    if not has_swaps_in_plan and not isinstance(new_swap_record, dict):
+        swap_history = []
+    else:
+        swap_history = _normalize_swap_history(existing_metadata.get("swap_history"))
+        if isinstance(new_swap_record, dict):
+            swap_history.append(new_swap_record)
+        swap_history = swap_history[-MAX_SWAP_HISTORY_ITEMS:]
 
     swap_limits = _get_swap_limit_state(existing_metadata)
-    swap_limits["swaps_used"] = len(swap_history)
+    
+    current_week_start = _current_week_start_date_iso()
+    current_week_history = [
+        entry for entry in swap_history 
+        if str(entry.get("timestamp", "")) >= current_week_start
+    ]
+    
+    swap_limits["swaps_used"] = len(current_week_history)
     swap_limits["swaps_remaining"] = max(0, swap_limits["max_swaps_per_week"] - swap_limits["swaps_used"])
 
     if registration_day_index is None:
@@ -2269,6 +2284,146 @@ async def get_swap_options(
         }
 
 
+def _perform_undo_swap(weekly_plan: List[Dict[str, Any]], day_a_idx: int, day_b_idx: int) -> List[Dict[str, Any]]:
+    import copy
+    plan_copy = [copy.deepcopy(day) for day in weekly_plan]
+    day_a = plan_copy[day_a_idx]
+    day_b = plan_copy[day_b_idx]
+    
+    if day_a.get('type') == 'rest':
+        rest_day = day_a
+        workout_day = day_b
+        rest_idx = day_a_idx
+        workout_idx = day_b_idx
+    else:
+        rest_day = day_b
+        workout_day = day_a
+        rest_idx = day_b_idx
+        workout_idx = day_a_idx
+        
+    rest_day_name = workout_day.get('day', '')
+    rest_day_of_week = workout_day.get('day_of_week', workout_idx)
+    
+    restored_rest_day = {
+        **workout_day,
+        'type': 'rest',
+        'focus': 'Rest Day',
+        'warmup': [],
+        'exercises': [],
+        'day': rest_day_name,
+        'day_of_week': rest_day_of_week,
+        'intensity': 0,
+        'is_placeholder': False,
+        'can_access': True,
+        'is_swapped': False,
+        'swapped_from': None,
+        'swapped_to': None,
+        'is_original_rest': True,
+        'is_original_workout': False,
+        'is_swappable': True,
+        'is_completed': False,
+        'exercises_completed': 0,
+        'exercises_total': 0,
+        'note': 'Rest Day',
+    }
+    restored_rest_day.pop('exercises_completed_detail', None)
+    
+    workout_day_name = rest_day.get('day', '')
+    workout_day_of_week = rest_day.get('day_of_week', rest_idx)
+    
+    restored_workout_day = {
+        **rest_day,
+        'type': 'workout',
+        'focus': workout_day.get('focus', 'Workout'),
+        'warmup': workout_day.get('warmup', []),
+        'exercises': workout_day.get('exercises', []),
+        'day': workout_day_name,
+        'day_of_week': workout_day_of_week,
+        'intensity': workout_day.get('intensity', 1),
+        'is_placeholder': False,
+        'can_access': True,
+        'is_swapped': False,
+        'swapped_from': None,
+        'swapped_to': None,
+        'is_original_rest': False,
+        'is_original_workout': True,
+        'is_swappable': True,
+        'is_completed': False,
+        'exercises_completed': 0,
+        'exercises_total': len(workout_day.get('exercises', [])),
+        'note': workout_day.get('focus', 'Workout'),
+    }
+    
+    plan_copy[rest_idx] = restored_workout_day
+    plan_copy[workout_idx] = restored_rest_day
+    return plan_copy
+
+
+async def _persist_undo_swap_result(
+    email: str,
+    swapped_plan: List[Dict[str, Any]],
+    day_a_idx: int,
+    day_b_idx: int,
+    existing_user: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    user_doc = existing_user or await _find_user_by_email(email)
+    if not user_doc:
+        return _build_week_metadata(swapped_plan)
+
+    registration_day_index = _safe_day_index(user_doc.get("firstWorkoutDay"))
+    is_new_user_week = _is_registration_in_current_week(user_doc.get("registrationDate"))
+
+    existing_metadata = user_doc.get("workoutWeekMetadata") or {}
+    existing_history = _normalize_swap_history(existing_metadata.get("swap_history"))
+    
+    new_history = []
+    removed = False
+    for entry in existing_history:
+        from_day = entry.get("from_day")
+        to_day = entry.get("to_day")
+        if not removed and (
+            (from_day == day_a_idx and to_day == day_b_idx) or
+            (from_day == day_b_idx and to_day == day_a_idx)
+        ):
+            removed = True
+            continue
+        new_history.append(entry)
+
+    temp_metadata = {**existing_metadata, "swap_history": new_history}
+    
+    if "swap_limits" in temp_metadata and isinstance(temp_metadata["swap_limits"], dict):
+        current_week_start = _current_week_start_date_iso()
+        current_week_history = [
+            e for e in new_history 
+            if str(e.get("timestamp", "")) >= current_week_start
+        ]
+        temp_metadata["swap_limits"]["swaps_used"] = len(current_week_history)
+        temp_metadata["swap_limits"]["swaps_remaining"] = max(0, temp_metadata["swap_limits"]["max_swaps_per_week"] - len(current_week_history))
+
+    week_metadata = _build_week_metadata(
+        swapped_plan,
+        registration_day_index=registration_day_index,
+        is_new_user_week=is_new_user_week,
+        existing_metadata=temp_metadata,
+    )
+
+    await _persist_workout_plan_and_metadata({"_id": user_doc.get("_id")}, swapped_plan, week_metadata)
+    
+    try:
+        db = get_database()
+        await db.swap_history.delete_one({
+            "user_id": user_doc.get("_id"),
+            "$or": [
+                {"from_day_index": day_a_idx, "to_day_index": day_b_idx},
+                {"from_day_index": day_b_idx, "to_day_index": day_a_idx}
+            ]
+        })
+    except Exception as err:
+        logger.warning("Unable to delete swap audit log for undo: %s", err)
+
+    return week_metadata
+
+
 # ==========================================
 # REST DAY SWAP ENDPOINT
 # ==========================================
@@ -2327,10 +2482,6 @@ async def swap_rest_day(
             raise HTTPException(status_code=404, detail="User not found")
 
         workout_runtime = _ensure_workout_engine_ready()
-
-        swap_limit_state = _get_swap_limit_state(user_doc.get("workoutWeekMetadata"))
-        if swap_limit_state["swaps_remaining"] <= 0:
-            raise HTTPException(status_code=400, detail="Weekly swap limit reached")
         
         # Validate current plan
         if not request.current_plan or len(request.current_plan) != 7:
@@ -2338,6 +2489,48 @@ async def swap_rest_day(
 
         if any(not isinstance(day, dict) for day in request.current_plan):
             raise HTTPException(status_code=400, detail="current_plan must be an array of day objects")
+            
+        # Check if it is an undo swap
+        rest_day = request.current_plan[request.rest_day_index]
+        is_undo = False
+        target_workout_idx = None
+        
+        if rest_day.get('is_swapped'):
+            swapped_from_idx = rest_day.get('swapped_from')
+            if isinstance(swapped_from_idx, int) and 0 <= swapped_from_idx <= 6:
+                other_day = request.current_plan[swapped_from_idx]
+                if other_day.get('is_swapped') and other_day.get('type') == 'workout':
+                    is_undo = True
+                    target_workout_idx = swapped_from_idx
+
+        if is_undo:
+            swapped_plan = _perform_undo_swap(request.current_plan, request.rest_day_index, target_workout_idx)
+            swapped_days = {
+                "rest_day_index": request.rest_day_index,
+                "workout_day_index": target_workout_idx,
+            }
+            week_metadata = await _persist_undo_swap_result(
+                str(user_doc.get("email") or ""),
+                swapped_plan,
+                request.rest_day_index,
+                target_workout_idx,
+                existing_user=user_doc,
+            )
+            return _api_success(
+                "Swap undone successfully",
+                data={
+                    "workout": swapped_plan,
+                    "swapped_days": swapped_days,
+                    "week_metadata": week_metadata,
+                },
+                workout=swapped_plan,
+                swapped_days=swapped_days,
+                week_metadata=week_metadata,
+            )
+
+        swap_limit_state = _get_swap_limit_state(user_doc.get("workoutWeekMetadata"))
+        if swap_limit_state["swaps_remaining"] <= 0:
+            raise HTTPException(status_code=400, detail="Weekly swap limit reached")
         
         # Check if the specified day is actually a rest day
         rest_day = request.current_plan[request.rest_day_index]
@@ -2450,11 +2643,8 @@ async def swap_workout_to_rest(
             raise HTTPException(status_code=404, detail="User not found")
 
         workout_runtime = _ensure_workout_engine_ready()
-
-        swap_limit_state = _get_swap_limit_state(user_doc.get("workoutWeekMetadata"))
-        if swap_limit_state["swaps_remaining"] <= 0:
-            raise HTTPException(status_code=400, detail="Weekly swap limit reached")
-
+        
+        # Validate current plan
         if not request.current_plan or len(request.current_plan) != 7:
             raise HTTPException(status_code=400, detail="current_plan must contain exactly 7 days")
         if any(not isinstance(day, dict) for day in request.current_plan):
@@ -2466,6 +2656,40 @@ async def swap_workout_to_rest(
 
         source_day = request.current_plan[request.workout_day_index]
         target_day = request.current_plan[request.target_rest_day_index]
+        
+        is_undo = False
+        if source_day.get('is_swapped') and target_day.get('is_swapped'):
+            if source_day.get('swapped_from') == request.target_rest_day_index and target_day.get('swapped_from') == request.workout_day_index:
+                is_undo = True
+
+        if is_undo:
+            swapped_plan = _perform_undo_swap(request.current_plan, request.workout_day_index, request.target_rest_day_index)
+            swapped_days = {
+                "workout_day_index": request.workout_day_index,
+                "rest_day_index": request.target_rest_day_index,
+            }
+            week_metadata = await _persist_undo_swap_result(
+                str(user_doc.get("email") or ""),
+                swapped_plan,
+                request.workout_day_index,
+                request.target_rest_day_index,
+                existing_user=user_doc,
+            )
+            return _api_success(
+                "Swap undone successfully",
+                data={
+                    "workout": swapped_plan,
+                    "swapped_days": swapped_days,
+                    "week_metadata": week_metadata,
+                },
+                workout=swapped_plan,
+                swapped_days=swapped_days,
+                week_metadata=week_metadata,
+            )
+
+        swap_limit_state = _get_swap_limit_state(user_doc.get("workoutWeekMetadata"))
+        if swap_limit_state["swaps_remaining"] <= 0:
+            raise HTTPException(status_code=400, detail="Weekly swap limit reached")
 
         if source_day.get('type') != 'workout':
             raise HTTPException(status_code=400, detail="Source day is not a workout day")

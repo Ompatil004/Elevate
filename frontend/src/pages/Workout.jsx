@@ -227,7 +227,7 @@ const buildWeekMetadataFromPlan = (weeklyPlan = [], existingMetadata = null) => 
   }, { rest_days: 0, workout_days: 0 });
 
   const maxSwapsPerWeek = Math.max(1, Number(existingSwapLimits.max_swaps_per_week || 3));
-  const swapsUsed = existingSwapHistory.length;
+  const swapsUsed = typeof existingSwapLimits.swaps_used === 'number' ? existingSwapLimits.swaps_used : existingSwapHistory.length;
 
   return {
     week_start_date: metadata.week_start_date || getWeekStartDateIso(),
@@ -1506,7 +1506,7 @@ const Workout = () => {
   const swapHistory = Array.isArray(weekMetadata?.swap_history) ? weekMetadata.swap_history : [];
   const swapLimits = {
     max: Number(weekMetadata?.swap_limits?.max_swaps_per_week || 3),
-    used: Number(weekMetadata?.swap_limits?.swaps_used || swapHistory.length || 0),
+    used: typeof weekMetadata?.swap_limits?.swaps_used === 'number' ? weekMetadata.swap_limits.swaps_used : (swapHistory.length || 0),
     remaining: Number(
       weekMetadata?.swap_limits?.swaps_remaining
       ?? Math.max(0, Number(weekMetadata?.swap_limits?.max_swaps_per_week || 3) - (swapHistory.length || 0))
@@ -1704,6 +1704,10 @@ const Workout = () => {
         setToStorage('workoutPlan', swappedPlan);
         setToStorage('workoutPlanTimestamp', new Date().toISOString());
         setToStorage(StorageKeys.WORKOUT_WEEK_METADATA, updatedWeekMetadata);
+
+        // Auto-redirect to weekly schedule by clearing activeDay/activeExercise
+        setActiveDay(null);
+        setActiveExercise(null);
 
         const targetDayLabel = weekdayNames[selectedTargetRestDayIndex] || `Day ${selectedTargetRestDayIndex + 1}`;
         showSuccess(`Workout moved successfully. Your workout is now on ${targetDayLabel}.`, 3500);

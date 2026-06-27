@@ -13,8 +13,8 @@ from bson import ObjectId
 
 router = APIRouter(prefix="/api/meal-plan", tags=["meal-plan"])
 
-ENGINE_VERSION = "6.0.0"
-DATASET_VERSION = "nutrition_v4"
+ENGINE_VERSION = "6.1.0"
+DATASET_VERSION = "nutrition_v4.1"
 
 def _utcnow() -> datetime:
     return datetime.now(timezone.utc)
