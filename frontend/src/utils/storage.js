@@ -81,6 +81,36 @@ const SESSION_PREFERRED_KEYS = new Set([
 const _getPrimaryStore = (key) => (SESSION_PREFERRED_KEYS.has(key) ? sessionStorage : localStorage);
 const _getFallbackStore = (key) => (SESSION_PREFERRED_KEYS.has(key) ? localStorage : null);
 
+const getUserPrefix = () => {
+  try {
+    const userStr = sessionStorage.getItem('user') || localStorage.getItem('user');
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      if (user && user.email) {
+        return `${user.email}_`;
+      }
+    }
+  } catch (e) {
+    // Ignore
+  }
+  return '';
+};
+
+const getNamespacedKey = (key) => {
+  const prefix = getUserPrefix();
+  if (prefix && !key.startsWith(prefix)) {
+    const isUserSpecific = (SESSION_PREFERRED_KEYS.has(key) && key !== 'user') || 
+                           key.startsWith('notification_') || 
+                           key.startsWith('reminder_') || 
+                           key.startsWith('workout_done_') ||
+                           key === 'active_notifications';
+    if (isUserSpecific) {
+      return `${prefix}${key}`;
+    }
+  }
+  return key;
+};
+
 /**
  * Returns a formatted date string (YYYY-MM-DD) strictly in Indian Standard Time (Asia/Kolkata)
  */
@@ -113,16 +143,17 @@ export const getTodayStr = () => getLocalDateStr();
  */
 export const getFromStorage = (key, defaultValue = null) => {
   try {
+    const resolvedKey = getNamespacedKey(key);
     const primary = _getPrimaryStore(key);
-    let item = primary.getItem(key);
+    let item = primary.getItem(resolvedKey);
     if (item === null) {
       const fallback = _getFallbackStore(key);
       if (fallback) {
-        item = fallback.getItem(key);
+        item = fallback.getItem(resolvedKey);
         // Migrate legacy localStorage value into session storage on read.
         if (item !== null) {
-          primary.setItem(key, item);
-          fallback.removeItem(key);
+          primary.setItem(resolvedKey, item);
+          fallback.removeItem(resolvedKey);
         }
       }
     }
@@ -150,14 +181,15 @@ export const getFromStorage = (key, defaultValue = null) => {
  */
 export const setToStorage = (key, value) => {
   try {
+    const resolvedKey = getNamespacedKey(key);
     const stringValue = typeof value === 'string' ? value : JSON.stringify(value);
     const primary = _getPrimaryStore(key);
-    primary.setItem(key, stringValue);
+    primary.setItem(resolvedKey, stringValue);
 
     // Purge old localStorage copies when sensitive keys are session-backed.
     const fallback = _getFallbackStore(key);
     if (fallback) {
-      fallback.removeItem(key);
+      fallback.removeItem(resolvedKey);
     }
     return true;
   } catch (error) {
@@ -177,9 +209,10 @@ export const setToStorage = (key, value) => {
  */
 export const removeFromStorage = (key) => {
   try {
-    _getPrimaryStore(key).removeItem(key);
+    const resolvedKey = getNamespacedKey(key);
+    _getPrimaryStore(key).removeItem(resolvedKey);
     const fallback = _getFallbackStore(key);
-    if (fallback) fallback.removeItem(key);
+    if (fallback) fallback.removeItem(resolvedKey);
     return true;
   } catch (error) {
     console.warn(`[Storage] Error removing key "${key}":`, error.message);

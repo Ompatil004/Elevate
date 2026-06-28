@@ -8,7 +8,8 @@
  *  onLogout      (fn)     — called when user clicks Logout
  *  rightContent  (node)   — optional extra icon buttons to insert before Logout
  */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { getFromStorage, setToStorage } from '../utils/storage';
 
 const getStyles = (isDark) => ({
   navbar: {
@@ -99,6 +100,43 @@ const getStyles = (isDark) => ({
     transition: 'all 0.2s ease',
     height: 'clamp(36px, 6vw, 42px)',
   },
+  iconButton: {
+    width: 'clamp(36px, 6vw, 42px)',
+    height: 'clamp(36px, 6vw, 42px)',
+    borderRadius: '12px',
+    background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
+    border: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.08)',
+    color: isDark ? '#fff' : '#18181b',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    fontSize: '18px',
+    transition: 'all 0.2s',
+    position: 'relative'
+  },
+  notifDropdown: {
+    position: 'absolute',
+    top: '60px',
+    right: '0px',
+    width: 'min(92vw, 340px)',
+    background: isDark ? 'rgba(24,24,27,0.95)' : '#fff',
+    border: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.08)',
+    borderRadius: '16px',
+    padding: '16px',
+    zIndex: 2000,
+    boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+    animation: 'slideDown 0.2s ease-out'
+  },
+  notifItem: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '10px 0',
+    borderBottom: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.08)',
+    fontSize: '13px',
+    color: isDark ? '#e4e4e7' : '#18181b'
+  },
   logoutText: {
     fontSize: '12px',
     fontWeight: '700',
@@ -108,6 +146,7 @@ const getStyles = (isDark) => ({
 });
 
 const responsiveNavbarStyles = `
+  @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
   .desktop-nav { display: flex; }
   .mobile-menu-btn { display: none; }
   .mobile-drawer {
@@ -189,6 +228,41 @@ const NAV_ITEMS = [
 export default function Navbar({ navigate, activePage, onLogout, rightContent, isDark = true }) {
   const s = getStyles(isDark);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showNotif, setShowNotif] = useState(false);
+  const [notifications, setNotifications] = useState(() => getFromStorage('active_notifications', []));
+  const notifRef = useRef(null);
+
+  // Sync notifications with localStorage
+  useEffect(() => {
+    const syncNotifs = () => {
+      setNotifications(getFromStorage('active_notifications', []));
+    };
+    syncNotifs();
+    window.addEventListener('storage', syncNotifs);
+    const interval = setInterval(syncNotifs, 2000);
+    return () => {
+      window.removeEventListener('storage', syncNotifs);
+      clearInterval(interval);
+    };
+  }, []);
+
+  // Dismiss notification
+  const dismissNotification = (id) => {
+    const updated = notifications.filter((n) => n.id !== id);
+    setNotifications(updated);
+    setToStorage('active_notifications', updated);
+  };
+
+  // Close notifications dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (notifRef.current && !notifRef.current.contains(event.target)) {
+        setShowNotif(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Close menu when clicking escape
   useEffect(() => {
@@ -263,6 +337,89 @@ export default function Navbar({ navigate, activePage, onLogout, rightContent, i
 
         {/* Right-side controls */}
         <div style={s.navRight}>
+          {/* Bell Icon & Notifications Dropdown */}
+          <div style={{ position: 'relative' }} ref={notifRef}>
+            <button
+              style={s.iconButton}
+              className="icon-hover"
+              onClick={() => setShowNotif(!showNotif)}
+              title="Notifications"
+            >
+              🔔
+              {notifications.length > 0 && (
+                <span style={{
+                  position: 'absolute',
+                  top: '-4px',
+                  right: '-4px',
+                  background: '#ef4444',
+                  color: '#fff',
+                  borderRadius: '50%',
+                  width: '18px',
+                  height: '18px',
+                  fontSize: '10px',
+                  fontWeight: '700',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 0 10px rgba(239, 68, 68, 0.4)'
+                }}>
+                  {notifications.length}
+                </span>
+              )}
+            </button>
+            {showNotif && (
+              <div style={s.notifDropdown}>
+                <div style={{ fontSize: '14px', fontWeight: '700', color: isDark ? '#fff' : '#18181b', marginBottom: '12px' }}>
+                  Notifications
+                </div>
+                {notifications.length === 0 ? (
+                  <div style={{ ...s.notifItem, borderBottom: 'none', color: isDark ? '#a1a1aa' : '#71717a', fontSize: '12px', justifyContent: 'center', marginTop: '8px' }}>
+                    No new alerts
+                  </div>
+                ) : (
+                  notifications.map((n, idx) => (
+                    <div key={n.id} style={{
+                      ...s.notifItem,
+                      borderBottom: idx === notifications.length - 1 ? 'none' : `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'}`,
+                      padding: '8px 0',
+                      fontSize: '12px',
+                      color: isDark ? '#e4e4e7' : '#18181b',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      width: '100%',
+                      gap: '8px'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
+                        <span>{n.type === 'error' ? '❌' : n.type === 'warning' ? '⚠️' : 'ℹ️'}</span>
+                        <span style={{ lineHeight: '1.4' }}>{n.message}</span>
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          dismissNotification(n.id);
+                        }}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: isDark ? '#a1a1aa' : '#71717a',
+                          cursor: 'pointer',
+                          fontSize: '14px',
+                          padding: '0 4px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                        className="icon-hover"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
           {rightContent}
           <div
             style={s.logoutBtn}

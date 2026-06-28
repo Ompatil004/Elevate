@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useNotification } from "../components/NotificationProvider";
 import { useTheme } from "../context/ThemeContext";
-import { getProfile, generateNutritionPlan, getNutritionSwapOptions, generateWorkout, saveUserMealToNode, getMealHistory, saveMealHistory, saveTrends } from "../api";
+import { getProfile, generateNutritionPlan, getNutritionSwapOptions, generateWorkout, saveUserMealToNode, getMealHistory, saveMealHistory, saveTrends, logActivityToBackend } from "../api";
 import { StorageKeys, getFromStorage, setToStorage, logoutSafe, getLocalDateStr, safeJSONParse } from "../utils/storage";
 import Navbar from "../components/Navbar";
 import ConfirmDialog from "../components/ConfirmDialog";
@@ -599,6 +599,17 @@ function Nutrition() {
                 fat: totals.fat,
               });
               console.log('✅ Macro sync signal stored for Dashboard:', totals, '| mealsCount:', mealsCount);
+
+              // Direct activity logging backup
+              const mealCal = meal.totals.calories;
+              const actDetails = mealCal ? `${Math.round(mealCal)} cal consumed` : 'Meal logged';
+              logActivityToBackend({
+                activity_type: 'meal',
+                name: 'Meal Completed',
+                details: actDetails,
+                type: 'meal',
+                timestamp: new Date().toISOString()
+              }).catch(err => console.error("Failed to log activity backup on frontend", err));
             }
           }).catch(err => console.error("Failed to sync meal to node db", err));
 
@@ -1298,7 +1309,7 @@ function HistoryPanel({ mealHistory, expandedDates, setExpandedDates, expandedMe
   );
 }
 
-export function getFallbackServing(nameStr, calValue) {
+function getFallbackServing(nameStr, calValue) {
   const cal = calValue || 0;
   const name = (nameStr || '').toLowerCase();
   

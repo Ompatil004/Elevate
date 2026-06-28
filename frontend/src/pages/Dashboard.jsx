@@ -2011,7 +2011,11 @@ function Dashboard({ onLogout }) {
   const [workoutProgress, setWorkoutProgress] = useState(0); // 0-1 ratio: exercises completed / total
   const [workoutIntensity] = useState(0);
   const [recoveryScore, setRecoveryScore] = useState(0);
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState(() => getFromStorage('active_notifications', []));
+
+  useEffect(() => {
+    setToStorage('active_notifications', notifications);
+  }, [notifications]);
   const [lastNotificationCheck, setLastNotificationCheck] = useState(null);
   const [showWaterCelebration, setShowWaterCelebration] = useState(false);
   const [showSleepCelebration, setShowSleepCelebration] = useState(false);
@@ -2567,7 +2571,13 @@ function Dashboard({ onLogout }) {
              const dateKey = getLocalDateStr(dateCursor);
              const entry = trendsByDate.get(dateKey);
 
-             if (!entry) break; // No record for this date = streak broken
+             if (!entry) {
+               if (attempts === 0) {
+                 dateCursor.setDate(dateCursor.getDate() - 1);
+                 continue;
+               }
+               break; // No record for this date = streak broken
+             }
 
              const mealDone = !!entry.meal_completed;
              const workoutDone = !!entry.workout_completed;
@@ -2578,6 +2588,10 @@ function Dashboard({ onLogout }) {
                currentStreak++;
                dateCursor.setDate(dateCursor.getDate() - 1);
              } else {
+               if (attempts === 0) {
+                 dateCursor.setDate(dateCursor.getDate() - 1);
+                 continue;
+               }
                break;
              }
            }
@@ -2630,6 +2644,10 @@ function Dashboard({ onLogout }) {
                currentStreak++;
                dateCursor.setDate(dateCursor.getDate() - 1);
              } else {
+               if (i === 0) {
+                 dateCursor.setDate(dateCursor.getDate() - 1);
+                 continue;
+               }
                break;
              }
            }
@@ -3118,6 +3136,7 @@ function Dashboard({ onLogout }) {
 
   const checkDailyReminders = () => {
     try {
+      if (loading) return;
       const todayStr = getTodayStr();
       if (lastNotificationCheck === todayStr) return;
       setLastNotificationCheck(todayStr);
@@ -3197,11 +3216,17 @@ function Dashboard({ onLogout }) {
   };
 
   useEffect(() => {
-    checkDailyReminders();
-    const interval = setInterval(checkDailyReminders, 60 * 60 * 1000);
+    if (!loading) {
+      checkDailyReminders();
+    }
+    const interval = setInterval(() => {
+      if (!loading) {
+        checkDailyReminders();
+      }
+    }, 60 * 60 * 1000);
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [loading]);
 
   // Removed: Empty resize listener that did nothing (was a waste of resources)
 
@@ -3744,17 +3769,27 @@ function Dashboard({ onLogout }) {
         // --- WEEK VIEW: 7-day slots Mon-Sun ---
         const series = [0, 0, 0, 0, 0, 0, 0];
 
+        const startOfWeek = new Date();
+        const dow = startOfWeek.getDay();
+        const diffToMon = startOfWeek.getDate() - dow + (dow === 0 ? -6 : 1);
+        startOfWeek.setDate(diffToMon);
+        startOfWeek.setHours(0, 0, 0, 0);
+
         trends.forEach((entry) => {
           const dateObj = new Date(entry?.date);
           if (Number.isNaN(dateObj.getTime())) return;
+          
+          // Exclude entries that are before the start of the current week
+          if (dateObj < startOfWeek) return;
+
           const jsDay = dateObj.getDay();
           const idx = jsDay === 0 ? 6 : jsDay - 1;
 
           if (mode === 'all') {
             const score = calculateOverallTrendScore(entry, calorieGoal, waterGoal);
-            series[idx] = Math.max(series[idx], score);
+            series[idx] = score;
           }
-          else if (mode === 'workout') series[idx] = Math.max(series[idx], entry?.workout_completed ? 100 : (entry?.workout_partial ? 50 : 0));
+          else if (mode === 'workout') series[idx] = entry?.workout_completed ? 100 : (entry?.workout_partial ? 50 : 0);
           else if (mode === 'meal') series[idx] = entry?.calories || (entry?.meal_completed ? 1 : 0);
           else if (mode === 'water') series[idx] = entry?.water_intake || entry?.water_glasses || 0;
           else if (mode === 'sleep') series[idx] = entry?.sleep_duration || entry?.sleep_hours || 0;
@@ -4070,43 +4105,6 @@ function Dashboard({ onLogout }) {
           rightContent={
             <>
               <div style={styles.dateDisplay} className="desktop-nav">{todayDate}</div>
-              <div style={{ position: 'relative' }} ref={notifRef}>
-                <button
-                  style={styles.iconButton}
-                  className="icon-hover"
-                  onClick={() => setShowNotif(!showNotif)}
-                >
-                  🔔
-                </button>
-                {showNotif && (
-                  <div style={styles.notifDropdown}>
-                    <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--app-text)', marginBottom: '12px' }}>
-                      Notifications
-                    </div>
-                    {notifications.length === 0 ? (
-                      <div style={{...styles.notifItem, borderBottom: 'none', color: 'var(--app-text-muted)', fontSize: '12px', justifyContent: 'center', marginTop: '8px'}}>
-                          No new alerts
-                      </div>
-                    ) : (
-                      notifications.map((n, idx) => (
-                        <div key={n.id} style={{
-                            ...styles.notifItem,
-                            borderBottom: idx === notifications.length - 1 ? 'none' : '1px solid var(--app-border)',
-                            padding: '8px 0',
-                            fontSize: '12px',
-                            color: 'var(--app-text)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px'
-                        }}>
-                            <span>{n.type === 'error' ? '❌' : n.type === 'warning' ? '⚠️' : 'ℹ️'}</span>
-                            <span style={{lineHeight: '1.4'}}>{n.message}</span>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                )}
-              </div>
               <button
                 className="theme-toggle-btn"
                 onClick={toggleTheme}

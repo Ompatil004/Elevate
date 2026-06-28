@@ -14,6 +14,8 @@ import {
   swapRestToWorkout,
   swapWorkoutToRest,
   postSessionResult,
+  logActivityToBackend,
+  undoWorkoutSwapHistory,
 } from '../api';
 import { setToStorage, getFromStorage, logoutSafe, StorageKeys, getLocalDateStr } from '../utils/storage';
 import ConfirmDialog from '../components/ConfirmDialog';
@@ -259,7 +261,7 @@ const Workout = () => {
   const autoStartHandledRef = useRef(false);
   const handleExerciseCompleteRef = useRef(null);
   const videoRef = useRef(null);
-  const notifRef = useRef(null);
+
   const { showError, showSuccess } = useNotification();
   const { theme, toggleTheme } = useTheme();
   const [confirmDialog, setConfirmDialog] = useState({ show: false, message: '', onConfirm: null });
@@ -273,7 +275,7 @@ const Workout = () => {
   const [activeExercise, setActiveExercise] = useState(null);
   const [isCameraOn, setIsCameraOn] = useState(false);
   const [stream, setStream] = useState(null);
-  const [showNotif, setShowNotif] = useState(false);
+
   const [showHistory, setShowHistory] = useState(false);
   const [historyTab, setHistoryTab] = useState('workout');
   const [selectedHistory, setSelectedHistory] = useState(null);
@@ -741,15 +743,7 @@ const Workout = () => {
     }
   }, [activeExercise, getExerciseDurationSeconds, isTimedExercise]);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (notifRef.current && !notifRef.current.contains(event.target)) {
-        setShowNotif(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+
 
   const saveLog = async (name, details, dayName = '') => {
     const newLog = {
@@ -1465,6 +1459,34 @@ const Workout = () => {
 
         if (confirmed === true) {
           // User wants to rest - keep the plan as is
+          try {
+            const todayStr = getLocalDateStr();
+            const newLog = {
+              name: 'Rest Day',
+              status: 'Completed',
+              date: new Date().toISOString(),
+              dateStr: todayStr,
+              dayName: weekdayNames[todayIdx],
+              time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              details: 'Rest day taken, recovery & preparation',
+              type: "workout"
+            };
+
+            const historyRes = await saveWorkoutHistory(newLog);
+            if (historyRes?.data?.success) {
+              setPastWorkouts(historyRes.data.history || []);
+            }
+
+            await logActivityToBackend({
+              activity_type: 'workout',
+              name: 'Rest Day',
+              details: 'Rest day taken, recovery & preparation',
+              type: 'workout',
+              timestamp: new Date().toISOString()
+            });
+          } catch (err) {
+            console.error('Failed to log rest day:', err);
+          }
           showSuccess('Rest day kept as planned. Enjoy your recovery!', 2500);
           return;
         }
@@ -1531,10 +1553,51 @@ const Workout = () => {
             // DON'T save a decision - the plan is already swapped from backend
             // The displayPlan local swap logic should NOT apply here
             
-            showSuccess(
-              `Workout moved to today! ${weekdayNames[nextWorkoutIdx]} is now your rest day.`,
-              3500
-            );
+            // Log schedule swap to workout history & activities!
+            const isUndo = response.data?.message?.toLowerCase().includes('undone') || response.data?.message === 'Swap undone successfully';
+            if (isUndo) {
+              try {
+                const historyRes = await undoWorkoutSwapHistory();
+                if (historyRes?.data?.success) {
+                  setPastWorkouts(historyRes.data.history || []);
+                }
+              } catch (err) {
+                console.error('Failed to undo swap in history:', err);
+              }
+              showSuccess('Workout schedule swap undone successfully!', 3500);
+            } else {
+              try {
+                const todayStr = getLocalDateStr();
+                const newLog = {
+                  name: 'Schedule Swap',
+                  status: 'Completed',
+                  date: new Date().toISOString(),
+                  dateStr: todayStr,
+                  dayName: weekdayNames[todayIdx],
+                  time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                  details: `Swapped Rest Day for ${activeDay?.focus || 'Workout'}`,
+                  type: "workout"
+                };
+                const historyRes = await saveWorkoutHistory(newLog);
+                if (historyRes?.data?.success) {
+                  setPastWorkouts(historyRes.data.history || []);
+                }
+
+                await logActivityToBackend({
+                  activity_type: 'workout',
+                  name: 'Schedule Swap',
+                  details: `Swapped Rest Day for ${activeDay?.focus || 'Workout'}`,
+                  type: 'workout',
+                  timestamp: new Date().toISOString()
+                });
+              } catch (err) {
+                console.error('Failed to log swap to history:', err);
+              }
+              showSuccess(
+                `Workout moved to today! ${weekdayNames[nextWorkoutIdx]} is now your rest day.`,
+                3500
+              );
+            }
           } else {
             const errorMsg = response.data?.message || 'Failed to swap rest day';
             showError(errorMsg + '. Please try again.', 4000);
@@ -1643,13 +1706,53 @@ const Workout = () => {
         setToStorage('workoutPlanTimestamp', new Date().toISOString());
         setToStorage(StorageKeys.WORKOUT_WEEK_METADATA, updatedWeekMetadata);
 
-        // Auto-redirect to weekly schedule by clearing activeDay/activeExercise
+        // Log schedule swap to workout history & activities!
+        const isUndo = response.data?.message?.toLowerCase().includes('undone') || response.data?.message === 'Swap undone successfully';
+        if (isUndo) {
+          try {
+            const historyRes = await undoWorkoutSwapHistory();
+            if (historyRes?.data?.success) {
+              setPastWorkouts(historyRes.data.history || []);
+            }
+          } catch (err) {
+            console.error('Failed to undo swap in history:', err);
+          }
+          showSuccess('Workout schedule swap undone successfully!', 3500);
+        } else {
+          try {
+            const todayStr = getLocalDateStr();
+            const targetDayLabel = weekdayNames[selectedTargetRestDayIndex] || `Day ${selectedTargetRestDayIndex + 1}`;
+            const newLog = {
+              name: 'Schedule Swap',
+              status: 'Completed',
+              date: new Date().toISOString(),
+              dateStr: todayStr,
+              dayName: weekdayNames[swapWorkoutDayIndex],
+              time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              details: `Moved workout to a future rest day (${targetDayLabel})`,
+              type: "workout"
+            };
+            const historyRes = await saveWorkoutHistory(newLog);
+            if (historyRes?.data?.success) {
+              setPastWorkouts(historyRes.data.history || []);
+            }
+
+            await logActivityToBackend({
+              activity_type: 'workout',
+              name: 'Schedule Swap',
+              details: `Moved workout to a future rest day (${targetDayLabel})`,
+              type: 'workout',
+              timestamp: new Date().toISOString()
+            });
+          } catch (err) {
+            console.error('Failed to log swap to history:', err);
+          }
+          const targetDayLabel = weekdayNames[selectedTargetRestDayIndex] || `Day ${selectedTargetRestDayIndex + 1}`;
+          showSuccess(`Workout moved successfully. Your workout is now on ${targetDayLabel}.`, 3500);
+        }
+        setShowWorkoutToRestModal(false);
         setActiveDay(null);
         setActiveExercise(null);
-
-        const targetDayLabel = weekdayNames[selectedTargetRestDayIndex] || `Day ${selectedTargetRestDayIndex + 1}`;
-        showSuccess(`Workout moved successfully. Your workout is now on ${targetDayLabel}.`, 3500);
-        setShowWorkoutToRestModal(false);
         setSwapWorkoutDayIndex(null);
         setSelectedTargetRestDayIndex(null);
       } else {
@@ -1980,6 +2083,15 @@ const Workout = () => {
           ? `Partial session: ${completedExercises.length}/${totalCount} exercises completed, ${skippedNames.length} skipped`
           : 'Completed session';
         await saveLog(activeDay.focus || 'Workout', detail, activeDay.day || '');
+        
+        // ALSO log activity to the backend for the Dashboard's Activity section!
+        await logActivityToBackend({
+          activity_type: 'workout',
+          name: activeDay.focus || 'Workout',
+          details: detail,
+          type: 'workout',
+          timestamp: new Date().toISOString()
+        });
       } catch (err) {
         console.error("Workout history save failed:", err);
       }
@@ -2153,17 +2265,6 @@ const Workout = () => {
             <>
               <div style={styles.dateDisplay} className="desktop-nav">{todayDate}</div>
               <button style={styles.iconButton} className="icon-hover" onClick={() => setShowHistory(!showHistory)} title="Past Workouts">🕒</button>
-              <div style={{position:'relative'}} ref={notifRef}>
-                <button style={styles.iconButton} className="icon-hover" onClick={() => setShowNotif(!showNotif)}>🔔</button>
-                {showNotif && (
-                  <div style={styles.notifDropdown}>
-                    <div style={{fontSize:'14px', fontWeight:'700', color:'var(--app-text)', marginBottom:'12px'}}>Notifications</div>
-                    <div style={styles.notifItem}>🔥 You're on a 12-day streak!</div>
-                    <div style={styles.notifItem}>🦵 Leg Day today!</div>
-                    <div style={{...styles.notifItem, borderBottom:'none', color:'var(--app-text-muted)', fontSize:'12px', justifyContent:'center', marginTop:'8px'}}>No new alerts</div>
-                  </div>
-                )}
-              </div>
               <button
                 className="theme-toggle-btn"
                 onClick={toggleTheme}
@@ -2379,12 +2480,30 @@ const Workout = () => {
                       Today's Routine
                       <button
                         style={styles.backBtn}
-                        onClick={() => {
-                          setActiveDay(null);
-                          setActiveExercise(null);
-                          setSkippedExercises(new Set());
-                          setExerciseStatus({});
-                          setCompletedExercisesCount(0);
+                        onClick={async () => {
+                          const hasProgress = Object.values(exerciseStatus).some(s => s === 'completed' || s === 'skipped');
+                          if (hasProgress) {
+                            showConfirmDialog(
+                              'Do you want to save your current workout progress before exiting?',
+                              async (confirmed) => {
+                                if (confirmed) {
+                                  await finishSession(true);
+                                } else {
+                                  setActiveDay(null);
+                                  setActiveExercise(null);
+                                  setSkippedExercises(new Set());
+                                  setExerciseStatus({});
+                                  setCompletedExercisesCount(0);
+                                }
+                              }
+                            );
+                          } else {
+                            setActiveDay(null);
+                            setActiveExercise(null);
+                            setSkippedExercises(new Set());
+                            setExerciseStatus({});
+                            setCompletedExercisesCount(0);
+                          }
                         }}
                       >
                         Exit
@@ -2484,6 +2603,43 @@ const Workout = () => {
                           )}
 
                           {mainExercises.map((exercise, index) => renderExerciseItem(exercise, index, false))}
+                          
+                          {/* END WORKOUT SESSION EARLY BUTTON */}
+                          {Object.values(exerciseStatus).some(s => s === 'completed' || s === 'skipped') && (
+                            <button
+                              onClick={() => {
+                                showConfirmDialog(
+                                  'Are you sure you want to end today\'s workout session and save your progress?',
+                                  async (confirmed) => {
+                                    if (confirmed) {
+                                      await finishSession(true);
+                                    }
+                                  }
+                                );
+                              }}
+                              style={{
+                                width: '100%',
+                                marginTop: '16px',
+                                padding: '12px',
+                                background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '12px',
+                                fontWeight: '700',
+                                fontSize: '13px',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s',
+                                boxShadow: '0 4px 12px rgba(239, 68, 68, 0.2)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '6px'
+                              }}
+                              className="icon-hover"
+                            >
+                              🛑 End Workout & Save
+                            </button>
+                          )}
                         </>
                       );
                     })()}

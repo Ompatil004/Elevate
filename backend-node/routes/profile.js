@@ -224,13 +224,33 @@ router.get('/workout-history', auth, async (req, res) => {
 // POST /api/profile/workout-history
 router.post('/workout-history', auth, async (req, res) => {
     try {
-        // Atomic push to front with slice and prevent full document validation bloat
+        const workout = req.body;
+        
+        // Log workout completed to activities list
+        const details = workout.exercises_completed > 0 
+            ? `${workout.exercises_completed}/${workout.total_exercises} exercises completed` 
+            : 'Workout completed';
+            
+        const newActivity = {
+            type: 'workout',
+            name: workout.name || 'Workout Completed 💪',
+            details,
+            timestamp: new Date().toISOString(),
+            date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+
+        // Atomic push to front with slice for both workouts and activities
         const updatedUser = await User.findByIdAndUpdate(
             req.user.id,
             {
                 $push: {
                     workouts: {
-                        $each: [req.body],
+                        $each: [workout],
+                        $position: 0,
+                        $slice: 50
+                    },
+                    activities: {
+                        $each: [newActivity],
                         $position: 0,
                         $slice: 50
                     }
@@ -241,9 +261,41 @@ router.post('/workout-history', auth, async (req, res) => {
         
         res.json({ success: true, history: updatedUser.workouts });
     } catch (err) {
+        console.error('Error saving workout history & activity:', err);
         res.status(500).json({ message: 'Server error' });
     }
 });
+
+// POST /api/profile/workout-history/undo-swap
+router.post('/workout-history/undo-swap', auth, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        // 1. Remove the most recent "Schedule Swap" workout log
+        user.workouts = user.workouts || [];
+        const lastSwapWorkoutIdx = user.workouts.findIndex(w => w.name === 'Schedule Swap');
+        if (lastSwapWorkoutIdx !== -1) {
+            user.workouts.splice(lastSwapWorkoutIdx, 1);
+            user.markModified('workouts');
+        }
+
+        // 2. Remove the most recent "Schedule Swap" activity log
+        user.activities = user.activities || [];
+        const lastSwapActivityIdx = user.activities.findIndex(a => a.name === 'Schedule Swap');
+        if (lastSwapActivityIdx !== -1) {
+            user.activities.splice(lastSwapActivityIdx, 1);
+            user.markModified('activities');
+        }
+
+        await user.save();
+        res.json({ success: true, history: user.workouts, activities: user.activities });
+    } catch (err) {
+        console.error('Error undoing swap in history:', err);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 
 // GET /api/profile/meal-history
 router.get('/meal-history', auth, async (req, res) => {

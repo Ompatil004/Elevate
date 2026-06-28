@@ -13,6 +13,7 @@ from pydantic import BaseModel, Field
 from app.core.auth import require_user_id_from_request
 from app.core.responses import api_success
 from app.gemini_service import get_chatbot_response, is_gemini_available
+from app.db import get_database
 
 logger = logging.getLogger(__name__)
 
@@ -140,6 +141,33 @@ async def chatbot_endpoint(
             for key, value in raw_profile.items()
             if key in allowed_keys
         }
+        
+        # Fetch real-time activity and workout history
+        try:
+            from datetime import datetime, timezone
+            from bson import ObjectId
+            db = get_database()
+            today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+            daily_log = await db.daily_logs.find_one({"user_id": user_id, "date": today_str})
+            user_doc = await db.users.find_one({"_id": ObjectId(user_id)})
+            
+            profile["_daily_log"] = {
+                "water_ml": daily_log.get("water_ml", 0) if daily_log else 0,
+                "sleep_hours": daily_log.get("sleep_hours", 0) if daily_log else 0,
+                "workout_completed": daily_log.get("workout_completed", False) if daily_log else False,
+            }
+            if user_doc:
+                workouts = user_doc.get("workouts", [])
+                profile["_recent_workouts"] = [
+                    {
+                        "name": w.get("name"),
+                        "date": w.get("date") or w.get("completed_at"),
+                        "duration": w.get("duration"),
+                    } for w in workouts[-3:]
+                ]
+        except Exception as db_exc:
+            logger.warning(f"Could not load real-time user activity logs: {db_exc}")
+
         history = request.history or []
 
         reply = get_chatbot_response(message, profile, history)
@@ -158,6 +186,7 @@ async def chatbot_endpoint(
         )
 
     except Exception as e:
+        logger.error(f"Gemini API error: {e}")
         logger.error(f"Chatbot error: {e}")
         traceback.print_exc()
         fallback_reply = "I'm having a brief technical issue. Please try again in a moment! 🔄"

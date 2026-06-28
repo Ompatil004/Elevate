@@ -496,31 +496,50 @@ async def _load_or_generate_user_weekly_plan(user_doc: Dict[str, Any]) -> Dict[s
     if not has_valid_plan or is_stale_week:
         engine = _ensure_workout_engine_ready()
         profile = _build_workout_profile_from_user(user_doc)
-        
+
         # If it's a rolled-over week, ensure is_new_user_week is False
         if is_stale_week:
             profile['is_new_user_week'] = False
             is_new_user_week = False
-            
-        weekly_plan = engine.generate_weekly_plan(profile)
+
+        # Check in-memory plan cache before running ML generation.
+        # On a cache hit we skip generate_weekly_plan() entirely — page navigation
+        # becomes instant for the same profile within the same week.
+        plan_cache = getattr(engine, "_plan_cache", None)
+        cached_plan = plan_cache.get(profile) if plan_cache else None
+        if cached_plan:
+            logger.info("[PlanCache] HIT in _load_or_generate — skipping ML generation")
+            weekly_plan = cached_plan
+        else:
+            weekly_plan = engine.generate_weekly_plan(profile)
+            # Cache the freshly generated plan for subsequent requests
+            if plan_cache and weekly_plan:
+                try:
+                    plan_cache.set(profile, weekly_plan)
+                except Exception as cache_set_err:
+                    logger.warning("Could not store plan in cache: %s", cache_set_err)
+
         has_valid_plan = True
-        
+
         # Recalculate nutrition plan to align with the new workout volume/intensity
-        try:
-            from app.meal_engine import get_meal_engine
-            meal_engine = get_meal_engine()
-            
-            # Use the user_doc directly since meal_engine expects the full profile
-            weekly_schedule = weekly_plan.get("schedule", []) if isinstance(weekly_plan, dict) else []
-            meal_plan = meal_engine.generate_meal_plan(user_doc, weekly_workout_plan=weekly_schedule)
-            db_instance = get_database()
-            await db_instance.users.update_one(
-                {"_id": user_doc["_id"]},
-                {"$set": {"latestNutritionPlan": meal_plan}}
-            )
-            logger.info("Successfully rolled forward nutrition plan with workout plan.")
-        except Exception as meal_err:
-            logger.warning("Could not regenerate nutrition plan during week rollover: %s", meal_err)
+        # (only on a real generation, not a cache hit — avoids unnecessary DB writes)
+        if not cached_plan:
+            try:
+                from app.meal_engine import get_meal_engine
+                meal_engine = get_meal_engine()
+
+                # Use the user_doc directly since meal_engine expects the full profile
+                weekly_schedule = weekly_plan.get("schedule", []) if isinstance(weekly_plan, dict) else []
+                meal_plan = meal_engine.generate_meal_plan(user_doc, weekly_workout_plan=weekly_schedule)
+                db_instance = get_database()
+                await db_instance.users.update_one(
+                    {"_id": user_doc["_id"]},
+                    {"$set": {"latestNutritionPlan": meal_plan}}
+                )
+                logger.info("Successfully rolled forward nutrition plan with workout plan.")
+            except Exception as meal_err:
+                logger.warning("Could not regenerate nutrition plan during week rollover: %s", meal_err)
+
 
     week_metadata = _build_week_metadata(
         weekly_plan,
@@ -1809,12 +1828,28 @@ async def generate_workout(
             except Exception as lookup_err:
                 logger.warning("Could not lookup user workout history: %s", lookup_err)
 
-        # Generate workout
-        weekly_plan = engine.generate_weekly_plan(user_data, workout_history=workout_history)
+        # Check in-memory plan cache before running ML generation.
+        # Cache key is deterministic: it combines profile fields + ISO-week number.
+        # A hit means the same profile already generated a plan this week — no ML needed.
+        plan_cache = getattr(engine, "_plan_cache", None)
+        cached_weekly_plan = plan_cache.get(user_data) if plan_cache else None
+        if cached_weekly_plan:
+            print(" [PlanCache] HIT — returning cached plan, skipping ML generation")
+            weekly_plan = cached_weekly_plan
+        else:
+            # Generate workout (ML computation happens here)
+            weekly_plan = engine.generate_weekly_plan(user_data, workout_history=workout_history)
+            # Store the freshly generated plan so subsequent page visits are instant
+            if plan_cache and weekly_plan:
+                try:
+                    plan_cache.set(user_data, weekly_plan)
+                except Exception as cache_err:
+                    logger.warning("Could not store plan in cache: %s", cache_err)
 
         if not weekly_plan or len(weekly_plan) == 0:
             print("ERROR: Generated plan is empty!")
             raise HTTPException(status_code=500, detail="Generated empty workout plan")
+
 
         # Compute progression state and structured coaching feedback
         progression_state = {}
@@ -2258,8 +2293,13 @@ async def get_swap_options(
             'dietary_preference': body.dietary_preference,
             'allergies': body.allergies,
         }
+        import re
+        food_name_clean = body.food_name
+        if food_name_clean:
+            food_name_clean = re.sub(r'\s*\(.*?\)', '', food_name_clean).strip()
+
         options = meal_runtime.get_swap_options(
-            body.food_name, body.meal_type, profile, limit=5,
+            food_name_clean, body.meal_type, profile, limit=5,
             target_calories=body.current_calories,
             target_protein=body.current_protein,
         )
