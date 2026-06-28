@@ -2733,7 +2733,6 @@ function Dashboard({ onLogout }) {
           onLogout={handleLogout}
           rightContent={
             <>
-<<<<<<< HEAD
               <div className="dateDisplay desktop-nav">{todayDate}</div>
               <div style={{ position: 'relative' }} ref={notifRef}>
                 <button
@@ -2770,9 +2769,6 @@ function Dashboard({ onLogout }) {
                   </div>
                 )}
               </div>
-=======
-              <div style={styles.dateDisplay} className="desktop-nav">{todayDate}</div>
->>>>>>> origin/updates
               <button
                 className="theme-toggle-btn"
                 onClick={toggleTheme}
@@ -3523,69 +3519,34 @@ title = {`${Math.round(macros.f)}g Fats`}
             </div>
           </div>
 
-<<<<<<< HEAD
-        </div >
-
-  {/* NOTIFICATIONS CONTAINER */ }
-{
-  notifications.length > 0 && (
-    <div className="notificationsContainer">
-      {notifications.map((notification) => (
-        <div
-          key={notification.id}
-          className="notificationItem"
-        >
-          <div className="notificationContent">
-            <span className="notificationMessage">{notification.message}</span>
-            <button
-              className="notificationClose"
-              onClick={() => dismissNotification(notification.id)}
-            >
-              ×
-            </button>
-=======
-        {/* NOTIFICATIONS CONTAINER */}
-        {activeToasts.length > 0 && (
-          <div style={styles.notificationsContainer}>
-            {activeToasts.map((notification) => (
-              <div
-                key={notification.id}
-                style={{
-                  ...styles.notificationItem,
-                  ...(notification.type === 'success'
-                    ? styles.notificationSuccess
-                    : notification.type === 'warning'
-                      ? styles.notificationWarning
-                      : styles.notificationInfo)
-                }}
-              >
-                <div style={styles.notificationContent}>
-                  <span style={styles.notificationMessage}>{notification.message}</span>
-                  <button
-                    style={styles.notificationClose}
-                    onClick={() => dismissToast(notification.id)}
-                  >
-                    ×
-                  </button>
+          {/* NOTIFICATIONS CONTAINER */}
+          {activeToasts.length > 0 && (
+            <div className="notificationsContainer">
+              {activeToasts.map((notification) => (
+                <div key={notification.id} className="notificationItem">
+                  <div className="notificationContent">
+                    <span className="notificationMessage">{notification.message}</span>
+                    <button
+                      className="notificationClose"
+                      onClick={() => dismissToast(notification.id)}
+                    >
+                      ×
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
->>>>>>> origin/updates
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
+              ))}
+            </div>
+          )}
 
-{/* CONFIRM DIALOG */ }
-<ConfirmDialog
-  show={confirmDialog.show}
-  message={confirmDialog.message}
-  onConfirm={handleConfirm}
-  onCancel={handleCancelConfirm}
-/>
-      </div >
+          {/* CONFIRM DIALOG */}
+          <ConfirmDialog
+            show={confirmDialog.show}
+            message={confirmDialog.message}
+            onConfirm={handleConfirm}
+            onCancel={handleCancelConfirm}
+          />
+        </div>
+      </div>
     </>
   );
 }
