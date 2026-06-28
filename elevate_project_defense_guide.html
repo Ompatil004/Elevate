@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elevate Fitness - Comprehensive Project Defense Guide & Architecture Report</title>
+    <!-- Modern Typography from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- MathJax for rendering LaTeX mathematical models -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            --bg-primary: #0b0f19;
+            --bg-secondary: #111827;
+            --bg-tertiary: #1f2937;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --primary-glow: rgba(99, 102, 241, 0.15);
+            --accent-green: #10b981;
+            --accent-orange: #f59e0b;
+            --accent-red: #ef4444;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border-color: #374151;
+            --glass-bg: rgba(17, 24, 39, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.05);
+            --sidebar-width: 280px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+
+        /* Sidebar navigation */
+        aside {
+            width: var(--sidebar-width);
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 1.5rem;
+            z-index: 100;
+            overflow-y: auto;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary), var(--accent-green));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            color: white;
+            font-size: 1.25rem;
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #ffffff, var(--text-muted));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex-grow: 1;
+        }
+
+        .nav-link a {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .nav-link a:hover {
+            color: var(--text-main);
+            background-color: var(--bg-tertiary);
+        }
+
+        .nav-link.active a {
+            color: white;
+            background: var(--primary-glow);
+            border-color: rgba(99, 102, 241, 0.2);
+            font-weight: 600;
+        }
+
+        .nav-link i {
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .nav-footer {
+            margin-top: auto;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        /* Main Content Layout */
+        main {
+            margin-left: var(--sidebar-width);
+            flex-grow: 1;
+            padding: 2.5rem 3rem;
+            max-width: calc(100% - var(--sidebar-width));
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            position: sticky;
+            top: 0;
+            background-color: rgba(11, 15, 25, 0.8);
+            backdrop-filter: blur(12px);
+            padding: 1rem 0;
+            z-index: 50;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .header-title h1 {
+            font-size: 1.85rem;
+            background: linear-gradient(120deg, #ffffff 40%, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-title p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Search Bar styling */
+        .search-container {
+            position: relative;
+            width: 320px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.65rem 1rem 0.65rem 2.5rem;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: white;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.85rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            pointer-events: none;
+        }
+
+        /* Section Container Styles */
+        section {
+            margin-bottom: 4.5rem;
+            scroll-margin-top: 6rem;
+        }
+
+        .section-header {
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.75rem;
+        }
+
+        .section-header h2 {
+            font-size: 1.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: white;
+        }
+
+        .section-header h2 span {
+            color: var(--primary);
+        }
+
+        /* Grid elements and panels */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.75rem;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px var(--primary-glow);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            background-color: var(--bg-tertiary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 1.35rem;
+            margin-bottom: 1.25rem;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+            color: white;
+        }
+
+        .card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Tech badges */
+        .tech-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1.25rem;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background-color: var(--bg-tertiary);
+            color: var(--text-main);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .badge.primary { background-color: var(--primary-glow); color: #a5b4fc; border-color: rgba(99, 102, 241, 0.3); }
+        .badge.green { background-color: rgba(16, 185, 129, 0.1); color: #6ee7b7; border-color: rgba(16, 185, 129, 0.3); }
+        .badge.orange { background-color: rgba(245, 158, 11, 0.1); color: #fde047; border-color: rgba(245, 158, 11, 0.3); }
+        .badge.red { background-color: rgba(239, 68, 68, 0.1); color: #fca5a5; border-color: rgba(239, 68, 68, 0.3); }
+
+        /* Highlight box */
+        .highlight-box {
+            background-color: rgba(99, 102, 241, 0.04);
+            border-left: 4px solid var(--primary);
+            padding: 1.25rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1.5rem 0;
+        }
+
+        .highlight-box h4 {
+            color: #a5b4fc;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .highlight-box p {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: var(--text-main);
+        }
+
+        /* Tabs System */
+        .tabs-container {
+            margin-top: 1.5rem;
+        }
+
+        .tab-buttons {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1.25rem;
+            gap: 0.5rem;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.6rem 1.25rem;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Formulas Container */
+        .formula-container {
+            background-color: rgba(17, 24, 39, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.25rem 0;
+            overflow-x: auto;
+            text-align: center;
+        }
+
+        .formula-legend {
+            margin-top: 1rem;
+            text-align: left;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
+            padding-top: 0.75rem;
+        }
+
+        .formula-legend ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.5rem;
+        }
+
+        /* Interactive Timeline/Flowchart */
+        .flowchart {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            position: relative;
+            padding-left: 2rem;
+            margin: 2rem 0;
+        }
+
+        .flowchart::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: var(--border-color);
+        }
+
+        .flow-step {
+            position: relative;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.25rem;
+        }
+
+        .flow-step::before {
+            content: '';
+            position: absolute;
+            left: -29px;
+            top: 20px;
+            width: 18px;
+            height: 18px;
+            background-color: var(--bg-primary);
+            border: 3px solid var(--primary);
+            border-radius: 50%;
+            z-index: 5;
+        }
+
+        .flow-step-number {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--primary);
+            margin-bottom: 0.35rem;
+        }
+
+        .flow-step-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .flow-step-desc {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Q&A Accordion styling */
+        .qa-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .qa-item {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--bg-secondary);
+            overflow: hidden;
+            transition: border-color 0.2s ease;
+        }
+
+        .qa-item:hover {
+            border-color: var(--primary);
+        }
+
+        .qa-question {
+            padding: 1.25rem;
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 1.05rem;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .qa-question span {
+            flex-grow: 1;
+        }
+
+        .qa-question i {
+            transition: transform 0.2s ease;
+            color: var(--primary);
+        }
+
+        .qa-item.open .qa-question i {
+            transform: rotate(180deg);
+        }
+
+        .qa-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.2s ease-out;
+            border-top: 1px solid transparent;
+            background-color: rgba(17, 24, 39, 0.4);
+        }
+
+        .qa-item.open .qa-answer {
+            border-top-color: var(--border-color);
+            max-height: 1000px; /* high value to expand */
+        }
+
+        .qa-answer-content {
+            padding: 1.25rem;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-main);
+        }
+
+        .qa-answer-content p {
+            margin-bottom: 0.75rem;
+        }
+
+        .qa-answer-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .qa-examiner-tip {
+            margin-top: 1rem;
+            background-color: rgba(245, 158, 11, 0.05);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            padding: 0.85rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .qa-examiner-tip strong {
+            color: var(--accent-orange);
+        }
+
+        /* Comparison Table styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.9rem;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 0.85rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: rgba(31, 41, 55, 0.5);
+            font-weight: 600;
+            color: white;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        tr:hover td {
+            background-color: rgba(255, 255, 255, 0.01);
+        }
+
+        /* Responsive Layout adjustments */
+        @media (max-width: 1024px) {
+            aside {
+                display: none; /* simple hidden layout for small screens */
+            }
+            main {
+                margin-left: 0;
+                max-width: 100%;
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <aside>
+        <div class="logo-container">
+            <div class="logo-icon">E</div>
+            <div class="logo-text">ELEVATE</div>
+        </div>
+        <ul class="nav-links">
+            <li class="nav-link active"><a href="#overview">Overview & Architecture</a></li>
+            <li class="nav-link"><a href="#user-flow">User Profile & Data Flow</a></li>
+            <li class="nav-link"><a href="#features">Core Features & Logic</a></li>
+            <li class="nav-link"><a href="#math-models">Mathematical Models</a></li>
+            <li class="nav-link"><a href="#ml-models">ML Models & Code Details</a></li>
+            <li class="nav-link"><a href="#examiner-qa">Examiner Defense Q&A</a></li>
+        </ul>
+        <div class="nav-footer">
+            <p>Elevate Fit Project Audit</p>
+            <p style="font-size: 0.7rem; margin-top: 0.25rem;">Academic Defense Guide v2.0</p>
+        </div>
+    </aside>
+
+    <!-- Main Content Panel -->
+    <main>
+        <!-- Header area -->
+        <header>
+            <div class="header-title">
+                <h1>Project Defense Guide & Technical Audit</h1>
+                <p>Complete implementation blueprints, algorithms, mathematical models, and Q&A framework</p>
+            </div>
+            <div class="search-container">
+                <input type="text" id="search-box" class="search-input" placeholder="Search features, formulas, questions...">
+                <span class="search-icon">🔍</span>
+            </div>
+        </header>
+
+        <!-- SECTION 1: Overview & Architecture -->
+        <section id="overview">
+            <div class="section-header">
+                <h2><span>01.</span> Tech Stack & System Architecture</h2>
+            </div>
+            
+            <p style="line-height: 1.6; margin-bottom: 1.5rem; color: var(--text-muted);">
+                Elevate Fitness is built using a modern <strong>Microservices Architecture</strong>. The project separates the application logic into three distinct subsystems to maximize efficiency: heavy database tracking is handled on the primary backend, fast UI interactions run in the browser, and compute-heavy Machine Learning regressions execute on a dedicated Python service.
+            </p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-icon">💻</div>
+                    <h3>Frontend Subsystem</h3>
+                    <p>React.js SPA scaffolded with Vite. Renders real-time dashboards, interactive workout visualizers, and dietary planners. Integrates <strong>Google MediaPipe</strong> for local WebAssembly-based real-time video keypoint detection.</p>
+                    <div class="tech-badges">
+                        <span class="badge primary">React.js</span>
+                        <span class="badge primary">Vite</span>
+                        <span class="badge primary">Vanilla CSS</span>
+                        <span class="badge green">MediaPipe Tasks</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">⚡</div>
+                    <h3>Primary Backend Subsystem</h3>
+                    <p>Node.js Express server. Responsible for handling user sessions, processing secure Google OAuth logins, storing and fetching data, and acting as a secure rate-limited proxy to the Python ML server.</p>
+                    <div class="tech-badges">
+                        <span class="badge primary">Node.js</span>
+                        <span class="badge primary">Express</span>
+                        <span class="badge green">MongoDB</span>
+                        <span class="badge red">JWT Auth</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">🐍</div>
+                    <h3>AI / ML Backend Subsystem</h3>
+                    <p>Python FastAPI microservice. Contains pre-trained multi-target machine learning models (XGBoost) and optimization algorithms. Handles biometric feature scaling, adaptive fatigue tuning, and shopping list generation.</p>
+                    <div class="tech-badges">
+                        <span class="badge primary">FastAPI</span>
+                        <span class="badge primary">XGBoost</span>
+                        <span class="badge orange">Scikit-Learn</span>
+                        <span class="badge green">Google Gemini</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">🛡️</div>
+                    <h3>Security & Resiliency Core</h3>
+                    <p>Defensive architecture features: Signed Double-Submit CSRF cookie validation, strict CORS lists, token-bucket endpoint rate limiters, downstream circuit breakers, and database self-healing routines.</p>
+                    <div class="tech-badges">
+                        <span class="badge red">CSRF Protection</span>
+                        <span class="badge red">Circuit Breaker</span>
+                        <span class="badge orange">Rate Limiting</span>
+                        <span class="badge primary">Double-Signed Cookies</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h4>Examiner Checkpoint: Why a Microservices/Split Architecture?</h4>
+                <p>
+                    "We decoupled the server into Express and FastAPI because Node.js is single-threaded and handles network I/O extremely fast, making it ideal for managing logins, OAuth, and web API routing. Python is slower for concurrency but is the undisputed industry standard for mathematical computation and ML. If we ran XGBoost and MediaPipe processing on a single Node thread, CPU-heavy tasks would block user requests, freezing the dashboard for all users."
+                </p>
+            </div>
+        </section>
+
+        <!-- SECTION 2: User Profile & Data Flow -->
+        <section id="user-flow">
+            <div class="section-header">
+                <h2><span>02.</span> User Profile & Request Lifecycle</h2>
+            </div>
+            
+            <p style="line-height: 1.6; margin-bottom: 1.5rem; color: var(--text-muted);">
+                Understanding the lifecycle of a user profile update is key to explaining how the frontend, backend, database, and AI engine interact. Here is exactly what happens when a user modifies their metrics:
+            </p>
+
+            <div class="flowchart">
+                <div class="flow-step">
+                    <div class="flow-step-number">Step 1</div>
+                    <div class="flow-step-title">Form Input & Validation (React Frontend)</div>
+                    <div class="flow-step-desc">
+                        The user adjusts fields (e.g., age, weight, target goal, injuries, water intake) in <code>ProfileSetup.jsx</code>. The React form validates that inputs are within bounds (e.g. weight between 20-500kg, age between 1-120 years). If valid, it triggers an Axios call to <code>PUT /api/python/profile/update</code>.
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flow-step-number">Step 2</div>
+                    <div class="flow-step-title">Authentication & Proxy Routing (Express Backend)</div>
+                    <div class="flow-step-desc">
+                        The Express server interceptor validates the user's session cookie. It strips any unsafe tags, attaches a tracing header <code>x-request-id</code>, and forwards the secure JSON payload to the Python FastAPI microservice (running on port 8000 or production Render container).
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flow-step-number">Step 3</div>
+                    <div class="flow-step-title">Feature Engineering Pipeline (FastAPI Backend)</div>
+                    <div class="flow-step-desc">
+                        Python receives the payload in <code>profile.py</code>. The <code>FeaturePipeline</code> class normalizes the raw inputs, computes derived statistics like BMI, Recovery Score, and Progressive Overload delta, and hashes a 32-character <strong>Profile Fingerprint</strong> to detect if the core parameters changed.
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flow-step-number">Step 4</div>
+                    <div class="flow-step-title">AI Invalidation & Model Execution</div>
+                    <div class="flow-step-desc">
+                        If the profile fingerprint differs from the database, the server invalidates old cached workout/meal structures. It executes the Multi-Output XGBoost Workout model and Multi-Target Nutrition model. The generated plan is passed to the Google Gemini service to formulate natural-sounding coaching texts.
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flow-step-number">Step 5</div>
+                    <div class="flow-step-title">Database Persistence & UI Rerender</div>
+                    <div class="flow-step-desc">
+                        The finalized workout plan, meal configurations, and week metadata are saved in MongoDB using atomic write locks. FastAPI returns the generated plan to Express, which forwards it to React. The React Dashboard triggers a context state change, updating the UI charts and meal checklists instantly.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: Core Features & Logic -->
+        <section id="features">
+            <div class="section-header">
+                <h2><span>03.</span> Core Features & Implementation Logic</h2>
+            </div>
+
+            <div class="tabs-container">
+                <div class="tab-buttons">
+                    <button class="tab-btn active" onclick="switchTab(event, 'feat-workout')">Workout Engine</button>
+                    <button class="tab-btn" onclick="switchTab(event, 'feat-nutrition')">Nutrition Engine</button>
+                    <button class="tab-btn" onclick="switchTab(event, 'feat-vision')">Pose Tracking Vision</button>
+                    <button class="tab-btn" onclick="switchTab(event, 'feat-nlp')">NLP Chatbot</button>
+                </div>
+
+                <!-- Workout Tab -->
+                <div id="feat-workout" class="tab-content active">
+                    <div class="card" style="border-top-left-radius: 0;">
+                        <h3>Adaptive Workout Planner</h3>
+                        <p style="margin-bottom: 1rem;">
+                            Instead of hardcoding generic routines, the workout engine generates a tailored weekly split based on the user's specific constraints (equipment available, body injuries, target frequency, experience level).
+                        </p>
+                        <ul style="margin-left: 1.5rem; margin-bottom: 1.5rem; color: var(--text-muted); line-height: 1.6;">
+                            <li><strong>Progression Engine:</strong> Evaluates past logged sessions. If a user logs successful workouts with consistent heart rates and completed sets, the system applies a progressive overload factor to automatically scale target reps or intensity.</li>
+                            <li><strong>Adaptive Modifier:</strong> Dynamically adjusts today's intensity based on the user's daily check-in (sleep hours, water intake, stress levels). If a user slept only 4 hours, their target sets/intensity are safely scaled down.</li>
+                            <li><strong>Injury Filtering:</strong> Hardcoded rules filter out exercises matching body issues. For example, if a user has a "Knee" injury, squat-based patterns are removed, replacing them with upper-body or leg-extension exercises.</li>
+                        </ul>
+                        <span class="badge primary">Progression Engine</span>
+                        <span class="badge green">Adaptive Modifiers</span>
+                        <span class="badge red">Injury Shield</span>
+                    </div>
+                </div>
+
+                <!-- Nutrition Tab -->
+                <div id="feat-nutrition" class="tab-content">
+                    <div class="card" style="border-top-left-radius: 0;">
+                        <h3>Deterministic Meal Optimizer</h3>
+                        <p style="margin-bottom: 1rem;">
+                            The meal planner predicts a user's daily TDEE (Total Daily Energy Expenditure) and splits it into precise breakfast, lunch, dinner, and snack targets.
+                        </p>
+                        <ul style="margin-left: 1.5rem; margin-bottom: 1.5rem; color: var(--text-muted); line-height: 1.6;">
+                            <li><strong>Weekly Variety Tracker:</strong> Calculates penalty scores for meals. Points are deducted if a primary ingredient (e.g. paneer, chicken) or cuisine type is repeated too frequently within a 7-day window.</li>
+                            <li><strong>Portion Optimizer:</strong> Scales meal ingredients proportionally to hit exact caloric macros. Servings are snapped to standard increments (e.g. 10g, 50ml, whole numbers for chapatis/eggs) to ensure they are cookable in real life.</li>
+                            <li><strong>Dietary/Allergy Guardrails:</strong> Strictly blocklists foods containing user-defined allergens (e.g. Gluten, Nuts, Dairy) at the database query level, guaranteeing zero algorithmic contamination.</li>
+                        </ul>
+                        <span class="badge primary">Variety Penalty</span>
+                        <span class="badge green">Portion Snapping</span>
+                        <span class="badge orange">Allergy Guard</span>
+                    </div>
+                </div>
+
+                <!-- Vision Tab -->
+                <div id="feat-vision" class="tab-content">
+                    <div class="card" style="border-top-left-radius: 0;">
+                        <h3>Real-time WebAssembly Pose Detector</h3>
+                        <p style="margin-bottom: 1rem;">
+                            Using the webcam feed, the system maps human joints in 3D to monitor exercise execution without sending video feeds to any server, preserving user privacy.
+                        </p>
+                        <ul style="margin-left: 1.5rem; margin-bottom: 1.5rem; color: var(--text-muted); line-height: 1.6;">
+                            <li><strong>MediaPipe Integration:</strong> Loads lightweight WASM modules locally. Tracks 33 body coordinate points at 30+ FPS directly in the browser.</li>
+                            <li><strong>Hysteresis Rep Counting:</strong> Prevents false double-counts using threshold buffers. For example, during curls, the elbow angle must pass 150° (down state) and return past 60° (up state) to record one rep.</li>
+                            <li><strong>Form Feedback Engine:</strong> Compares joint alignments against safety ranges. Flags specific warnings like <i>"Don't flare elbows too wide"</i> during pushups to prevent rotator cuff strains.</li>
+                        </ul>
+                        <span class="badge primary">Local WASM Execution</span>
+                        <span class="badge green">3D joint Mapping</span>
+                        <span class="badge red">Form Safety Shield</span>
+                    </div>
+                </div>
+
+                <!-- NLP Tab -->
+                <div id="feat-nlp" class="tab-content">
+                    <div class="card" style="border-top-left-radius: 0;">
+                        <h3>NLP Generative Coaching Chatbot</h3>
+                        <p style="margin-bottom: 1rem;">
+                            To bridge the gap between raw numbers and a motivating human coach, the app integrates Google Gemini to translate outputs into interactive advice.
+                        </p>
+                        <ul style="margin-left: 1.5rem; margin-bottom: 1.5rem; color: var(--text-muted); line-height: 1.6;">
+                            <li><strong>Coaching Context Injection:</strong> When chatting, the app injects user metrics (goals, workout plans, recent logs) into the LLM system prompt. The model knows you are weight training and recovering from an injury without you needing to type it.</li>
+                            <li><strong>Downstream Circuit Breaker:</strong> Keeps the app stable. If Gemini API reaches its quota limit, the python server trips the circuit open and serves local deterministic fallback guidelines, ensuring the chatbot never crashes.</li>
+                        </ul>
+                        <span class="badge primary">Gemini LLM</span>
+                        <span class="badge green">Context Injection</span>
+                        <span class="badge red">Circuit Breaker Enabled</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: Mathematical Models -->
+        <section id="math-models">
+            <div class="section-header">
+                <h2><span>04.</span> Mathematical Models & Formulas</h2>
+            </div>
+            
+            <p style="line-height: 1.6; margin-bottom: 1.5rem; color: var(--text-muted);">
+                Our platform does not make random guesses. All caloric targets, recovery rates, progression schedules, and pose tracking angles are calculated using established clinical and geometric formulas.
+            </p>
+
+            <!-- BMR & TDEE -->
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <h3>1. Caloric Target & Energy Expenditure Models</h3>
+                <p style="margin-bottom: 1rem;">First, the system calculates the user's <strong>Basal Metabolic Rate (BMR)</strong> using the clinically validated Mifflin-St Jeor equation:</p>
+                
+                <div class="formula-container">
+                    $$BMR_{\text{Male}} = 10 \times W + 6.25 \times H - 5 \times A + 5$$
+                    $$BMR_{\text{Female}} = 10 \times W + 6.25 \times H - 5 \times A - 161$$
+                </div>
+
+                <p style="margin-bottom: 1rem;">The daily caloric requirement is determined by scaling BMR by an <strong>Activity Multiplier</strong> (resulting in TDEE), and then applying a <strong>Goal Multiplier</strong>:</p>
+
+                <div class="formula-container">
+                    $$TDEE = BMR \times \text{Multiplier}_{\text{Activity}}$$
+                    $$\text{Calorie Target} = TDEE \times \text{Multiplier}_{\text{Goal}}$$
+                </div>
+
+                <div class="formula-legend">
+                    <ul>
+                        <li><strong>W:</strong> Weight in kilograms (kg)</li>
+                        <li><strong>H:</strong> Height in centimeters (cm)</li>
+                        <li><strong>A:</strong> Age in years</li>
+                        <li><strong>Activity Multipliers:</strong> Sedentary: 1.2, Light: 1.375, Moderate: 1.55, Active: 1.725, Extra Active: 1.9</li>
+                        <li><strong>Goal Multipliers:</strong> Weight Loss: 0.85, Fat Loss: 0.80, Gain Muscle: 1.10, Strength: 1.05, Maintenance: 1.0</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Recovery & Overload -->
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <h3>2. Biometric Feature Engineering Models</h3>
+                <p style="margin-bottom: 1rem;">The system derives a 4-factor <strong>Recovery Score</strong> from daily biometrics, which is then combined with consistency to yield a <strong>Readiness Score</strong>:</p>
+                
+                <div class="formula-container">
+                    $$Recovery = \frac{(SleepScore/10) + (HydrationScore/10) + \frac{10 - Stress}{10} + \frac{10 - Fatigue}{10}}{4}$$
+                    $$Readiness = Recovery \times 0.6 + Consistency \times 0.4$$
+                </div>
+
+                <p style="margin-bottom: 1rem;">The rate of strength progression (overload delta) is adjusted dynamically using this formula:</p>
+
+                <div class="formula-container">
+                    $$\Delta_{\text{overload}} = \text{rate}_{\text{base}} \times \text{Adherence} \times Recovery \times \text{modifier}_{\text{exp}}$$
+                    $$\text{Adherence} = 0.6 \times \text{Consistency} + 0.4 \times \min\left(1.0, \frac{\text{Streak}}{2 \times \text{DaysPerWeek}}\right)$$
+                </div>
+
+                <div class="formula-legend">
+                    <ul>
+                        <li><strong>Sleep/Hydration:</strong> Normalized values derived from hours slept and water consumed.</li>
+                        <li><strong>rate<sub>base</sub>:</strong> Beginner: 0.03, Intermediate: 0.05, Advanced: 0.07</li>
+                        <li><strong>modifier<sub>exp</sub>:</strong> Beginner: 0.70, Intermediate: 1.00, Advanced: 1.15</li>
+                        <li><strong>&Delta;<sub>overload</sub>:</strong> Clamped strictly to the range \([0.0, 0.10]\).</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Joint Geometry -->
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <h3>3. Pose Tracking Trigonometric Model</h3>
+                <p style="margin-bottom: 1rem;">To evaluate joint movements, we compute the angle \(\theta\) between three landmarks: joint vertex \(B(x_b, y_b, z_b)\), point \(A(x_a, y_a, z_a)\), and point \(C(x_c, y_c, z_c)\) using vector dot products in 3D coordinate space:</p>
+                
+                <div class="formula-container">
+                    $$\vec{BA} = \langle x_a - x_b, y_a - y_b, z_a - z_b \rangle$$
+                    $$\vec{BC} = \langle x_c - x_b, y_c - y_b, z_c - z_b \rangle$$
+                    $$\theta = \arccos\left(\frac{\vec{BA} \cdot \vec{BC}}{\|\vec{BA}\| \times \|\vec{BC}\|}\right) \times \frac{180}{\pi}$$
+                </div>
+            </div>
+
+            <!-- Meal Scoring -->
+            <div class="card">
+                <h3>4. Meal Optimization Scoring System</h3>
+                <p style="margin-bottom: 1.0rem;">When generating daily meals, the engine tests candidates and scores them (out of 100 points) based on 7 dimensions. A higher score guarantees a better and safer meal plan:</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Dimension</th>
+                            <th>Weight</th>
+                            <th>Mathematical Function / Rule</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Macro Accuracy</strong></td>
+                            <td>30 Points</td>
+                            <td>Deducts based on percentage error from calorie target: \(Score = 30 - \min\left(30, \frac{|MealCal - TargetCal|}{TargetCal} \times 60\right)\)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Weekly Variety</strong></td>
+                            <td>20 Points</td>
+                            <td>Penalizes repetition of foods: Deducts \(min(20, \text{repeats} \times 0.3)\) for items flagged in the history sets.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Meal Completeness</strong></td>
+                            <td>15 Points</td>
+                            <td>Strict binary checklist: Deducts 15 points if Protein is missing; deducts 10 points if Carbs are missing in main meals.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Portion Realism</strong></td>
+                            <td>10 Points</td>
+                            <td>Deducts 3 points for each ingredient scaled to its absolute boundaries (clamped max/min portion limits).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Budget Preference</strong></td>
+                            <td>10 Points</td>
+                            <td>Calculates average food cost: Penalizes expensive items (High Budget = -8 pts) while keeping Low Budget at 0 penalty.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Availability Preference</strong></td>
+                            <td>10 Points</td>
+                            <td>Weighted sampling: Prefers common ingredients (Very Common = 4x weight) over rare ingredients (Rare = 0.25x weight).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cuisine Rotation</strong></td>
+                            <td>5 Points</td>
+                            <td>Deducts 2 points for repeating the same regional cuisine in consecutive slots.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- SECTION 5: ML Models -->
+        <section id="ml-models">
+            <div class="section-header">
+                <h2><span>05.</span> Machine Learning & Algorithm Workings</h2>
+            </div>
+            
+            <p style="line-height: 1.6; margin-bottom: 1.5rem; color: var(--text-muted);">
+                Elevate Fitness avoids hardcoded heuristics. The core fitness engine operates on custom-trained machine learning architectures. Let's look at how they work and how they process user data.
+            </p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h3>XGBoost MultiOutputRegressor</h3>
+                    <p style="margin-bottom: 1rem; font-size: 0.9rem;">
+                        <strong>Primary Use:</strong> Predicting optimal sets, reps (low/high), rest times, and intensity based on biometrics.
+                    </p>
+                    <p style="font-size: 0.9rem; line-height: 1.5; color: var(--text-muted);">
+                        XGBoost (Extreme Gradient Boosting) works by building sequential decision trees. Each new tree learns from the prediction errors (residuals) of the previous tree. 
+                        We wrap the algorithm in a <code>MultiOutputRegressor</code> because target parameters are correlated (e.g., higher intensity implies longer rest times). Training them together captures these joint distributions.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3>XGBoost Nutrition Model</h3>
+                    <p style="margin-bottom: 1rem; font-size: 0.9rem;">
+                        <strong>Primary Use:</strong> Predicting target calories per meal and total daily macros (proteins, carbs, fats).
+                    </p>
+                    <p style="font-size: 0.9rem; line-height: 1.5; color: var(--text-muted);">
+                        Uses regression trees to output meal calorie distributions based on user activity levels and goals. 
+                        A custom post-processing safety layer ensures that predicted meal calories strictly sum to the total daily calorie target derived from Mifflin-St Jeor. If the ML outputs drift, the layer scales them back proportionally.
+                    </p>
+                </div>
+            </div>
+
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <h3>Training, Hyperparameter Tuning & Evaluation</h3>
+                <p style="margin-bottom: 1rem;">Here is the exact data preprocessing and training pipeline defined in <code>multi_output_xgboost_model.py</code>:</p>
+                
+                <ul style="margin-left: 1.5rem; margin-bottom: 1.5rem; color: var(--text-muted); line-height: 1.6; font-size: 0.9rem;">
+                    <li><strong>Feature Preprocessing:</strong> Encoders turn words into numbers: <code>LabelEncoder</code> is used for Experience (Beginner=0, Intermediate=1, Advanced=2) and Goal. <code>StandardScaler</code> normalizes values so numerical values are on a common scale.</li>
+                    <li><strong>Hyperparameter Tuning:</strong> We perform <code>RandomizedSearchCV</code> across a cross-validated grid testing parameters like maximum tree depth (<code>max_depth</code> between 3 and 10) and learning rate (<code>learning_rate</code> between 0.01 and 0.3).</li>
+                    <li><strong>Evaluation Metrics:</strong> The model quality is tracked using <strong>Mean Absolute Error (MAE)</strong> and <strong>Root Mean Squared Error (RMSE)</strong>. We achieve an <strong>R² score of 94% - 96%</strong>, meaning 95% of workout parameter variances are correctly explained by our model.</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>ML Safety Guardrails & Clamps</h3>
+                <p style="margin-bottom: 1rem; font-size: 0.9rem; color: var(--text-muted);">
+                    AI regression models can sometimes hallucinate values outside normal limits (e.g. suggesting 12 sets or an intensity of 150%). To prevent this, the code implements <strong>Deterministic Overrides</strong> in the inference pipeline:
+                </p>
+                <div class="highlight-box" style="margin: 0; font-family: monospace; font-size: 0.85rem; background-color: #111827; border-color: var(--accent-red);">
+                    # Clamping predictions within absolute clinical boundaries<br>
+                    sets = np.clip(sets_pred, 1, 6)<br>
+                    reps_low = np.clip(reps_low_pred, 1, 20)<br><br>
+                    # Beginner safety override:<br>
+                    if experience == 'Beginner':<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;intensity = np.minimum(intensity, 0.70) # Cap at 70% max intensity<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;sets = np.minimum(sets, 4) # Cap at 4 sets max
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 6: Examiner Defense Q&A -->
+        <section id="examiner-qa">
+            <div class="section-header">
+                <h2><span>06.</span> Examiner Defense Q&A Framework</h2>
+            </div>
+            
+            <p style="line-height: 1.6; margin-bottom: 2rem; color: var(--text-muted);">
+                During project evaluations, examiners will probe the technical decisions, codebase quality, and algorithmic implementations. Use this interactive Q&A grid to prepare your defense answers.
+            </p>
+
+            <div class="qa-container">
+                <!-- Q1 -->
+                <div class="qa-item">
+                    <button class="qa-question" onclick="toggleQA(this)">
+                        <span>Q1: Why did you choose XGBoost instead of a Deep Learning Neural Network?</span>
+                        <i>▼</i>
+                    </button>
+                    <div class="qa-answer">
+                        <div class="qa-answer-content">
+                            <p>
+                                "Deep Learning models like Artificial Neural Networks are highly suited for unstructured data (images, video, text). However, for structured, tabular data (user profiles with age, height, weight, activity levels), decision-tree based models like XGBoost are mathematically superior."
+                            </p>
+                            <p>
+                                "XGBoost builds sequential decision trees that optimize residuals. It requires far fewer parameters, trains in seconds rather than hours, uses a fraction of the RAM, does not suffer from vanishing gradients on small datasets, and achieves a test R² accuracy score of over 95% in predicting parameters."
+                            </p>
+                            <div class="qa-examiner-tip">
+                                <strong>Examiner Tip:</strong> Frame this as an engineering design choice. Focus on efficiency, cost, training time, and dataset suitability.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q2 -->
+                <div class="qa-item">
+                    <button class="qa-question" onclick="toggleQA(this)">
+                        <span>Q2: How does the real-time pose tracker work? Does it upload video frames to the server?</span>
+                        <i>▼</i>
+                    </button>
+                    <div class="qa-answer">
+                        <div class="qa-answer-content">
+                            <p>
+                                "No, we do not upload video frames to any server. Uploading high-definition video frames to a backend would require massive bandwidth, create latency bottlenecks, and violate user privacy."
+                            </p>
+                            <p>
+                                "Instead, we load Google MediaPipe Tasks Vision WebAssembly (WASM) binaries locally in the user's browser. The client-side webcam feed is processed directly on the user's CPU/GPU. The system extracts 33 landmark coordinates as local JS objects, computes 3D trigonometry angles locally to track form, and only sends final rep-completion triggers to the backend."
+                            </p>
+                            <div class="qa-examiner-tip">
+                                <strong>Examiner Tip:</strong> Mention <strong>WebAssembly (WASM)</strong>, <strong>User Privacy (GDPR/HIPAA compliance)</strong>, and <strong>Zero-Latency edge computation</strong>.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q3 -->
+                <div class="qa-item">
+                    <button class="qa-question" onclick="toggleQA(this)">
+                        <span>Q3: What happens if the machine learning model gives a dangerous suggestion (e.g. 50 reps, or 200g protein for a child)?</span>
+                        <i>▼</i>
+                    </button>
+                    <div class="qa-answer">
+                        <div class="qa-answer-content">
+                            <p>
+                                "We implemented a strict, non-bypassable <strong>Deterministic Safety Layer</strong> (Guardrails) that wraps our ML output."
+                            </p>
+                            <p>
+                                "Even if the regression model suggests extreme numbers due to outliers or data manipulation, the output is programmatically clamped to clinical bounds (e.g. sets are clamped to [1, 6] and daily protein is capped at 50% of total calories). Furthermore, for beginner users, the intensity is capped at 70% and sets are capped at 4, overriding any ML predictions."
+                            </p>
+                            <div class="qa-examiner-tip">
+                                <strong>Examiner Tip:</strong> Highlight that the system utilizes "AI for optimization" but "Hardcoded clinical constraints for safety."
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q4 -->
+                <div class="qa-item">
+                    <button class="qa-question" onclick="toggleQA(this)">
+                        <span>Q4: How do you prevent identical plans from being generated repeatedly when user navigation occurs?</span>
+                        <i>▼</i>
+                    </button>
+                    <div class="qa-answer">
+                        <div class="qa-answer-content">
+                            <p>
+                                "We utilize a two-level optimization check: <strong>Profile Fingerprinting</strong> and <strong>In-Memory Caching</strong>."
+                            </p>
+                            <p>
+                                "When a user profile is fetched, the FastAPI server hashes the core biometric fields (age, weight, height, goal, injuries, experience) into a 32-character SHA-256 fingerprint. If this fingerprint matches the one stored in MongoDB, and the week has not changed, we skip the heavy ML execution entirely and load the plan from the cache. This reduces database writes and makes UI navigation instant."
+                            </p>
+                            <div class="qa-examiner-tip">
+                                <strong>Examiner Tip:</strong> Explain the <strong>SHA-256 hashing</strong> of profile metrics as a mechanism to minimize CPU load.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q5 -->
+                <div class="qa-item">
+                    <button class="qa-question" onclick="toggleQA(this)">
+                        <span>Q5: Explain how the meal portion optimizer avoids fractional items (like 1.7 eggs or 2.3 chapatis).</span>
+                        <i>▼</i>
+                    </button>
+                    <div class="qa-answer">
+                        <div class="qa-answer-content">
+                            <p>
+                                "In <code>deterministic_meal_engine.py</code>, the <code>optimize_portions()</code> function scales raw food portions to meet caloric macros. However, we snapping portions to specific intervals."
+                            </p>
+                            <p>
+                                "For whole-unit food items (defined in metadata as 'piece' or 'unit' like eggs, bananas, chapatis), the quantity is rounded to the nearest integer: <code>rounded_qty = max(1, round(qty))</code>. For other foods (like chicken in grams, or oil in ml), we snap quantities to a food-specific <code>portion_step</code> parameter (e.g. snapping oats to the nearest 10g step), preventing uncookable fractional weights."
+                            </p>
+                            <div class="qa-examiner-tip">
+                                <strong>Examiner Tip:</strong> Show that the database contains metadata columns specifying unit types and step size boundaries for each ingredient.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q6 -->
+                <div class="qa-item">
+                    <button class="qa-question" onclick="toggleQA(this)">
+                        <span>Q6: How does the system handle security risks like CSRF and Database injection?</span>
+                        <i>▼</i>
+                    </button>
+                    <div class="qa-answer">
+                        <div class="qa-answer-content">
+                            <p>
+                                "We implement defense-in-depth across the tech stack:"
+                            </p>
+                            <ul style="margin-left: 1.5rem; margin-top: 0.5rem; margin-bottom: 0.5rem; display: flex; flex-direction: column; gap: 0.35rem;">
+                                <li><strong>CSRF Shield:</strong> We enforce double-submit signed cookies via <code>csrf-csrf</code> middleware. State-mutating routes (POST, PUT, DELETE) must match the signed token header, preventing unauthorized requests from external sites.</li>
+                                <li><strong>NoSQL Injection Guard:</strong> User IDs are validated against <code>ObjectId.is_valid()</code> before executing Mongoose queries. Unsafe parameter types are rejected at the router level.</li>
+                                <li><strong>Secure Auth:</strong> User sessions are managed using <code>HttpOnly</code> cookies, preventing client-side XSS attacks from reading user JWT tokens.</li>
+                            </ul>
+                            <div class="qa-examiner-tip">
+                                <strong>Examiner Tip:</strong> Examiners love security. Frame this as a standard industry-practice audit.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Simple search filter
+        document.getElementById('search-box').addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase().trim();
+            
+            // Search in cards
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                if (text.includes(query) || query === '') {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Search in flowchart steps
+            const steps = document.querySelectorAll('.flow-step');
+            steps.forEach(step => {
+                const text = step.textContent.toLowerCase();
+                if (text.includes(query) || query === '') {
+                    step.style.display = 'block';
+                } else {
+                    step.style.display = 'none';
+                }
+            });
+
+            // Search in Q&A items
+            const qaItems = document.querySelectorAll('.qa-item');
+            qaItems.forEach(item => {
+                const questionText = item.querySelector('.qa-question').textContent.toLowerCase();
+                const answerText = item.querySelector('.qa-answer').textContent.toLowerCase();
+                if (questionText.includes(query) || answerText.includes(query) || query === '') {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+
+        // Tabs switcher
+        function switchTab(evt, tabName) {
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(tabName).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+
+        // Q&A Accordion toggle
+        function toggleQA(button) {
+            const item = button.parentElement;
+            const isOpen = item.classList.contains('open');
+            
+            // Close all items first
+            document.querySelectorAll('.qa-item').forEach(el => el.classList.remove('open'));
+
+            if (!isOpen) {
+                item.classList.add('open');
+            }
+        }
+
+        // Highlight active sidebar navigation based on scroll position
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            let currentSectionId = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 120) {
+                    currentSectionId = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.querySelector('a').getAttribute('href') === '#' + currentSectionId) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

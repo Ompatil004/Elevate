@@ -231,6 +231,10 @@ class WorkoutEngine:
         # Load GIF blacklist — exercises with no valid exercise-specific media.
         self._load_gif_blacklist(base_dir)
 
+        # Initialize YouTube fallback fields to prevent AttributeError
+        self._youtube_fallback_enabled = False
+        self._youtube_svc = None
+
         print(f" WorkoutEngine initialized successfully!\n")
 
     def _lazy_load_wger(self):
