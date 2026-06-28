@@ -127,3 +127,14 @@ def get_weekly_meal_plans_collection():
     """Get the weekly meal plans collection instance"""
     db = get_database()
     return db.weekly_meal_plans
+
+def get_meal_plan_cache_collection():
+    """Get the durable meal-plan cache collection instance.
+
+    Stores one cached nutrition payload per user, keyed by a profile hash and
+    ISO-week so the heavy meal generation runs at most once per user per week.
+    Kept separate from `weekly_meal_plans` so the unused routes/meal_plan.py
+    schema can never collide with this cache.
+    """
+    db = get_database()
+    return db.meal_plan_cache

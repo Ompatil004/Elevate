@@ -465,6 +465,40 @@ router.post('/activities/sync', auth, async (req, res) => {
     }
 });
 
+// POST /api/profile/activities/log — append a SINGLE activity (with dedup).
+// The frontend (Workout/Nutrition/Dashboard) logs one activity at a time via
+// logActivityToBackend(); this complements the bulk /activities/sync route.
+router.post('/activities/log', auth, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        const activity = req.body || {};
+        // Reject empty payloads so we never store blank activity entries.
+        if (!activity.name && !activity.type && !activity.activity_type) {
+            return res.status(400).json({ message: 'Invalid activity payload' });
+        }
+
+        if (!Array.isArray(user.activities)) user.activities = [];
+
+        // Dedup using the same key shape as /activities/sync.
+        const ts = activity.timestamp ? new Date(activity.timestamp).getTime() : 0;
+        const key = `${activity.type}|${activity.name}|${activity.details}|${ts || activity.date}`;
+        const exists = user.activities.some(a => {
+            const ats = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+            return `${a.type}|${a.name}|${a.details}|${ats || a.date}` === key;
+        });
+
+        if (!exists) {
+            user.activities.push(activity);
+            await user.save();
+        }
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
+
 // GET /api/profile/activities/recent
 router.get('/activities/recent', auth, async (req, res) => {
     try {

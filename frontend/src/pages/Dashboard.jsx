@@ -2235,7 +2235,6 @@ function Dashboard({ onLogout }) {
 
         // Start background preloading of workout cache and pose assets after 3s delay
         try {
-          const profileData = data;
           setTimeout(() => {
             // 1. Warm workout plan cache if missing or expired
             const cachedPlan = localStorage.getItem('workoutPlan');
@@ -2268,33 +2267,15 @@ function Dashboard({ onLogout }) {
               });
             }
 
-            
-            // 2. Warm nutrition plan cache
-            const cachedNutrition = localStorage.getItem('nutritionCache');
-            const cachedNutritionDate = localStorage.getItem('nutritionCacheDate');
-            const todayStr = new Date().toLocaleDateString('en-CA');
-            const cacheInvalid = localStorage.getItem('nutritionCacheInvalid') === 'true';
-            
-            if (cacheInvalid || !cachedNutrition || cachedNutritionDate !== todayStr) {
-              console.log('[Dashboard] Warming up nutrition plan cache in background...');
-              import('../api').then(({ generateNutritionPlan }) => {
-                generateNutritionPlan(profileData).then((response) => {
-                  if (response?.data?.plan) {
-                    const planToCache = response.data.plan;
-                    // Add profile hash for cache validation in Nutrition.jsx
-                    const profileHash = [
-                      profileData.weight, profileData.goal, profileData.dietary_preference,
-                      profileData.allergies?.join(','), profileData.days_per_week
-                    ].join('|');
-                    planToCache._profileHash = profileHash;
-                    localStorage.setItem('nutritionCache', JSON.stringify(planToCache));
-                    localStorage.setItem('nutritionCacheDate', todayStr);
-                    localStorage.setItem('nutritionCacheInvalid', 'false');
-                    console.log('[Dashboard] Background nutrition cache pre-warmed successfully');
-                  }
-                }).catch(err => console.warn('[Dashboard] Background nutrition cache warmup failed:', err));
-              });
-            }
+
+            // 2. Nutrition plan is now cached on the backend (generate once per
+            // user per ISO-week, served instantly thereafter). The previous
+            // background warmup here was broken — it read response.data.plan
+            // (always undefined; the real field is response.data.nutrition) and
+            // wrote nutritionCache/nutritionCacheDate while Nutrition.jsx reads
+            // nutritionPlan/nutritionPlanDate via StorageKeys — so it cached
+            // nothing and only triggered the slow generation path. Removed.
+            // Nutrition.jsx's own on-demand fetch is now a fast backend cache hit.
 
 
             // 3. Preload MediaPipe pose assets in background
@@ -2412,7 +2393,10 @@ function Dashboard({ onLogout }) {
         try {
           const cachedNutrition = getFromStorage(StorageKeys.NUTRITION_CACHE);
           if (cachedNutrition && cachedNutrition.days && cachedNutrition.days.length > 0) {
-            const dt = cachedNutrition.days[0].daily_totals || cachedNutrition.daily_target;
+            // The meal week is now a fixed Mon–Sun window, so days[0] is Monday — not
+            // necessarily today. Pick today's day by date for correct macro targets.
+            const todayDay = cachedNutrition.days.find((d) => d?.date === todayStr) || cachedNutrition.days[0];
+            const dt = todayDay.daily_totals || cachedNutrition.daily_target;
             if (dt) {
               if (dt.calories && Number(dt.calories) > 0) calMax = Math.round(Number(dt.calories));
               if ((dt.protein_g || dt.protein) && Number(dt.protein_g || dt.protein) > 0) pMax = Math.round(Number(dt.protein_g || dt.protein));

@@ -68,6 +68,41 @@ const nutritionAnimations = `
   .logout-btn:hover { background: rgba(239, 68, 68, 0.2) !important; }
 `;
 
+// ──────────────────────────────────────────────────────────────
+//  Fixed week anchoring (mirrors Workout.jsx so meal & workout pages
+//  share the SAME Monday–Sunday week and the SAME calendar dates).
+//  Monday = index 0 … Sunday = index 6. All date math is done in IST
+//  so it stays aligned with the backend (which slices "today" in IST).
+// ──────────────────────────────────────────────────────────────
+const NUTRITION_WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+const getTodayIdxIST = () => {
+  const weekday = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Kolkata',
+    weekday: 'short',
+  }).format(new Date());
+  const indexByWeekday = { Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6 };
+  return indexByWeekday[weekday] ?? 0;
+};
+
+// Returns the 7 'YYYY-MM-DD' dates for the current ISO week, Monday→Sunday.
+// Uses pure UTC calendar arithmetic anchored on today's IST date so the result
+// never drifts across timezones, and guarantees week[todayIdx] === today (IST).
+const getWeekDatesIST = () => {
+  const todayStr = getLocalDateStr(); // IST 'YYYY-MM-DD'
+  const [y, m, d] = todayStr.split('-').map(Number);
+  const todayIdx = getTodayIdxIST();
+  const base = new Date(Date.UTC(y, m - 1, d));
+  const pad = (n) => String(n).padStart(2, '0');
+  const dates = [];
+  for (let i = 0; i < 7; i++) {
+    const dt = new Date(base);
+    dt.setUTCDate(base.getUTCDate() + (i - todayIdx));
+    dates.push(`${dt.getUTCFullYear()}-${pad(dt.getUTCMonth() + 1)}-${pad(dt.getUTCDate())}`);
+  }
+  return dates;
+};
+
 function Nutrition() {
   const navigate = useNavigate();
   const { showError, showSuccess, showInfo } = useNotification();
@@ -77,7 +112,7 @@ function Nutrition() {
   const [loading, setLoading] = useState(false);
   const [weeklyPlan, setWeeklyPlan] = useState(null);
   const [dailyTarget, setDailyTarget] = useState(null);
-  const [selectedDayIndex, setSelectedDayIndex] = useState(0);
+  const [selectedDayIndex, setSelectedDayIndex] = useState(getTodayIdxIST());
   const [userProfile, setUserProfile] = useState(null);
   const [showHistory, setShowHistory] = useState(false);
   const [mealHistory, setMealHistory] = useState([]);
@@ -95,8 +130,12 @@ function Nutrition() {
   const [expandedMeals, setExpandedMeals] = useState({});
   const MEAL_ORDER = ["breakfast", "lunch", "dinner"];
 
+  // Index (Mon=0…Sun=6) of the real "today" within the fixed week. Only this day
+  // is interactive — past and future days are read-only.
+  const todayIdx = getTodayIdxIST();
+
   const isMealUnlocked = (mealType, dayIdx) => {
-    if (dayIdx !== 0) return false;
+    if (dayIdx !== todayIdx) return false;
 
     const normalizedType = String(mealType || "").toLowerCase();
     if (normalizedType === "snack") return true;
@@ -285,9 +324,11 @@ function Nutrition() {
       const profile = profileRes.data;
       setUserProfile(profile);
 
-      // ✅ FIX 7+8: Check if we have a valid cached plan for today with same profile
-      // ✅ PA-7: Use LOCAL timezone for consistent date across pages
-      const todayStr = getLocalDateStr();
+      // ✅ FIX 7+8: Check if we have a valid cached plan for THIS WEEK with same profile.
+      // The meal week is now fixed (Mon–Sun, same as the workout week) and cached by
+      // week-start, so the plan stays stable for the whole week and only rebuilds on a
+      // new ISO week or a profile change — instead of "shifting" forward each day.
+      const weekStartStr = getWeekDatesIST()[0];
       const profileHash = `${profile.weight}-${profile.height}-${profile.goal}-${profile.dietary_preference || ''}-${profile.age}`;
       const rawInvalid = getFromStorage(StorageKeys.NUTRITION_CACHE_INVALID);
       const cacheInvalid = rawInvalid === true || rawInvalid === 'true';
@@ -295,11 +336,11 @@ function Nutrition() {
       const cachedPlan = getFromStorage(StorageKeys.NUTRITION_CACHE);
       const hasValidDays = cachedPlan && Array.isArray(cachedPlan.days) && cachedPlan.days.length > 0;
 
-      if (!cacheInvalid && hasValidDays && cachedDate === todayStr && cachedPlan._profileHash === profileHash) {
+      if (!cacheInvalid && hasValidDays && cachedDate === weekStartStr && cachedPlan._weekStart === weekStartStr && cachedPlan._profileHash === profileHash) {
         // Use cached plan — no network request needed
-        setWeeklyPlan({ week_start: todayStr, days: cachedPlan.days });
+        setWeeklyPlan({ week_start: weekStartStr, days: cachedPlan.days });
         setDailyTarget(cachedPlan.daily_target || {});
-        setSelectedDayIndex(0);
+        setSelectedDayIndex(todayIdx);
         setLoading(false);
         return;
       }
@@ -328,17 +369,17 @@ function Nutrition() {
         // Save daily target
         setDailyTarget(nutrition.daily_target || {});
 
-        // Build 7-day display from weekly_plan the backend now returns
+        // Build a FIXED Monday→Sunday week from the backend weekly_plan.
+        // Dates are anchored to the current ISO week (same Monday the workout page
+        // uses) so both pages show the identical week and the identical dates.
         const weekPlan = nutrition.weekly_plan;
-        const dayNames = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
-        const today = new Date();
+        const weekDates = getWeekDatesIST(); // ['YYYY-MM-DD' Monday … Sunday]
 
         const days = [];
         for (let i = 0; i < 7; i++) {
-          const date = new Date(today); date.setDate(date.getDate() + i);
-          const dName = date.toLocaleDateString('en-US', {weekday: 'long'});
-          // Get the matching day from the backend weekly plan
-          const backendDay = weekPlan?.[dName] || weekPlan?.[dayNames[i]] || {};
+          const dName = NUTRITION_WEEKDAYS[i];
+          // Get the matching day from the backend weekly plan (keyed by day name)
+          const backendDay = weekPlan?.[dName] || {};
 
           // Build meals array from the backend day object
           const meals = [];
@@ -377,24 +418,27 @@ function Nutrition() {
           };
 
           days.push({
-            date: getLocalDateStr(date),
+            date: weekDates[i],
             day_name: dName,
-            is_today: i === 0,
-            is_future: i > 0,
+            is_today: i === todayIdx,
+            is_past: i < todayIdx,
+            is_future: i > todayIdx,
             daily_totals,
             meals,
           });
         }
 
-        setWeeklyPlan({ week_start: getLocalDateStr(today), days });
-        setSelectedDayIndex(0);
+        const weekStart = weekDates[0];
+        setWeeklyPlan({ week_start: weekStart, days });
+        setSelectedDayIndex(todayIdx);
 
         setToStorage(StorageKeys.NUTRITION_CACHE, {
           days,
           daily_target: nutrition.daily_target || {},
           _profileHash: profileHash,
+          _weekStart: weekStart,
         });
-        setToStorage(StorageKeys.NUTRITION_CACHE_DATE, todayStr);
+        setToStorage(StorageKeys.NUTRITION_CACHE_DATE, weekStart);
 
         showSuccess("Nutrition plan loaded from dataset!", 3000);
         
@@ -479,7 +523,7 @@ function Nutrition() {
   const loadCheckedFoods = () => setCheckedFoods(safeJSONParse("checkedFoods", {}));
 
   const handleCheckFood = (foodId, mealName, mealType, dayIdx) => {
-    if (dayIdx !== 0) { showInfo("You can only complete today's meals!", 2000); return; }
+    if (dayIdx !== todayIdx) { showInfo("You can only complete today's meals!", 2000); return; }
 
     const normalizedMealType = String(mealType || '').toLowerCase();
     if (!isMealUnlocked(normalizedMealType, dayIdx)) {
@@ -658,7 +702,7 @@ function Nutrition() {
    *  SWAP — fetches alternatives from backend
    * ────────────────────────────────────────── */
   const openSwapModal = async (food, mealType, dayIdx) => {
-    if (dayIdx !== 0) { showInfo("You can only swap today's meals!", 2000); return; }
+    if (dayIdx !== todayIdx) { showInfo("You can only swap today's meals!", 2000); return; }
     setSwapModal({ show: true, food, mealType, dayIndex: dayIdx });
     setSelectedSwap(null);
     setSwapLoading(true);
@@ -924,14 +968,20 @@ function Nutrition() {
 
         {/* Day Selector */}
         <div style={styles.daySelectorBar}>
-          {weeklyPlan.days.map((day, index) => (
-            <div key={day.date} onClick={() => setSelectedDayIndex(index)} className="day-card-hover" style={{ ...styles.dayCard, ...(selectedDayIndex === index ? styles.dayCardSelected : {}), ...(day.is_today ? styles.dayCardToday : {}), opacity: day.is_future && selectedDayIndex !== index ? 0.6 : 1 }}>
+          {weeklyPlan.days.map((day, index) => {
+            const isToday = index === todayIdx;
+            const isOtherDay = index !== todayIdx; // past OR future → read-only
+            return (
+            <div key={day.date} onClick={() => setSelectedDayIndex(index)} className="day-card-hover" style={{ ...styles.dayCard, ...(selectedDayIndex === index ? styles.dayCardSelected : {}), ...(isToday ? styles.dayCardToday : {}), opacity: isOtherDay && selectedDayIndex !== index ? 0.6 : 1 }}>
               {selectedDayIndex === index && <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "3px", background: "linear-gradient(90deg, #6366f1, #a78bfa)", borderRadius: "20px 20px 0 0" }} />}
               <div style={styles.dayName}>{day.day_name?.slice(0, 3)}</div>
-              <div style={{ fontSize: "22px", fontWeight: "800", color: selectedDayIndex === index ? "var(--app-text)" : "#71717a", marginBottom: "8px", fontFamily: "monospace" }}>{new Date(day.date).getDate()}</div>
-              {day.is_today && <div style={{ fontSize: "9px", color: "#10b981", fontWeight: "800", marginTop: "6px", textTransform: "uppercase", letterSpacing: "1px" }}>Today</div>}
+              <div style={{ fontSize: "22px", fontWeight: "800", color: selectedDayIndex === index ? "var(--app-text)" : "#71717a", marginBottom: "8px", fontFamily: "monospace" }}>{Number(String(day.date).split('-')[2])}</div>
+              {isToday && <div style={{ fontSize: "9px", color: "#10b981", fontWeight: "800", marginTop: "6px", textTransform: "uppercase", letterSpacing: "1px" }}>Today</div>}
+              {index < todayIdx && <div style={{ fontSize: "9px", color: "#71717a", fontWeight: "800", marginTop: "6px", textTransform: "uppercase", letterSpacing: "1px" }}>🔒 Past</div>}
+              {index > todayIdx && <div style={{ fontSize: "9px", color: "#818cf8", fontWeight: "800", marginTop: "6px", textTransform: "uppercase", letterSpacing: "1px" }}>Upcoming</div>}
             </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Daily Summary */}
@@ -959,10 +1009,12 @@ function Nutrition() {
             const mealTypeKey = String(meal.meal_type || '').toLowerCase();
             const mealTypeLockKey = `${selectedDay.date}-${mealTypeKey}`;
             const isCompleted = !!lockedMeals[mealLockKey] || !!lockedMeals[mealTypeLockKey];
-            const isSequenceLocked = selectedDayIndex === 0 ? !isMealUnlocked(mealTypeKey, selectedDayIndex) : false;
+            // Sequence-lock (e.g. "finish breakfast first") only applies to today.
+            const isSequenceLocked = selectedDayIndex === todayIdx ? !isMealUnlocked(mealTypeKey, selectedDayIndex) : false;
             const unlockMessage = isSequenceLocked ? getUnlockMessage(mealTypeKey) : null;
             const checkedCount = meal.foods.filter(f => checkedFoods[`${selectedDay.date}-${f.id}`] || isCompleted).length;
-            const isFutureDay = selectedDayIndex > 0;
+            // Any day that isn't today (past OR future) is read-only — no ticking/swapping.
+            const isReadOnlyDay = selectedDayIndex !== todayIdx;
             return (
               <MealCard
                 key={mealIndex}
@@ -975,7 +1027,7 @@ function Nutrition() {
                 totalCount={meal.foods.length}
                 onCheckFood={handleCheckFood}
                 onSwapFood={openSwapModal}
-                dayIndex={selectedDayIndex} isFutureDay={isFutureDay}
+                dayIndex={selectedDayIndex} isFutureDay={isReadOnlyDay}
               />
             );
           })}

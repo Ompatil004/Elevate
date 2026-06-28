@@ -2816,6 +2816,50 @@ async def swap_workout_to_rest(
 # ==========================================
 
 
+def _current_meal_week_key() -> str:
+    """Return a stable ISO-week key (e.g. '2026-W26') for cache invalidation.
+
+    Uses the same IST calendar the meal engine uses to pick "today", so the
+    weekly cache rolls over on the same boundary the day-slicing does.
+    """
+    try:
+        from app.meal_engine import _IST
+        now = datetime.now(_IST)
+    except Exception:
+        now = _utcnow()
+    iso_year, iso_week, _ = now.isocalendar()
+    return f"{iso_year}-W{iso_week:02d}"
+
+
+def _compute_meal_profile_hash(user_profile: Dict) -> str:
+    """Deterministic hash of the profile fields that actually change the plan.
+
+    Any change to these fields (or a new ISO week, included separately in the
+    cache key) yields a different hash, giving automatic cache invalidation.
+    The raw weekly_workout_plan payload is deliberately excluded — it varies in
+    representation and the workout plan is itself week-stable via its own cache.
+    """
+    import hashlib
+    import json
+
+    allergies = user_profile.get("allergies") or []
+    if not isinstance(allergies, list):
+        allergies = [allergies]
+
+    key_fields = {
+        "age": user_profile.get("age"),
+        "weight": user_profile.get("weight"),
+        "height": user_profile.get("height"),
+        "gender": user_profile.get("gender"),
+        "goal": user_profile.get("goal"),
+        "dietary_preference": user_profile.get("dietary_preference"),
+        "allergies": sorted(str(a) for a in allergies),
+        "activity_level": user_profile.get("activity_level"),
+    }
+    serialized = json.dumps(key_fields, sort_keys=True, default=str)
+    return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
+
+
 @app.post("/nutrition")
 async def generate_nutrition(
     body: NutritionRequest,
@@ -2880,10 +2924,62 @@ async def generate_nutrition(
         logger.info(f"[{request_id}] Workout intensity: {request.workout_intensity}")
         logger.info(f"[{request_id}] User profile: {user_profile}")
 
-        # ===== STEP 4: GENERATE MEAL PLAN =====
-        logger.info(f"[{request_id}] Calling suggest_daily_meals...")
-        meal_plan = meal_runtime.suggest_daily_meals(user_profile, request.workout_intensity)
-        logger.info(f"[{request_id}] suggest_daily_meals returned keys: {list(meal_plan.keys()) if isinstance(meal_plan, dict) else 'NOT A DICT'}")
+        # ===== STEP 4: GENERATE MEAL PLAN (with durable per-week cache) =====
+        # Mirror the workout endpoint's "generate once per user per ISO-week" behaviour,
+        # but backed by MongoDB so it survives server restarts and re-logins. A hit
+        # serves the stored weekly plan re-sliced for today's weekday — no ML run.
+        profile_hash = _compute_meal_profile_hash(user_profile)
+        week_key = _current_meal_week_key()
+
+        meal_plan = None
+        cache_collection = None
+        try:
+            from app.db import get_meal_plan_cache_collection
+            cache_collection = get_meal_plan_cache_collection()
+        except Exception as cache_init_err:
+            logger.warning(f"[{request_id}] Meal cache unavailable, generating fresh: {cache_init_err}")
+            cache_collection = None
+
+        if cache_collection is not None:
+            try:
+                cached_doc = await cache_collection.find_one({"user_id": user_id})
+                if (
+                    cached_doc
+                    and cached_doc.get("profile_hash") == profile_hash
+                    and cached_doc.get("week_key") == week_key
+                    and isinstance(cached_doc.get("payload"), dict)
+                ):
+                    logger.info(f"[{request_id}] [MealCache] HIT — serving stored weekly plan (no ML)")
+                    # Re-slice the stored weekly plan for today's weekday.
+                    meal_plan = meal_runtime.slice_today_from_cached(cached_doc["payload"])
+            except Exception as cache_read_err:
+                logger.warning(f"[{request_id}] Meal cache read failed, generating fresh: {cache_read_err}")
+                meal_plan = None
+
+        if meal_plan is None:
+            logger.info(f"[{request_id}] [MealCache] MISS — calling suggest_daily_meals...")
+            meal_plan = meal_runtime.suggest_daily_meals(user_profile, request.workout_intensity)
+
+            # Store the freshly generated plan so subsequent visits are instant.
+            # Store failures are logged but never block the response.
+            if cache_collection is not None and isinstance(meal_plan, dict) and meal_plan.get("meals"):
+                try:
+                    await cache_collection.replace_one(
+                        {"user_id": user_id},
+                        {
+                            "user_id": user_id,
+                            "profile_hash": profile_hash,
+                            "week_key": week_key,
+                            "payload": meal_plan,
+                            "generated_at": _utcnow(),
+                        },
+                        upsert=True,
+                    )
+                    logger.info(f"[{request_id}] [MealCache] stored plan for week {week_key}")
+                except Exception as cache_write_err:
+                    logger.warning(f"[{request_id}] Could not store meal plan in cache: {cache_write_err}")
+
+        logger.info(f"[{request_id}] meal plan returned keys: {list(meal_plan.keys()) if isinstance(meal_plan, dict) else 'NOT A DICT'}")
         logger.info(f"[{request_id}] Meal plan has weekly_plan: {'weekly_plan' in (meal_plan or {})}")
         logger.info(f"[{request_id}] Meal plan has meals array: {len(meal_plan.get('meals', []))} items" if isinstance(meal_plan, dict) else "[{request_id}] No meals array")
 
