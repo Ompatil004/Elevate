@@ -1722,9 +1722,10 @@ const Workout = ({ onLogout }) => {
     showSuccess,
     displayPlan,
     showError,
-    navigate,
     normalizeWeeklyPlan,
     weekMetadata,
+    activeDay,
+    pastWorkouts,
   ]);
 
   const getSwapEmail = async () => {

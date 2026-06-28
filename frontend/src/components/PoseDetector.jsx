@@ -222,8 +222,20 @@ const REP_CONFIG = {
   GENERIC: { joint: 'avg',   down: 100, up: 140, startStage: 'rest', cooldown: 400, minROM: 0.40 },
 };
 
-// Hysteresis band to avoid jitter-based double counting
-const HYSTERESIS = 8;
+// Hysteresis bands:
+//   ENTRY_HYSTERESIS – smaller so users don't need to hit the exact angle to start a rep
+//   EXIT_HYSTERESIS  – larger to prevent noise from prematurely counting a rep
+const ENTRY_HYSTERESIS = 5;
+const EXIT_HYSTERESIS  = 8;
+
+// How many consecutive frames an angle must hold past a threshold before a state
+// transition is confirmed.  Slow exercises need more frames because they move
+// deliberately; fast ones would feel sluggish with 3 frames.
+const getConfirmFrames = (pattern) => {
+  const speed = SPEED_CATEGORY[pattern] || 'medium';
+  if (speed === 'slow') return 3;
+  return 2;
+};
 
 export default function PoseDetector({
   videoRef,
@@ -293,6 +305,9 @@ export default function PoseDetector({
     lastFeedbackTime: 0,
     minAngleInRep: 999,  // Track min angle during contraction for ROM validation
     maxAngleInRep: 0,    // Track max angle during extension for ROM validation
+    // Multi-frame noise gate: stage changes only after N consecutive confirming frames
+    pendingStage: null,
+    stageConfirmCount: 0,
     // Calf-specific: track ankle Y position
     baselineAnkleY: null,
     peakAnkleY: null,
@@ -315,8 +330,6 @@ export default function PoseDetector({
       stateRef.current.reps = currentReps;
     }
   }, [currentReps]);
-
-  const minVisibilityTimerRef = useRef(0);
 
   // ─── Initialise MediaPipe ──
   useEffect(() => {
@@ -379,6 +392,8 @@ export default function PoseDetector({
       lastFeedbackTime: 0,
       minAngleInRep: 999,
       maxAngleInRep: 0,
+      pendingStage: null,
+      stageConfirmCount: 0,
       baselineAnkleY: null,
       peakAnkleY: null,
       holdStartTime: 0,
@@ -391,7 +406,7 @@ export default function PoseDetector({
     smoothedRef.current = null;
     lastWarningRef.current = '';
     warningStabilityRef.current = { warning: '', count: 0 };
-  }, [exerciseName]);
+  }, [exerciseName, exercise?.movement_pattern]);
 
   // ─────────────────────────────────────
   //  MAIN ANALYSIS & DRAWING
@@ -562,72 +577,97 @@ export default function PoseDetector({
       s.minAngleInRep = Math.min(s.minAngleInRep, trackAngle);
       s.maxAngleInRep = Math.max(s.maxAngleInRep, trackAngle);
 
-      if (cfg.down < cfg.up) {
-        // "Normal" — angle starts high (rest), goes low (contracted), back to high
-        // rest → contracting (angle drops below down threshold)
-        // contracting → extended (angle rises above up threshold) → count rep if ROM valid
-        if (s.stage === 'rest' && trackAngle < cfg.down - HYSTERESIS) {
-          s.stage = 'contracting';
-          s.minAngleInRep = trackAngle;
-          s.maxAngleInRep = trackAngle;
-        }
-        if (s.stage === 'contracting' && trackAngle > cfg.up + HYSTERESIS && cooldownOK) {
-          // Validate ROM before counting
-          const actualROM = s.maxAngleInRep - s.minAngleInRep;
-          if (actualROM >= expectedROM * cfg.minROM) {
-            s.stage = 'rest';
-            s.reps += 1;
-            s.lastRepTime = now;
-            s.minAngleInRep = 999;
-            s.maxAngleInRep = 0;
-            onRepUpdate?.(s.reps);
+      // ── Multi-frame confirmation helpers ──
+      // A state transition is only accepted after the angle holds past the threshold
+      // for `cfr` consecutive frames.  This rejects single-frame noise spikes while
+      // still responding quickly to genuine movement.
+      const cfr = getConfirmFrames(pattern);
 
-            if (s.reps > 0 && s.reps % 3 === 0 && (now - s.lastFeedbackTime > 5000)) {
-                const phrases = ['Great job!', 'Keep it up!', 'Perfect form!', 'You got this!', 'Nice work!'];
-                onFormFeedback?.(phrases[Math.floor(Math.random() * phrases.length)]);
-                s.lastFeedbackTime = now;
-            }
+      const confirmPending = (targetStage, conditionMet) => {
+        if (conditionMet) {
+          if (s.pendingStage === targetStage) {
+            s.stageConfirmCount++;
           } else {
-            // Partial rep — reset without counting
-            s.stage = 'rest';
-            s.minAngleInRep = 999;
-            s.maxAngleInRep = 0;
-            // Feedback for partial reps (debounced)
-            if (now - s.lastFeedbackTime > 3000) {
-              onFormFeedback?.('Complete the full range of motion!');
-              s.lastFeedbackTime = now;
-            }
+            s.pendingStage = targetStage;
+            s.stageConfirmCount = 1;
+          }
+          return s.stageConfirmCount >= cfr;
+        }
+        if (s.pendingStage === targetStage) {
+          s.pendingStage = null;
+          s.stageConfirmCount = 0;
+        }
+        return false;
+      };
+
+      const finishRep = () => {
+        const actualROM = s.maxAngleInRep - s.minAngleInRep;
+        if (actualROM >= expectedROM * cfg.minROM) {
+          s.stage = 'rest';
+          s.reps += 1;
+          s.lastRepTime = now;
+          s.minAngleInRep = 999;
+          s.maxAngleInRep = 0;
+          s.pendingStage = null;
+          s.stageConfirmCount = 0;
+          onRepUpdate?.(s.reps);
+          if (s.reps > 0 && s.reps % 3 === 0 && (now - s.lastFeedbackTime > 5000)) {
+            const phrases = ['Great job!', 'Keep it up!', 'Perfect form!', 'You got this!', 'Nice work!'];
+            onFormFeedback?.(phrases[Math.floor(Math.random() * phrases.length)]);
+            s.lastFeedbackTime = now;
+          }
+        } else {
+          s.stage = 'rest';
+          s.minAngleInRep = 999;
+          s.maxAngleInRep = 0;
+          s.pendingStage = null;
+          s.stageConfirmCount = 0;
+          if (now - s.lastFeedbackTime > 3000) {
+            onFormFeedback?.('Complete the full range of motion!');
+            s.lastFeedbackTime = now;
+          }
+        }
+      };
+
+      if (cfg.down < cfg.up) {
+        // "Normal" — angle starts high (rest), drops during contraction, rises to count
+        // Entry uses ENTRY_HYSTERESIS (5°) — more forgiving so near-threshold angles register
+        // Exit  uses EXIT_HYSTERESIS  (8°) — stricter to avoid counting too early
+        if (s.stage === 'rest') {
+          if (confirmPending('contracting', trackAngle < cfg.down - ENTRY_HYSTERESIS)) {
+            s.stage = 'contracting';
+            s.pendingStage = null;
+            s.stageConfirmCount = 0;
+            s.minAngleInRep = trackAngle;
+            s.maxAngleInRep = trackAngle;
+          }
+        }
+        if (s.stage === 'contracting') {
+          if (confirmPending('extended', trackAngle > cfg.up + EXIT_HYSTERESIS && cooldownOK)) {
+            finishRep();
           }
         }
       } else {
-        // "Inverted" — angle starts high, drops to contracted, rises back
-        if (s.stage === 'rest' && trackAngle > cfg.up + HYSTERESIS) {
-          s.stage = 'extended';
-          s.minAngleInRep = trackAngle;
-          s.maxAngleInRep = trackAngle;
+        // "Inverted" — angle starts low, rises to contracted, drops back to count
+        if (s.stage === 'rest') {
+          if (confirmPending('extended', trackAngle > cfg.up + ENTRY_HYSTERESIS)) {
+            s.stage = 'extended';
+            s.pendingStage = null;
+            s.stageConfirmCount = 0;
+            s.minAngleInRep = trackAngle;
+            s.maxAngleInRep = trackAngle;
+          }
         }
-        if (s.stage === 'extended' && trackAngle < cfg.down - HYSTERESIS) {
-          s.stage = 'contracting';
+        if (s.stage === 'extended') {
+          if (confirmPending('contracting', trackAngle < cfg.down - ENTRY_HYSTERESIS)) {
+            s.stage = 'contracting';
+            s.pendingStage = null;
+            s.stageConfirmCount = 0;
+          }
         }
-        if (s.stage === 'contracting' && trackAngle > cfg.up + HYSTERESIS && cooldownOK) {
-          const actualROM = s.maxAngleInRep - s.minAngleInRep;
-          if (actualROM >= expectedROM * cfg.minROM) {
-            s.stage = 'rest';
-            s.reps += 1;
-            s.lastRepTime = now;
-            s.minAngleInRep = 999;
-            s.maxAngleInRep = 0;
-            onRepUpdate?.(s.reps);
-
-            if (s.reps > 0 && s.reps % 3 === 0 && (now - s.lastFeedbackTime > 5000)) {
-                const phrases = ['Great job!', 'Keep it up!', 'Perfect form!', 'You got this!', 'Nice work!'];
-                onFormFeedback?.(phrases[Math.floor(Math.random() * phrases.length)]);
-                s.lastFeedbackTime = now;
-            }
-          } else {
-            s.stage = 'rest';
-            s.minAngleInRep = 999;
-            s.maxAngleInRep = 0;
+        if (s.stage === 'contracting') {
+          if (confirmPending('rest', trackAngle > cfg.up + EXIT_HYSTERESIS && cooldownOK)) {
+            finishRep();
           }
         }
       }
@@ -699,7 +739,7 @@ export default function PoseDetector({
         if (angle > extended + 15 || angle < contracted - 15) {
           arcColor = '#ef4444'; // Red (Danger)
           textColor = '#f87171';
-        } else if (angle > extended + 5 || angle < contracted - 5) {
+        } else if (angle > extended + EXIT_HYSTERESIS || angle < contracted - EXIT_HYSTERESIS) {
           arcColor = '#f59e0b'; // Yellow (Warning)
           textColor = '#fbbf24';
         } else {

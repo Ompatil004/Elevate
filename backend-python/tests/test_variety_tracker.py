@@ -29,7 +29,7 @@ def test_variety_tracker_basic():
     # Check that tracking works
     assert "chicken/meat" in tracker.protein_history
     assert "rice" in tracker.carb_history
-    assert "North Indian" in tracker.daily_cuisine_history[1]
+    assert "north indian" in tracker.daily_cuisine_history[1]
     
     # Calculate penalty for repeating cuisine
     # Note: calculate_variety_penalty penalizes recent items in item_history and family_history

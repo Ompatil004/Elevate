@@ -221,7 +221,8 @@ def test_concurrent_profile_updates_no_state_leakage(monkeypatch):
 
     # Run updates in parallel threads
     def call_update(user_id, payload):
-        return client.put("/profile/update-safe", json=payload, headers={"x-auth-token": user_id})
+        local_client = TestClient(server.app)
+        return local_client.put("/profile/update-safe", json=payload, headers={"x-auth-token": user_id})
 
     with ThreadPoolExecutor(max_workers=2) as executor:
         future_a = executor.submit(call_update, user_a_id, payload_a)

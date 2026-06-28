@@ -90,6 +90,12 @@ class WorkoutEngine:
         self._wger_ready_event = threading.Event()
         # Exercises confirmed to have no matching GIF — must not use random fallbacks.
         self._gif_blacklist: set = set()
+        # YouTube fallback configuration
+        self._youtube_fallback_enabled = False
+        self._youtube_svc = None
+        # CSV-based GIF lookup from gifs.csv (fitnessprogramer.com)
+        self._csv_gif_map: dict = {}
+        self._csv_gif_tokens: list = []
         
         # Initialize multi-output XGBoost model
         self.multi_output_model = MultiOutputXGBoostModel()
@@ -230,6 +236,8 @@ class WorkoutEngine:
 
         # Load GIF blacklist — exercises with no valid exercise-specific media.
         self._load_gif_blacklist(base_dir)
+        # Load gifs.csv lookup table for broader exercise GIF coverage.
+        self._load_csv_gif_map(base_dir)
 
         print(f" WorkoutEngine initialized successfully!\n")
 
@@ -477,6 +485,58 @@ class WorkoutEngine:
         if not exercise_name or not self._gif_blacklist:
             return False
         return self._normalize_exercise_name(exercise_name) in self._gif_blacklist
+
+    def _load_csv_gif_map(self, base_dir: Optional[str] = None) -> None:
+        """Load gifs.csv (fitnessprogramer.com) as a fuzzy-match fallback GIF source."""
+        try:
+            resolved_base = base_dir or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            gif_path = os.path.join(resolved_base, 'data', 'gifs.csv')
+            if not os.path.exists(gif_path):
+                return
+            df = pd.read_csv(gif_path)
+            self._csv_gif_map = {}
+            self._csv_gif_tokens = []
+            for _, row in df.iterrows():
+                title = str(row.get('title', '')).strip()
+                src = str(row.get('src', '')).strip()
+                if not title or not src or not src.startswith('http'):
+                    continue
+                key = self._normalize_exercise_name(title)
+                if key and key not in self._csv_gif_map:
+                    self._csv_gif_map[key] = src
+                tokens = frozenset(re.sub(r'[^a-z0-9 ]', ' ', key).split())
+                if tokens:
+                    self._csv_gif_tokens.append((tokens, src))
+            print(f" [GIF CSV] Loaded {len(self._csv_gif_map)} exercise GIFs from gifs.csv")
+        except Exception as e:
+            print(f" [GIF CSV] Load failed: {e}")
+            self._csv_gif_map = {}
+            self._csv_gif_tokens = []
+
+    def _match_csv_gif(self, exercise_name: str) -> str:
+        """Fuzzy-match an exercise name against gifs.csv using word-overlap (Dice coefficient)."""
+        if not exercise_name or not self._csv_gif_map:
+            return ''
+        key = self._normalize_exercise_name(exercise_name)
+        if key in self._csv_gif_map:
+            return self._csv_gif_map[key]
+        q_tokens = frozenset(re.sub(r'[^a-z0-9 ]', ' ', key).split())
+        if not q_tokens:
+            return ''
+        best_score = 0.0
+        best_url = ''
+        for tokens, url in self._csv_gif_tokens:
+            if not tokens:
+                continue
+            inter = len(q_tokens & tokens)
+            if inter == 0:
+                continue
+            score = 2.0 * inter / (len(q_tokens) + len(tokens))
+            if score > best_score:
+                best_score = score
+                best_url = url
+        # Accept only high-confidence matches (≥50% word overlap) to avoid wrong GIFs
+        return best_url if best_score >= 0.5 else ''
 
     def _initialize_audit_media_index(self, base_dir: Optional[str] = None) -> None:
         """Load high-confidence exercise-name -> media mappings from audit artifacts."""
@@ -957,6 +1017,8 @@ class WorkoutEngine:
         'images.ctfassets.net',
         'assets.jefit.com',
         'cdn.jefit.com',
+        'fitnessprogramer.com',
+        'raw.githubusercontent.com',
     )
 
     _EXERCISEDB_DOMAINS = (
@@ -1331,6 +1393,14 @@ class WorkoutEngine:
         # NOTE: Generic muscle-group fallback is intentionally disabled.
         # We do NOT fall back to a random GIF for a different exercise — use 'none' instead.
         # (The allow_generic=True path previously here caused wrong GIFs to be shown.)
+
+        # gifs.csv fuzzy-match (fitnessprogramer.com) — last resort before 'none'.
+        # Only tried when all Wger/audit/video sources have failed, so it never
+        # overrides a more specific match already found above.
+        if not media_url and exercise_name:
+            csv_gif = self._match_csv_gif(exercise_name)
+            if csv_gif and self._validate_media_url(csv_gif):
+                media_url = csv_gif
 
         # Optional final YouTube search embed only when YouTube fallback is enabled.
         if not media_url and self._youtube_fallback_enabled and exercise_name:
@@ -4084,16 +4154,26 @@ class WorkoutEngine:
             safety_cfg = self.rules.get('safety', {})
             injury_blocked_patterns = safety_cfg.get('injury_blocked_patterns', {})
             all_blocked_types = []
+            matched_issues = set()
             for _cond_key, _cond_cfg in injury_blocked_patterns.items():
                 indicators = _cond_cfg.get('condition_indicators', [])
                 from app.safety_layer import has_condition
                 if has_condition(body_issues, indicators):
                     all_blocked_types.extend(_cond_cfg.get('blocked_check_types', []))
+                    for issue in body_issues:
+                        if has_condition([issue], indicators):
+                            matched_issues.add(issue)
 
             if all_blocked_types:
                 pool, _blocked = filter_exercises_by_movement(pool, all_blocked_types)
                 if _blocked:
                     print(f"    [SafetyLayer] Blocked {_blocked} exercises by movement pattern ({all_blocked_types})")
+
+            # Fallback for any issues NOT handled by the safety layer blocked patterns
+            unhandled_issues = set(body_issues) - matched_issues
+            for issue in unhandled_issues:
+                if 'Avoid_If' in pool.columns:
+                    pool = pool[~pool['Avoid_If'].str.contains(issue, case=False, na=False)]
 
         elif body_issues:
             # Fallback: Avoid_If column filter only (no name-based filtering)

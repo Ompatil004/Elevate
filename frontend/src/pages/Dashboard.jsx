@@ -682,22 +682,6 @@ function Dashboard({ onLogout }) {
   const [recentHistory, setRecentHistory] = useState([]);
   const [weeklyProgress, setWeeklyProgress] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [viewportWidth, setViewportWidth] = useState(
-    typeof window !== 'undefined' ? window.innerWidth : 1280
-  );
-
-  useEffect(() => {
-    const handleResize = () => setViewportWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  const isCompactLayout = viewportWidth <= 1024;
-  const dashboardLayout = {
-    statsRow: isCompactLayout ? { gridTemplateColumns: '1fr' } : {},
-    chartSection: isCompactLayout ? { gridColumn: 'span 12', height: '360px' } : {},
-    activitySection: isCompactLayout ? { gridColumn: 'span 12', height: '360px' } : {}
-  };
 
   const todayDate = new Date().toLocaleDateString('en-US', {
     weekday: 'short',
@@ -1718,7 +1702,7 @@ function Dashboard({ onLogout }) {
     } catch (error) {
       console.error('Error in checkWaterThresholdNotifications:', error);
     }
-  }, [addNotification]);
+  }, [addNotification, sleep, status, workoutProgress]);
 
   const checkSleepThresholdNotifications = useCallback((oldSleep, newSleep) => {
     try {
@@ -1989,7 +1973,7 @@ function Dashboard({ onLogout }) {
   }, [water, sleep, status, workoutProgress]);
 
 
-  const updateRecoveryScore = (currentWater, currentSleep) => {
+  const updateRecoveryScore = useCallback((currentWater, currentSleep) => {
     const userWeight = parseFloat(safeJSONParse('user', {})?.weight || '70');
     const _isWkDone = (typeof status !== "undefined" && (status === "done" || status === "meal")) || (typeof workoutProgress !== "undefined" && workoutProgress === 1);
     const waterGoal = getDynamicWaterGoal(typeof userWeight !== "undefined" ? userWeight : 70, typeof sleep !== "undefined" ? sleep : 0, _isWkDone);
@@ -2004,7 +1988,7 @@ function Dashboard({ onLogout }) {
       newRecoveryScore * 0.2;
     if (score > 100) score = 100;
     setStats((prev) => ({ ...prev, focusScore: Math.floor(score) }));
-  };
+  }, [status, workoutProgress, sleep]);
 
   // ✅ FIX 4: Use StorageKeys for water persistence
   const handleWaterAdd = useCallback(() => {
@@ -2024,7 +2008,7 @@ function Dashboard({ onLogout }) {
     });
     logActivity('water', 'Hydration', '+250ml Water');
     updateRecoveryScore(newWaterValue, sleep);
-  }, [water, sleep, checkWaterThresholdNotifications]);
+  }, [water, sleep, status, workoutProgress, checkWaterThresholdNotifications, updateRecoveryScore]);
 
   const handleWaterRemove = useCallback(() => {
     if (water > 0) {
@@ -2045,7 +2029,7 @@ function Dashboard({ onLogout }) {
       removeLastLog('water');
       updateRecoveryScore(newWaterValue, sleep);
     }
-  }, [water, sleep, checkWaterThresholdNotifications]);
+  }, [water, sleep, status, workoutProgress, checkWaterThresholdNotifications, updateRecoveryScore]);
 
   // ✅ UPDATED: useCallback for sleep handlers
   // ✅ FIX 4: Use StorageKeys for sleep persistence
@@ -2060,7 +2044,7 @@ function Dashboard({ onLogout }) {
     });
     logActivity('sleep', 'Sleep Update', '+30 min sleep logged');
     updateRecoveryScore(water, newSleepValue);
-  }, [sleep, water, checkSleepThresholdNotifications]);
+  }, [sleep, water, checkSleepThresholdNotifications, updateRecoveryScore]);
 
   const handleSleepRemove = useCallback(() => {
     if (sleep > 0) {
@@ -2075,7 +2059,7 @@ function Dashboard({ onLogout }) {
       removeLastLog('sleep');
       updateRecoveryScore(water, newSleepValue);
     }
-  }, [sleep, water, checkSleepThresholdNotifications]);
+  }, [sleep, water, checkSleepThresholdNotifications, updateRecoveryScore]);
 
   const fetchExternalNutritionData = async (foodQuery) => {
     try {
