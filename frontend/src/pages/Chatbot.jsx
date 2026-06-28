@@ -402,7 +402,7 @@ function TypingIndicator({ styles }) {
   );
 }
 
-function Chatbot() {
+function Chatbot({ onLogout }) {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === 'dark';
@@ -533,8 +533,12 @@ function Chatbot() {
       message: 'Log out?',
       onConfirm: (confirmed) => {
         if (confirmed) {
-          logoutSafe();
-          navigate('/');
+          if (typeof onLogout === 'function') {
+            onLogout();
+          } else {
+            logoutSafe();
+            navigate('/');
+          }
         }
         setConfirmDialog({ show: false, message: '', onConfirm: null });
       }

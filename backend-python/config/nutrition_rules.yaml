@@ -620,3 +620,95 @@ meal_suitability_blocks:
     - pudding
     - rasmalai
     - gulabjamun
+
+# ── Medical Safety Adjustments ────────────────────────────────────────────────
+# Applied AFTER existing macro calculations. These are conservative adjustments
+# for users who declare medical conditions. This is NOT a medical diagnosis
+# system. Users should always consult their doctor.
+#
+# medical_condition_indicators: each condition key maps to a list of partial
+#   strings matched case-insensitively against the user's declared conditions.
+#   Do NOT use exact matching — partial substring matching is used.
+#
+# safety_adjustments: per-condition macro thresholds applied after the engine
+#   calculates base targets. Values are in grams unless noted as multiplier.
+#
+# safety_adjustment_order: deterministic processing order (conditions applied
+#   in this sequence). Add new conditions at the end of this list.
+#
+# medical_disclaimer: string returned in API response when any adjustment fires.
+# ─────────────────────────────────────────────────────────────────────────────
+medical_safety:
+  # Condition indicator substrings (partial, case-insensitive match)
+  medical_condition_indicators:
+    diabetes:
+      - diabetes
+      - diabetic
+      - type 2 diabetes
+      - type 1 diabetes
+      - t2dm
+      - t1dm
+      - high blood sugar
+      - hyperglycemia
+      - insulin resistance
+    kidney_disease:
+      - kidney disease
+      - kidney failure
+      - renal
+      - ckd
+      - chronic kidney
+      - nephropathy
+      - dialysis
+    heart_disease:
+      - heart disease
+      - cardiac
+      - cardiovascular
+      - coronary
+      - heart failure
+      - angina
+      - hypertension
+      - high blood pressure
+    hypertension:
+      - hypertension
+      - high blood pressure
+      - hbp
+
+  # Per-condition macro adjustments
+  # All thresholds in grams per day. Use null to skip an adjustment.
+  safety_adjustments:
+    diabetes:
+      # Cap total daily carbohydrate to this value (grams)
+      carb_max_g: 150
+      # Carb adjustment label (shown in medical_adjustments_applied list)
+      label: "diabetes_carb_limit"
+    kidney_disease:
+      # Multiply base protein target by this factor (conservative reduction)
+      protein_multiplier: 0.75
+      # Protein adjustment label
+      label: "kidney_disease_protein_reduction"
+    heart_disease:
+      # Cap total daily fat (grams)
+      fat_max_g: 60
+      # Fat adjustment label
+      label: "heart_disease_fat_limit"
+    hypertension:
+      # Same as heart_disease fat cap — hypertension shares fat limits
+      fat_max_g: 65
+      # Fat adjustment label
+      label: "hypertension_fat_limit"
+
+  # Processing order — deterministic. New conditions: append here.
+  safety_adjustment_order:
+    - diabetes
+    - kidney_disease
+    - heart_disease
+    - hypertension
+
+  # Disclaimer returned in API response when any medical adjustment fires.
+  # Edit the text here; no Python changes needed.
+  medical_disclaimer: >
+    Your nutrition plan has been adjusted based on the medical conditions or
+    health considerations you reported. These adjustments are conservative
+    safety modifications only and are NOT a substitute for medical advice.
+    Please consult your doctor or a registered dietitian before making
+    significant dietary changes.

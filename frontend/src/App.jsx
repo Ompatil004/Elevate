@@ -117,23 +117,23 @@ function AppInner({ isAuthenticated, setIsAuthenticated }) {
         />
         <Route
           path="/profile-setup"
-          element={isAuthenticated ? <ProfileSetup /> : <Navigate to="/login" replace />}
+          element={isAuthenticated ? <ProfileSetup onLogout={() => handleLogout('manual')} /> : <Navigate to="/login" replace />}
         />
         <Route
           path="/profile"
-          element={isAuthenticated ? <ProfileSetup /> : <Navigate to="/login" replace />}
+          element={isAuthenticated ? <ProfileSetup onLogout={() => handleLogout('manual')} /> : <Navigate to="/login" replace />}
         />
         <Route
           path="/workout"
-          element={isAuthenticated ? <Workout /> : <Navigate to="/login" replace />}
+          element={isAuthenticated ? <Workout onLogout={() => handleLogout('manual')} /> : <Navigate to="/login" replace />}
         />
         <Route
           path="/nutrition"
-          element={isAuthenticated ? <Nutrition /> : <Navigate to="/login" replace />}
+          element={isAuthenticated ? <Nutrition onLogout={() => handleLogout('manual')} /> : <Navigate to="/login" replace />}
         />
         <Route
           path="/chatbot"
-          element={isAuthenticated ? <Chatbot /> : <Navigate to="/login" replace />}
+          element={isAuthenticated ? <Chatbot onLogout={() => handleLogout('manual')} /> : <Navigate to="/login" replace />}
         />
         <Route
           path="/dashboard-action-ideas"

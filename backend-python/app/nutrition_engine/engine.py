@@ -1,6 +1,8 @@
 import os
 import logging
-from typing import Dict, Any,List
+from typing import Dict, Any, List
+
+import yaml
 
 from app.nutrition_engine.food_graph import FoodGraph
 from app.nutrition_engine.template_manager import TemplateManager
@@ -13,8 +15,23 @@ from app.nutrition_engine.weekly_validator import WeeklyValidator
 from app.nutrition_engine.nutrition_calculator import WeeklyMacroPlanner
 from app.nutrition_engine.ingredient_optimizer import IngredientOptimizer
 from app.nutrition_engine.plan_cache import WeeklyPlanManager
+from app.safety_layer import apply_nutrition_safety, build_safety_response
 
 logger = logging.getLogger(__name__)
+
+
+def _load_nutrition_rules(config_dir: str = 'config') -> Dict[str, Any]:
+    """Load nutrition_rules.yaml once at import time for the safety layer."""
+    try:
+        rules_path = os.path.join(config_dir, 'nutrition_rules.yaml')
+        with open(rules_path, 'r', encoding='utf-8') as fh:
+            return yaml.safe_load(fh) or {}
+    except Exception as exc:
+        logger.warning('Could not load nutrition_rules.yaml for safety layer: %s', exc)
+        return {}
+
+
+_NUTRITION_RULES: Dict[str, Any] = _load_nutrition_rules()
 
 class NutritionEngineV6:
     """
@@ -52,7 +69,11 @@ class NutritionEngineV6:
                     "validation_report": {"is_valid": True, "message": "Loaded from cache"},
                     "weekly_plan": cached_plan,
                     "stats": {"cache_hit": True},
-                    "daily_targets": {}
+                    "daily_targets": {},
+                    # Safety fields — empty on cache hit (plan was already adjusted on generation)
+                    "medical_adjustments_applied": [],
+                    "medical_disclaimer": "",
+                    "safety_warnings": [],
                 }
         except Exception as e:
             logger.warning(f"Failed to check/load cache: {e}. Proceeding with fresh generation.")
@@ -87,10 +108,23 @@ class NutritionEngineV6:
             # 4. Validate the generated plan holistically
             weekly_planner = WeeklyMacroPlanner()
             daily_targets = weekly_planner.plan_week(user_profile)
-            
+
+            # 4a. Safety layer — apply medical condition macro adjustments AFTER
+            #     existing calculations so AI logic is fully preserved.
+            adjusted_targets, nutrition_adjustments = apply_nutrition_safety(
+                daily_targets, user_profile, _NUTRITION_RULES
+            )
+            if nutrition_adjustments:
+                daily_targets = adjusted_targets
+
             # New Serialized Validation Step
             validation_report = self.weekly_validator.validate_serialized_plan(weekly_plan, daily_targets, user_profile)
-            
+
+            # Build safety response fields
+            safety_resp = build_safety_response(
+                nutrition_adjustments, [], _NUTRITION_RULES, rules_key="medical_safety"
+            )
+
             # 5. Save to Cache if valid
             if validation_report["is_valid"]:
                 try:
@@ -103,14 +137,16 @@ class NutritionEngineV6:
                     logger.error(f"[VALIDATION_FAILURE] critical_error={err}")
                 for warn in validation_report.get("warnings", []):
                     logger.warning(f"[VALIDATION_FAILURE] warning={warn}")
-            
+
             return {
                 "status": "success" if validation_report["is_valid"] else "error",
                 "validation_report": validation_report,
                 "warnings": validation_report.get("warnings", []),
                 "weekly_plan": weekly_plan,
                 "stats": stats,
-                "daily_targets": daily_targets
+                "daily_targets": daily_targets,
+                # Safety fields
+                **safety_resp,
             }
         except Exception as e:
             logger.error(f"Uncaught exception during meal plan generation: {e}", exc_info=True)
