@@ -28,7 +28,7 @@ import AuroraBackground from '../components/AuroraBackground';
 // Define full weekday names array
 const weekdayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const WORKOUT_PLAN_CACHE_VERSION = '2026-04-10-workout-fix-6-seeded-shuffle-variety';
-const DEFAULT_FALLBACK_GIF = 'https://media.giphy.com/media/3o7TKsQ8UQJ5n6WfTO/giphy.gif';
+const DEFAULT_FALLBACK_GIF = '';
 
 // --- STYLES (Your Exact Styles Preserved) ---
 const styles = {
@@ -118,6 +118,17 @@ const styles = {
   historyLabel: { fontSize: '11px', color: '#a5b4fc', fontWeight: '700', textTransform: 'uppercase', marginBottom: '4px' },
   historyList: { fontSize: '13px', color: 'var(--app-text-muted)', lineHeight: '1.4' },
   restDay: { padding: '20px', background: 'rgba(245, 158, 11, 0.1)', borderRadius: '12px', color: '#f59e0b', fontSize: '14px', textAlign: 'center', fontWeight: '500' }
+};
+
+const AnimatedImageSequence = ({ urls, alt, onError }) => {
+  const [index, setIndex] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setIndex(prev => (prev + 1) % urls.length);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [urls]);
+  return <img src={urls[index]} alt={alt} style={styles.gifLarge} onError={onError} loading="lazy" />;
 };
 
 // History dynamically fetched from node
@@ -461,11 +472,7 @@ const Workout = ({ onLogout }) => {
     return ['.mp4', '.webm', '.ogg', '.mov', '.m3u8'].some((ext) => clean.endsWith(ext));
   };
 
-  // Issue #3 – detect YouTube embed URLs returned by youtube_service.py
-  const isYouTubeUrl = (url) => {
-    if (!url || typeof url !== 'string') return false;
-    return url.includes('youtube.com/embed') || url.includes('youtu.be/');
-  };
+
 
   const getMovementCue = (exerciseName = '') => {
     const lower = String(exerciseName).toLowerCase();
@@ -696,18 +703,13 @@ const Workout = ({ onLogout }) => {
       return renderExerciseNoGifPlaceholder(activeExercise?.name);
     }
 
-    // Issue #3 – YouTube embed (from youtube_service.py fallback)
-    if (isYouTubeUrl(currentUrl)) {
-      return (
-        <iframe
-          key={currentUrl}
-          src={currentUrl}
-          title={activeExercise?.name || 'Exercise demo'}
-          style={{ ...styles.gifLarge, border: 'none' }}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        />
-      );
+
+
+    if (currentUrl.includes(',')) {
+      const urls = currentUrl.split(',').map(u => u.trim()).filter(Boolean);
+      if (urls.length > 1) {
+        return <AnimatedImageSequence key={currentUrl} urls={urls} alt={activeExercise?.name} onError={handleMediaError} />;
+      }
     }
 
     if (isVideoUrl(currentUrl)) {

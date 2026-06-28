@@ -39,11 +39,7 @@ except ImportError:
     generate_workout_config = None
     is_gemini_available = None
 
-# Issue #3 – YouTube video fallback
-try:
-    from .youtube_service import get_youtube_service as _get_yt
-except ImportError:
-    _get_yt = None
+
 
 # Issue #4 – plan caching
 try:
@@ -224,13 +220,7 @@ class WorkoutEngine:
         )
         self._wger_thread.start()
 
-        # Issue #3 – YouTube service (lazy singleton, opt-in only)
-        # Keep disabled by default because GIF/image fallbacks now cover all exercises.
-        enable_youtube_fallback = str(os.getenv('ENABLE_YOUTUBE_FALLBACK', '0')).strip().lower() in ('1', 'true', 'yes', 'on')
-        self._youtube_fallback_enabled = enable_youtube_fallback
-        self._youtube_svc = _get_yt() if (enable_youtube_fallback and _get_yt) else None
-        if not enable_youtube_fallback:
-            print(" [YouTube] Fallback disabled (set ENABLE_YOUTUBE_FALLBACK=1 to enable)")
+
 
         # Issue #4 – plan cache (lazy singleton)
         self._plan_cache = _get_cache() if _get_cache else None
