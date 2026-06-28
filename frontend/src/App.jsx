@@ -53,7 +53,7 @@ function AppInner({ isAuthenticated, setIsAuthenticated }) {
   const navigate = useNavigate();
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
-  const { showError, showInfo } = useNotification();
+  const { showError } = useNotification();
 
   const handleLogout = useCallback((reason = 'manual') => {
     // Best-effort server logout to clear HttpOnly cookie.

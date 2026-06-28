@@ -321,6 +321,71 @@ class MealEngine:
         return result_dict
 
     # ─────────────────────────────────────────────
+    #  slice_today_from_cached — re-slice a stored weekly plan for "today"
+    # ─────────────────────────────────────────────
+
+    def slice_today_from_cached(self, cached_result: Dict) -> Dict:
+        """
+        Re-slice an already-generated weekly meal plan for the current IST weekday.
+
+        Pure transform over data produced by `suggest_daily_meals` — performs NO
+        regeneration. Used when serving a cached plan so that `date`, `meals`
+        (today's flat list), `daily_target` and `workout_intensity` stay correct
+        on day 2–7 of the same week, while leaving the stored weekly view intact.
+
+        Falls back to returning the cached dict unchanged if it is malformed.
+        """
+        if not isinstance(cached_result, dict):
+            return cached_result
+
+        adjusted_weekly_plan = cached_result.get('weekly_plan') or {}
+        adjusted_targets_by_day = cached_result.get('daily_targets_by_day', {})
+        intensity_by_day = cached_result.get('intensity_by_day', {})
+
+        # Without a weekly plan there is nothing to re-slice; return as-is.
+        if not adjusted_weekly_plan:
+            return cached_result
+
+        today_key = datetime.now(_IST).strftime('%A')
+        if today_key not in adjusted_weekly_plan:
+            today_key = list(adjusted_weekly_plan.keys())[0] if adjusted_weekly_plan else 'Monday'
+
+        today_meals = adjusted_weekly_plan.get(today_key, {})
+        today_target = adjusted_targets_by_day.get(today_key, {})
+        today_intensity = intensity_by_day.get(today_key, cached_result.get('workout_intensity', 'moderate'))
+
+        flat_meals = []
+        for meal_type, items in today_meals.items():
+            for item in items:
+                flat_meals.append({
+                    'meal_type':    meal_type,
+                    'name':         item.get('food_name', ''),
+                    'food_name':    item.get('food_name', ''),
+                    'serving':      item.get('serving', ''),
+                    'calories':     item.get('calories', 0),
+                    'protein':      item.get('protein', 0),
+                    'carbs':        item.get('carbs', 0),
+                    'fat':          item.get('fat', 0),
+                    'fiber':        item.get('fiber', 0),
+                    'swap_group':   item.get('semantics', {}).get('family', ''),
+                    'swap_options': [],
+                    'meal_role':    item.get('semantics', {}).get('meal_role', ''),
+                    'budget_level': item.get('semantics', {}).get('budget_level', ''),
+                    'availability': 'common',
+                    'tags':         '',
+                    'intensity_adjusted': True,
+                    'workout_intensity':  today_intensity,
+                })
+
+        # Copy so we never mutate the cached payload that may be reused.
+        result_dict = dict(cached_result)
+        result_dict['date'] = datetime.now(_IST).strftime('%Y-%m-%d')
+        result_dict['daily_target'] = today_target
+        result_dict['meals'] = flat_meals
+        result_dict['workout_intensity'] = today_intensity
+        return result_dict
+
+    # ─────────────────────────────────────────────
     #  generate_meal_plan — weekly with workout integration
     # ─────────────────────────────────────────────
 

@@ -429,6 +429,9 @@ export const getWorkoutHistory = () =>
 export const saveWorkoutHistory = (data) =>
     AuthAPI.post('/profile/workout-history', data);
 
+export const undoWorkoutSwapHistory = () =>
+    AuthAPI.post('/profile/workout-history/undo-swap');
+
 export const saveMealPlan = (mealData) =>
     AuthAPI.post('/users/meals/save', mealData);
 

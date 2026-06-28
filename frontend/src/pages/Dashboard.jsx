@@ -582,13 +582,11 @@ function Dashboard({ onLogout }) {
   const [displayName, setDisplayName] = useState('Titan');
   const [userAvatar, setUserAvatar] = useState(null);
   const [showImageModal, setShowImageModal] = useState(false);
-  const [showNotif, setShowNotif] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState({
     show: false,
     message: '',
     onConfirm: null
   });
-  const notifRef = useRef(null);
 
   const [stats, setStats] = useState({
     workoutCount: 0,
@@ -668,7 +666,12 @@ function Dashboard({ onLogout }) {
   const [workoutProgress, setWorkoutProgress] = useState(0); // 0-1 ratio: exercises completed / total
   const [workoutIntensity] = useState(0);
   const [recoveryScore, setRecoveryScore] = useState(0);
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState(() => getFromStorage('active_notifications', []));
+  const [activeToasts, setActiveToasts] = useState([]);
+
+  useEffect(() => {
+    setToStorage('active_notifications', notifications);
+  }, [notifications]);
   const [lastNotificationCheck, setLastNotificationCheck] = useState(null);
   const [showWaterCelebration, setShowWaterCelebration] = useState(false);
   const [showSleepCelebration, setShowSleepCelebration] = useState(false);
@@ -883,7 +886,6 @@ function Dashboard({ onLogout }) {
 
         // Start background preloading of workout cache and pose assets after 3s delay
         try {
-          const profileData = data;
           setTimeout(() => {
             // 1. Warm workout plan cache if missing or expired
             const cachedPlan = localStorage.getItem('workoutPlan');
@@ -917,32 +919,14 @@ function Dashboard({ onLogout }) {
             }
 
 
-            // 2. Warm nutrition plan cache
-            const cachedNutrition = localStorage.getItem('nutritionCache');
-            const cachedNutritionDate = localStorage.getItem('nutritionCacheDate');
-            const todayStr = new Date().toLocaleDateString('en-CA');
-            const cacheInvalid = localStorage.getItem('nutritionCacheInvalid') === 'true';
-
-            if (cacheInvalid || !cachedNutrition || cachedNutritionDate !== todayStr) {
-              console.log('[Dashboard] Warming up nutrition plan cache in background...');
-              import('../api').then(({ generateNutritionPlan }) => {
-                generateNutritionPlan(profileData).then((response) => {
-                  if (response?.data?.plan) {
-                    const planToCache = response.data.plan;
-                    // Add profile hash for cache validation in Nutrition.jsx
-                    const profileHash = [
-                      profileData.weight, profileData.goal, profileData.dietary_preference,
-                      profileData.allergies?.join(','), profileData.days_per_week
-                    ].join('|');
-                    planToCache._profileHash = profileHash;
-                    localStorage.setItem('nutritionCache', JSON.stringify(planToCache));
-                    localStorage.setItem('nutritionCacheDate', todayStr);
-                    localStorage.setItem('nutritionCacheInvalid', 'false');
-                    console.log('[Dashboard] Background nutrition cache pre-warmed successfully');
-                  }
-                }).catch(err => console.warn('[Dashboard] Background nutrition cache warmup failed:', err));
-              });
-            }
+            // 2. Nutrition plan is now cached on the backend (generate once per
+            // user per ISO-week, served instantly thereafter). The previous
+            // background warmup here was broken — it read response.data.plan
+            // (always undefined; the real field is response.data.nutrition) and
+            // wrote nutritionCache/nutritionCacheDate while Nutrition.jsx reads
+            // nutritionPlan/nutritionPlanDate via StorageKeys — so it cached
+            // nothing and only triggered the slow generation path. Removed.
+            // Nutrition.jsx's own on-demand fetch is now a fast backend cache hit.
 
 
             // 3. Preload MediaPipe pose assets in background
@@ -1060,7 +1044,10 @@ function Dashboard({ onLogout }) {
         try {
           const cachedNutrition = getFromStorage(StorageKeys.NUTRITION_CACHE);
           if (cachedNutrition && cachedNutrition.days && cachedNutrition.days.length > 0) {
-            const dt = cachedNutrition.days[0].daily_totals || cachedNutrition.daily_target;
+            // The meal week is now a fixed Mon–Sun window, so days[0] is Monday — not
+            // necessarily today. Pick today's day by date for correct macro targets.
+            const todayDay = cachedNutrition.days.find((d) => d?.date === todayStr) || cachedNutrition.days[0];
+            const dt = todayDay.daily_totals || cachedNutrition.daily_target;
             if (dt) {
               if (dt.calories && Number(dt.calories) > 0) calMax = Math.round(Number(dt.calories));
               if ((dt.protein_g || dt.protein) && Number(dt.protein_g || dt.protein) > 0) pMax = Math.round(Number(dt.protein_g || dt.protein));
@@ -1218,6 +1205,14 @@ function Dashboard({ onLogout }) {
             const dateKey = getLocalDateStr(dateCursor);
             const isToday = dateKey === todayStrForStreak;
             const entry = trendsByDate.get(dateKey);
+
+            if (!entry) {
+              if (isToday) {
+                dateCursor.setDate(dateCursor.getDate() - 1);
+                continue;
+              }
+              break; // No record for this date = streak broken
+            }
 
             const mealDone = entry ? !!entry.meal_completed : false;
             const workoutDone = entry ? !!entry.workout_completed : false;
@@ -1547,15 +1542,17 @@ function Dashboard({ onLogout }) {
   }, []);
 
   const addNotification = useCallback((message, type = 'info') => {
+    const id = Date.now() + Math.random();
     const newNotification = {
-      id: Date.now() + Math.random(),
+      id,
       message,
       type,
       timestamp: new Date()
     };
     setNotifications((prev) => [...prev, newNotification]);
+    setActiveToasts((prev) => [...prev, newNotification]);
     setTimeout(
-      () => setNotifications((prev) => prev.filter((n) => n.id !== newNotification.id)),
+      () => setActiveToasts((prev) => prev.filter((t) => t.id !== id)),
       5000
     );
   }, []);
@@ -1563,15 +1560,10 @@ function Dashboard({ onLogout }) {
   const dismissNotification = (id) =>
     setNotifications((prev) => prev.filter((n) => n.id !== id));
 
-  const handleClickOutside = (event) => {
-    if (notifRef.current && !notifRef.current.contains(event.target))
-      setShowNotif(false);
+  const dismissToast = (id) => {
+    setActiveToasts((prev) => prev.filter((t) => t.id !== id));
+    dismissNotification(id);
   };
-
-  useEffect(() => {
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   // ✅ FIXED: logActivity uses storage utility AND saves to backend
   // Added ISO timestamp so deduplication works correctly in loadActivitiesFromBackend
@@ -1774,6 +1766,7 @@ function Dashboard({ onLogout }) {
 
   const checkDailyReminders = () => {
     try {
+      if (loading) return;
       const todayStr = getTodayStr();
       if (lastNotificationCheck === todayStr) return;
       setLastNotificationCheck(todayStr);
@@ -1853,11 +1846,17 @@ function Dashboard({ onLogout }) {
   };
 
   useEffect(() => {
-    checkDailyReminders();
-    const interval = setInterval(checkDailyReminders, 60 * 60 * 1000);
+    if (!loading) {
+      checkDailyReminders();
+    }
+    const interval = setInterval(() => {
+      if (!loading) {
+        checkDailyReminders();
+      }
+    }, 60 * 60 * 1000);
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [loading]);
 
   // Removed: Empty resize listener that did nothing (was a waste of resources)
 
@@ -2400,17 +2399,27 @@ function Dashboard({ onLogout }) {
         // --- WEEK VIEW: 7-day slots Mon-Sun ---
         const series = [0, 0, 0, 0, 0, 0, 0];
 
+        const startOfWeek = new Date();
+        const dow = startOfWeek.getDay();
+        const diffToMon = startOfWeek.getDate() - dow + (dow === 0 ? -6 : 1);
+        startOfWeek.setDate(diffToMon);
+        startOfWeek.setHours(0, 0, 0, 0);
+
         trends.forEach((entry) => {
           const dateObj = new Date(entry?.date);
           if (Number.isNaN(dateObj.getTime())) return;
+          
+          // Exclude entries that are before the start of the current week
+          if (dateObj < startOfWeek) return;
+
           const jsDay = dateObj.getDay();
           const idx = jsDay === 0 ? 6 : jsDay - 1;
 
           if (mode === 'all') {
             const score = calculateOverallTrendScore(entry, calorieGoal, waterGoal);
-            series[idx] = Math.max(series[idx], score);
+            series[idx] = score;
           }
-          else if (mode === 'workout') series[idx] = Math.max(series[idx], entry?.workout_completed ? 100 : (entry?.workout_partial ? 50 : 0));
+          else if (mode === 'workout') series[idx] = entry?.workout_completed ? 100 : (entry?.workout_partial ? 50 : 0);
           else if (mode === 'meal') series[idx] = entry?.calories || (entry?.meal_completed ? 1 : 0);
           else if (mode === 'water') series[idx] = entry?.water_intake || entry?.water_glasses || 0;
           else if (mode === 'sleep') series[idx] = entry?.sleep_duration || entry?.sleep_hours || 0;
@@ -2724,6 +2733,7 @@ function Dashboard({ onLogout }) {
           onLogout={handleLogout}
           rightContent={
             <>
+<<<<<<< HEAD
               <div className="dateDisplay desktop-nav">{todayDate}</div>
               <div style={{ position: 'relative' }} ref={notifRef}>
                 <button
@@ -2760,6 +2770,9 @@ function Dashboard({ onLogout }) {
                   </div>
                 )}
               </div>
+=======
+              <div style={styles.dateDisplay} className="desktop-nav">{todayDate}</div>
+>>>>>>> origin/updates
               <button
                 className="theme-toggle-btn"
                 onClick={toggleTheme}
@@ -3510,6 +3523,7 @@ title = {`${Math.round(macros.f)}g Fats`}
             </div>
           </div>
 
+<<<<<<< HEAD
         </div >
 
   {/* NOTIFICATIONS CONTAINER */ }
@@ -3529,6 +3543,34 @@ title = {`${Math.round(macros.f)}g Fats`}
             >
               ×
             </button>
+=======
+        {/* NOTIFICATIONS CONTAINER */}
+        {activeToasts.length > 0 && (
+          <div style={styles.notificationsContainer}>
+            {activeToasts.map((notification) => (
+              <div
+                key={notification.id}
+                style={{
+                  ...styles.notificationItem,
+                  ...(notification.type === 'success'
+                    ? styles.notificationSuccess
+                    : notification.type === 'warning'
+                      ? styles.notificationWarning
+                      : styles.notificationInfo)
+                }}
+              >
+                <div style={styles.notificationContent}>
+                  <span style={styles.notificationMessage}>{notification.message}</span>
+                  <button
+                    style={styles.notificationClose}
+                    onClick={() => dismissToast(notification.id)}
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
+            ))}
+>>>>>>> origin/updates
           </div>
         </div>
       ))}

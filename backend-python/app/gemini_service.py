@@ -1,37 +1,27 @@
 import os
 import json
+import logging
 import traceback
+from dotenv import load_dotenv
 import google.generativeai as genai
 from typing import Dict, Any, Tuple, Optional
 from app.circuit_breaker import gemini_cb, CircuitBreakerOpen
+
 # Configuration handled in server.py
 _APP_DIR = os.path.dirname(os.path.abspath(__file__))
 _BACKEND_DIR = os.path.dirname(_APP_DIR)
 _DOTENV_PATH = os.path.join(_BACKEND_DIR, '.env')
+
+# Explicitly load environment variables before reading them
+load_dotenv(dotenv_path=_DOTENV_PATH, override=True)
+
+logger = logging.getLogger(__name__)
 
 # ===== LAZY INITIALIZATION WITH MODEL FALLBACK =====
 _model: Optional[genai.GenerativeModel] = None
 _model_initialized = False
 _model_name = None
 _configured_api_key: Optional[str] = None
-
-# Models to try in order (first working one wins)
-_env_model = os.getenv("GEMINI_MODEL", "").strip()
-MODEL_CANDIDATES = []
-if _env_model:
-    MODEL_CANDIDATES.append(_env_model)
-
-for candidate in [
-    'gemini-flash-latest',
-    'gemini-3.5-flash',
-    'gemini-1.5-flash',
-    'gemini-2.5-flash',
-    'gemini-2.0-flash',
-    'gemini-2.5-pro',
-]:
-    if candidate not in MODEL_CANDIDATES:
-        MODEL_CANDIDATES.append(candidate)
-
 
 
 def _get_model() -> Optional[genai.GenerativeModel]:
@@ -68,10 +58,26 @@ def _get_model() -> Optional[genai.GenerativeModel]:
         print("")
         return None
 
+    # Resolve candidates dynamically inside the function after dotenv has loaded
+    env_model = os.getenv("GEMINI_MODEL", "").strip()
+    model_candidates = []
+    if env_model:
+        model_candidates.append(env_model)
+    for c in [
+        'gemini-1.5-flash',
+        'gemini-1.5-pro',
+        'gemini-2.5-flash',
+        'gemini-2.0-flash',
+        'gemini-flash-latest',
+        'gemini-2.5-pro'
+    ]:
+        if c not in model_candidates:
+            model_candidates.append(c)
+
     # Enhanced diagnostic: Log API key presence (masked)
     masked_key = api_key[:10] + "..." + api_key[-4:] if len(api_key) > 14 else "***"
     print(f"[Gemini] Attempting to initialize with API key: {masked_key}")
-    print(f"[Gemini] Model candidates: {MODEL_CANDIDATES}")
+    print(f"[Gemini] Model candidates: {model_candidates}")
 
     try:
         genai.configure(api_key=api_key)
@@ -85,7 +91,7 @@ def _get_model() -> Optional[genai.GenerativeModel]:
         return None
 
     # Try each model candidate until one works
-    for candidate in MODEL_CANDIDATES:
+    for candidate in model_candidates:
         try:
             print(f"[Gemini] Testing model: {candidate}...")
             test_model = genai.GenerativeModel(candidate)
@@ -310,6 +316,24 @@ def _build_system_prompt(profile: Dict[str, Any]) -> str:
             return val
         return 'None'
 
+    daily_log = profile.get("_daily_log")
+    recent_workouts = profile.get("_recent_workouts")
+    
+    daily_status_str = ""
+    if daily_log:
+        daily_status_str = f"""
+TODAY'S LOGGED ACTIVITY:
+- Water Intake: {daily_log.get('water_ml', 0)} ml
+- Sleep Duration: {daily_log.get('sleep_hours', 0)} hours
+- Workout Completed Today: {"Yes" if daily_log.get('workout_completed') else "No"}"""
+
+    recent_workouts_str = ""
+    if recent_workouts:
+        recent_workouts_str = "\nRECENT COMPLETED WORKOUTS:\n" + "\n".join(
+            f"- {w.get('name')} (completed on {w.get('date') or 'Unknown Date'})"
+            for w in recent_workouts
+        )
+
     return f"""You are 'Elevate AI', an elite personal fitness coach and nutritionist for the 'Elevate' platform.
 
 PERSONALITY:
@@ -338,12 +362,19 @@ USER PROFILE:
 - Diet: {profile.get('dietary_preference', 'Any')}
 - Allergies: {_safe_join(profile.get('allergies', ['None']))}
 - Body Issues/Injuries: {_safe_join(profile.get('body_issues', ['None']))}
-- Equipment: {_safe_join(profile.get('equipment', ['None']))}
+- Equipment: {_safe_join(profile.get('equipment', ['None']))}{daily_status_str}{recent_workouts_str}
 
 SAFETY:
 - NEVER prescribe exercises that could aggravate their listed injuries
 - For injury treatment, ALWAYS advise consulting a doctor/physiotherapist
-- Don't provide medical diagnoses"""
+- Don't provide medical diagnoses
+
+ELEVATE PLATFORM FEATURES REFERENCE:
+- Workout Page: Users can swap a scheduled workout day with a rest day, borrow exercises from other days, or take a Rest Day decision. When they exit or finish, progress is saved dynamically to Workout History and Dashboard Activity.
+- Dashboard Page: Shows daily progress rings for hydration (water) and sleep. Target recommendations adjust automatically based on logged sleep and water levels.
+- Meal Page (Nutrition): Allows tracking daily food intake, adding customs foods, and viewing personalized caloric / macro breakdown.
+- Chatbot Page: Offers instant, live fitness coaching powered by Gemini, keeping conversations focused on health, nutrition, and exercise.
+"""
 
 
 def _trim_history(history: list) -> list:
@@ -421,6 +452,7 @@ RESPONSE (be concise, helpful, and motivating):"""
         return _build_contextual_offline_response(user_message, profile, chat_history)
     except Exception as e:
         error_str = str(e).lower()
+        logger.error(f"Gemini API error: {e}")
         print(f"[Gemini] Chatbot error: {e}")
 
         # If quota exhausted, use fallback

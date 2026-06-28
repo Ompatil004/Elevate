@@ -224,13 +224,33 @@ router.get('/workout-history', auth, async (req, res) => {
 // POST /api/profile/workout-history
 router.post('/workout-history', auth, async (req, res) => {
     try {
-        // Atomic push to front with slice and prevent full document validation bloat
+        const workout = req.body;
+        
+        // Log workout completed to activities list
+        const details = workout.exercises_completed > 0 
+            ? `${workout.exercises_completed}/${workout.total_exercises} exercises completed` 
+            : 'Workout completed';
+            
+        const newActivity = {
+            type: 'workout',
+            name: workout.name || 'Workout Completed 💪',
+            details,
+            timestamp: new Date().toISOString(),
+            date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+
+        // Atomic push to front with slice for both workouts and activities
         const updatedUser = await User.findByIdAndUpdate(
             req.user.id,
             {
                 $push: {
                     workouts: {
-                        $each: [req.body],
+                        $each: [workout],
+                        $position: 0,
+                        $slice: 50
+                    },
+                    activities: {
+                        $each: [newActivity],
                         $position: 0,
                         $slice: 50
                     }
@@ -241,9 +261,41 @@ router.post('/workout-history', auth, async (req, res) => {
         
         res.json({ success: true, history: updatedUser.workouts });
     } catch (err) {
+        console.error('Error saving workout history & activity:', err);
         res.status(500).json({ message: 'Server error' });
     }
 });
+
+// POST /api/profile/workout-history/undo-swap
+router.post('/workout-history/undo-swap', auth, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        // 1. Remove the most recent "Schedule Swap" workout log
+        user.workouts = user.workouts || [];
+        const lastSwapWorkoutIdx = user.workouts.findIndex(w => w.name === 'Schedule Swap');
+        if (lastSwapWorkoutIdx !== -1) {
+            user.workouts.splice(lastSwapWorkoutIdx, 1);
+            user.markModified('workouts');
+        }
+
+        // 2. Remove the most recent "Schedule Swap" activity log
+        user.activities = user.activities || [];
+        const lastSwapActivityIdx = user.activities.findIndex(a => a.name === 'Schedule Swap');
+        if (lastSwapActivityIdx !== -1) {
+            user.activities.splice(lastSwapActivityIdx, 1);
+            user.markModified('activities');
+        }
+
+        await user.save();
+        res.json({ success: true, history: user.workouts, activities: user.activities });
+    } catch (err) {
+        console.error('Error undoing swap in history:', err);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 
 // GET /api/profile/meal-history
 router.get('/meal-history', auth, async (req, res) => {
@@ -406,6 +458,40 @@ router.post('/activities/sync', auth, async (req, res) => {
                 user.activities.push(...newActs);
                 await user.save();
             }
+        }
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
+
+// POST /api/profile/activities/log — append a SINGLE activity (with dedup).
+// The frontend (Workout/Nutrition/Dashboard) logs one activity at a time via
+// logActivityToBackend(); this complements the bulk /activities/sync route.
+router.post('/activities/log', auth, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        const activity = req.body || {};
+        // Reject empty payloads so we never store blank activity entries.
+        if (!activity.name && !activity.type && !activity.activity_type) {
+            return res.status(400).json({ message: 'Invalid activity payload' });
+        }
+
+        if (!Array.isArray(user.activities)) user.activities = [];
+
+        // Dedup using the same key shape as /activities/sync.
+        const ts = activity.timestamp ? new Date(activity.timestamp).getTime() : 0;
+        const key = `${activity.type}|${activity.name}|${activity.details}|${ts || activity.date}`;
+        const exists = user.activities.some(a => {
+            const ats = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+            return `${a.type}|${a.name}|${a.details}|${ats || a.date}` === key;
+        });
+
+        if (!exists) {
+            user.activities.push(activity);
+            await user.save();
         }
         res.json({ success: true });
     } catch (err) {

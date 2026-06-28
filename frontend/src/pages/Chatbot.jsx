@@ -10,18 +10,21 @@ import Navbar from '../components/Navbar';
 const getStyles = (isDark) => ({
   page: {
     background: 'transparent',
-    minHeight: '100dvh',
+    height: '100vh',
+    maxHeight: '100vh',
     color: isDark ? '#e4e4e7' : '#18181b',
     fontFamily: "'Inter', sans-serif",
     display: 'flex', flexDirection: 'column',
-    overflowX: 'hidden',
+    overflow: 'hidden',
     position: 'relative',
     zIndex: 1,
-    paddingTop: 'clamp(64px, 9vw, 80px)'
+    paddingTop: 'clamp(64px, 9vw, 80px)',
+    paddingBottom: '20px'
   },
   container: {
     flex: 1, maxWidth: '900px', width: '100%', margin: '0 auto',
-    padding: 'clamp(10px, 3vw, 20px)', display: 'flex', flexDirection: 'column', minHeight: 0
+    padding: 'clamp(10px, 3vw, 20px)', display: 'flex', flexDirection: 'column', minHeight: 0,
+    overflow: 'hidden'
   },
   chatWindow: {
     flex: 1,
@@ -201,6 +204,8 @@ function renderMarkdown(text) {
   const elements = [];
   let inList = false;
   let listItems = [];
+  let inTable = false;
+  let tableRows = [];
 
   const flushList = () => {
     if (listItems.length > 0) {
@@ -216,15 +221,111 @@ function renderMarkdown(text) {
     inList = false;
   };
 
+  const flushTable = () => {
+    if (tableRows.length > 0) {
+      const parseRow = (rowStr) => {
+        return rowStr
+          .split('|')
+          .map(s => s.trim())
+          .filter((s, idx, arr) => idx > 0 && idx < arr.length - 1);
+      };
+
+      const hasSeparator = tableRows.length > 1 && tableRows[1].includes('---');
+      const headerRow = hasSeparator ? parseRow(tableRows[0]) : [];
+      const bodyRows = tableRows
+        .slice(hasSeparator ? 2 : 0)
+        .filter(r => r.trim() && !r.includes('---'))
+        .map(r => parseRow(r));
+
+      elements.push(
+        <div key={`table-wrapper-${elements.length}`} style={{ overflowX: 'auto', margin: '14px 0' }}>
+          <table style={{
+            width: '100%',
+            borderCollapse: 'collapse',
+            fontSize: '13px',
+            borderRadius: '10px',
+            overflow: 'hidden',
+            border: '1px solid rgba(99, 102, 241, 0.2)',
+          }}>
+            {headerRow.length > 0 && (
+              <thead>
+                <tr style={{ background: 'rgba(99, 102, 241, 0.12)' }}>
+                  {headerRow.map((h, i) => (
+                    <th key={i} style={{
+                      padding: '10px 14px',
+                      fontWeight: '700',
+                      textAlign: 'left',
+                      borderBottom: '2px solid rgba(99, 102, 241, 0.25)',
+                    }}>
+                      {processInline(h)}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+            )}
+            <tbody>
+              {bodyRows.map((row, i) => (
+                <tr key={i} style={{
+                  background: i % 2 === 1 ? 'rgba(99, 102, 241, 0.04)' : 'transparent',
+                }}>
+                  {row.map((cell, j) => (
+                    <td key={j} style={{
+                      padding: '10px 14px',
+                      borderBottom: '1px solid rgba(99, 102, 241, 0.08)',
+                    }}>
+                      {processInline(cell)}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+      tableRows = [];
+    }
+    inTable = false;
+  };
+
   const processInline = (line) => {
     let parts = line.split(/\*\*(.*?)\*\*/g);
-    return parts.map((part, i) =>
-      i % 2 === 1 ? <strong key={i}>{part}</strong> : part
-    );
+    return parts.flatMap((part, i) => {
+      if (i % 2 === 1) {
+        return [<strong key={`bold-${i}`}>{part}</strong>];
+      }
+      let subparts = part.split(/`(.*?)`/g);
+      return subparts.map((subpart, j) => {
+        if (j % 2 === 1) {
+          return (
+            <code key={`code-${j}`} style={{
+              background: 'rgba(99, 102, 241, 0.12)',
+              padding: '2px 6px',
+              borderRadius: '4px',
+              fontFamily: 'monospace',
+              fontSize: '0.9em'
+            }}>
+              {subpart}
+            </code>
+          );
+        }
+        return subpart;
+      });
+    });
   };
 
   lines.forEach((line, i) => {
     const trimmed = line.trim();
+    
+    // Table detection
+    if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
+      if (inList) flushList();
+      inTable = true;
+      tableRows.push(line);
+      return;
+    }
+    if (inTable) flushTable();
+
+    // List detection
     if (/^[-*•]\s/.test(trimmed)) {
       inList = true;
       listItems.push(trimmed.replace(/^[-*•]\s/, ''));
@@ -236,10 +337,30 @@ function renderMarkdown(text) {
       return;
     }
     if (inList) flushList();
+
+    // Blockquote detection
+    if (trimmed.startsWith('>')) {
+      elements.push(
+        <blockquote key={i} style={{
+          borderLeft: '4px solid #6366f1',
+          padding: '6px 14px',
+          margin: '8px 0',
+          background: 'rgba(99, 102, 241, 0.04)',
+          borderRadius: '0 8px 8px 0',
+          fontStyle: 'italic',
+          color: 'inherit'
+        }}>
+          {processInline(trimmed.replace(/^>\s*/, ''))}
+        </blockquote>
+      );
+      return;
+    }
+
     if (!trimmed) {
       elements.push(<br key={`br-${i}`} />);
       return;
     }
+
     if (/^#{1,3}\s/.test(trimmed)) {
       elements.push(
         <div key={i} style={{ fontWeight: '700', fontSize: '15px', marginTop: '8px', marginBottom: '4px', color: 'inherit' }}>
@@ -248,13 +369,16 @@ function renderMarkdown(text) {
       );
       return;
     }
+
     elements.push(
       <div key={i} style={{ marginBottom: '2px' }}>
         {processInline(trimmed)}
       </div>
     );
   });
-  flushList();
+
+  if (inList) flushList();
+  if (inTable) flushTable();
   return elements;
 }
 

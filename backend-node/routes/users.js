@@ -446,6 +446,39 @@ router.post('/meals/save', auth, async (req, res) => {
       );
     }
 
+    // Automatic backend-level activity logging
+    try {
+      const user = await User.findById(userId);
+      if (user) {
+        const details = mealEntry.calories ? `${Math.round(mealEntry.calories)} cal consumed` : 'Meal logged';
+        const newActivity = {
+          type: 'meal',
+          name: 'Meal Completed',
+          details,
+          timestamp: new Date().toISOString(),
+          date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+        user.activities = user.activities || [];
+        const tsNew = new Date(newActivity.timestamp).getTime();
+        const isDup = user.activities.some((a) => {
+          const ts = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+          return a.type === newActivity.type &&
+                 a.name === newActivity.name &&
+                 a.details === newActivity.details &&
+                 (Math.abs(ts - tsNew) < 5000); // prevent duplicates within 5 seconds
+        });
+        if (!isDup) {
+          user.activities.push(newActivity);
+          if (user.activities.length > 50) {
+            user.activities = user.activities.slice(-50);
+          }
+          await user.save();
+        }
+      }
+    } catch (actErr) {
+      console.error('Error logging meal activity to DB:', actErr);
+    }
+
     res.json({
       message: 'Meal data saved successfully',
       meal: { ...mealEntry, date: dateKey },
