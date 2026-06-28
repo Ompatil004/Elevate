@@ -1437,26 +1437,11 @@ class WorkoutEngine:
             model_dir = os.path.join(base_dir, 'models')
 
             # ----------------------------------------------------------------
-            # Step 1: Load the multi-output model first (it uses a custom
-            # .load_model() method that manages its own internal state and
-            # must not run concurrently with itself).
-            # ----------------------------------------------------------------
-            multi_output_path = os.path.join(model_dir, 'multi_output_xgboost_model.joblib')
-            multi_output_loaded = False
-
-            if os.path.exists(multi_output_path):
-                try:
-                    self.multi_output_model.load_model(multi_output_path)
-                    print(" Multi-Output ML model loaded successfully")
-                    multi_output_loaded = True
-                except Exception as e:
-                    print(f" Failed to load Multi-Output ML model: {e}")
-
-            # ----------------------------------------------------------------
-            # Step 2: Load all remaining models IN PARALLEL.
+            # Load all models IN PARALLEL.
             # Each entry is (attr_name, file_path, label_for_log).
             # ----------------------------------------------------------------
             model_specs = [
+                ('multi_output_model',   os.path.join(model_dir, 'multi_output_xgboost_model.joblib'), 'Multi-Output ML'),
                 ('xgb_volume_model',     os.path.join(model_dir, 'xgboost_volume.pkl'),               'Volume'),
                 ('xgb_intensity_model',  os.path.join(model_dir, 'xgboost_intensity.pkl'),             'Intensity'),
                 ('xgb_split_model',      os.path.join(model_dir, 'xgboost_split.pkl'),                 'Split'),
@@ -1474,8 +1459,12 @@ class WorkoutEngine:
                 attr, path, label = spec
                 if os.path.exists(path):
                     try:
-                        model = joblib.load(path)
-                        return attr, model, label, True
+                        if attr == 'multi_output_model':
+                            self.multi_output_model.load_model(path)
+                            return attr, self.multi_output_model, label, True
+                        else:
+                            model = joblib.load(path)
+                            return attr, model, label, True
                     except Exception as load_err:
                         print(f" Failed to load {label} model: {load_err}")
                         return attr, None, label, False
@@ -1483,9 +1472,9 @@ class WorkoutEngine:
 
             t_start = time.perf_counter()
             results = {}
-            # Use up to 8 workers — all models are small enough that I/O is the
+            # Use up to 12 workers — all models are small enough that I/O is the
             # bottleneck, not CPU. More workers → faster parallelism.
-            with ThreadPoolExecutor(max_workers=min(len(model_specs), 8), thread_name_prefix='ml-loader') as pool:
+            with ThreadPoolExecutor(max_workers=min(len(model_specs), 12), thread_name_prefix='ml-loader') as pool:
                 futures = {pool.submit(_load_one, spec): spec for spec in model_specs}
                 for future in as_completed(futures):
                     try:
@@ -1498,8 +1487,16 @@ class WorkoutEngine:
 
             t_elapsed = (time.perf_counter() - t_start) * 1000
 
-            # Assign results to instance attributes in the original order
+            # Assign results to instance attributes in the original order and log status
+            _, _, multi_output_loaded = results.get('multi_output_model', (None, '', False))
+            if multi_output_loaded:
+                print(" Multi-Output ML model loaded successfully")
+            else:
+                print(" Multi-Output ML model not found, using rule-based system")
+
             for attr, path, label in model_specs:
+                if attr == 'multi_output_model':
+                    continue
                 model, lbl, found = results.get(attr, (None, label, False))
                 setattr(self, attr, model)
                 if not multi_output_loaded:

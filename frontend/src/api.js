@@ -293,7 +293,7 @@ export const adminSetWorkoutRules = (rules) => AuthAPI.post('/admin/content/work
 
 // ===== WORKOUT/NUTRITION ENDPOINTS (Python backend - port 8000) =====
 export const updateProfileAndRegenerateWorkouts = (profileData) =>
-    FitnessAPI.put('/profile/update-with-plans', profileData);
+    FitnessAPI.put('/profile/update', profileData);
 
 export const getWeeklyWorkoutPlan = () =>
     FitnessAPI.get('/api/weekly-plan');
