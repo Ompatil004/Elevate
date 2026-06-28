@@ -1,0 +1,171 @@
+﻿diff --git a/frontend/src/App.jsx b/frontend/src/App.jsx
+index 43193fa6..1941f9ee 100644
+--- a/frontend/src/App.jsx
++++ b/frontend/src/App.jsx
+@@ -117,23 +117,23 @@ function AppInner({ isAuthenticated, setIsAuthenticated }) {
+         />
+         <Route
+           path="/profile-setup"
+-          element={isAuthenticated ? <ProfileSetup /> : <Navigate to="/login" replace />}
++          element={isAuthenticated ? <ProfileSetup onLogout={() => handleLogout('manual')} /> : <Navigate to="/login" replace />}
+         />
+         <Route
+           path="/profile"
+-          element={isAuthenticated ? <ProfileSetup /> : <Navigate to="/login" replace />}
++          element={isAuthenticated ? <ProfileSetup onLogout={() => handleLogout('manual')} /> : <Navigate to="/login" replace />}
+         />
+         <Route
+           path="/workout"
+-          element={isAuthenticated ? <Workout /> : <Navigate to="/login" replace />}
++          element={isAuthenticated ? <Workout onLogout={() => handleLogout('manual')} /> : <Navigate to="/login" replace />}
+         />
+         <Route
+           path="/nutrition"
+-          element={isAuthenticated ? <Nutrition /> : <Navigate to="/login" replace />}
++          element={isAuthenticated ? <Nutrition onLogout={() => handleLogout('manual')} /> : <Navigate to="/login" replace />}
+         />
+         <Route
+           path="/chatbot"
+-          element={isAuthenticated ? <Chatbot /> : <Navigate to="/login" replace />}
++          element={isAuthenticated ? <Chatbot onLogout={() => handleLogout('manual')} /> : <Navigate to="/login" replace />}
+         />
+         <Route
+           path="/dashboard-action-ideas"
+diff --git a/frontend/src/pages/Chatbot.jsx b/frontend/src/pages/Chatbot.jsx
+index a97cf79b..4b5e0896 100644
+--- a/frontend/src/pages/Chatbot.jsx
++++ b/frontend/src/pages/Chatbot.jsx
+@@ -402,7 +402,7 @@ function TypingIndicator({ styles }) {
+   );
+ }
+ 
+-function Chatbot() {
++function Chatbot({ onLogout }) {
+   const navigate = useNavigate();
+   const { theme, toggleTheme } = useTheme();
+   const isDark = theme === 'dark';
+@@ -533,8 +533,12 @@ function Chatbot() {
+       message: 'Log out?',
+       onConfirm: (confirmed) => {
+         if (confirmed) {
+-          logoutSafe();
+-          navigate('/');
++          if (typeof onLogout === 'function') {
++            onLogout();
++          } else {
++            logoutSafe();
++            navigate('/');
++          }
+         }
+         setConfirmDialog({ show: false, message: '', onConfirm: null });
+       }
+diff --git a/frontend/src/pages/Nutrition.jsx b/frontend/src/pages/Nutrition.jsx
+index 809b75f5..0f0015a3 100644
+--- a/frontend/src/pages/Nutrition.jsx
++++ b/frontend/src/pages/Nutrition.jsx
+@@ -103,7 +103,7 @@ const getWeekDatesIST = () => {
+   return dates;
+ };
+ 
+-function Nutrition() {
++function Nutrition({ onLogout }) {
+   const navigate = useNavigate();
+   const { showError, showSuccess, showInfo } = useNotification();
+   const { theme, toggleTheme } = useTheme();
+@@ -778,7 +778,18 @@ function Nutrition() {
+    * ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+   // Γ£à BUG FIX 4: Logout confirmation handler for Navbar
+   const handleLogout = () => {
+-    setConfirmDialog({ show: true, message: 'Log out of Elevate?', onConfirm: null });
++    setConfirmDialog({ 
++      show: true, 
++      message: 'Log out of Elevate?', 
++      onConfirm: () => {
++        if (typeof onLogout === 'function') {
++          onLogout();
++        } else {
++          logoutSafe();
++          navigate("/");
++        }
++      }
++    });
+   };
+ 
+   const selectedDay = weeklyPlan?.days?.[selectedDayIndex];
+@@ -870,7 +881,6 @@ function Nutrition() {
+           message={confirmDialog.message}
+           onConfirm={() => {
+             if (confirmDialog.onConfirm) confirmDialog.onConfirm();
+-            else { logoutSafe(); navigate("/"); }
+             setConfirmDialog({ show: false, message: "", onConfirm: null });
+           }}
+           onCancel={() => setConfirmDialog({ show: false, message: "", onConfirm: null })}
+@@ -923,7 +933,6 @@ function Nutrition() {
+           message={confirmDialog.message}
+           onConfirm={() => {
+             if (confirmDialog.onConfirm) confirmDialog.onConfirm();
+-            else { logoutSafe(); navigate("/"); }
+             setConfirmDialog({ show: false, message: "", onConfirm: null });
+           }}
+           onCancel={() => setConfirmDialog({ show: false, message: "", onConfirm: null })}
+@@ -1113,10 +1122,6 @@ function Nutrition() {
+         onConfirm={() => {
+           if (confirmDialog.onConfirm) {
+             confirmDialog.onConfirm();
+-          } else {
+-            // Default action: logout
+-            logoutSafe();
+-            navigate("/");
+           }
+           setConfirmDialog({ show: false, message: "", onConfirm: null });
+         }}
+diff --git a/frontend/src/pages/ProfileSetup.jsx b/frontend/src/pages/ProfileSetup.jsx
+index a34ee047..255392e2 100644
+--- a/frontend/src/pages/ProfileSetup.jsx
++++ b/frontend/src/pages/ProfileSetup.jsx
+@@ -177,7 +177,7 @@ const MultiSelect = ({ name, options, value, onChange, isOpen, onToggle, isNoneC
+   );
+ };
+ 
+-function ProfileSetup() {
++function ProfileSetup({ onLogout }) {
+   const navigate = useNavigate();
+   const [isEditing, setIsEditing] = useState(false);
+   const { showInfo, showError, showSuccess } = useNotification();
+@@ -830,7 +830,7 @@ function ProfileSetup() {
+           CANCEL
+         </button>
+       ) : (
+-        <button onClick={() => { logoutSafe(); navigate('/'); }} style={styles.cancelBtn}>
++        <button onClick={() => { if(typeof onLogout === 'function') onLogout(); else { logoutSafe(); navigate('/'); } }} style={styles.cancelBtn}>
+           LOGOUT
+         </button>
+       )}
+diff --git a/frontend/src/pages/Workout.jsx b/frontend/src/pages/Workout.jsx
+index 8286205c..4f201a1a 100644
+--- a/frontend/src/pages/Workout.jsx
++++ b/frontend/src/pages/Workout.jsx
+@@ -254,7 +254,7 @@ const formatSwapTimestamp = (value) => {
+   return parsed.toLocaleString();
+ };
+ 
+-const Workout = () => {
++const Workout = ({ onLogout }) => {
+   const navigate = useNavigate();
+   const location = useLocation();
+   const autoStartDay = location.state?.autoStartDay;
+@@ -2313,8 +2313,12 @@ const Workout = () => {
+   const handleLogout = () => {
+     showConfirmDialog("Log out of Elevate?", (confirmed) => {
+       if (confirmed) {
+-        logoutSafe();
+-        navigate('/');
++        if (typeof onLogout === 'function') {
++          onLogout();
++        } else {
++          logoutSafe();
++          navigate('/');
++        }
+       }
+     });
+   };

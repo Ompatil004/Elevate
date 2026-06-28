@@ -103,7 +103,7 @@ const getWeekDatesIST = () => {
   return dates;
 };
 
-function Nutrition() {
+function Nutrition({ onLogout }) {
   const navigate = useNavigate();
   const { showError, showSuccess, showInfo } = useNotification();
   const { theme, toggleTheme } = useTheme();
@@ -778,7 +778,18 @@ function Nutrition() {
    * ────────────────────────────────────────── */
   // ✅ BUG FIX 4: Logout confirmation handler for Navbar
   const handleLogout = () => {
-    setConfirmDialog({ show: true, message: 'Log out of Elevate?', onConfirm: null });
+    setConfirmDialog({ 
+      show: true, 
+      message: 'Log out of Elevate?', 
+      onConfirm: () => {
+        if (typeof onLogout === 'function') {
+          onLogout();
+        } else {
+          logoutSafe();
+          navigate("/");
+        }
+      }
+    });
   };
 
   const selectedDay = weeklyPlan?.days?.[selectedDayIndex];
@@ -870,7 +881,6 @@ function Nutrition() {
           message={confirmDialog.message}
           onConfirm={() => {
             if (confirmDialog.onConfirm) confirmDialog.onConfirm();
-            else { logoutSafe(); navigate("/"); }
             setConfirmDialog({ show: false, message: "", onConfirm: null });
           }}
           onCancel={() => setConfirmDialog({ show: false, message: "", onConfirm: null })}
@@ -923,7 +933,6 @@ function Nutrition() {
           message={confirmDialog.message}
           onConfirm={() => {
             if (confirmDialog.onConfirm) confirmDialog.onConfirm();
-            else { logoutSafe(); navigate("/"); }
             setConfirmDialog({ show: false, message: "", onConfirm: null });
           }}
           onCancel={() => setConfirmDialog({ show: false, message: "", onConfirm: null })}
@@ -1113,10 +1122,6 @@ function Nutrition() {
         onConfirm={() => {
           if (confirmDialog.onConfirm) {
             confirmDialog.onConfirm();
-          } else {
-            // Default action: logout
-            logoutSafe();
-            navigate("/");
           }
           setConfirmDialog({ show: false, message: "", onConfirm: null });
         }}

@@ -177,7 +177,7 @@ const MultiSelect = ({ name, options, value, onChange, isOpen, onToggle, isNoneC
   );
 };
 
-function ProfileSetup() {
+function ProfileSetup({ onLogout }) {
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const { showInfo, showError, showSuccess } = useNotification();
@@ -830,7 +830,7 @@ function ProfileSetup() {
           CANCEL
         </button>
       ) : (
-        <button onClick={() => { logoutSafe(); navigate('/'); }} style={styles.cancelBtn}>
+        <button onClick={() => { if(typeof onLogout === 'function') onLogout(); else { logoutSafe(); navigate('/'); } }} style={styles.cancelBtn}>
           LOGOUT
         </button>
       )}

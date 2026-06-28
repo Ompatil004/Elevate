@@ -77,10 +77,16 @@ async def _generate_and_save_new_plan(user_id: str, profile: dict) -> dict:
         else:
             raise ValueError("No suitable generate method found on meal engine")
             
+        medical_adjustments = []
+        medical_disclaimer = ""
+        safety_warnings = []
         if isinstance(new_plan_result, dict):
             meal_plan = new_plan_result.get("weekly_plan", new_plan_result)
             stats = new_plan_result.get("stats", {})
             shopping_list = new_plan_result.get("shopping_list", {})
+            medical_adjustments = new_plan_result.get("medical_adjustments_applied", [])
+            medical_disclaimer = new_plan_result.get("medical_disclaimer", "")
+            safety_warnings = new_plan_result.get("safety_warnings", [])
         else:
             meal_plan = new_plan_result
             stats = {}
@@ -117,7 +123,10 @@ async def _generate_and_save_new_plan(user_id: str, profile: dict) -> dict:
         "shopping_list": shopping_list,
         "generated_at": now.isoformat(),
         "expires_at": expires_at.isoformat(),
-        "created_by": "NutritionEngineV6"
+        "created_by": "NutritionEngineV6",
+        "medical_adjustments_applied": medical_adjustments,
+        "medical_disclaimer": medical_disclaimer,
+        "safety_warnings": safety_warnings
     }
 
     plans_col = get_weekly_meal_plans_collection()

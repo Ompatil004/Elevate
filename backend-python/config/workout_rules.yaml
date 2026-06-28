@@ -1,0 +1,303 @@
+# Workout Engine V2 — Scheduling Configuration
+# All scheduling constants externalized from Python code.
+# Missing/broken YAML triggers hardcoded fallback in workout_rules.py.
+
+feature_flags:
+  workout_engine_v2: true  # master switch: false => legacy split + rest path
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Frequency: dynamic workout sessions per week by experience
+# preferred: target sessions; maximum: never exceed this value
+# ─────────────────────────────────────────────────────────────────────────────
+frequency:
+  Beginner:
+    preferred: 3
+    maximum: 4
+  Intermediate:
+    preferred: 4
+    maximum: 5
+  Advanced:
+    preferred: 5
+    maximum: 6
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Progression Gates
+# Streak and consistency thresholds required to unlock the maximum frequency.
+# Scheduler starts at preferred; only bumps to maximum when gates are met.
+# ─────────────────────────────────────────────────────────────────────────────
+progression_gates:
+  Beginner:
+    streak_required: 21
+    consistency_required: 0.85
+  Intermediate:
+    streak_required: 42
+    consistency_required: 0.90
+  Advanced:
+    streak_required: 10
+    consistency_required: 0.80
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Age-based Scheduling
+# Users at or above senior_age receive more conservative scheduling:
+# - prefer the lower end of the frequency range
+# - prefer shorter workout durations
+# - avoid unnecessary consecutive workout days
+# Age influences the scheduling score, never overrides it.
+# ─────────────────────────────────────────────────────────────────────────────
+age_scheduling:
+  senior_age: 60
+  senior_score_penalty: 5        # subtracted per consecutive workout day
+  senior_max_consecutive_days: 2 # flag consecutive workout chains longer than this
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Exercises per Session (used for duration estimates and weekly sets prediction)
+# ─────────────────────────────────────────────────────────────────────────────
+exercises_per_session:
+  Beginner: 4
+  Intermediate: 5
+  Advanced: 6
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Split Selection Thresholds
+# ─────────────────────────────────────────────────────────────────────────────
+split_selection:
+  beginner_max_sets: 12               # weekly sets threshold for beginner
+  intermediate_max_sets: 20           # weekly sets threshold for intermediate
+  max_session_duration_minutes: 75    # cap per workout
+  min_session_duration_minutes: 20    # floor per workout
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Recovery Hours by Category
+# Muscle groups must rest this many hours before being trained again.
+# ─────────────────────────────────────────────────────────────────────────────
+recovery_hours:
+  Push: 48
+  Pull: 48
+  Legs: 72
+  Core: 24
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Workout Categories (Scheduling Groups)
+# Category → split_type + abstraction muscles.
+# Abstraction muscles resolve to dataset Target_Muscle via muscle_dataset_map.
+# ─────────────────────────────────────────────────────────────────────────────
+categories:
+  A:
+    name: Push
+    split_type: Push
+    muscles: [Chest, Shoulders, Arms]
+  B:
+    name: Pull
+    split_type: Pull
+    muscles: [Back, Shoulders, Arms]
+  C:
+    name: Legs
+    split_type: Legs
+    muscles: [Legs, Calves]
+  D:
+    name: Core
+    split_type: Core
+    muscles: [Core]
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Muscle Overlap Map
+# Abstraction muscle → recovery categories it belongs to.
+# Shoulders & Arms shared by Push & Pull → validated against both.
+# ─────────────────────────────────────────────────────────────────────────────
+muscle_overlap_map:
+  Chest: [Push]
+  Back: [Pull]
+  Shoulders: [Push, Pull]  # shared: validated against both recovery windows
+  Arms: [Push, Pull]        # shared: validated against both recovery windows
+  Legs: [Legs]
+  Calves: [Legs]
+  Core: [Core]
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Muscle → Dataset Target_Muscle Mapping
+# Abstraction muscles used in scheduling → actual Target_Muscle column values.
+# The dataset has: Upper Arms, Upper Legs, Back, Waist, Chest, Shoulders,
+#                  Lower Legs, Lower Arms, Cardio, Neck
+# ─────────────────────────────────────────────────────────────────────────────
+muscle_dataset_map:
+  Chest: Chest
+  Back: Back
+  Shoulders: Shoulders
+  Arms: Arms           # resolves to Upper Arms + Lower Arms via str.contains
+  Legs: Legs           # resolves to Upper Legs + Lower Legs via str.contains
+  Core: Waist          # dataset uses "Waist" for core exercises
+  Calves: Lower Legs   # dataset uses "Lower Legs" for calf exercises
+  Traps: Shoulders     # no separate Traps column; shoulders cover them
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Split Families
+# Candidate focus lists for each split style. Focus labels reuse the existing
+# muscle_map keys from _get_exercises_for_day so exercise selection works unchanged.
+# ─────────────────────────────────────────────────────────────────────────────
+splits:
+  full_body:
+    - [Full Body, Full Body, Full Body]  # 3-day
+    - [Full Body (Upper Focus), Full Body (Lower Focus), Full Body (Push-Pull), Full Body]  # 4-day
+
+  upper_lower:
+    - [Upper Body, Lower Body, Upper Body, Lower Body]  # 4-day
+    - [Upper Body, Lower Body, Upper Body, Lower Body, Full Body]  # 5-day
+
+  push_pull_legs:
+    - [Push, Pull, Legs]  # 3-day
+    - [Push, Pull, Legs, Push]  # 4-day
+    - [Push, Pull, Legs, Push, Pull]  # 5-day
+    - [Push, Pull, Legs, Push, Pull, Legs]  # 6-day
+
+  hybrid:
+    - [Chest & Back, Legs & Shoulders, Arms & Core]  # 3-day intermediate
+    - [Chest & Back, Legs & Shoulders, Arms & Core, Pull & Legs]  # 4-day
+    - [Chest & Back, Legs & Shoulders, Arms & Core, Pull & Legs, Push & Pull]  # 5-day
+    - [Chest & Triceps, Back & Biceps, Legs (Quads), Shoulders & Traps, Legs (Posterior), Arms & Core]  # 6-day advanced
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Duration Model
+# Used to estimate session duration for split scoring/validation and output.
+# ─────────────────────────────────────────────────────────────────────────────
+duration:
+  per_set_seconds: 40       # avg time per set (including lift + eccentric)
+  transition_seconds: 30    # avg transition time between exercises
+  warmup_minutes: 5         # fixed warmup time
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Validation
+# ─────────────────────────────────────────────────────────────────────────────
+validation:
+  weekly_validation_retry_limit: 3
+  required_muscle_groups: [Chest, Back, Legs, Shoulders, Arms, Core]
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Equipment
+# ─────────────────────────────────────────────────────────────────────────────
+equipment:
+  default_equipment: [Body Weight]
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Deterministic Tie-Breaking Order
+# When multiple splits score identically, break ties in this order:
+# 1. coverage: more muscle groups covered
+# 2. recovery_spacing: better recovery spacing
+# 3. diversity: more unique focus labels
+# 4. duration: shorter average session duration
+# ─────────────────────────────────────────────────────────────────────────────
+tie_breaking:
+  - coverage
+  - recovery_spacing
+  - diversity
+  - duration
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Recovery-based Rest Placement
+# Controls fallback behaviour when the greedy recovery walk in
+# _recovery_based_rest_placement cannot place all split sessions within the
+# 7-day window due to recovery constraints.
+# ─────────────────────────────────────────────────────────────────────────────
+rest_placement:
+  # Maximum number of extra days the engine tries before force-placing a session
+  # on the next available day (ignoring recovery rules as a last resort).
+  max_backtrack_attempts: 3
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Skip / Reschedule Handling
+# When a user skips or misses a workout, controls how far forward (in days)
+# the engine looks for a valid makeup slot that still respects recovery rules.
+# ─────────────────────────────────────────────────────────────────────────────
+skip_workout_handling:
+  # Days forward from the missed session to scan for an eligible makeup day
+  max_reschedule_lookahead: 3
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Safety Compliance — Medical Condition & Injury Filters
+#
+# injury_blocked_patterns: maps a condition indicator (partial, case-insensitive
+#   match against body_issues strings) to a list of Check_Type values in the
+#   exercise dataset that must be filtered out.
+#
+# Filtering uses the dataset's `Check_Type` metadata column — NEVER exercise
+#   names or keyword matching. Only exercises whose Check_Type appears in the
+#   blocked list are removed.
+#
+# fallback_warning: message appended when NO safe exercises remain for a focus
+#   day after filtering.
+# ─────────────────────────────────────────────────────────────────────────────
+safety:
+  # Injury → blocked Check_Type patterns (dataset metadata column)
+  # Add or remove patterns here without touching Python code.
+  injury_blocked_patterns:
+    knee_pain:
+      condition_indicators:
+        - knee pain
+        - knee injury
+        - knee problem
+        - patella
+        - acl
+        - mcl
+        - meniscus
+      blocked_check_types:
+        - squat_logic
+        - lunge_logic
+    back_pain:
+      condition_indicators:
+        - back pain
+        - lower back
+        - lumbar
+        - disc
+        - herniated
+        - slipped disc
+        - sciatica
+      blocked_check_types:
+        - crunch_logic
+        - row_logic
+        - deadlift_logic
+    shoulder_pain:
+      condition_indicators:
+        - shoulder pain
+        - shoulder injury
+        - rotator cuff
+        - shoulder impingement
+        - ac joint
+        - shoulder instability
+      blocked_check_types:
+        - press_logic
+        - pushup_logic
+        - dip_logic
+    hernia:
+      condition_indicators:
+        - hernia
+        - inguinal
+        - abdominal hernia
+      blocked_check_types:
+        - crunch_logic
+        - squat_logic
+    tennis_elbow:
+      condition_indicators:
+        - tennis elbow
+        - golfers elbow
+        - lateral epicondylitis
+        - medial epicondylitis
+        - elbow pain
+        - forearm pain
+      blocked_check_types:
+        - curl_logic
+        - row_logic
+
+  # When no exercises remain after filtering — append this to API warnings
+  fallback_warning: "Some exercises could not be included due to your reported injury or condition. Please consult a qualified fitness professional before exercising."
+
+  # Senior modifier: applied to exercise intensity fields in the day output.
+  # These are multipliers, not absolute values — engine reads these from YAML only.
+  senior_intensity_modifier: 0.85   # reduce intensity score by 15% for seniors
+  senior_volume_modifier: 0.80      # reduce volume load by 20% for seniors
+  senior_rest_multiplier: 1.25      # increase rest time by 25% for seniors
+
+  # Medical disclaimer for workout plan adjustments
+  medical_disclaimer: >
+    Your workout plan has been adjusted based on your age or reported physical considerations.
+    These modifications are for safety purposes only and are NOT a substitute for medical advice.
+    Please consult your physician before starting any new exercise program.
+

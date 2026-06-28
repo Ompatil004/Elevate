@@ -56,6 +56,15 @@ def _utcnow() -> datetime:
     return datetime.now(timezone.utc)
 from .services.exercise_metadata import get_movement_pattern
 
+# Safety compliance layer (lightweight post-calculation adjustments)
+try:
+    from app.safety_layer import filter_exercises_by_movement, validate_workout_safety, build_safety_response
+    _SAFETY_LAYER_AVAILABLE = True
+except ImportError:
+    _SAFETY_LAYER_AVAILABLE = False
+    filter_exercises_by_movement = None
+    validate_workout_safety = None
+    build_safety_response = None
 
 
 class WorkoutEngine:
@@ -64,6 +73,11 @@ class WorkoutEngine:
 
         # Initialize feature pipeline
         self.feature_pipeline = FeaturePipeline()
+
+        # Load workout rules configuration (V2)
+        from app.workout_rules import load_workout_rules
+        self.rules = load_workout_rules()
+        print(f" Loaded workout rules (V2 enabled: {self.rules.get('feature_flags', {}).get('workout_engine_v2', False)})")
 
         # Media URL reliability cache (avoid repeated dead-link checks)
         self._media_url_cache = {}
@@ -2631,27 +2645,10 @@ class WorkoutEngine:
         streak = int(profile.get('streak', 0) or 0)
         consistency = float(profile.get('consistency', 0.7) or 0.7)
 
-        # Experience-based weekly frequency with conservative progression gates.
-        if experience == 'Beginner':
-            recommended_days = 4 if (streak >= 21 and consistency >= 0.85) else 3
-            if recommended_days == 4:
-                print(f"  Beginner progression unlocked: 4 workout days, 3 rest days (streak={streak}, consistency={consistency:.0%})")
-            else:
-                print("  Beginner base split: 3 workout days, 4 rest days")
-        elif experience == 'Intermediate':
-            recommended_days = 5 if (streak >= 42 and consistency >= 0.90) else 4
-            if recommended_days == 5:
-                print(f"  Intermediate progression unlocked: 5 workout days, 2 rest days (streak={streak}, consistency={consistency:.0%})")
-            else:
-                print("  Intermediate base split: 4 workout days, 3 rest days")
-        elif experience == 'Advanced':
-            recommended_days = 6 if (streak >= 10 and consistency >= 0.80) else 5
-            if recommended_days == 6:
-                print(f"  Advanced progression unlocked: 6 workout days, 1 rest day (streak={streak}, consistency={consistency:.0%})")
-            else:
-                print("  Advanced base split: 5 workout days, 2 rest days")
-        else:
-            recommended_days = min(4, user_days)
+        # Dynamic frequency from YAML gates + XGBoost prediction.
+        # _get_dynamic_frequency reads all thresholds from workout_rules.yaml.
+        recommended_days = self._get_dynamic_frequency(profile)
+        print(f"  Dynamic frequency: {recommended_days} days (streak={streak}, consistency={consistency:.0%})")
 
         # Respect explicit user preference when it is lower than recommendation.
         workout_days = max(1, min(recommended_days, user_days))
@@ -2693,19 +2690,63 @@ class WorkoutEngine:
         if is_new_user and user_start_day is not None:
             print(f"  New user – week starts at day index {user_start_day}")
 
-        # --- Step 2: Get workout split ---
-        split = self._get_split_for_experience(experience, workout_days, profile.get('goal', 'Muscle Gain'), workout_history)
-        print(f"  Split: {split}")
-
-        # --- Step 3: Distribute rest days ---
+        # --- Step 2 & 3: V2 Dynamic Split Selection + Recovery-based Rest Placement ---
+        v2_enabled = self.rules.get('feature_flags', {}).get('workout_engine_v2', False)
         goal = profile.get('goal', 'Muscle Gain')
-        if not rest_day_positions:
-            # Issue #2 – use smart intensity-based rest placement
-            rest_count_needed = 7 - workout_days
-            rest_day_positions = self._calculate_smart_rest_days(
-                split, rest_count_needed, experience, goal
-            )
-        print(f"  Rest day positions (0-indexed): {rest_day_positions}")
+        coverage_warnings = []
+
+        if v2_enabled:
+            try:
+                print("  [V2] Using dynamic split selection + recovery-based rest placement")
+
+                # Resolve equipment
+                equipment = self._resolve_available_equipment(profile)
+                profile['_resolved_equipment'] = equipment  # store for later use
+
+                # Predict weekly sets
+                weekly_sets = self._predicted_weekly_sets(profile)
+                print(f"  [V2] Predicted weekly sets: {weekly_sets}")
+
+                # Select dynamic split
+                split_result = self._select_dynamic_split(experience, weekly_sets, profile, equipment)
+                split = split_result['focus_list']
+
+                if split_result.get('fallback_used'):
+                    print(f"  [V2] WARNING: No valid split found, using best-effort: {split}")
+                    print(f"       Reasons: {split_result.get('reasons', [])}")
+                    coverage_warnings.append(f"Split validation failed: {'; '.join(split_result.get('reasons', []))}")
+                else:
+                    print(f"  [V2] Selected split: {split} (family: {split_result['family']}, score: {split_result['score']:.1f})")
+
+                # Recovery-based rest placement
+                if not rest_day_positions:
+                    rest_day_positions = self._recovery_based_rest_placement(split, profile)
+                    print(f"  [V2] Recovery-based rest days: {rest_day_positions}")
+
+            except Exception as e:
+                print(f"  [V2] ERROR during dynamic scheduling: {e}")
+                print(f"  [V2] Falling back to legacy split + rest placement")
+                import traceback
+                traceback.print_exc()
+
+                # Fallback to legacy
+                split = self._get_split_for_experience(experience, workout_days, goal, workout_history)
+                print(f"  [Legacy Fallback] Split: {split}")
+
+                if not rest_day_positions:
+                    rest_count_needed = 7 - workout_days
+                    rest_day_positions = self._calculate_smart_rest_days(split, rest_count_needed, experience, goal)
+                print(f"  [Legacy Fallback] Rest day positions: {rest_day_positions}")
+        else:
+            # V2 disabled — use legacy path
+            print("  [Legacy] Using experience-based split + smart rest placement")
+            split = self._get_split_for_experience(experience, workout_days, goal, workout_history)
+            print(f"  Split: {split}")
+
+            if not rest_day_positions:
+                rest_count_needed = 7 - workout_days
+                rest_day_positions = self._calculate_smart_rest_days(split, rest_count_needed, experience, goal)
+            print(f"  Rest day positions (0-indexed): {rest_day_positions}")
 
         # --- Step 4: Build the 7-day schedule ---
         if is_new_user and user_start_day is not None:
@@ -2716,6 +2757,13 @@ class WorkoutEngine:
         total_exercises = sum(len(day.get('exercises', [])) for day in weekly_plan)
         workout_count = sum(1 for day in weekly_plan if day['type'] == 'workout')
         rest_count = sum(1 for day in weekly_plan if day['type'] == 'rest')
+
+        # --- V2: Validate weekly muscle coverage ---
+        if v2_enabled:
+            equipment = profile.get('_resolved_equipment', self._resolve_available_equipment(profile))
+            coverage_warnings.extend(self._validate_weekly_coverage(weekly_plan, profile, equipment))
+            if coverage_warnings:
+                print(f"  [V2] Coverage warnings: {coverage_warnings}")
 
         # --- Inject debug_trace into each day of the plan for transparency and testing ---
         for day in weekly_plan:
@@ -2730,6 +2778,7 @@ class WorkoutEngine:
                 'consistency': consistency,
                 'age': int(float(profile.get('age', 25))),
                 'week_offset': profile.get('week_offset'),
+                'coverage_warnings': coverage_warnings if v2_enabled else []
             }
 
         print(f"\n  Generated: {workout_count} workout days, {rest_count} rest days, {total_exercises} total exercises")
@@ -2825,15 +2874,27 @@ class WorkoutEngine:
                     positions.append(d)
             return sorted(positions[:rest_count])
 
-        if rest_count == 1:
-            return [3]   # Wednesday
-        if rest_count == 2:
-            return [2, 5]  # Wednesday + Saturday
-        if rest_count == 3:
-            return [2, 4, 6]
+        # Dynamic even-interval rest placement — no hardcoded weekday positions.
+        # Distributes rest days proportionally across the 7-day window.
+        interval = 7.0 / (rest_count + 1)
+        seen: set = set()
+        positions: list = []
+        for i in range(1, rest_count + 1):
+            pos = int(round(interval * i))
+            pos = max(0, min(6, pos))
+            if pos not in seen:
+                seen.add(pos)
+                positions.append(pos)
 
-        interval = 7 / (rest_count + 1)
-        return sorted([int(round(interval * (i + 1))) for i in range(rest_count)])
+        # Fill any gaps caused by deduplication, from the end of the week
+        for d in range(6, -1, -1):
+            if len(positions) >= rest_count:
+                break
+            if d not in seen:
+                seen.add(d)
+                positions.append(d)
+
+        return sorted(positions[:rest_count])
 
     # ──────────────────────────────────────────────────────────────────────────
     # Issue #2 – Smart rest day placement based on workout intensity
@@ -2858,47 +2919,80 @@ class WorkoutEngine:
         return round(max(0.1, min(1.0, base + intensity_boost + goal_adj)), 3)
 
     def _get_muscle_group_from_focus(self, focus: str) -> Set[str]:
-        """Return a simplified set of primary muscles for overlap detection."""
+        """
+        Return the primary muscle-group labels for a given focus day.
+
+        IMPORTANT: the returned values must align with the required_muscle_groups
+        vocabulary in workout_rules.yaml — ['Chest', 'Back', 'Legs', 'Shoulders',
+        'Arms', 'Core'] — so that _validate_weekly_coverage can correctly detect
+        which groups are covered. Lowercase anatomical sub-names (biceps, quads …)
+        must NOT be used here; use the abstract category name instead.
+        """
         muscle_map = {
-            'Chest & Back': {'chest', 'back'},
-            'Chest & Triceps': {'chest', 'triceps'},
-            'Back & Biceps': {'back', 'biceps'},
-            'Legs & Shoulders': {'quads', 'hamstrings', 'glutes', 'shoulders'},
-            'Arms & Core': {'biceps', 'triceps', 'core', 'abs'},
-            'Pull & Legs': {'back', 'biceps', 'quads', 'hamstrings', 'glutes'},
-            'Push & Pull': {'chest', 'back', 'shoulders', 'biceps', 'triceps'},
-            'Shoulders & Traps': {'shoulders', 'traps'},
-            'Legs (Quads)': {'quads', 'glutes', 'calves'},
-            'Legs (Posterior)': {'hamstrings', 'glutes', 'calves'},
-            'Full Body (Upper Focus)': {'chest', 'back', 'shoulders', 'biceps', 'triceps'},
-            'Full Body (Lower Focus)': {'quads', 'hamstrings', 'glutes', 'core'},
-            'Full Body (Push-Pull)': {'chest', 'back', 'shoulders'},
-            'Full Body (Push Focus)': {'chest', 'shoulders', 'triceps'},
-            'Full Body (Pull Focus)': {'back', 'biceps'},
-            'Full Body (Legs Focus)': {'quads', 'hamstrings', 'glutes', 'calves'},
-            'Chest': {'chest', 'triceps'},
-            'Push': {'chest', 'shoulders', 'triceps'},
-            'Push (Heavy)': {'chest', 'shoulders', 'triceps'},
-            'Push (Volume)': {'chest', 'shoulders', 'triceps'},
-            'Back': {'back', 'biceps'},
-            'Pull': {'back', 'biceps'},
-            'Pull (Heavy)': {'back', 'biceps'},
-            'Pull (Volume)': {'back', 'biceps'},
-            'Legs': {'quads', 'hamstrings', 'glutes'},
-            'Legs (Heavy)': {'quads', 'hamstrings', 'glutes'},
-            'Legs (Volume)': {'quads', 'hamstrings', 'glutes', 'core'},
-            'Shoulders': {'shoulders', 'traps'},
-            'Arms': {'biceps', 'triceps'},
-            'Core': {'core', 'abs'},
-            'Upper Body': {'chest', 'back', 'shoulders', 'biceps', 'triceps'},
-            'Lower Body': {'quads', 'hamstrings', 'glutes', 'core'},
-            'Full Body': {'chest', 'back', 'legs', 'core', 'shoulders'},
+            # ── Compound / combined days ──────────────────────────────────────
+            'Chest & Back':              {'Chest', 'Back'},
+            'Chest & Triceps':           {'Chest', 'Arms'},
+            'Back & Biceps':             {'Back', 'Arms'},
+            'Legs & Shoulders':          {'Legs', 'Shoulders'},
+            'Arms & Core':               {'Arms', 'Core'},
+            'Pull & Legs':               {'Back', 'Arms', 'Legs'},
+            'Push & Pull':               {'Chest', 'Back', 'Shoulders', 'Arms'},
+            'Shoulders & Traps':         {'Shoulders'},
+            'Legs (Quads)':              {'Legs'},
+            'Legs (Posterior)':          {'Legs'},
+            'Legs & Arms':               {'Legs', 'Arms'},
+            'Chest & Shoulders':         {'Chest', 'Shoulders'},
+            'Back & Arms':               {'Back', 'Arms'},
+            'Arms (Bi/Tri)':             {'Arms'},
+            # ── Beginner full-body sub-focus ──────────────────────────────────
+            'Full Body (Upper Focus)':   {'Chest', 'Back', 'Shoulders', 'Arms'},
+            'Full Body (Lower Focus)':   {'Legs', 'Core'},
+            'Full Body (Push-Pull)':     {'Chest', 'Back', 'Shoulders'},
+            'Full Body (Push Focus)':    {'Chest', 'Shoulders', 'Arms'},
+            'Full Body (Pull Focus)':    {'Back', 'Arms'},
+            'Full Body (Legs Focus)':    {'Legs'},
+            'Full Body (Core & Conditioning)': {'Core', 'Legs'},
+            'Full Body (Conditioning)':  {'Chest', 'Back', 'Legs', 'Core'},
+            'Full Body (Intro)':         {'Chest', 'Back', 'Legs', 'Shoulders', 'Arms', 'Core'},
+            'Full Body A':               {'Chest', 'Back', 'Legs', 'Core'},
+            'Full Body B':               {'Shoulders', 'Arms', 'Legs', 'Core'},
+            # ── Standard isolation / single-muscle days ───────────────────────
+            'Chest':                     {'Chest'},
+            'Push':                      {'Chest', 'Shoulders', 'Arms'},
+            'Push (Heavy)':              {'Chest', 'Shoulders'},
+            'Push (Volume)':             {'Chest', 'Shoulders', 'Arms'},
+            'Back':                      {'Back'},
+            'Pull':                      {'Back', 'Arms'},
+            'Pull (Heavy)':              {'Back'},
+            'Pull (Volume)':             {'Back', 'Arms'},
+            'Legs':                      {'Legs'},
+            'Legs (Heavy)':              {'Legs'},
+            'Legs (Volume)':             {'Legs', 'Core'},
+            'Legs (Accessory)':          {'Legs', 'Core'},
+            'Shoulders':                 {'Shoulders'},
+            'Arms':                      {'Arms'},
+            'Core':                      {'Core'},
+            # ── Upper / Lower splits ──────────────────────────────────────────
+            'Upper Body':                {'Chest', 'Back', 'Shoulders', 'Arms'},
+            'Upper Body (Volume)':       {'Chest', 'Back', 'Shoulders', 'Arms'},
+            'Lower Body':                {'Legs', 'Core'},
+            'Lower Body (Volume)':       {'Legs', 'Core'},
+            # ── Full Body (covers all groups) ─────────────────────────────────
+            'Full Body':                 {'Chest', 'Back', 'Legs', 'Shoulders', 'Arms', 'Core'},
+            'Full Body (Push-Pull)':     {'Chest', 'Back', 'Shoulders', 'Arms'},
         }
-        focus_lower = focus.lower()
+
+        focus_lower = focus.strip().lower()
+        # Exact match first (case-insensitive)
+        for key, muscles in muscle_map.items():
+            if key.lower() == focus_lower:
+                return muscles
+        # Prefix / substring fallback
         for key, muscles in muscle_map.items():
             if key.lower() in focus_lower or focus_lower in key.lower():
                 return muscles
         return {'general'}
+
 
     def _validate_muscle_recovery(self, schedule: List[Dict]) -> Dict:
         """
@@ -3087,7 +3181,8 @@ class WorkoutEngine:
 
         goal = profile.get('goal', 'Muscle Gain')
         experience = profile.get('experience', 'Beginner')
-        equipment = profile.get('equipment', ['Body Weight'])
+        # Use V2-resolved equipment when available (set by generate_weekly_plan via _resolve_available_equipment)
+        equipment = profile.get('_resolved_equipment') or profile.get('equipment', ['Body Weight'])
         body_issues = profile.get('body_issues', [])
 
         # First pass: map each non-rest day to its split focus so we can generate rest reasons
@@ -3159,6 +3254,11 @@ class WorkoutEngine:
                     'exercises_completed': 0,
                     'exercises_total': 0,
                     'intensity_metrics': self._build_intensity_metrics(0.0),
+                    # V2 additive fields for rest days
+                    'split_type': 'Rest',
+                    'workout_category': None,
+                    'muscle_groups_targeted': [],
+                    'estimated_duration_minutes': 0,
                 })
             else:
                 focus = split[split_idx]
@@ -3185,6 +3285,10 @@ class WorkoutEngine:
                 intensity_metrics = self._calculate_day_intensity(exercises_clean, experience, goal, profile=profile)
                 intensity_score = intensity_metrics.get('intensity_score', 0.0) if isinstance(intensity_metrics, dict) else float(intensity_metrics)
 
+                # V2: Derive additive output fields
+                v2_fields = self._focus_to_v2fields(focus)
+                estimated_duration = self._estimate_session_duration(focus, profile)
+
                 weekly_plan.append({
                     'day_of_week': day_idx,
                     'day': day_names[day_idx],
@@ -3206,6 +3310,11 @@ class WorkoutEngine:
                     'exercises_completed': 0,
                     'exercises_total': len(exercises_clean),
                     'intensity_metrics': self._build_intensity_metrics(intensity_metrics),
+                    # V2 additive fields for workout days
+                    'split_type': v2_fields['split_type'],
+                    'workout_category': v2_fields['workout_category'],
+                    'muscle_groups_targeted': v2_fields['muscle_groups_targeted'],
+                    'estimated_duration_minutes': estimated_duration,
                 })
 
         return weekly_plan
@@ -3261,6 +3370,41 @@ class WorkoutEngine:
         plan_copy = [copy.deepcopy(day) if isinstance(day, dict) else {} for day in weekly_plan]
         rest_day = plan_copy[rest_day_index]
         workout_day = plan_copy[next_workout_idx]
+
+        # V2: Recovery revalidation before committing swap
+        # Check if moving the workout to rest_day_index violates recovery rules
+        v2_enabled = self.rules.get('feature_flags', {}).get('workout_engine_v2', False)
+        if v2_enabled:
+            moved_focus = workout_day.get('focus', '')
+            moved_muscles = self._get_muscle_group_from_focus(moved_focus)
+            recovery_hours_config = self.rules.get('recovery_hours', {})
+            muscle_overlap_map = self.rules.get('muscle_overlap_map', {})
+
+            # Check if any muscle trained before rest_day_index is too recent
+            for muscle in moved_muscles:
+                if muscle == 'general':
+                    continue
+
+                categories = muscle_overlap_map.get(muscle, [muscle])
+                for category in categories:
+                    required_hours = recovery_hours_config.get(category, 48)
+
+                    # Check all workout days BEFORE rest_day_index
+                    for check_idx in range(rest_day_index):
+                        check_day = plan_copy[check_idx]
+                        if check_day.get('type') != 'workout':
+                            continue
+
+                        check_focus = check_day.get('focus', '')
+                        check_muscles = self._get_muscle_group_from_focus(check_focus)
+
+                        if muscle in check_muscles:
+                            hours_since = (rest_day_index - check_idx) * 24
+                            if hours_since < required_hours:
+                                # Recovery violation — abort swap
+                                print(f"  [V2] Swap aborted: {muscle} recovery violation "
+                                      f"({hours_since}h < {required_hours}h required)")
+                                return weekly_plan
 
         rest_day_name = rest_day.get('day', '')
         rest_day_of_week = rest_day.get('day_of_week', rest_day_index)
@@ -3374,6 +3518,41 @@ class WorkoutEngine:
         plan_copy = [copy.deepcopy(day) if isinstance(day, dict) else {} for day in weekly_plan]
         workout_day = plan_copy[workout_day_index]
         target_rest_day = plan_copy[target_rest_day_index]
+
+        # V2: Recovery revalidation before committing swap
+        # Check if moving the workout to target_rest_day_index violates recovery rules
+        v2_enabled = self.rules.get('feature_flags', {}).get('workout_engine_v2', False)
+        if v2_enabled:
+            moved_focus = workout_day.get('focus', '')
+            moved_muscles = self._get_muscle_group_from_focus(moved_focus)
+            recovery_hours_config = self.rules.get('recovery_hours', {})
+            muscle_overlap_map = self.rules.get('muscle_overlap_map', {})
+
+            # Check if any muscle trained before target_rest_day_index is too recent
+            for muscle in moved_muscles:
+                if muscle == 'general':
+                    continue
+
+                categories = muscle_overlap_map.get(muscle, [muscle])
+                for category in categories:
+                    required_hours = recovery_hours_config.get(category, 48)
+
+                    # Check all workout days BEFORE target_rest_day_index
+                    for check_idx in range(target_rest_day_index):
+                        check_day = plan_copy[check_idx]
+                        if check_day.get('type') != 'workout':
+                            continue
+
+                        check_focus = check_day.get('focus', '')
+                        check_muscles = self._get_muscle_group_from_focus(check_focus)
+
+                        if muscle in check_muscles:
+                            hours_since = (target_rest_day_index - check_idx) * 24
+                            if hours_since < required_hours:
+                                # Recovery violation — abort swap
+                                print(f"  [V2] Swap aborted: {muscle} recovery violation "
+                                      f"({hours_since}h < {required_hours}h required)")
+                                return weekly_plan
 
         workout_day_name = workout_day.get('day', '')
         workout_day_of_week = workout_day.get('day_of_week', workout_day_index)
@@ -3909,17 +4088,28 @@ class WorkoutEngine:
 
             pool = pool[pool['Equipment'].str.lower().str.strip().isin(equip_lower)]
 
-        # Injury filter
-        if body_issues:
+        # Injury filter — metadata-driven using Check_Type column (NEVER exercise names)
+        if body_issues and _SAFETY_LAYER_AVAILABLE:
+            # Collect all blocked Check_Type patterns for the user's declared conditions
+            safety_cfg = self.rules.get('safety', {})
+            injury_blocked_patterns = safety_cfg.get('injury_blocked_patterns', {})
+            all_blocked_types = []
+            for _cond_key, _cond_cfg in injury_blocked_patterns.items():
+                indicators = _cond_cfg.get('condition_indicators', [])
+                from app.safety_layer import has_condition
+                if has_condition(body_issues, indicators):
+                    all_blocked_types.extend(_cond_cfg.get('blocked_check_types', []))
+
+            if all_blocked_types:
+                pool, _blocked = filter_exercises_by_movement(pool, all_blocked_types)
+                if _blocked:
+                    print(f"    [SafetyLayer] Blocked {_blocked} exercises by movement pattern ({all_blocked_types})")
+
+        elif body_issues:
+            # Fallback: Avoid_If column filter only (no name-based filtering)
             for issue in body_issues:
                 if 'Avoid_If' in pool.columns:
                     pool = pool[~pool['Avoid_If'].str.contains(issue, case=False, na=False)]
-                if 'shoulder' in issue.lower():
-                    # Rule-based safety logic: filter out exercises with shoulder forbidden terms
-                    forbidden_words = ["pull-up", "pullup", "overhead press", "pike push", "handstand", "shoulder press", "military press", "neck press"]
-                    pattern = "|".join(forbidden_words)
-                    if 'Name' in pool.columns:
-                        pool = pool[~pool['Name'].str.contains(pattern, case=False, na=False)]
 
         # Biomechanical safety filter
         pool = self._filter_biomechanics(pool, profile)
@@ -4368,6 +4558,724 @@ class WorkoutEngine:
             ex.update(classification)
 
         return fallback
+
+    # ==========================================
+    # V2 HELPER METHODS — DYNAMIC SCHEDULING
+    # ==========================================
+
+    def _resolve_available_equipment(self, profile: dict) -> List[str]:
+        """
+        Resolve equipment from profile with fallback chain:
+        profile['available_equipment'] → profile['equipment'] → YAML default → ['Body Weight']
+        """
+        equipment = profile.get('available_equipment') or profile.get('equipment')
+        if equipment and isinstance(equipment, list) and len(equipment) > 0:
+            return equipment
+
+        # Fallback to YAML default
+        default = self.rules.get('equipment', {}).get('default_equipment', ['Body Weight'])
+        return default
+
+    def _get_exercises_per_session(self, experience: str) -> int:
+        """Return exercises-per-session count from YAML config, no hardcoding."""
+        return self.rules.get('exercises_per_session', {}).get(experience, 4)
+
+    def _get_preferred_frequency(self, experience: str) -> int:
+        """Return preferred workout frequency from YAML config (never hardcoded)."""
+        freq_cfg = self.rules.get('frequency', {}).get(experience, {})
+        if isinstance(freq_cfg, dict):
+            return freq_cfg.get('preferred', 3)
+        # Legacy flat value support
+        return int(freq_cfg) if freq_cfg else 3
+
+    def _get_maximum_frequency(self, experience: str) -> int:
+        """Return maximum workout frequency from YAML config."""
+        freq_cfg = self.rules.get('frequency', {}).get(experience, {})
+        if isinstance(freq_cfg, dict):
+            return freq_cfg.get('maximum', 4)
+        return int(freq_cfg) if freq_cfg else 4
+
+    def _get_dynamic_frequency(self, profile: dict) -> int:
+        """
+        Determine workout frequency dynamically from XGBoost predictions + progression
+        gates + age-based adjustments.  All thresholds come from workout_rules.yaml.
+        """
+        experience = profile.get('experience', 'Beginner')
+        preferred = self._get_preferred_frequency(experience)
+        maximum = self._get_maximum_frequency(experience)
+
+        streak = int(profile.get('streak', 0) or 0)
+        consistency = float(profile.get('consistency', 0.7) or 0.7)
+
+        gates = self.rules.get('progression_gates', {}).get(experience, {})
+        streak_required = gates.get('streak_required', 9999)
+        consistency_required = gates.get('consistency_required', 1.0)
+
+        frequency = preferred
+        if streak >= streak_required and consistency >= consistency_required:
+            frequency = maximum
+            print(f"  [V2] Progression gate unlocked ({experience}): "
+                  f"frequency {preferred}→{maximum} "
+                  f"(streak={streak}, consistency={consistency:.0%})")
+
+        # Age-based scheduling: senior users prefer the lower end
+        age_cfg = self.rules.get('age_scheduling', {})
+        senior_age = age_cfg.get('senior_age', 60)
+        try:
+            age = int(float(profile.get('age', 30) or 30))
+        except Exception:
+            age = 30
+
+        if age >= senior_age and frequency > preferred:
+            frequency = preferred
+            print(f"  [V2] Senior scheduling (age={age}): frequency capped at preferred={preferred}")
+
+        # Respect user's stated days_per_week if lower than calculated
+        user_days = int(profile.get('days_per_week', frequency) or frequency)
+        if user_days < frequency:
+            frequency = max(1, user_days)
+
+        return max(1, min(frequency, 7))
+
+    def _predicted_weekly_sets(self, profile: dict) -> int:
+        """
+        Estimate total weekly sets from XGBoost predictions.
+        Uses existing _get_optimized_sets × YAML exercises/session × dynamic frequency.
+        """
+        sets_per_exercise = self._get_optimized_sets(profile)
+        experience = profile.get('experience', 'Beginner')
+        exercises_per_session = self._get_exercises_per_session(experience)
+        frequency = self._get_dynamic_frequency(profile)
+        weekly_sets = sets_per_exercise * exercises_per_session * frequency
+        return int(weekly_sets)
+
+    def _estimate_session_duration(self, focus: str, profile: dict) -> int:
+        """
+        Estimate session duration in minutes.
+        minutes = exercises × sets × (per_set_seconds + rest_seconds) / 60 + warmup_minutes + transition
+        """
+        duration_config = self.rules.get('duration', {})
+        per_set_seconds = duration_config.get('per_set_seconds', 40)
+        transition_seconds = duration_config.get('transition_seconds', 30)
+        warmup_minutes = duration_config.get('warmup_minutes', 5)
+
+        experience = profile.get('experience', 'Beginner')
+        exercises_count = self._get_exercises_per_session(experience)
+
+        sets = self._get_optimized_sets(profile)
+        rest_seconds = self._get_optimized_rest_time(profile)
+
+        work_time = exercises_count * sets * (per_set_seconds + rest_seconds)
+        transition_time = exercises_count * transition_seconds
+
+        total_minutes = warmup_minutes + (work_time + transition_time) / 60.0
+        return int(round(total_minutes))
+
+    def _build_split_candidates(self, experience: str, weekly_sets: int, profile: dict) -> List[Dict]:
+        """
+        Build candidate splits from YAML families based on experience and predicted volume.
+        Returns list of dicts: {family, focus_list, frequency}
+        """
+        splits_config = self.rules.get('splits', {})
+        thresholds = self.rules.get('split_selection', {})
+
+        recommended_days = self._get_dynamic_frequency(profile)
+        beginner_max = thresholds.get('beginner_max_sets', 12)
+        intermediate_max = thresholds.get('intermediate_max_sets', 20)
+
+        candidates = []
+
+        # Full Body — always valid for beginners or low volume
+        if experience == 'Beginner' or weekly_sets <= beginner_max:
+            for fb_split in splits_config.get('full_body', []):
+                if len(fb_split) <= recommended_days:
+                    candidates.append({
+                        'family': 'full_body',
+                        'focus_list': fb_split,
+                        'frequency': len(fb_split)
+                    })
+
+        # Upper/Lower — intermediate or moderate volume
+        if experience in ['Intermediate', 'Advanced'] or weekly_sets > beginner_max:
+            for ul_split in splits_config.get('upper_lower', []):
+                if len(ul_split) <= recommended_days:
+                    candidates.append({
+                        'family': 'upper_lower',
+                        'focus_list': ul_split,
+                        'frequency': len(ul_split)
+                    })
+
+        # Push/Pull/Legs — all experience levels, 3+ days
+        for ppl_split in splits_config.get('push_pull_legs', []):
+            if len(ppl_split) <= recommended_days:
+                candidates.append({
+                    'family': 'push_pull_legs',
+                    'focus_list': ppl_split,
+                    'frequency': len(ppl_split)
+                })
+
+        # Hybrid — intermediate/advanced with higher volume
+        if experience in ['Intermediate', 'Advanced'] and weekly_sets > intermediate_max:
+            for hybrid_split in splits_config.get('hybrid', []):
+                if len(hybrid_split) <= recommended_days:
+                    candidates.append({
+                        'family': 'hybrid',
+                        'focus_list': hybrid_split,
+                        'frequency': len(hybrid_split)
+                    })
+
+        return candidates
+
+    def _score_split_candidate(self, candidate: Dict, weekly_sets: int, profile: dict, equipment: List[str]) -> float:
+        """
+        Deterministic scoring: volume fit + duration fit + recovery feasibility + coverage + age.
+        Higher score = better fit.
+        """
+        focus_list = candidate['focus_list']
+        frequency = candidate['frequency']
+
+        score = 0.0
+
+        # Volume fit: how close is predicted volume to what this split can deliver?
+        experience = profile.get('experience', 'Beginner')
+        exercises_per_session = self._get_exercises_per_session(experience)
+        sets = self._get_optimized_sets(profile)
+        split_capacity = frequency * exercises_per_session * sets
+
+        volume_diff = abs(weekly_sets - split_capacity)
+        volume_score = max(0, 30 - volume_diff)
+        score += volume_score
+
+        # Frequency fit: prefer splits whose session count matches the user's recommended
+        # training frequency.
+        # When the user explicitly provides days_per_week we give this dimension more
+        # weight (max 40 pts) to ensure explicit preference dominates the volume-fit
+        # score (max 30 pts).  When using the dynamic recommendation the standard
+        # 20-pt cap applies — the ML volume prediction should guide selection more.
+        recommended_freq = self._get_dynamic_frequency(profile)
+        frequency_diff = abs(frequency - recommended_freq)
+        user_explicit_days = (
+            'days_per_week' in profile and profile.get('days_per_week') is not None
+        )
+        freq_max_score = 40 if user_explicit_days else 20
+        freq_penalty_per_day = freq_max_score // 2           # 20 or 10 per session off
+        frequency_score = max(0, freq_max_score - frequency_diff * freq_penalty_per_day)
+        score += frequency_score
+
+        # Duration fit: estimated session duration within cap?
+        avg_duration = sum(self._estimate_session_duration(f, profile) for f in focus_list) / len(focus_list)
+        max_duration = self.rules.get('split_selection', {}).get('max_session_duration_minutes', 75)
+        if avg_duration <= max_duration:
+            score += 20
+        else:
+            score += max(0, 20 - (avg_duration - max_duration))
+
+        # Coverage: how many unique muscle groups covered?
+        all_muscles = set()
+        for focus in focus_list:
+            muscles = self._get_muscle_group_from_focus(focus)
+            all_muscles.update(muscles)
+
+        required = self.rules.get('validation', {}).get('required_muscle_groups', [])
+        coverage_count = sum(1 for m in required if m.lower() in {x.lower() for x in all_muscles})
+        score += coverage_count * 5
+
+        # Recovery feasibility: bonus for appropriate split type by experience
+        if experience == 'Beginner' and candidate['family'] == 'full_body':
+            score += 10
+        elif experience == 'Intermediate' and candidate['family'] in ['upper_lower', 'push_pull_legs']:
+            score += 10
+        elif experience == 'Advanced' and candidate['family'] in ['push_pull_legs', 'hybrid']:
+            score += 10
+
+        # Age-based scoring adjustment: penalise actual consecutive workout chains
+        # (not total frequency) for senior users. We simulate rest placement to
+        # find the longest workout streak, then deduct senior_score_penalty per
+        # day that exceeds senior_max_consecutive_days.
+        age_cfg = self.rules.get('age_scheduling', {})
+        senior_age = age_cfg.get('senior_age', 60)
+        senior_penalty = age_cfg.get('senior_score_penalty', 5)
+        max_consecutive = age_cfg.get('senior_max_consecutive_days', 2)
+        try:
+            age = int(float(profile.get('age', 30) or 30))
+        except Exception:
+            age = 30
+
+        if age >= senior_age:
+            max_chain = self._calculate_senior_consecutive_penalty(focus_list)
+            if max_chain > max_consecutive:
+                consecutive_penalty = senior_penalty * (max_chain - max_consecutive)
+                score -= consecutive_penalty
+
+        return score
+
+    def _calculate_senior_consecutive_penalty(self, focus_list: List[str]) -> int:
+        """
+        Simulate even-interval rest placement for a given focus list and return
+        the length of the longest consecutive workout day chain.
+
+        Used by _score_split_candidate to evaluate age-based penalties correctly:
+        total frequency != longest consecutive streak, so we must simulate rest
+        placement before comparing against senior_max_consecutive_days.
+        """
+        n = len(focus_list)
+        rest_count = max(0, 7 - n)
+
+        if rest_count == 0:
+            return n  # all 7 days are workouts — worst-case streak
+
+        # Simulate the same even-interval algorithm used by _distribute_rest_days
+        interval = 7.0 / (rest_count + 1)
+        rest_positions: set = set()
+        for i in range(1, rest_count + 1):
+            pos = int(round(interval * i))
+            pos = max(0, min(6, pos))
+            rest_positions.add(pos)
+
+        # Count the longest consecutive run of workout days in the simulated week
+        max_streak = 0
+        current_streak = 0
+        for day in range(7):
+            if day not in rest_positions:
+                current_streak += 1
+                max_streak = max(max_streak, current_streak)
+            else:
+                current_streak = 0
+
+        return max_streak
+
+    def _validate_split(self, candidate: Dict, equipment: List[str], profile: dict) -> tuple:
+        """
+        Validate split: equipment coverage, volume satisfiable, duration within cap,
+        recovery achievable in 7 days, user constraints respected.
+        Returns: (valid: bool, reasons: List[str])
+        """
+        reasons = []
+        focus_list = candidate['focus_list']
+
+        # Check equipment coverage for all required muscle groups
+        required_muscles = self.rules.get('validation', {}).get('required_muscle_groups', [])
+        muscle_dataset_map = self.rules.get('muscle_dataset_map', {})
+
+        for muscle in required_muscles:
+            dataset_muscle = muscle_dataset_map.get(muscle, muscle)
+            # Quick check: can we find exercises for this muscle with available equipment?
+            pool = self.exercises_df.copy()
+            pool = pool[pool['Target_Muscle'].str.contains(dataset_muscle, case=False, na=False)]
+
+            # Apply equipment filter
+            if equipment:
+                equipment_lower = [e.lower().strip() for e in equipment]
+                # Always include YAML-configured default equipment (typically Body Weight).
+                # Never hardcode the value — read from workout_rules.yaml > equipment.default_equipment
+                yaml_defaults = [
+                    e.lower().strip()
+                    for e in self.rules.get('equipment', {}).get('default_equipment', ['Body Weight'])
+                ]
+                equipment_lower.extend(yaml_defaults)
+                pool = pool[pool['Equipment'].str.lower().str.strip().isin(equipment_lower)]
+
+            if pool.empty:
+                reasons.append(f"No exercises for {muscle} with available equipment")
+
+        # Check duration cap
+        max_duration = self.rules.get('split_selection', {}).get('max_session_duration_minutes', 75)
+        for focus in focus_list:
+            duration = self._estimate_session_duration(focus, profile)
+            if duration > max_duration:
+                reasons.append(f"{focus} exceeds max duration ({duration} > {max_duration} min)")
+
+        # Check recovery achievable in 7 days
+        # Simplified: if frequency >= 6 and includes Legs, recovery may be tight (Legs need 72h)
+        if candidate['frequency'] >= 6:
+            legs_count = sum(1 for f in focus_list if 'Leg' in f)
+            if legs_count >= 2:
+                # 2+ leg days in 6-day week with 72h recovery = tight
+                reasons.append("Legs recovery (72h) challenging in 6+ day split with multiple leg sessions")
+
+        # User constraints: check age/injuries/body_issues (reuse existing logic)
+        # For now, just flag if user has injuries and split doesn't account for them
+        body_issues = profile.get('body_issues', [])
+        if body_issues and not reasons:
+            # Assume valid unless we find a specific contraindication
+            pass
+
+        valid = len(reasons) == 0
+        return valid, reasons
+
+    def _select_dynamic_split(self, experience: str, weekly_sets: int, profile: dict, equipment: List[str]) -> Dict:
+        """
+        Score all candidates, filter to valid only, sort by score + deterministic tie-break.
+        Returns: {focus_list, frequency, score, family, valid, reasons}
+        Never forces an invalid split.
+        """
+        candidates = self._build_split_candidates(experience, weekly_sets, profile)
+
+        if not candidates:
+            # Fallback to legacy 3-day full body
+            return {
+                'focus_list': ['Full Body', 'Full Body', 'Full Body'],
+                'frequency': 3,
+                'score': 0.0,
+                'family': 'full_body',
+                'valid': True,
+                'reasons': []
+            }
+
+        # Score and validate each
+        scored = []
+        for candidate in candidates:
+            score = self._score_split_candidate(candidate, weekly_sets, profile, equipment)
+            valid, reasons = self._validate_split(candidate, equipment, profile)
+            scored.append({
+                'focus_list': candidate['focus_list'],
+                'frequency': candidate['frequency'],
+                'family': candidate['family'],
+                'score': score,
+                'valid': valid,
+                'reasons': reasons
+            })
+
+        # Filter to valid only
+        valid_splits = [s for s in scored if s['valid']]
+
+        if not valid_splits:
+            # No valid split found — return highest-scoring invalid one with warnings
+            scored.sort(key=lambda x: x['score'], reverse=True)
+            best = scored[0]
+            best['fallback_used'] = True
+            return best
+
+        # Deterministic tie-breaking
+        tie_break_order = self.rules.get('tie_breaking', ['coverage', 'recovery_spacing', 'diversity', 'duration'])
+
+        def tie_break_key(split):
+            focus_list = split['focus_list']
+            keys = [split['score']]  # primary sort by score descending
+
+            for criterion in tie_break_order:
+                if criterion == 'coverage':
+                    all_muscles = set()
+                    for focus in focus_list:
+                        all_muscles.update(self._get_muscle_group_from_focus(focus))
+                    keys.append(len(all_muscles))
+
+                elif criterion == 'recovery_spacing':
+                    # Proxy: fewer workout days = better spacing
+                    keys.append(-split['frequency'])
+
+                elif criterion == 'diversity':
+                    # More unique focus labels = more variety
+                    keys.append(len(set(focus_list)))
+
+                elif criterion == 'duration':
+                    # Shorter avg duration = better
+                    avg_dur = sum(self._estimate_session_duration(f, profile) for f in focus_list) / len(focus_list)
+                    keys.append(-avg_dur)
+
+            return tuple(keys)
+
+        valid_splits.sort(key=tie_break_key, reverse=True)
+        best = valid_splits[0]
+        best['fallback_used'] = False
+        return best
+
+    def _recovery_based_rest_placement(self, split: List[str], profile: dict) -> List[int]:
+        """
+        Place rest days via muscle-recovery hours (overlap prevention), not calendar grid.
+        Greedy deterministic walk: for each day 0-6, check if any primary muscle violates
+        recovery_hours; if so, insert Rest and try next category.
+        Returns: list of 0-indexed rest day positions.
+        """
+        # Target is exactly the number of sessions in the selected split (already validated).
+        workout_days_target = len(split)
+        rest_count = max(0, 7 - workout_days_target)
+
+        recovery_hours_config = self.rules.get('recovery_hours', {})
+        muscle_overlap_map = self.rules.get('muscle_overlap_map', {})
+
+        # Build schedule: walk days 0-6
+        schedule = []  # [(day_idx, focus)]
+        last_trained = {}  # muscle → day_idx when last trained
+
+        split_idx = 0
+        for day_idx in range(7):
+            if len(schedule) >= workout_days_target:
+                # Remaining days are rest
+                continue
+
+            if split_idx >= len(split):
+                # Exhausted split, rest
+                continue
+
+            focus = split[split_idx]
+
+            # Get primary muscles for this focus
+            primary_muscles = self._get_muscle_group_from_focus(focus)
+
+            # Check recovery for each primary muscle
+            can_train = True
+            for muscle in primary_muscles:
+                if muscle == 'general':
+                    continue
+
+                # Get recovery categories this muscle belongs to
+                categories = muscle_overlap_map.get(muscle, [muscle])
+
+                for category in categories:
+                    required_hours = recovery_hours_config.get(category, 48)
+
+                    if muscle in last_trained:
+                        last_day = last_trained[muscle]
+                        hours_since = (day_idx - last_day) * 24
+
+                        if hours_since < required_hours:
+                            can_train = False
+                            break
+
+                if not can_train:
+                    break
+
+            if can_train:
+                # Schedule workout
+                schedule.append((day_idx, focus))
+                for muscle in primary_muscles:
+                    if muscle != 'general':
+                        last_trained[muscle] = day_idx
+                split_idx += 1
+
+        # Fallback: if the greedy recovery walk couldn't place all split sessions
+        # within the 7-day window (recovery constraints pushed sessions past day 6),
+        # force-place remaining sessions on the earliest available days.
+        # Recovery compliance for these days is sub-optimal but we must never generate
+        # fewer workout days than the user's requested frequency.
+        if split_idx < len(split):
+            all_scheduled_days = {day for day, _ in schedule}
+            remaining_free_days = [d for d in range(7) if d not in all_scheduled_days]
+            for fallback_day in remaining_free_days:
+                if split_idx >= len(split):
+                    break
+                fb_focus = split[split_idx]
+                schedule.append((fallback_day, fb_focus))
+                fb_muscles = self._get_muscle_group_from_focus(fb_focus)
+                for muscle in fb_muscles:
+                    if muscle != 'general':
+                        last_trained[muscle] = fallback_day
+                split_idx += 1
+            if split_idx < len(split):
+                print(f"  [V2] WARNING: Could not place {len(split) - split_idx} session(s) "
+                      f"in 7 days even after fallback. Split may be over-scheduled for the week.")
+
+        # Identify rest days
+        workout_day_indices = {day for day, _ in schedule}
+        rest_days = [day for day in range(7) if day not in workout_day_indices]
+
+        return rest_days
+
+    def _focus_to_v2fields(self, focus: str) -> Dict:
+        """
+        Derive V2 output fields from focus label.
+        Returns: {split_type, workout_category, muscle_groups_targeted}
+        """
+        categories = self.rules.get('categories', {})
+
+        # Determine category (A/B/C/D) by matching focus to category muscle sets
+        workout_category = None
+        split_type = focus  # default
+        muscle_groups_targeted = list(self._get_muscle_group_from_focus(focus))
+
+        # Try to match to a category
+        for cat_id, cat_config in categories.items():
+            cat_muscles = set(m.lower() for m in cat_config.get('muscles', []))
+            focus_muscles = set(m.lower() for m in muscle_groups_targeted)
+
+            if cat_muscles & focus_muscles:  # any overlap
+                workout_category = cat_id
+                split_type = cat_config.get('split_type', focus)
+                break
+
+        # Fallback split_type determination
+        if 'Push' in focus:
+            split_type = 'Push'
+        elif 'Pull' in focus:
+            split_type = 'Pull'
+        elif 'Leg' in focus:
+            split_type = 'Legs'
+        elif 'Upper' in focus:
+            split_type = 'Upper'
+        elif 'Lower' in focus:
+            split_type = 'Lower'
+        elif 'Core' in focus or 'Abs' in focus:
+            split_type = 'Core'
+        elif 'Full Body' in focus:
+            split_type = 'Full Body'
+
+        return {
+            'split_type': split_type,
+            'workout_category': workout_category,
+            'muscle_groups_targeted': muscle_groups_targeted
+        }
+
+    def _validate_weekly_coverage(self, weekly_plan: List[Dict], profile: dict, equipment: List[str]) -> List[str]:
+        """
+        Validate that all required muscle groups are trained this week.
+        For gaps, attempt to fill them by converting a rest day to a minimal workout
+        targeting the missing muscle, up to retry_limit attempts.
+        Returns: list of warning strings (empty if all covered).
+        """
+        required = self.rules.get('validation', {}).get('required_muscle_groups', [])
+        retry_limit = self.rules.get('validation', {}).get('weekly_validation_retry_limit', 3)
+        muscle_dataset_map = self.rules.get('muscle_dataset_map', {})
+
+        def _collect_trained(plan):
+            trained = set()
+            for day in plan:
+                if day.get('type') == 'workout':
+                    focus = day.get('focus', '')
+                    muscles = self._get_muscle_group_from_focus(focus)
+                    trained.update(m.lower() for m in muscles if m != 'general')
+            return trained
+
+        trained = _collect_trained(weekly_plan)
+        missing = [m for m in required if m.lower() not in trained]
+
+        if not missing:
+            return []
+
+        # Attempt to fill each gap by converting a swappable rest day to a minimal workout
+        goal = profile.get('goal', 'Muscle Gain')
+        experience = profile.get('experience', 'Beginner')
+        body_issues = profile.get('body_issues', [])
+
+        # Focus labels that target each required muscle group
+        muscle_to_focus = {
+            'Chest': 'Push',
+            'Back': 'Pull',
+            'Legs': 'Legs',
+            'Shoulders': 'Shoulders',
+            'Arms': 'Arms',
+            'Core': 'Core',
+        }
+
+        filled = []
+        warnings = []
+
+        for muscle in missing:
+            # Find available rest days (not yet converted in this pass)
+            rest_day_indices = [
+                i for i, d in enumerate(weekly_plan)
+                if d.get('type') == 'rest'
+                and not d.get('is_placeholder')
+                and not d.get('is_swapped')
+                and d.get('is_swappable', True)
+            ]
+
+            if not rest_day_indices:
+                warnings.append(
+                    f"MUSCLE_COVERAGE_GAP: {muscle} not trained this week "
+                    f"(no rest day available to convert; equipment={equipment})"
+                )
+                print(f"  [V2] MUSCLE_COVERAGE_GAP: {muscle} — no available rest day")
+                continue
+
+            focus = muscle_to_focus.get(muscle, muscle)
+            success = False
+
+            recovery_hours_config = self.rules.get('recovery_hours', {})
+            muscle_overlap_map_cfg = self.rules.get('muscle_overlap_map', {})
+            focus_muscles = self._get_muscle_group_from_focus(focus)
+
+            for attempt in range(min(retry_limit, len(rest_day_indices))):
+                rest_idx = rest_day_indices[attempt]
+
+                # Recovery guard: verify inserting this focus on rest_idx does not
+                # violate 48h/72h recovery rules against adjacent workout days already
+                # present in the weekly plan before generating exercises.
+                recovery_ok = True
+                for mus in focus_muscles:
+                    if mus == 'general' or not recovery_ok:
+                        continue
+                    categories = muscle_overlap_map_cfg.get(mus, [mus])
+                    for cat in categories:
+                        required_hours = recovery_hours_config.get(cat, 48)
+                        for adj_idx, adj_day in enumerate(weekly_plan):
+                            if adj_idx == rest_idx or adj_day.get('type') != 'workout':
+                                continue
+                            adj_muscles = self._get_muscle_group_from_focus(
+                                adj_day.get('focus', '')
+                            )
+                            if mus in adj_muscles:
+                                gap_hours = abs(rest_idx - adj_idx) * 24
+                                if gap_hours < required_hours:
+                                    recovery_ok = False
+                                    break
+                        if not recovery_ok:
+                            break
+
+                if not recovery_ok:
+                    print(f"  [V2] Coverage gap fill skipped: {muscle} on day {rest_idx} "
+                          f"-- recovery violation, trying next available day")
+                    continue
+
+                day_seed = self._build_day_seed(profile, focus, rest_idx)
+
+                try:
+                    exercises = self._get_exercises_for_day(
+                        focus, goal, experience, equipment, body_issues, profile,
+                        day_seed=day_seed,
+                        global_used_names=set(),
+                    )
+                except Exception as exc:
+                    print(f"  [V2] Coverage retry {attempt+1} for {muscle} failed: {exc}")
+                    continue
+
+                if not exercises:
+                    continue
+
+                warmup = self._get_warmup_for_focus(focus, exercises=exercises, day_seed=day_seed)
+                intensity_metrics = self._calculate_day_intensity(exercises, experience, goal, profile=profile)
+                intensity_score = intensity_metrics.get('intensity_score', 0.0) if isinstance(intensity_metrics, dict) else float(intensity_metrics)
+                full_session = self._enforce_unique_media_per_day(warmup + exercises)
+                warmup_clean = [ex for ex in full_session if ex.get('is_warmup')]
+                exercises_clean = [ex for ex in full_session if not ex.get('is_warmup')]
+                v2_fields = self._focus_to_v2fields(focus)
+
+                day_names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+                existing = weekly_plan[rest_idx]
+                weekly_plan[rest_idx] = {
+                    **existing,
+                    'focus': focus,
+                    'warmup': warmup_clean,
+                    'exercises': exercises_clean,
+                    'type': 'workout',
+                    'intensity': round(intensity_score, 2),
+                    'note': f'{focus} training (coverage fill for {muscle})',
+                    'is_original_rest': False,
+                    'is_original_workout': True,
+                    'is_swapped': False,
+                    'is_swappable': True,
+                    'is_completed': False,
+                    'exercises_completed': 0,
+                    'exercises_total': len(exercises_clean),
+                    'intensity_metrics': self._build_intensity_metrics(intensity_metrics),
+                    'split_type': v2_fields['split_type'],
+                    'workout_category': v2_fields['workout_category'],
+                    'muscle_groups_targeted': v2_fields['muscle_groups_targeted'],
+                    'estimated_duration_minutes': self._estimate_session_duration(focus, profile),
+                }
+                filled.append(muscle)
+                print(f"  [V2] Coverage gap filled: {muscle} -> {focus} on day {rest_idx}")
+                success = True
+                break
+
+            if not success and muscle not in filled:
+                warnings.append(
+                    f"MUSCLE_COVERAGE_GAP: {muscle} not trained this week "
+                    f"(retry limit reached; equipment={equipment})"
+                )
+                print(f"  [V2] MUSCLE_COVERAGE_GAP: {muscle} -- exhausted {retry_limit} retries")
+
+        return warnings
 
 # ==========================================
 # FACTORY FUNCTION

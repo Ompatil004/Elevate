@@ -61,6 +61,16 @@ from app.workout_engine import get_workout_engine
 from app.meal_engine import get_meal_engine
 from app.db import get_database
 
+# Safety compliance layer
+try:
+    from app.safety_layer import validate_workout_safety, build_safety_response as _build_safety_resp
+    _SAFETY_LAYER_AVAILABLE = True
+except ImportError:
+    validate_workout_safety = None          # type: ignore[assignment]
+    _build_safety_resp = None               # type: ignore[assignment]
+    _SAFETY_LAYER_AVAILABLE = False
+
+
 # SEC-10: Verify ML model file integrity at startup.
 # In production this raises ModelIntegrityError to prevent loading tampered pickles.
 # Run  python -c "from app.utils.model_integrity import generate_checksums; generate_checksums()"
@@ -1849,6 +1859,25 @@ async def generate_workout(
             print("ERROR: Generated plan is empty!")
             raise HTTPException(status_code=500, detail="Generated empty workout plan")
 
+        # Safety compliance — post-generation pass (metadata-based, no name matching)
+        workout_safety_adjustments: List[str] = []
+        workout_safety_warnings: List[str] = []
+        workout_medical_disclaimer: str = ""
+        if _SAFETY_LAYER_AVAILABLE and validate_workout_safety is not None:
+            try:
+                weekly_plan, workout_safety_adjustments, workout_safety_warnings = validate_workout_safety(
+                    weekly_plan, user_data, engine.rules, engine
+                )
+                if workout_safety_adjustments and build_safety_response is not None:
+                    _s = build_safety_response(
+                        workout_safety_adjustments,
+                        workout_safety_warnings,
+                        engine.rules,
+                        rules_key="safety",
+                    )
+                    workout_medical_disclaimer = _s.get("medical_disclaimer", "")
+            except Exception as _safety_err:
+                logger.warning("Safety layer post-generation pass raised an error: %s", _safety_err)
 
         # Compute progression state and structured coaching feedback
         progression_state = {}
@@ -1899,6 +1928,9 @@ async def generate_workout(
                 "user_context": user_context,
                 "progression_state": progression_state,
                 "coaching_feedback": coaching_feedback,
+                "medical_adjustments_applied": workout_safety_adjustments,
+                "medical_disclaimer": workout_medical_disclaimer,
+                "safety_warnings": workout_safety_warnings,
             },
             workout=weekly_plan,
             exercises_count=total_exercises,
@@ -1908,6 +1940,9 @@ async def generate_workout(
             user_context=user_context,
             progression_state=progression_state,
             coaching_feedback=coaching_feedback,
+            medical_adjustments_applied=workout_safety_adjustments,
+            medical_disclaimer=workout_medical_disclaimer,
+            safety_warnings=workout_safety_warnings,
         )
 
     except HTTPException:

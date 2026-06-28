@@ -254,7 +254,7 @@ const formatSwapTimestamp = (value) => {
   return parsed.toLocaleString();
 };
 
-const Workout = () => {
+const Workout = ({ onLogout }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const autoStartDay = location.state?.autoStartDay;
@@ -2313,8 +2313,12 @@ const Workout = () => {
   const handleLogout = () => {
     showConfirmDialog("Log out of Elevate?", (confirmed) => {
       if (confirmed) {
-        logoutSafe();
-        navigate('/');
+        if (typeof onLogout === 'function') {
+          onLogout();
+        } else {
+          logoutSafe();
+          navigate('/');
+        }
       }
     });
   };
