@@ -90,7 +90,7 @@ const getUserPrefix = () => {
         return `${user.email}_`;
       }
     }
-  } catch (e) {
+  } catch {
     // Ignore
   }
   return '';

@@ -1925,13 +1925,11 @@ function Dashboard({ onLogout }) {
   const [displayName, setDisplayName] = useState('Titan');
   const [userAvatar, setUserAvatar] = useState(null);
   const [showImageModal, setShowImageModal] = useState(false);
-  const [showNotif, setShowNotif] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState({
     show: false,
     message: '',
     onConfirm: null
   });
-  const notifRef = useRef(null);
 
   const [stats, setStats] = useState({
     workoutCount: 0,
@@ -2012,6 +2010,7 @@ function Dashboard({ onLogout }) {
   const [workoutIntensity] = useState(0);
   const [recoveryScore, setRecoveryScore] = useState(0);
   const [notifications, setNotifications] = useState(() => getFromStorage('active_notifications', []));
+  const [activeToasts, setActiveToasts] = useState([]);
 
   useEffect(() => {
     setToStorage('active_notifications', notifications);
@@ -2909,15 +2908,17 @@ function Dashboard({ onLogout }) {
   }, []);
 
   const addNotification = useCallback((message, type = 'info') => {
+    const id = Date.now() + Math.random();
     const newNotification = {
-      id: Date.now() + Math.random(),
+      id,
       message,
       type,
       timestamp: new Date()
     };
     setNotifications((prev) => [...prev, newNotification]);
+    setActiveToasts((prev) => [...prev, newNotification]);
     setTimeout(
-      () => setNotifications((prev) => prev.filter((n) => n.id !== newNotification.id)),
+      () => setActiveToasts((prev) => prev.filter((t) => t.id !== id)),
       5000
     );
   }, []);
@@ -2925,15 +2926,10 @@ function Dashboard({ onLogout }) {
   const dismissNotification = (id) =>
     setNotifications((prev) => prev.filter((n) => n.id !== id));
 
-  const handleClickOutside = (event) => {
-    if (notifRef.current && !notifRef.current.contains(event.target))
-      setShowNotif(false);
+  const dismissToast = (id) => {
+    setActiveToasts((prev) => prev.filter((t) => t.id !== id));
+    dismissNotification(id);
   };
-
-  useEffect(() => {
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   // ✅ FIXED: logActivity uses storage utility AND saves to backend
   // Added ISO timestamp so deduplication works correctly in loadActivitiesFromBackend
@@ -4883,9 +4879,9 @@ function Dashboard({ onLogout }) {
         </div>
 
         {/* NOTIFICATIONS CONTAINER */}
-        {notifications.length > 0 && (
+        {activeToasts.length > 0 && (
           <div style={styles.notificationsContainer}>
-            {notifications.map((notification) => (
+            {activeToasts.map((notification) => (
               <div
                 key={notification.id}
                 style={{
@@ -4901,7 +4897,7 @@ function Dashboard({ onLogout }) {
                   <span style={styles.notificationMessage}>{notification.message}</span>
                   <button
                     style={styles.notificationClose}
-                    onClick={() => dismissNotification(notification.id)}
+                    onClick={() => dismissToast(notification.id)}
                   >
                     ×
                   </button>

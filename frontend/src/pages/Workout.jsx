@@ -1432,6 +1432,16 @@ const Workout = () => {
       const key = `workout_done_${d.day || `Day ${idx + 1}`}`;
       if (getFromStorage(key) === 'true') ids.add(d.day_of_week ?? idx);
     });
+
+    // Add today's confirmed rest day if confirmed
+    const storedUser = getFromStorage('user', {});
+    const email = storedUser.email || '';
+    const todayStr = getLocalDateStr();
+    const confirmationKey = `rest_confirmed_${email}_${todayStr}`;
+    if (getFromStorage(confirmationKey) === 'true') {
+      ids.add(todayIdx);
+    }
+
     return ids;
   })();
 
@@ -1449,6 +1459,22 @@ const Workout = () => {
     const today = planByDayIndex.get(todayIdx);
     if (!today || !isRestDay(today)) return;
 
+    // Check if rest day decision has already been confirmed/taken today
+    const todayStr = getLocalDateStr();
+    const storedUser = getFromStorage('user', {});
+    const email = storedUser.email || '';
+    const confirmationKey = `rest_confirmed_${email}_${todayStr}`;
+
+    const isAlreadyConfirmedLocal = getFromStorage(confirmationKey) === 'true';
+    const isAlreadyConfirmedHistory = Array.isArray(pastWorkouts) && pastWorkouts.some(
+      log => log.dateStr === todayStr && log.name === 'Rest Day'
+    );
+
+    if (isAlreadyConfirmedLocal || isAlreadyConfirmedHistory) {
+      showSuccess('Rest day is confirmed for today. Enjoy your recovery!', 3000);
+      return;
+    }
+
     showConfirmDialog(
       'Today is a rest day. Do you want to take rest today?\n\n• Click "Confirm" to rest\n• Click "Cancel" to workout instead',
       async (confirmed) => {
@@ -1461,6 +1487,10 @@ const Workout = () => {
           // User wants to rest - keep the plan as is
           try {
             const todayStr = getLocalDateStr();
+            const storedUser = getFromStorage('user', {});
+            const email = storedUser.email || '';
+            const confirmationKey = `rest_confirmed_${email}_${todayStr}`;
+            setToStorage(confirmationKey, 'true');
             const newLog = {
               name: 'Rest Day',
               status: 'Completed',
