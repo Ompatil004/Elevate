@@ -2734,41 +2734,6 @@ function Dashboard({ onLogout }) {
           rightContent={
             <>
               <div className="dateDisplay desktop-nav">{todayDate}</div>
-              <div style={{ position: 'relative' }} ref={notifRef}>
-                <button
-                  className="iconButton icon-hover"
-                  onClick={() => setShowNotif(!showNotif)}
-                >
-                  🔔
-                </button>
-                {showNotif && (
-                  <div className="notifDropdown">
-                    <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--app-text)', marginBottom: '12px' }}>
-                      Notifications
-                    </div>
-                    {notifications.length === 0 ? (
-                      <div className="notifItem" style={{ borderBottom: 'none', color: 'var(--app-text-muted)', fontSize: '12px', justifyContent: 'center', marginTop: '8px' }}>
-                        No new alerts
-                      </div>
-                    ) : (
-                      notifications.map((n, idx) => (
-                        <div key={n.id} className="notifItem" style={{
-                          borderBottom: idx === notifications.length - 1 ? 'none' : '1px solid var(--app-border)',
-                          padding: '8px 0',
-                          fontSize: '12px',
-                          color: 'var(--app-text)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px'
-                        }}>
-                          <span>{n.type === 'error' ? '❌' : n.type === 'warning' ? '⚠️' : 'ℹ️'}</span>
-                          <span style={{ lineHeight: '1.4' }}>{n.message}</span>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                )}
-              </div>
               <button
                 className="theme-toggle-btn"
                 onClick={toggleTheme}
