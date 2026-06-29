@@ -210,23 +210,23 @@ const checkForm = (pattern, angles, calibration = {}) => {
 
 // ─── REP COUNTING CONFIG with ROM validation ──
 const REP_CONFIG = {
-  CURL:    { joint: 'elbow', down: 150, up: 60,  startStage: 'rest', cooldown: 400, minROM: 0.55 },
-  PRESS:   { joint: 'elbow', down: 90,  up: 160, startStage: 'rest', cooldown: 400, minROM: 0.55 },
-  SQUAT:   { joint: 'knee',  down: 100, up: 160, startStage: 'rest', cooldown: 600, minROM: 0.50 },
-  HINGE:   { joint: 'hip',   down: 120, up: 160, startStage: 'rest', cooldown: 600, minROM: 0.50 },
-  LUNGE:   { joint: 'knee',  down: 100, up: 150, startStage: 'rest', cooldown: 600, useMin: true, minROM: 0.50 },
-  RAISE:   { joint: 'shoulder', down: 30, up: 80, startStage: 'rest', cooldown: 400, minROM: 0.50 },
-  CORE:    { joint: 'hip',   down: 110, up: 150, startStage: 'rest', cooldown: 500, minROM: 0.40, isHold: false },
+  CURL:    { joint: 'elbow', down: 60,  up: 150, startStage: 'rest', cooldown: 400, minROM: 0.35 },
+  PRESS:   { joint: 'elbow', down: 90,  up: 150, startStage: 'rest', cooldown: 400, minROM: 0.35 },
+  SQUAT:   { joint: 'knee',  down: 113, up: 150, startStage: 'rest', cooldown: 600, minROM: 0.35 },
+  HINGE:   { joint: 'hip',   down: 133, up: 155, startStage: 'rest', cooldown: 600, minROM: 0.35 },
+  LUNGE:   { joint: 'knee',  down: 113, up: 150, startStage: 'rest', cooldown: 600, useMin: true, minROM: 0.35 },
+  RAISE:   { joint: 'shoulder', down: 30, up: 80, startStage: 'rest', cooldown: 400, minROM: 0.35 },
+  CORE:    { joint: 'hip',   down: 110, up: 150, startStage: 'rest', cooldown: 500, minROM: 0.35, isHold: false },
   CALF:    { joint: 'ankleY', down: 0, up: 0, startStage: 'rest', cooldown: 300, minROM: 0.30 },
-  CARDIO:  { joint: 'avg',   down: 100, up: 140, startStage: 'rest', cooldown: 400, minROM: 0.40 },
-  GENERIC: { joint: 'avg',   down: 100, up: 140, startStage: 'rest', cooldown: 400, minROM: 0.40 },
+  CARDIO:  { joint: 'avg',   down: 100, up: 140, startStage: 'rest', cooldown: 400, minROM: 0.35 },
+  GENERIC: { joint: 'avg',   down: 100, up: 140, startStage: 'rest', cooldown: 400, minROM: 0.35 },
 };
 
 // Hysteresis bands:
 //   ENTRY_HYSTERESIS – smaller so users don't need to hit the exact angle to start a rep
 //   EXIT_HYSTERESIS  – larger to prevent noise from prematurely counting a rep
-const ENTRY_HYSTERESIS = 5;
-const EXIT_HYSTERESIS  = 8;
+const ENTRY_HYSTERESIS = 8;
+const EXIT_HYSTERESIS  = 5;
 
 // How many consecutive frames an angle must hold past a threshold before a state
 // transition is confirmed.  Slow exercises need more frames because they move

@@ -1132,6 +1132,8 @@ class WorkoutEngine:
         'bodyweight squatting row towel': 'https://wger.de/media/exercise-images/1117/e74255c0-67a0-4309-b78d-2d79e6ff8c11.png',
         'bodyweight standing close grip one arm row': 'https://wger.de/media/exercise-images/1637/a1fbe83a-a3e5-49f6-a2c2-5d5b533c2be8.png',
         'brisk walk light cardio': 'https://wger.de/media/exercise-images/1615/7792295c-83b6-4ea8-9353-ce02f0ad2559.jpg',
+        'jumping jacks': 'https://fitnessprogramer.com/wp-content/uploads/2021/05/Jumping-jack.gif',
+        'run in place': 'https://fitnessprogramer.com/wp-content/uploads/2021/09/Run-in-Place-exercise.gif',
         'cat cow mobility': 'https://wger.de/media/exercise-images/1871/85a6b9de-4eec-445b-8ebb-f1950b076aba.png',
         'chest dip': 'https://wger.de/media/exercise-images/83/Bench-dips-1.png',
         'chest tap push up male': 'https://wger.de/media/exercise-images/1554/49207a62-8799-4b47-8c0b-7bde02926f3d.png',
@@ -3794,10 +3796,13 @@ class WorkoutEngine:
                 {'name': 'Band Face Pulls', 'reps': '15 reps', 'muscle_group': 'Traps'},
             ],
             'general': [
-                {'name': 'Brisk Walk / Light Cardio', 'reps': '3 min', 'muscle_group': 'Full Body'},
+                {'name': 'Jumping Jacks', 'reps': '30 seconds', 'muscle_group': 'Full Body'},
+                {'name': 'Run in Place', 'reps': '1 min', 'muscle_group': 'Full Body'},
                 {'name': 'Dynamic Joint Circles', 'reps': '10 reps/side', 'muscle_group': 'Mobility'},
                 {'name': 'High Knees', 'reps': '30 seconds', 'muscle_group': 'Full Body'},
                 {'name': 'Torso Twists', 'reps': '20 reps', 'muscle_group': 'Full Body'},
+                {'name': 'Inchworm Walkout', 'reps': '5 reps', 'muscle_group': 'Full Body'},
+                {'name': 'Standing Hip Circles', 'reps': '10 each side', 'muscle_group': 'Mobility'},
             ],
         }
 

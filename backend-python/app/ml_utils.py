@@ -271,7 +271,7 @@ class MLService:
                 else:
                     # Default cardio if none found
                     day_plan['exercises'] = [{
-                        'name': 'Brisk Walking/Jogging',
+                        'name': 'Jumping Jacks / Run in Place',
                         'sets': 1,
                         'reps': "20-30 min",
                         'duration': "20-30 min",
