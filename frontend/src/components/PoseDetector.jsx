@@ -5,7 +5,11 @@ import {
   POSE_MODEL_CANDIDATES,
   getModelAssetUrl,
   preloadPoseAssets,
+  preloadWasm,
 } from '../utils/poseModelPreload';
+
+// Start WASM + lite model fetch as soon as this module is imported
+preloadPoseAssets();
 
 // ─── COMPREHENSIVE MOVEMENT PATTERNS ──
 // Pattern mapping for 1300+ exercise dataset via keyword matching
@@ -41,9 +45,11 @@ const PATTERN_MAP = {
   lunge: "LUNGE",
 
   hinge: "HINGE",
-  row: "HINGE",
-  horizontal_pull: "HINGE",
-  vertical_pull: "HINGE",   // temporary
+
+  // Pulling exercises track elbow angle (arm draws in), NOT hip angle
+  row: "PULL",
+  horizontal_pull: "PULL",
+  vertical_pull: "PULL",
 
   crunch: "CORE",
   plank: "CORE",
@@ -58,7 +64,7 @@ const PATTERN_MAP = {
 
 // ─── Speed category for adaptive smoothing & frame skip ──
 const SPEED_CATEGORY = {
-  CURL: 'fast', PRESS: 'fast', RAISE: 'fast',
+  CURL: 'fast', PRESS: 'fast', RAISE: 'fast', PULL: 'medium',
   SQUAT: 'slow', HINGE: 'slow', LUNGE: 'slow',
   CORE: 'slow', CALF: 'fast',
   CARDIO: 'fast', GENERIC: 'medium',
@@ -104,11 +110,7 @@ const getAlpha = (pattern) => {
   return 0.30; // medium
 };
 
-const getFrameSkip = (pattern) => {
-  const speed = SPEED_CATEGORY[pattern] || 'medium';
-  if (speed === 'slow') return 1; // process every other frame
-  return 0; // process every frame for fast/medium exercises
-};
+const getFrameSkip = (_pattern) => 0; // process every frame for smooth overlay
 
 // Minimum visibility threshold for reliable angle calculations
 const MIN_VISIBILITY = 0.40;
@@ -119,6 +121,7 @@ const getPrimaryVisibility = (pattern, pts) => {
     case 'CURL':
     case 'PRESS':
     case 'RAISE':
+    case 'PULL':
       return Math.min(pts.l_sh.v, pts.r_sh.v, pts.l_el.v, pts.r_el.v, pts.l_wr.v, pts.r_wr.v);
     case 'SQUAT':
     case 'LUNGE':
@@ -196,11 +199,13 @@ const checkForm = (pattern, angles, calibration = {}) => {
           return { warning: 'Great control. Lower slightly to stay in the target raise range.', color: '#f59e0b' };
       }
       break;
+    case 'PULL':
+      if (Math.abs(leftElbow - rightElbow) > 45)
+        return { warning: 'Pull evenly with both arms!', color: '#f59e0b' };
+      break;
     case 'CORE':
-      if (avgHip < 90)
+      if (avgHip < 55)
         return { warning: 'Control the movement — don\'t over-flex your spine.', color: '#f59e0b' };
-      if (avgHip < 145)
-        return { warning: 'Engage your core — don\'t let your hips sag!', color: '#ef4444' };
       break;
     default:
       break;
@@ -209,24 +214,35 @@ const checkForm = (pattern, angles, calibration = {}) => {
 };
 
 // ─── REP COUNTING CONFIG with ROM validation ──
+// Initial thresholds are intentionally wide; auto-calibration narrows them
+// to each user's real range after the first rep is observed.
 const REP_CONFIG = {
-  CURL:    { joint: 'elbow', down: 60,  up: 150, startStage: 'rest', cooldown: 400, minROM: 0.35 },
-  PRESS:   { joint: 'elbow', down: 90,  up: 150, startStage: 'rest', cooldown: 400, minROM: 0.35 },
-  SQUAT:   { joint: 'knee',  down: 113, up: 150, startStage: 'rest', cooldown: 600, minROM: 0.35 },
-  HINGE:   { joint: 'hip',   down: 133, up: 155, startStage: 'rest', cooldown: 600, minROM: 0.35 },
-  LUNGE:   { joint: 'knee',  down: 113, up: 150, startStage: 'rest', cooldown: 600, useMin: true, minROM: 0.35 },
-  RAISE:   { joint: 'shoulder', down: 30, up: 80, startStage: 'rest', cooldown: 400, minROM: 0.35 },
-  CORE:    { joint: 'hip',   down: 110, up: 150, startStage: 'rest', cooldown: 500, minROM: 0.35, isHold: false },
-  CALF:    { joint: 'ankleY', down: 0, up: 0, startStage: 'rest', cooldown: 300, minROM: 0.30 },
-  CARDIO:  { joint: 'avg',   down: 100, up: 140, startStage: 'rest', cooldown: 400, minROM: 0.35 },
-  GENERIC: { joint: 'avg',   down: 100, up: 140, startStage: 'rest', cooldown: 400, minROM: 0.35 },
+  // Elbow angle (shoulder→elbow→wrist): extended ~160°, fully curled ~35°
+  CURL:    { joint: 'elbow',    down: 70,  up: 145, cooldown: 400, minROM: 0.20 },
+  // Push-up / press: elbow extended ~165°, at bottom ~70-90°
+  PRESS:   { joint: 'elbow',    down: 95,  up: 145, cooldown: 400, minROM: 0.20 },
+  // Pull-up / row: elbow extended ~165°, arm drawn in ~50-70°
+  PULL:    { joint: 'elbow',    down: 70,  up: 145, cooldown: 500, minROM: 0.20 },
+  // Knee angle (hip→knee→ankle): standing ~170°, full squat ~80-100°
+  SQUAT:   { joint: 'knee',     down: 120, up: 158, cooldown: 600, minROM: 0.20 },
+  // Hip angle (shoulder→hip→knee): standing ~165°, hinge bottom ~60-90°
+  HINGE:   { joint: 'hip',      down: 100, up: 158, cooldown: 600, minROM: 0.20 },
+  // Lead knee for lunges; same range as squat
+  LUNGE:   { joint: 'knee',     down: 110, up: 158, cooldown: 600, useMin: true, minROM: 0.20 },
+  // Shoulder angle (hip→shoulder→elbow): arm at side ~10-20°, raised ~90°
+  RAISE:   { joint: 'shoulder', down: 25,  up: 75,  cooldown: 400, minROM: 0.20 },
+  // Hip angle for crunch/sit-up: flat ~165°, full crunch ~60-80°
+  CORE:    { joint: 'hip',      down: 85,  up: 158, cooldown: 500, minROM: 0.20 },
+  CALF:    { joint: 'ankleY',   down: 0,   up: 0,   cooldown: 300, minROM: 0.20 },
+  CARDIO:  { joint: 'avg',      down: 100, up: 145, cooldown: 400, minROM: 0.15 },
+  GENERIC: { joint: 'avg',      down: 100, up: 145, cooldown: 400, minROM: 0.15 },
 };
 
 // Hysteresis bands:
-//   ENTRY_HYSTERESIS – smaller so users don't need to hit the exact angle to start a rep
+//   ENTRY_HYSTERESIS – smaller so users don't need to go far past the threshold to begin a rep
 //   EXIT_HYSTERESIS  – larger to prevent noise from prematurely counting a rep
-const ENTRY_HYSTERESIS = 8;
-const EXIT_HYSTERESIS  = 5;
+const ENTRY_HYSTERESIS = 5;
+const EXIT_HYSTERESIS  = 8;
 
 // How many consecutive frames an angle must hold past a threshold before a state
 // transition is confirmed.  Slow exercises need more frames because they move
@@ -303,11 +319,14 @@ export default function PoseDetector({
     pattern: 'GENERIC',
     lastRepTime: 0,
     lastFeedbackTime: 0,
-    minAngleInRep: 999,  // Track min angle during contraction for ROM validation
-    maxAngleInRep: 0,    // Track max angle during extension for ROM validation
+    minAngleInRep: 999,  // Track min angle during rep for ROM validation
+    maxAngleInRep: 0,    // Track max angle during rep for ROM validation
     // Multi-frame noise gate: stage changes only after N consecutive confirming frames
     pendingStage: null,
     stageConfirmCount: 0,
+    // Auto-calibration: updated after each rep to fit the user's personal ROM
+    dynDown: null,
+    dynUp: null,
     // Calf-specific: track ankle Y position
     baselineAnkleY: null,
     peakAnkleY: null,
@@ -336,8 +355,9 @@ export default function PoseDetector({
     let active = true;
     (async () => {
       try {
-        // Warm CDN/model caches before creating the detector for faster first use.
-        await preloadPoseAssets();
+        // Reuse the WASM resolver that was pre-initialised at page load.
+        // If not ready yet this awaits the same promise — no duplicate work.
+        await preloadWasm();
         const vision = await FilesetResolver.forVisionTasks(FILESET_WASM_URL);
 
         let lm = null;
@@ -352,9 +372,9 @@ export default function PoseDetector({
               },
               runningMode: 'VIDEO',
               numPoses: 1,
-              minPoseDetectionConfidence: 0.55,
-              minPosePresenceConfidence: 0.55,
-              minTrackingConfidence: 0.6,
+              minPoseDetectionConfidence: 0.45,
+              minPosePresenceConfidence: 0.45,
+              minTrackingConfidence: 0.5,
             });
             break;
           } catch (err) {
@@ -394,6 +414,8 @@ export default function PoseDetector({
       maxAngleInRep: 0,
       pendingStage: null,
       stageConfirmCount: 0,
+      dynDown: null,
+      dynUp: null,
       baselineAnkleY: null,
       peakAnkleY: null,
       holdStartTime: 0,
@@ -420,7 +442,7 @@ export default function PoseDetector({
       x: rawLandmarks[idx].x * canvas.width,
       y: rawLandmarks[idx].y * canvas.height,
       z: rawLandmarks[idx].z || 0,
-      v: rawLandmarks[idx].visibility || 0,
+      v: rawLandmarks[idx].visibility || 1,
     });
 
     // Extract raw points
@@ -520,7 +542,11 @@ export default function PoseDetector({
     // ─── REP COUNTING — 3-phase state machine with ROM validation ──
     const cfg = REP_CONFIG[pattern] || REP_CONFIG.GENERIC;
     const cooldownOK = now - s.lastRepTime > cfg.cooldown;
-    const expectedROM = Math.abs(cfg.up - cfg.down);
+    // Use auto-calibrated thresholds if available, otherwise fall back to config defaults.
+    // dynDown/dynUp are updated after each rep based on the user's observed ROM.
+    const effectiveDown = s.dynDown !== null ? s.dynDown : cfg.down;
+    const effectiveUp   = s.dynUp   !== null ? s.dynUp   : cfg.up;
+    const expectedROM = Math.abs(effectiveUp - effectiveDown);
 
     if (!isPredictionStale && isConfident && pattern === 'CALF') {
       // ── CALF RAISE: Use ankle Y-position delta instead of angle ──
@@ -603,6 +629,15 @@ export default function PoseDetector({
       const finishRep = () => {
         const actualROM = s.maxAngleInRep - s.minAngleInRep;
         if (actualROM >= expectedROM * cfg.minROM) {
+          // ── Auto-calibrate thresholds from this rep's observed range ──
+          // Set dynDown/dynUp to 25% inside the user's actual min/max so the
+          // state machine stays within their personal ROM rather than the config defaults.
+          if (actualROM > 15) {
+            const newDown = s.minAngleInRep + actualROM * 0.25;
+            const newUp   = s.maxAngleInRep - actualROM * 0.25;
+            s.dynDown = s.dynDown === null ? newDown : s.dynDown * 0.5 + newDown * 0.5;
+            s.dynUp   = s.dynUp   === null ? newUp   : s.dynUp   * 0.5 + newUp   * 0.5;
+          }
           s.stage = 'rest';
           s.reps += 1;
           s.lastRepTime = now;
@@ -629,12 +664,10 @@ export default function PoseDetector({
         }
       };
 
-      if (cfg.down < cfg.up) {
+      if (effectiveDown < effectiveUp) {
         // "Normal" — angle starts high (rest), drops during contraction, rises to count
-        // Entry uses ENTRY_HYSTERESIS (5°) — more forgiving so near-threshold angles register
-        // Exit  uses EXIT_HYSTERESIS  (8°) — stricter to avoid counting too early
         if (s.stage === 'rest') {
-          if (confirmPending('contracting', trackAngle < cfg.down - ENTRY_HYSTERESIS)) {
+          if (confirmPending('contracting', trackAngle < effectiveDown - ENTRY_HYSTERESIS)) {
             s.stage = 'contracting';
             s.pendingStage = null;
             s.stageConfirmCount = 0;
@@ -643,14 +676,14 @@ export default function PoseDetector({
           }
         }
         if (s.stage === 'contracting') {
-          if (confirmPending('extended', trackAngle > cfg.up + EXIT_HYSTERESIS && cooldownOK)) {
+          if (confirmPending('extended', trackAngle > effectiveUp + EXIT_HYSTERESIS && cooldownOK)) {
             finishRep();
           }
         }
       } else {
         // "Inverted" — angle starts low, rises to contracted, drops back to count
         if (s.stage === 'rest') {
-          if (confirmPending('extended', trackAngle > cfg.up + ENTRY_HYSTERESIS)) {
+          if (confirmPending('extended', trackAngle > effectiveUp + ENTRY_HYSTERESIS)) {
             s.stage = 'extended';
             s.pendingStage = null;
             s.stageConfirmCount = 0;
@@ -659,14 +692,14 @@ export default function PoseDetector({
           }
         }
         if (s.stage === 'extended') {
-          if (confirmPending('contracting', trackAngle < cfg.down - ENTRY_HYSTERESIS)) {
+          if (confirmPending('contracting', trackAngle < effectiveDown - ENTRY_HYSTERESIS)) {
             s.stage = 'contracting';
             s.pendingStage = null;
             s.stageConfirmCount = 0;
           }
         }
         if (s.stage === 'contracting') {
-          if (confirmPending('rest', trackAngle > cfg.up + EXIT_HYSTERESIS && cooldownOK)) {
+          if (confirmPending('rest', trackAngle > effectiveUp + EXIT_HYSTERESIS && cooldownOK)) {
             finishRep();
           }
         }
@@ -704,7 +737,7 @@ export default function PoseDetector({
     ctx.shadowBlur = 6;
 
     const drawLine = (a, b) => {
-      if (a.v > 0.4 && b.v > 0.4) {
+      if (a.v > 0.1 && b.v > 0.1) {
         ctx.beginPath();
         ctx.moveTo(a.x, a.y);
         ctx.lineTo(b.x, b.y);
@@ -724,7 +757,7 @@ export default function PoseDetector({
 
     // ─── ANGLE ARC + TEXT on key joints ──
     const drawAngleArc = (a, b, c, angle, label, isPrimary = false) => {
-      if (a.v < 0.4 || b.v < 0.4 || c.v < 0.4) return;
+      if (a.v < 0.1 || b.v < 0.1 || c.v < 0.1) return;
       const radius = 25;
       const startAng = Math.atan2(a.y - b.y, a.x - b.x);
       const endAng   = Math.atan2(c.y - b.y, c.x - b.x);
@@ -732,9 +765,9 @@ export default function PoseDetector({
       let arcColor = '#22c55e'; // default green
       let textColor = '#4ade80';
 
-      if (isPrimary && cfg.up !== cfg.down) {
-        const extended = Math.max(cfg.up, cfg.down);
-        const contracted = Math.min(cfg.up, cfg.down);
+      if (isPrimary && effectiveUp !== effectiveDown) {
+        const extended = Math.max(effectiveUp, effectiveDown);
+        const contracted = Math.min(effectiveUp, effectiveDown);
         // Warning zone if they hyper-extend or over-contract past safe limits
         if (angle > extended + 15 || angle < contracted - 15) {
           arcColor = '#ef4444'; // Red (Danger)
@@ -775,6 +808,7 @@ export default function PoseDetector({
     const showAngles = {
       CURL:    () => { drawAngleArc(l_sh, l_el, l_wr, leftElbow, 'L Elbow', true); drawAngleArc(r_sh, r_el, r_wr, rightElbow, 'R Elbow', true); },
       PRESS:   () => { drawAngleArc(l_sh, l_el, l_wr, leftElbow, 'L Elbow', true); drawAngleArc(r_sh, r_el, r_wr, rightElbow, 'R Elbow', true); },
+      PULL:    () => { drawAngleArc(l_sh, l_el, l_wr, leftElbow, 'L Elbow', true); drawAngleArc(r_sh, r_el, r_wr, rightElbow, 'R Elbow', true); },
       SQUAT:   () => { drawAngleArc(l_hi, l_kn, l_an, leftKnee, 'L Knee', true); drawAngleArc(r_hi, r_kn, r_an, rightKnee, 'R Knee', true); drawAngleArc(l_sh, l_hi, l_kn, leftHip, 'L Hip'); },
       HINGE:   () => { drawAngleArc(l_sh, l_hi, l_kn, leftHip, 'L Hip', true); drawAngleArc(r_sh, r_hi, r_kn, rightHip, 'R Hip', true); },
       LUNGE:   () => { drawAngleArc(l_hi, l_kn, l_an, leftKnee, 'L Knee', true); drawAngleArc(r_hi, r_kn, r_an, rightKnee, 'R Knee', true); },
@@ -792,7 +826,7 @@ export default function PoseDetector({
     // ─── Draw JOINT NODES ──
     const nodes = [l_sh, r_sh, l_el, r_el, l_wr, r_wr, l_hi, r_hi, l_kn, r_kn, l_an, r_an];
     for (const n of nodes) {
-      if (n.v > 0.35) {
+      if (n.v > 0.1) {
         ctx.beginPath();
         ctx.arc(n.x, n.y, 7, 0, 2 * Math.PI);
         const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, 7);
@@ -809,9 +843,9 @@ export default function PoseDetector({
     // ─── Rep stage indicator and Gauge HUD ──
     if (isConfident) {
       // Draw massive progress ring for visual coaching
-      if (s.lastTrackAngle && cfg.up !== cfg.down) {
-        const extended = Math.max(cfg.up, cfg.down);
-        const contracted = Math.min(cfg.up, cfg.down);
+      if (s.lastTrackAngle && effectiveUp !== effectiveDown) {
+        const extended = Math.max(effectiveUp, effectiveDown);
+        const contracted = Math.min(effectiveUp, effectiveDown);
         let progress = (extended - s.lastTrackAngle) / (extended - contracted);
         progress = Math.max(0, Math.min(1, progress));
         
@@ -883,7 +917,11 @@ export default function PoseDetector({
 
           try {
             const results = landmarkerRef.current.detectForVideo(video, performance.now());
-            Object.assign(canvasRef.current, { width: video.videoWidth, height: video.videoHeight });
+            const cv = canvasRef.current;
+            if (cv.width !== video.videoWidth || cv.height !== video.videoHeight) {
+              cv.width = video.videoWidth;
+              cv.height = video.videoHeight;
+            }
 
             if (results.landmarks?.length > 0) {
               stateRef.current.lastStableLandmarks = results.landmarks[0];

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useNotification } from '../components/NotificationProvider';
 import { useTheme } from '../context/ThemeContext';
 import ConfirmDialog from '../components/ConfirmDialog';
-import { getProfile, saveTrends, getTrends, logActivityToBackend, getRecentActivities, syncActivitiesToBackend, saveDailyLog, getWeeklyLogs, getWeeklyWorkoutPlan } from '../api';
+import { getProfile, saveTrends, getTrends, logActivityToBackend, getRecentActivities, syncActivitiesToBackend, saveDailyLog, getWeeklyLogs, getWeeklyWorkoutPlan, generateNutritionPlan } from '../api';
 import Navbar from '../components/Navbar';
 import { preloadPoseAssets } from '../utils/poseModelPreload';
 import { QUOTES } from '../data/quotes';
@@ -2326,6 +2326,142 @@ function Dashboard({ onLogout }) {
     };
     maybeEnrich();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Background pre-fetch for nutrition plan to warm the cache and avoid long loading times when entering the nutrition page
+  useEffect(() => {
+    const prefetchNutrition = async () => {
+      try {
+        const cachedPlan = getFromStorage(StorageKeys.NUTRITION_CACHE);
+        const rawInvalid = getFromStorage(StorageKeys.NUTRITION_CACHE_INVALID);
+        const cacheInvalid = rawInvalid === true || rawInvalid === 'true';
+        
+        // Helper to get week start date in YYYY-MM-DD
+        const getWeekDatesIST = () => {
+          const now = new Date();
+          // convert to IST
+          const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+          const ist = new Date(utc + 3600000 * 5.5);
+          const day = ist.getDay();
+          const diff = ist.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
+          const monday = new Date(ist.setDate(diff));
+          
+          const dates = [];
+          for (let i = 0; i < 7; i++) {
+            const next = new Date(monday);
+            next.setDate(monday.getDate() + i);
+            dates.push(next.toISOString().split('T')[0]);
+          }
+          return dates;
+        };
+
+        const weekStartStr = getWeekDatesIST()[0];
+        const cachedDate = getFromStorage(StorageKeys.NUTRITION_CACHE_DATE);
+        
+        // We also need user profile to check hash matching
+        const profileRes = await getProfile();
+        const profile = profileRes.data;
+        const profileHash = `${profile.weight}-${profile.height}-${profile.goal}-${profile.dietary_preference || ''}-${profile.age}`;
+        
+        const hasValidDays = cachedPlan && Array.isArray(cachedPlan.days) && cachedPlan.days.length > 0;
+        const isCacheValid = !cacheInvalid && hasValidDays && cachedDate === weekStartStr && cachedPlan._weekStart === weekStartStr && cachedPlan._profileHash === profileHash;
+
+        if (!isCacheValid) {
+          console.log('🥗 [Dashboard] Pre-fetching nutrition plan in background...');
+          
+          // Helper to get workout plan (similar to Nutrition.jsx)
+          const getWorkoutPlanForNutrition = async (prof) => {
+            const cachedWp = safeJSONParse("workoutPlan", null);
+            if (Array.isArray(cachedWp)) {
+              return cachedWp;
+            }
+            return [];
+          };
+
+          const getTodayWorkoutIntensity = (workoutPlan = []) => {
+            if (!Array.isArray(workoutPlan) || workoutPlan.length === 0) return "moderate";
+            const jsDay = new Date().getDay();
+            const todayIdx = (jsDay + 6) % 7; // Monday=0 ... Sunday=6
+            const todayPlan = workoutPlan.find((d) => (d?.day_of_week ?? -1) === todayIdx) || workoutPlan[todayIdx];
+            if (!todayPlan) return "moderate";
+            const label = `${todayPlan.day || todayPlan.focus || ""}`.toLowerCase();
+            const note = `${todayPlan.note || ""}`.toLowerCase();
+            if (label.includes("rest") || note.includes("rest")) return "rest";
+            const exercises = Array.isArray(todayPlan.exercises) ? todayPlan.exercises : [];
+            const totalSets = exercises.reduce((sum, ex) => {
+              const parsed = parseInt(String(ex?.sets ?? "0").replace(/[^0-9]/g, ""), 10);
+              return sum + (Number.isFinite(parsed) ? parsed : 0);
+            }, 0);
+            if (exercises.length >= 8 || totalSets >= 28) return "very_hard";
+            if (exercises.length >= 6 || totalSets >= 20) return "hard";
+            if (exercises.length >= 3 || totalSets >= 10) return "moderate";
+            return "light";
+          };
+
+          const wp = await getWorkoutPlanForNutrition(profile);
+          const workoutIntensity = getTodayWorkoutIntensity(wp);
+
+          const response = await generateNutritionPlan({
+            age: profile.age,
+            weight: profile.weight,
+            height: profile.height,
+            gender: profile.gender,
+            goal: profile.goal,
+            dietary_preference: profile.dietary_preference || "Non-Veg",
+            allergies: profile.allergies || [],
+            workout_intensity: workoutIntensity,
+            weekly_workout_plan: wp,
+          });
+
+          if (response?.data?.success && response?.data?.nutrition) {
+            const nutrition = response.data.nutrition;
+            const weekPlan = nutrition.weekly_plan;
+            const weekDates = getWeekDatesIST();
+            const NUTRITION_WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+            const days = [];
+            for (let i = 0; i < 7; i++) {
+              const dName = NUTRITION_WEEKDAYS[i];
+              const backendDay = weekPlan?.[dName] || {};
+              const meals = [];
+              for (const mealType of ['breakfast', 'lunch', 'dinner', 'snack']) {
+                const items = backendDay[mealType] || [];
+                const foods = items.map((item, idx) => ({
+                  id: `${mealType}-${item.name || item.food_name}-${i}-${idx}`,
+                  name: item.name || item.food_name,
+                  calories: item.calories || 0,
+                  protein: item.protein || 0,
+                  carbs: item.carbs || 0,
+                  fat: item.fat || 0,
+                  serving: item.serving || '',
+                  serving_qty: item.serving_qty || 0,
+                  serving_unit: item.serving_unit || 'g',
+                  semantics: item.semantics || {},
+                }));
+                meals.push({ meal_type: mealType, name: mealType.charAt(0).toUpperCase() + mealType.slice(1), foods });
+              }
+              days.push({ day: dName, date: weekDates[i], meals });
+            }
+
+            const cachePayload = {
+              _weekStart: weekStartStr,
+              _profileHash: profileHash,
+              days,
+              daily_target: nutrition.daily_target || {},
+            };
+
+            setToStorage(StorageKeys.NUTRITION_CACHE, cachePayload);
+            setToStorage(StorageKeys.NUTRITION_CACHE_DATE, weekStartStr);
+            setToStorage(StorageKeys.NUTRITION_CACHE_INVALID, 'false');
+            console.log('🥗 [Dashboard] Pre-fetched and cached nutrition plan successfully!');
+          }
+        }
+      } catch (err) {
+        console.warn('🥗 [Dashboard] Background pre-fetch failed:', err?.message || err);
+      }
+    };
+    
+    prefetchNutrition();
   }, []);
 
   const updateChart = async (mode, period) => {
