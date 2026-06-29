@@ -90,6 +90,12 @@ class WorkoutEngine:
         self._wger_ready_event = threading.Event()
         # Exercises confirmed to have no matching GIF — must not use random fallbacks.
         self._gif_blacklist: set = set()
+        # YouTube fallback configuration
+        self._youtube_fallback_enabled = False
+        self._youtube_svc = None
+        # CSV-based GIF lookup from gifs.csv (fitnessprogramer.com)
+        self._csv_gif_map: dict = {}
+        self._csv_gif_tokens: list = []
         
         # Initialize multi-output XGBoost model
         self.multi_output_model = MultiOutputXGBoostModel()
@@ -230,6 +236,8 @@ class WorkoutEngine:
 
         # Load GIF blacklist — exercises with no valid exercise-specific media.
         self._load_gif_blacklist(base_dir)
+        # Load gifs.csv lookup table for broader exercise GIF coverage.
+        self._load_csv_gif_map(base_dir)
 
         # Initialize YouTube fallback fields to prevent AttributeError
         self._youtube_fallback_enabled = False
@@ -481,6 +489,58 @@ class WorkoutEngine:
         if not exercise_name or not self._gif_blacklist:
             return False
         return self._normalize_exercise_name(exercise_name) in self._gif_blacklist
+
+    def _load_csv_gif_map(self, base_dir: Optional[str] = None) -> None:
+        """Load gifs.csv (fitnessprogramer.com) as a fuzzy-match fallback GIF source."""
+        try:
+            resolved_base = base_dir or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            gif_path = os.path.join(resolved_base, 'data', 'gifs.csv')
+            if not os.path.exists(gif_path):
+                return
+            df = pd.read_csv(gif_path)
+            self._csv_gif_map = {}
+            self._csv_gif_tokens = []
+            for _, row in df.iterrows():
+                title = str(row.get('title', '')).strip()
+                src = str(row.get('src', '')).strip()
+                if not title or not src or not src.startswith('http'):
+                    continue
+                key = self._normalize_exercise_name(title)
+                if key and key not in self._csv_gif_map:
+                    self._csv_gif_map[key] = src
+                tokens = frozenset(re.sub(r'[^a-z0-9 ]', ' ', key).split())
+                if tokens:
+                    self._csv_gif_tokens.append((tokens, src))
+            print(f" [GIF CSV] Loaded {len(self._csv_gif_map)} exercise GIFs from gifs.csv")
+        except Exception as e:
+            print(f" [GIF CSV] Load failed: {e}")
+            self._csv_gif_map = {}
+            self._csv_gif_tokens = []
+
+    def _match_csv_gif(self, exercise_name: str) -> str:
+        """Fuzzy-match an exercise name against gifs.csv using word-overlap (Dice coefficient)."""
+        if not exercise_name or not self._csv_gif_map:
+            return ''
+        key = self._normalize_exercise_name(exercise_name)
+        if key in self._csv_gif_map:
+            return self._csv_gif_map[key]
+        q_tokens = frozenset(re.sub(r'[^a-z0-9 ]', ' ', key).split())
+        if not q_tokens:
+            return ''
+        best_score = 0.0
+        best_url = ''
+        for tokens, url in self._csv_gif_tokens:
+            if not tokens:
+                continue
+            inter = len(q_tokens & tokens)
+            if inter == 0:
+                continue
+            score = 2.0 * inter / (len(q_tokens) + len(tokens))
+            if score > best_score:
+                best_score = score
+                best_url = url
+        # Accept only high-confidence matches (≥50% word overlap) to avoid wrong GIFs
+        return best_url if best_score >= 0.5 else ''
 
     def _initialize_audit_media_index(self, base_dir: Optional[str] = None) -> None:
         """Load high-confidence exercise-name -> media mappings from audit artifacts."""
@@ -961,6 +1021,8 @@ class WorkoutEngine:
         'images.ctfassets.net',
         'assets.jefit.com',
         'cdn.jefit.com',
+        'fitnessprogramer.com',
+        'raw.githubusercontent.com',
     )
 
     _EXERCISEDB_DOMAINS = (
@@ -1336,6 +1398,14 @@ class WorkoutEngine:
         # We do NOT fall back to a random GIF for a different exercise — use 'none' instead.
         # (The allow_generic=True path previously here caused wrong GIFs to be shown.)
 
+        # gifs.csv fuzzy-match (fitnessprogramer.com) — last resort before 'none'.
+        # Only tried when all Wger/audit/video sources have failed, so it never
+        # overrides a more specific match already found above.
+        if not media_url and exercise_name:
+            csv_gif = self._match_csv_gif(exercise_name)
+            if csv_gif and self._validate_media_url(csv_gif):
+                media_url = csv_gif
+
         # Optional final YouTube search embed only when YouTube fallback is enabled.
         if not media_url and self._youtube_fallback_enabled and exercise_name:
             media_url = self._build_search_embed_url(exercise_name)
@@ -1371,26 +1441,11 @@ class WorkoutEngine:
             model_dir = os.path.join(base_dir, 'models')
 
             # ----------------------------------------------------------------
-            # Step 1: Load the multi-output model first (it uses a custom
-            # .load_model() method that manages its own internal state and
-            # must not run concurrently with itself).
-            # ----------------------------------------------------------------
-            multi_output_path = os.path.join(model_dir, 'multi_output_xgboost_model.joblib')
-            multi_output_loaded = False
-
-            if os.path.exists(multi_output_path):
-                try:
-                    self.multi_output_model.load_model(multi_output_path)
-                    print(" Multi-Output ML model loaded successfully")
-                    multi_output_loaded = True
-                except Exception as e:
-                    print(f" Failed to load Multi-Output ML model: {e}")
-
-            # ----------------------------------------------------------------
-            # Step 2: Load all remaining models IN PARALLEL.
+            # Load all models IN PARALLEL.
             # Each entry is (attr_name, file_path, label_for_log).
             # ----------------------------------------------------------------
             model_specs = [
+                ('multi_output_model',   os.path.join(model_dir, 'multi_output_xgboost_model.joblib'), 'Multi-Output ML'),
                 ('xgb_volume_model',     os.path.join(model_dir, 'xgboost_volume.pkl'),               'Volume'),
                 ('xgb_intensity_model',  os.path.join(model_dir, 'xgboost_intensity.pkl'),             'Intensity'),
                 ('xgb_split_model',      os.path.join(model_dir, 'xgboost_split.pkl'),                 'Split'),
@@ -1408,8 +1463,12 @@ class WorkoutEngine:
                 attr, path, label = spec
                 if os.path.exists(path):
                     try:
-                        model = joblib.load(path)
-                        return attr, model, label, True
+                        if attr == 'multi_output_model':
+                            self.multi_output_model.load_model(path)
+                            return attr, self.multi_output_model, label, True
+                        else:
+                            model = joblib.load(path)
+                            return attr, model, label, True
                     except Exception as load_err:
                         print(f" Failed to load {label} model: {load_err}")
                         return attr, None, label, False
@@ -1417,9 +1476,9 @@ class WorkoutEngine:
 
             t_start = time.perf_counter()
             results = {}
-            # Use up to 8 workers — all models are small enough that I/O is the
+            # Use up to 12 workers — all models are small enough that I/O is the
             # bottleneck, not CPU. More workers → faster parallelism.
-            with ThreadPoolExecutor(max_workers=min(len(model_specs), 8), thread_name_prefix='ml-loader') as pool:
+            with ThreadPoolExecutor(max_workers=min(len(model_specs), 12), thread_name_prefix='ml-loader') as pool:
                 futures = {pool.submit(_load_one, spec): spec for spec in model_specs}
                 for future in as_completed(futures):
                     try:
@@ -1432,8 +1491,16 @@ class WorkoutEngine:
 
             t_elapsed = (time.perf_counter() - t_start) * 1000
 
-            # Assign results to instance attributes in the original order
+            # Assign results to instance attributes in the original order and log status
+            _, _, multi_output_loaded = results.get('multi_output_model', (None, '', False))
+            if multi_output_loaded:
+                print(" Multi-Output ML model loaded successfully")
+            else:
+                print(" Multi-Output ML model not found, using rule-based system")
+
             for attr, path, label in model_specs:
+                if attr == 'multi_output_model':
+                    continue
                 model, lbl, found = results.get(attr, (None, label, False))
                 setattr(self, attr, model)
                 if not multi_output_loaded:
@@ -4088,16 +4155,26 @@ class WorkoutEngine:
             safety_cfg = self.rules.get('safety', {})
             injury_blocked_patterns = safety_cfg.get('injury_blocked_patterns', {})
             all_blocked_types = []
+            matched_issues = set()
             for _cond_key, _cond_cfg in injury_blocked_patterns.items():
                 indicators = _cond_cfg.get('condition_indicators', [])
                 from app.safety_layer import has_condition
                 if has_condition(body_issues, indicators):
                     all_blocked_types.extend(_cond_cfg.get('blocked_check_types', []))
+                    for issue in body_issues:
+                        if has_condition([issue], indicators):
+                            matched_issues.add(issue)
 
             if all_blocked_types:
                 pool, _blocked = filter_exercises_by_movement(pool, all_blocked_types)
                 if _blocked:
                     print(f"    [SafetyLayer] Blocked {_blocked} exercises by movement pattern ({all_blocked_types})")
+
+            # Fallback for any issues NOT handled by the safety layer blocked patterns
+            unhandled_issues = set(body_issues) - matched_issues
+            for issue in unhandled_issues:
+                if 'Avoid_If' in pool.columns:
+                    pool = pool[~pool['Avoid_If'].str.contains(issue, case=False, na=False)]
 
         elif body_issues:
             # Fallback: Avoid_If column filter only (no name-based filtering)

@@ -36,6 +36,13 @@ def freeze_determinism(monkeypatch):
     monkeypatch.setattr("app.workout_engine.WorkoutEngine._initialize_wger_media_index", lambda self: None)
     # Mock network reachability check to prevent slow network request timeouts during tests
     monkeypatch.setattr("app.workout_engine.WorkoutEngine._check_url_reachable", lambda self, url, accept_any_response=False: True)
+    # Force workout_engine_v2 to False for legacy comprehensive assertions
+    import copy
+    from app.workout_rules import load_workout_rules
+    default_rules = copy.deepcopy(load_workout_rules())
+    if "feature_flags" in default_rules:
+        default_rules["feature_flags"]["workout_engine_v2"] = False
+    monkeypatch.setattr("app.workout_rules.load_workout_rules", lambda: default_rules)
     # Seed the system random generator
     random.seed(42)
 
