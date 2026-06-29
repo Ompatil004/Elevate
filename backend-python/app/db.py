@@ -138,3 +138,12 @@ def get_meal_plan_cache_collection():
     """
     db = get_database()
     return db.meal_plan_cache
+
+def get_weekly_workout_plans_collection():
+    """Get the weekly workout plans collection.
+
+    Stores one generated workout plan per user per ISO-week so the heavy
+    workout generation runs at most once per week and survives server restarts.
+    """
+    db = get_database()
+    return db.weekly_workout_plans

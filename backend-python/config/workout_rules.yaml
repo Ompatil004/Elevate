@@ -136,8 +136,12 @@ muscle_dataset_map:
 # ─────────────────────────────────────────────────────────────────────────────
 splits:
   full_body:
-    - [Full Body, Full Body, Full Body]  # 3-day
-    - [Full Body (Upper Focus), Full Body (Lower Focus), Full Body (Push-Pull), Full Body]  # 4-day
+    - [Chest & Back]  # 1-day
+    - [Chest & Back, Legs & Shoulders]  # 2-day
+    - [Chest & Back, Legs & Shoulders, Arms & Core]  # 3-day
+    - [Chest & Shoulders, Back & Arms, Legs, Core]  # 4-day
+    - [Chest, Back, Legs, Shoulders, Arms & Core]  # 5-day
+    - [Chest & Triceps, Back & Biceps, Legs (Quads), Shoulders & Traps, Legs (Posterior), Arms & Core]  # 6-day
 
   upper_lower:
     - [Upper Body, Lower Body, Upper Body, Lower Body]  # 4-day

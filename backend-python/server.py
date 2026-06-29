@@ -1837,11 +1837,26 @@ async def generate_workout(
             except Exception as lookup_err:
                 logger.warning("Could not lookup user workout history: %s", lookup_err)
 
-        # Check in-memory plan cache before running ML generation.
+        # ── Priority 1: MongoDB-persisted plan (survives server restarts) ──────
+        # If the user already has a valid plan generated this ISO-week, return
+        # it immediately — no ML generation needed.
+        mongo_weekly_plan = None
+        if user_doc_for_persist:
+            saved_plan = user_doc_for_persist.get("workoutPlan")
+            saved_meta = user_doc_for_persist.get("workoutWeekMetadata") or {}
+            saved_week_start = saved_meta.get("week_start_date")
+            current_week_start = _current_week_start_date_iso()
+            if (isinstance(saved_plan, list) and len(saved_plan) == 7
+                    and saved_week_start == current_week_start):
+                mongo_weekly_plan = saved_plan
+                print(f" [MongoDB] HIT — returning persisted plan for week {current_week_start}")
+
+        # ── Priority 2: In-memory plan cache (fast, zero DB latency) ────────
         # Cache key is deterministic: it combines profile fields + ISO-week number.
         # A hit means the same profile already generated a plan this week — no ML needed.
         plan_cache = getattr(engine, "_plan_cache", None)
-        cached_weekly_plan = plan_cache.get(user_data) if plan_cache else None
+        cached_weekly_plan = mongo_weekly_plan or (plan_cache.get(user_data) if plan_cache else None)
+        is_cache_hit = bool(cached_weekly_plan)
         if cached_weekly_plan:
             print(" [PlanCache] HIT — returning cached plan, skipping ML generation")
             weekly_plan = cached_weekly_plan
@@ -1859,17 +1874,17 @@ async def generate_workout(
             print("ERROR: Generated plan is empty!")
             raise HTTPException(status_code=500, detail="Generated empty workout plan")
 
-        # Safety compliance — post-generation pass (metadata-based, no name matching)
+        # Safety compliance — post-generation pass (skip on cache hits, plan already validated)
         workout_safety_adjustments: List[str] = []
         workout_safety_warnings: List[str] = []
         workout_medical_disclaimer: str = ""
-        if _SAFETY_LAYER_AVAILABLE and validate_workout_safety is not None:
+        if not is_cache_hit and _SAFETY_LAYER_AVAILABLE and validate_workout_safety is not None:
             try:
                 weekly_plan, workout_safety_adjustments, workout_safety_warnings = validate_workout_safety(
                     weekly_plan, user_data, engine.rules, engine
                 )
-                if workout_safety_adjustments and build_safety_response is not None:
-                    _s = build_safety_response(
+                if workout_safety_adjustments and _build_safety_resp is not None:
+                    _s = _build_safety_resp(
                         workout_safety_adjustments,
                         workout_safety_warnings,
                         engine.rules,
@@ -1879,10 +1894,11 @@ async def generate_workout(
             except Exception as _safety_err:
                 logger.warning("Safety layer post-generation pass raised an error: %s", _safety_err)
 
-        # Compute progression state and structured coaching feedback
+        # Compute progression state and coaching feedback only on fresh generation.
+        # On cache hits these are expensive and unnecessary — skip them entirely.
         progression_state = {}
         coaching_feedback = {}
-        if engine.progression_engine:
+        if not is_cache_hit and engine.progression_engine:
             progression_state = engine.progression_engine.get_progression_state(user_data, workout_history, engine.exercises_df)
             coaching_feedback = engine.progression_engine.generate_structured_coaching_feedback(progression_state, user_data)
 
@@ -2020,8 +2036,22 @@ async def _generate_workout_job(job_id: str, profile_data: Dict[str, Any]) -> No
             except Exception as lookup_err:
                 logger.warning("Could not lookup user workout history: %s", lookup_err)
                 
-        plan = engine.generate_weekly_plan(profile_data, workout_history=workout_history)
-        
+        # Check MongoDB-persisted plan first (survives restarts, same week)
+        mongo_plan = None
+        if user_doc:
+            saved_plan = user_doc.get("workoutPlan")
+            saved_meta = user_doc.get("workoutWeekMetadata") or {}
+            saved_week_start = saved_meta.get("week_start_date")
+            if (isinstance(saved_plan, list) and len(saved_plan) == 7
+                    and saved_week_start == _current_week_start_date_iso()):
+                mongo_plan = saved_plan
+                logger.info("[async job] MongoDB HIT — reusing persisted plan, skipping generation")
+
+        if mongo_plan:
+            plan = mongo_plan
+        else:
+            plan = engine.generate_weekly_plan(profile_data, workout_history=workout_history)
+
         # Compute progression state and structured coaching feedback
         progression_state = {}
         coaching_feedback = {}
@@ -2943,6 +2973,7 @@ async def generate_nutrition(
         
         # ===== STEP 3: PREPARE USER PROFILE =====
         user_profile = {
+            "user_id": user_id,
             "age": request.age,
             "weight": request.weight,
             "height": request.height,
@@ -2962,56 +2993,94 @@ async def generate_nutrition(
         # Mirror the workout endpoint's "generate once per user per ISO-week" behaviour,
         # but backed by MongoDB so it survives server restarts and re-logins. A hit
         # serves the stored weekly plan re-sliced for today's weekday — no ML run.
-        profile_hash = _compute_meal_profile_hash(user_profile)
-        week_key = _current_meal_week_key()
-
+        current_week_start = _current_week_start_date_iso()
         meal_plan = None
-        cache_collection = None
-        try:
-            from app.db import get_meal_plan_cache_collection
-            cache_collection = get_meal_plan_cache_collection()
-        except Exception as cache_init_err:
-            logger.warning(f"[{request_id}] Meal cache unavailable, generating fresh: {cache_init_err}")
-            cache_collection = None
 
-        if cache_collection is not None:
+        # Try to retrieve from user's document in MongoDB (primary weekly cache)
+        user_doc = None
+        try:
+            user_doc = await _find_user_by_id(user_id)
+            if user_doc:
+                saved_nutrition = user_doc.get("latestNutritionPlan")
+                saved_meta = user_doc.get("nutritionWeekMetadata") or {}
+                saved_week_start = saved_meta.get("week_start_date")
+                if isinstance(saved_nutrition, dict) and saved_nutrition.get("weekly_plan") and saved_week_start == current_week_start:
+                    logger.info(f"[{request_id}] [MongoDB-NutritionCache] HIT — serving stored weekly plan from user document (no ML)")
+                    meal_plan = meal_runtime.slice_today_from_cached(saved_nutrition)
+        except Exception as db_cache_err:
+            logger.warning(f"[{request_id}] Primary nutrition cache lookup failed: {db_cache_err}")
+
+        # Fallback to secondary legacy collection cache if primary missed
+        cache_collection = None
+        if meal_plan is None:
             try:
-                cached_doc = await cache_collection.find_one({"user_id": user_id})
-                if (
-                    cached_doc
-                    and cached_doc.get("profile_hash") == profile_hash
-                    and cached_doc.get("week_key") == week_key
-                    and isinstance(cached_doc.get("payload"), dict)
-                ):
-                    logger.info(f"[{request_id}] [MealCache] HIT — serving stored weekly plan (no ML)")
-                    # Re-slice the stored weekly plan for today's weekday.
-                    meal_plan = meal_runtime.slice_today_from_cached(cached_doc["payload"])
-            except Exception as cache_read_err:
-                logger.warning(f"[{request_id}] Meal cache read failed, generating fresh: {cache_read_err}")
-                meal_plan = None
+                from app.db import get_meal_plan_cache_collection
+                cache_collection = get_meal_plan_cache_collection()
+            except Exception as cache_init_err:
+                logger.warning(f"[{request_id}] Secondary meal cache collection unavailable: {cache_init_err}")
+                cache_collection = None
+
+            if cache_collection is not None:
+                try:
+                    profile_hash = _compute_meal_profile_hash(user_profile)
+                    week_key = _current_meal_week_key()
+                    cached_doc = await cache_collection.find_one({"user_id": user_id})
+                    if (
+                        cached_doc
+                        and cached_doc.get("week_key") == week_key
+                        and isinstance(cached_doc.get("payload"), dict)
+                    ):
+                        logger.info(f"[{request_id}] [SecondaryMealCache] HIT — serving stored weekly plan (no ML)")
+                        meal_plan = meal_runtime.slice_today_from_cached(cached_doc["payload"])
+                except Exception as cache_read_err:
+                    logger.warning(f"[{request_id}] Secondary meal cache read failed: {cache_read_err}")
+                    meal_plan = None
 
         if meal_plan is None:
             logger.info(f"[{request_id}] [MealCache] MISS — calling suggest_daily_meals...")
             meal_plan = meal_runtime.suggest_daily_meals(user_profile, request.workout_intensity)
 
-            # Store the freshly generated plan so subsequent visits are instant.
-            # Store failures are logged but never block the response.
-            if cache_collection is not None and isinstance(meal_plan, dict) and meal_plan.get("meals"):
+            # Store the freshly generated plan in user's document so subsequent visits are instant.
+            if isinstance(meal_plan, dict) and (meal_plan.get("meals") or meal_plan.get("weekly_plan")):
                 try:
-                    await cache_collection.replace_one(
-                        {"user_id": user_id},
+                    db = get_database()
+                    nutrition_metadata = {
+                        "week_start_date": current_week_start,
+                        "generated_at": _utcnow().isoformat(),
+                    }
+                    await db.users.update_one(
+                        {"_id": ObjectId(user_id)},
                         {
-                            "user_id": user_id,
-                            "profile_hash": profile_hash,
-                            "week_key": week_key,
-                            "payload": meal_plan,
-                            "generated_at": _utcnow(),
-                        },
-                        upsert=True,
+                            "$set": {
+                                "latestNutritionPlan": meal_plan,
+                                "nutritionWeekMetadata": nutrition_metadata,
+                                "nutritionPlanGeneratedAt": _utcnow(),
+                            }
+                        }
                     )
-                    logger.info(f"[{request_id}] [MealCache] stored plan for week {week_key}")
-                except Exception as cache_write_err:
-                    logger.warning(f"[{request_id}] Could not store meal plan in cache: {cache_write_err}")
+                    logger.info(f"[{request_id}] Persisted freshly generated nutrition plan to user document")
+                except Exception as persist_err:
+                    logger.warning(f"[{request_id}] Failed to persist generated nutrition plan to user doc: {persist_err}")
+
+                # Also write to secondary legacy cache
+                if cache_collection is not None:
+                    try:
+                        profile_hash = _compute_meal_profile_hash(user_profile)
+                        week_key = _current_meal_week_key()
+                        await cache_collection.replace_one(
+                            {"user_id": user_id},
+                            {
+                                "user_id": user_id,
+                                "profile_hash": profile_hash,
+                                "week_key": week_key,
+                                "payload": meal_plan,
+                                "generated_at": _utcnow(),
+                            },
+                            upsert=True,
+                        )
+                        logger.info(f"[{request_id}] [MealCache] stored plan in secondary collection for week {week_key}")
+                    except Exception as cache_write_err:
+                        logger.warning(f"[{request_id}] Secondary meal cache write failed: {cache_write_err}")
 
         logger.info(f"[{request_id}] meal plan returned keys: {list(meal_plan.keys()) if isinstance(meal_plan, dict) else 'NOT A DICT'}")
         logger.info(f"[{request_id}] Meal plan has weekly_plan: {'weekly_plan' in (meal_plan or {})}")
@@ -3124,6 +3193,7 @@ async def update_profile(
         request_id = str(uuid.uuid4())[:8]
         user_id = _require_user_id_from_request(http_request, x_auth_token, request_id)
         print(f"Authenticated user: {user_id}")
+        profile_dict["user_id"] = user_id
 
         # **CRITICAL: Force regenerate workout plan with updated profile**
         print("Regenerating workout plan with updated profile...")
@@ -3420,9 +3490,21 @@ async def update_profile_safe(
             # Save nutrition plan if generated
             if response_data["regenerated_nutrition"]:
                 new_nutrition = response_data["regenerated_nutrition"]["plan"]
+                current_week_start = _current_week_start_date_iso()
+                nutrition_metadata = {
+                    "week_start_date": current_week_start,
+                    "generated_at": _utcnow().isoformat(),
+                }
                 await users.update_one(
                     {"_id": ObjectId(user_id)},
-                    {"$set": {"latestNutritionPlan": new_nutrition, "updatedAt": _utcnow()}}
+                    {
+                        "$set": {
+                            "latestNutritionPlan": new_nutrition,
+                            "nutritionWeekMetadata": nutrition_metadata,
+                            "nutritionPlanGeneratedAt": _utcnow(),
+                            "updatedAt": _utcnow(),
+                        }
+                    }
                 )
                 
             logger.info(f"[{request_id}] Changes successfully persisted to MongoDB")
@@ -3517,6 +3599,7 @@ async def generate_plan(
         request_id = str(uuid.uuid4())[:8]
         user_id = _require_user_id_from_request(http_request, x_auth_token, request_id)
         print(f"Authenticated user: {user_id}")
+        profile["user_id"] = user_id
 
         result = {"success": True, "data": {}}
 
@@ -3592,9 +3675,21 @@ async def generate_plan(
                     nutrition = result["data"].get("nutrition_plan")
                     if nutrition:
                         db_instance = get_database()
+                        current_week_start = _current_week_start_date_iso()
+                        nutrition_metadata = {
+                            "week_start_date": current_week_start,
+                            "generated_at": _utcnow().isoformat(),
+                        }
                         await db_instance.users.update_one(
                             {"_id": user_doc["_id"]},
-                            {"$set": {"latestNutritionPlan": nutrition, "updatedAt": _utcnow()}},
+                            {
+                                "$set": {
+                                    "latestNutritionPlan": nutrition,
+                                    "nutritionWeekMetadata": nutrition_metadata,
+                                    "nutritionPlanGeneratedAt": _utcnow(),
+                                    "updatedAt": _utcnow(),
+                                }
+                            },
                         )
                     result["data"]["persisted"] = True
                     print(f"  Generated plans persisted for user {user_id}")

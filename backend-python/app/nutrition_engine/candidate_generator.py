@@ -501,11 +501,35 @@ class CandidateGenerator:
                     expanded.extend(['wheat', 'roti', 'chapati', 'gluten', 'barley', 'rye',
                                      'maida', 'suji', 'semolina', 'atta', 'bread', 'toast'])
                 elif al == 'nuts':
-                    expanded.extend(['nuts', 'almond', 'cashew', 'walnut',
-                                     'peanut', 'pistachio'])
+                    expanded.extend(['nuts', 'almond', 'almonds', 'cashew', 'cashews', 'walnut', 'walnuts',
+                                     'peanut', 'peanuts', 'pistachio', 'pistachios'])
+                elif al == 'egg':
+                    expanded.extend(['egg', 'eggs', 'anda', 'ande'])
                 else:
                     expanded.append(al)
-            allergy_str = '|'.join(r'\b' + re.escape(x) + r'\b' for x in expanded if x)
+            
+            final_expanded = []
+            for x in expanded:
+                if x:
+                    final_expanded.append(x)
+                    if x.endswith('s') and not x.endswith('ss'):
+                        sing = x[:-1]
+                        if sing not in final_expanded:
+                            final_expanded.append(sing)
+                    else:
+                        plur = x + 's'
+                        if plur not in final_expanded:
+                            final_expanded.append(plur)
+            
+            parts = []
+            for x in final_expanded:
+                if x == 'egg':
+                    # Prefix matching for egg, e.g. eggroll, eggcurry, but excludes eggplant
+                    parts.append(r'\begg(?!plant\b)\w*')
+                else:
+                    parts.append(r'\b' + re.escape(x) + r'\b')
+                            
+            allergy_str = '|'.join(parts)
             allergy_regex = re.compile(allergy_str) if allergy_str else None
             
         never_recommend = user_profile.get('never_recommend') or []
