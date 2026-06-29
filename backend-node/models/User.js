@@ -131,6 +131,14 @@ const UserSchema = new Schema({
   registrationDate: { type: Date, default: Date.now },
   // 0 = Monday … 6 = Sunday
   firstWorkoutDay: { type: Number, min: 0, max: 6, default: null },
+
+  // ── Generated Plans & Caching (Whitelisted for Mongoose protection) ─────────
+  workoutPlan: { type: Schema.Types.Mixed, default: null },
+  workoutWeekMetadata: { type: Schema.Types.Mixed, default: null },
+  workoutPlanGeneratedAt: Date,
+  latestNutritionPlan: { type: Schema.Types.Mixed, default: null },
+  nutritionWeekMetadata: { type: Schema.Types.Mixed, default: null },
+  nutritionPlanGeneratedAt: Date,
 });
 
 // ── Indexes ──────────────────────────────────────────────────────────────────

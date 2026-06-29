@@ -413,8 +413,29 @@ class MealEngine:
 
         enhanced_profile['weekly_workout_plan'] = weekly_workout_plan or []
 
+        user_id = profile.get('user_id') or profile.get('_id')
+        if user_id:
+            user_id = str(user_id)
+        else:
+            user_id = 'mock_user'
+
+        # Dynamically calculate Monday week_start in IST (Asia/Kolkata)
+        from datetime import datetime, timedelta, timezone
+        try:
+            from zoneinfo import ZoneInfo
+            now = datetime.now(ZoneInfo('Asia/Kolkata'))
+        except Exception:
+            # Fallback if zoneinfo is not installed or has issues
+            try:
+                now = datetime.now(timezone(timedelta(hours=5, minutes=30)))
+            except Exception:
+                now = datetime.now(timezone.utc)
+
+        monday = now - timedelta(days=now.weekday())
+        week_start = monday.date().isoformat()
+
         # Call V6 Engine
-        weekly_plan = self.engine.generate_plan(enhanced_profile)
+        weekly_plan = self.engine.generate_plan(enhanced_profile, user_id=user_id, week_start=week_start)
         
         # Apply intensity adjustments on top of the V6 plan
         intensity_by_day = self._build_intensity_by_day(enhanced_profile, 'moderate')

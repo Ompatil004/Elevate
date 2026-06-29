@@ -715,6 +715,8 @@ function Nutrition({ onLogout }) {
         goal: userProfile?.goal,
         dietary_preference: userProfile?.dietary_preference || "Non-Veg",
         allergies: userProfile?.allergies || [],
+        current_calories: food.calories,
+        current_protein: food.protein_g,
       });
       setSwapOptions(res.data.success ? res.data.swap_options : []);
     } catch (e) {

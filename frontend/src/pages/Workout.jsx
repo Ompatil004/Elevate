@@ -17,7 +17,7 @@ import {
   logActivityToBackend,
   undoWorkoutSwapHistory,
 } from '../api';
-import { setToStorage, getFromStorage, logoutSafe, StorageKeys, getLocalDateStr } from '../utils/storage';
+import { setToStorage, getFromStorage, removeFromStorage, logoutSafe, StorageKeys, getLocalDateStr } from '../utils/storage';
 import ConfirmDialog from '../components/ConfirmDialog';
 import PoseDetector from '../components/PoseDetector';
 import TimerExerciseMode from '../components/TimerExerciseMode';
@@ -27,7 +27,7 @@ import AuroraBackground from '../components/AuroraBackground';
 
 // Define full weekday names array
 const weekdayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-const WORKOUT_PLAN_CACHE_VERSION = '2026-04-10-workout-fix-6-seeded-shuffle-variety';
+const WORKOUT_PLAN_CACHE_VERSION = '2026-06-29-muscle-groups-weekly-cache';
 const DEFAULT_FALLBACK_GIF = '';
 
 // --- STYLES (Your Exact Styles Preserved) ---
@@ -93,7 +93,7 @@ const styles = {
   exPreview: { fontSize: '13px', color: 'var(--app-text-muted)', marginBottom: '4px', display: 'flex', justifyContent: 'space-between' },
   sessionContainer: { position: 'fixed', top: '80px', left: 0, width: '100%', height: 'calc(100vh - 80px)', background: 'var(--app-bg)', zIndex: 500, display: 'flex', padding: '20px', gap: '20px', animation: 'fadeIn 0.3s ease-out' },
   selectionList: { flex: '0 0 350px', background: 'var(--app-surface)', borderRadius: '24px', border: '1px solid var(--app-border)', display: 'flex', flexDirection: 'column', padding: '20px', overflowY: 'auto' },
-  sidebarHeader: { fontSize: '18px', fontWeight: '800', color: 'var(--app-text)', marginBottom: '20px', display:'flex', justifyContent:'space-between', alignItems:'center' },
+  sidebarHeader: { fontSize: '18px', fontWeight: '800', color: 'var(--app-text)', marginBottom: '20px', display:'flex', justifyContent:'space-between', alignItems:'flex-start' },
   backBtn: { fontSize: '12px', padding: '6px 12px', background: 'var(--app-border)', borderRadius: '8px', color: 'var(--app-text)', border:'none', cursor:'pointer' },
   selectionPreview: { flex: 1, background: 'var(--app-bg)', borderRadius: '24px', border: '1px solid var(--app-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', color: '#52525b' },
   focusContainer: { width: '100%', height: '100%', display: 'flex', gap: '20px' },
@@ -151,6 +151,26 @@ const getTodayIdx = () => {
   };
 
   return indexByWeekday[weekday] ?? 0;
+};
+
+// Returns background/text/border colors for a muscle group badge
+const getMuscleTagStyle = (muscle) => {
+  const m = (muscle || '').toLowerCase();
+  if (m === 'chest') return { bg: 'rgba(239,68,68,0.15)', text: '#f87171', border: 'rgba(239,68,68,0.3)' };
+  if (m === 'back') return { bg: 'rgba(59,130,246,0.15)', text: '#60a5fa', border: 'rgba(59,130,246,0.3)' };
+  if (m === 'legs') return { bg: 'rgba(16,185,129,0.15)', text: '#34d399', border: 'rgba(16,185,129,0.3)' };
+  if (m === 'shoulders') return { bg: 'rgba(245,158,11,0.15)', text: '#fbbf24', border: 'rgba(245,158,11,0.3)' };
+  if (m === 'arms') return { bg: 'rgba(168,85,247,0.15)', text: '#c084fc', border: 'rgba(168,85,247,0.3)' };
+  if (m === 'core') return { bg: 'rgba(236,72,153,0.15)', text: '#f472b6', border: 'rgba(236,72,153,0.3)' };
+  return { bg: 'rgba(113,113,122,0.15)', text: 'var(--app-text-muted)', border: 'rgba(113,113,122,0.3)' };
+};
+
+// For Beginner "Full Body (X Focus)" labels, extract the meaningful part
+const getDisplayFocus = (focus) => {
+  if (!focus) return 'Workout';
+  const match = focus.match(/Full Body \((.+)\)/);
+  if (match) return match[1];
+  return focus;
 };
 
 const isRestDay = (day) => {
@@ -312,17 +332,17 @@ const Workout = ({ onLogout }) => {
   // ✅ FIX: Pre-hydrate exerciseStatus from localStorage so red ticks survive refresh without a network call.
   const [exerciseStatus, setExerciseStatus] = useState(() => {
     try {
-      const savedDate = localStorage.getItem('_exerciseStatusDate');
+      const savedDate = getFromStorage('_exerciseStatusDate');
       const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
       // Clear stale cache from a different day — don't show yesterday's skips today
       if (savedDate && savedDate !== todayStr) {
-        localStorage.removeItem('_exerciseStatus');
-        localStorage.removeItem('_exerciseStatusDate');
-        localStorage.removeItem('_exerciseStatusDay');
+        removeFromStorage('_exerciseStatus');
+        removeFromStorage('_exerciseStatusDate');
+        removeFromStorage('_exerciseStatusDay');
         return {};
       }
-      const saved = localStorage.getItem('_exerciseStatus');
-      return saved ? JSON.parse(saved) : {};
+      const saved = getFromStorage('_exerciseStatus', {});
+      return saved;
     } catch { return {}; }
   });
   const [formFeedback, setFormFeedback] = useState(null);
@@ -898,10 +918,10 @@ const Workout = ({ onLogout }) => {
           if (isMounted) {
             setPlan(normalizedPlan);
             setWeekMetadata(normalizedWeekMetadata);
-            localStorage.setItem('workoutPlan', JSON.stringify(normalizedPlan));
-            localStorage.setItem('workoutPlanTimestamp', new Date().toISOString());
-            localStorage.setItem('workoutPlanVersion', WORKOUT_PLAN_CACHE_VERSION);
-            localStorage.setItem(StorageKeys.WORKOUT_WEEK_METADATA, JSON.stringify(normalizedWeekMetadata));
+            setToStorage('workoutPlan', normalizedPlan);
+            setToStorage('workoutPlanTimestamp', new Date().toISOString());
+            setToStorage('workoutPlanVersion', WORKOUT_PLAN_CACHE_VERSION);
+            setToStorage(StorageKeys.WORKOUT_WEEK_METADATA, normalizedWeekMetadata);
             console.log(`✅ Loaded persisted weekly plan from backend (${reason})`);
           }
 
@@ -936,14 +956,14 @@ const Workout = ({ onLogout }) => {
         console.log('👤 User profile for workout:', userProfile);
 
         // **Check if cached plan exists and is not expired**
-        let cachedPlan = localStorage.getItem('workoutPlan');
-        let cachedTimestamp = localStorage.getItem('workoutPlanTimestamp');
-        const cachedVersion = localStorage.getItem('workoutPlanVersion');
+        let cachedPlan = getFromStorage('workoutPlan');
+        let cachedTimestamp = getFromStorage('workoutPlanTimestamp');
+        const cachedVersion = getFromStorage('workoutPlanVersion');
 
         if (cachedPlan && cachedVersion !== WORKOUT_PLAN_CACHE_VERSION) {
-          localStorage.removeItem('workoutPlan');
-          localStorage.removeItem('workoutPlanTimestamp');
-          localStorage.setItem('workoutPlanVersion', WORKOUT_PLAN_CACHE_VERSION);
+          removeFromStorage('workoutPlan');
+          removeFromStorage('workoutPlanTimestamp');
+          setToStorage('workoutPlanVersion', WORKOUT_PLAN_CACHE_VERSION);
           cachedPlan = null;
           cachedTimestamp = null;
           console.log('🧹 Cleared outdated workout cache version');
@@ -953,8 +973,8 @@ const Workout = ({ onLogout }) => {
         if (cachedPlan) {
           parsedCachedPlan = getFromStorage('workoutPlan', []);
           if (!planHasRenderableMedia(parsedCachedPlan)) {
-            localStorage.removeItem('workoutPlan');
-            localStorage.removeItem('workoutPlanTimestamp');
+            removeFromStorage('workoutPlan');
+            removeFromStorage('workoutPlanTimestamp');
             cachedPlan = null;
             cachedTimestamp = null;
             parsedCachedPlan = [];
@@ -973,17 +993,25 @@ const Workout = ({ onLogout }) => {
         }
 
         if (cachedPlan && cachedTimestamp && !forceRefresh) {
-          const timestamp = new Date(cachedTimestamp);
-          const now = new Date();
-          const hoursSinceCache = (now - timestamp) / (1000 * 60 * 60);
+          // Cache is valid for the entire ISO week (Mon–Sun). Once a plan is generated
+          // for this week, never regenerate until next Monday — backend persists it anyway.
+          const getISOWeekStart = (d) => {
+            const dt = new Date(d);
+            const day = dt.getDay(); // 0=Sun, 1=Mon…6=Sat
+            dt.setDate(dt.getDate() - (day === 0 ? 6 : day - 1));
+            dt.setHours(0, 0, 0, 0);
+            return dt.getTime();
+          };
+          const cachedWeekStart = getISOWeekStart(cachedTimestamp);
+          const currentWeekStart = getISOWeekStart(new Date());
+          const isCurrentWeek = cachedWeekStart === currentWeekStart;
 
-          // Cache valid for 24 hours
-          if (hoursSinceCache < 24) {
-            console.log('✅ Using cached workout plan (age: ' + hoursSinceCache.toFixed(1) + ' hours)');
+          if (isCurrentWeek) {
+            console.log('✅ Using cached workout plan (same ISO week — no regeneration needed)');
             if (isMounted) setLoading(false);
             return;
           } else {
-            console.log('⏰ Cache expired (age: ' + hoursSinceCache.toFixed(1) + ' hours), refreshing in background');
+            console.log('📅 New week detected — refreshing workout plan from backend');
           }
         } else if (forceRefresh) {
           console.log('🔄 Force refresh requested, refreshing in background');
@@ -1063,10 +1091,10 @@ const Workout = ({ onLogout }) => {
           setWeekMetadata(normalizedWeekMetadata);
 
           // **Cache the new plan**
-          localStorage.setItem('workoutPlan', JSON.stringify(normalizedPlan));
-          localStorage.setItem('workoutPlanTimestamp', new Date().toISOString());
-          localStorage.setItem('workoutPlanVersion', WORKOUT_PLAN_CACHE_VERSION);
-          localStorage.setItem(StorageKeys.WORKOUT_WEEK_METADATA, JSON.stringify(normalizedWeekMetadata));
+          setToStorage('workoutPlan', normalizedPlan);
+          setToStorage('workoutPlanTimestamp', new Date().toISOString());
+          setToStorage('workoutPlanVersion', WORKOUT_PLAN_CACHE_VERSION);
+          setToStorage(StorageKeys.WORKOUT_WEEK_METADATA, normalizedWeekMetadata);
           console.log('💾 Workout plan cached');
           console.log(`📊 Plan has ${normalizedPlan.length} days`);
         }
@@ -1174,11 +1202,11 @@ const Workout = ({ onLogout }) => {
           Array.isArray(day?.exercises) && day.exercises.some((ex) => String(ex?.id || '').startsWith('demo-bicep-'))
         );
         if (hasLegacyDemoData) {
-          localStorage.removeItem('workoutPlan');
-          localStorage.removeItem('workoutPlanTimestamp');
+          removeFromStorage('workoutPlan');
+          removeFromStorage('workoutPlanTimestamp');
           console.log('🧹 Removed legacy demo workout cache');
         }
-        const hasCachedPlan = !!localStorage.getItem('workoutPlan');
+        const hasCachedPlan = !!getFromStorage('workoutPlan');
 
         console.log("🔍 Profile changed:", profileChanged);
         console.log("🔍 Has cached plan:", hasCachedPlan);
@@ -1192,11 +1220,11 @@ const Workout = ({ onLogout }) => {
           console.log("🔄 Fetching new workout plan...");
           // ✅ FIX: Pass the fresh profile to fetchWorkoutPlan
           await fetchWorkoutPlan(profileChanged, currentProfile);
-          localStorage.setItem('workoutPlanProfile', JSON.stringify(currentNormalized));
+          setToStorage('workoutPlanProfile', currentNormalized);
           console.log("✅ New workout plan fetched and profile saved");
         } else {
           console.log("✅ Using cached workout plan");
-          const cached = localStorage.getItem('workoutPlan');
+          const cached = getFromStorage('workoutPlan');
           if (cached) {
             const parsed = getFromStorage('workoutPlan', []);
             console.log("📊 Cached plan has", parsed.breakfast ? 'nutrition plan' : Object.keys(parsed).length, "days");
@@ -1261,13 +1289,13 @@ const Workout = ({ onLogout }) => {
             });
             if (Object.keys(restoredStatus).length > 0) {
               setExerciseStatus((prev) => ({ ...prev, ...restoredStatus }));
-              // Also update localStorage cache
+              // Also update storage cache
               try {
                 const merged = { ...restoredStatus };
-                localStorage.setItem('_exerciseStatus', JSON.stringify(merged));
-                localStorage.setItem('_exerciseStatusDay', entry.dayName || '');
-                localStorage.setItem('_exerciseStatusDate', todayStr);
-              } catch(e) { console.warn('LocalStorage error', e); }
+                setToStorage('_exerciseStatus', merged);
+                setToStorage('_exerciseStatusDay', entry.dayName || '');
+                setToStorage('_exerciseStatusDate', todayStr);
+              } catch(e) { console.warn('Storage error', e); }
               console.log('✅ Hydrated exerciseStatus from backend:', Object.keys(restoredStatus).length, 'exercises');
             }
           }
@@ -2210,11 +2238,11 @@ const Workout = ({ onLogout }) => {
       // Key is scoped to today's date + day name to avoid stale data bleeding into other days.
       const todayStatusKey = `_exerciseStatus_${getLocalDateStr()}_${activeDay.day}`;
       try {
-        localStorage.setItem('_exerciseStatus', JSON.stringify(statusSnapshot));
-        localStorage.setItem('_exerciseStatusKey', todayStatusKey);
-        localStorage.setItem('_exerciseStatusDay', activeDay.day);
-        localStorage.setItem('_exerciseStatusDate', getLocalDateStr());
-      } catch (e) { console.warn('LocalStorage quota exceeded', e); }
+        setToStorage('_exerciseStatus', statusSnapshot);
+        setToStorage('_exerciseStatusKey', todayStatusKey);
+        setToStorage('_exerciseStatusDay', activeDay.day);
+        setToStorage('_exerciseStatusDate', getLocalDateStr());
+      } catch (e) { console.warn('Storage quota exceeded', e); }
 
       if (isPartialSession) {
         setToStorage(`workout_partial_${activeDay.day}`, 'true');
@@ -2224,7 +2252,7 @@ const Workout = ({ onLogout }) => {
         setToStorage(`workout_done_${activeDay.day}`, 'true');
         setToStorage(StorageKeys.TODAY_WORKOUT_DONE, 'true');
         // Clear partial status cache since session is now fully done
-        try { localStorage.removeItem('_exerciseStatus'); } catch(e) { console.warn('LocalStorage error', e); }
+        try { removeFromStorage('_exerciseStatus'); } catch(e) { console.warn('Storage error', e); }
 
         // ✅ FIX: Update completedDayIndices React state so the UI reflects completion immediately.
         const completedDayIdx = activeDay.day_of_week ?? -1;
@@ -2448,13 +2476,36 @@ const Workout = ({ onLogout }) => {
                           onClick={() => !isPlaceholder && isToday && handleDayClick(dayIdx)}
                         >
                           <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px'}}>
-                            <div>
+                            <div style={{flex: 1, minWidth: 0}}>
                               <div style={styles.dayTitle}>
                                 {weekdayNames[dayIdx] || `Day ${idx + 1}`}
                               </div>
                               <div style={styles.focusText}>
-                                {day.focus || day.day || 'Workout'}
+                                {getDisplayFocus(day.focus || day.day || 'Workout')}
                               </div>
+                              {Array.isArray(day.muscle_groups_targeted) && day.muscle_groups_targeted.length > 0 && !isRest && (
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '6px', marginBottom: '4px' }}>
+                                  {day.muscle_groups_targeted.map((muscle, mi) => {
+                                    const tagStyle = getMuscleTagStyle(muscle);
+                                    return (
+                                      <span key={mi} style={{
+                                        padding: '2px 7px',
+                                        borderRadius: '10px',
+                                        fontSize: '10px',
+                                        fontWeight: '700',
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.4px',
+                                        background: tagStyle.bg,
+                                        color: tagStyle.text,
+                                        border: `1px solid ${tagStyle.border}`,
+                                        whiteSpace: 'nowrap',
+                                      }}>
+                                        {muscle}
+                                      </span>
+                                    );
+                                  })}
+                                </div>
+                              )}
                             </div>
                             <div style={{
                               padding: '4px 10px',
@@ -2591,7 +2642,34 @@ const Workout = ({ onLogout }) => {
                 <>
                   <div style={workoutLayout.selectionList}>
                     <div style={styles.sidebarHeader}>
-                      Today's Routine
+                      <div>
+                        <div>Today's Routine</div>
+                        <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--app-text-muted)', marginTop: '2px' }}>
+                          {getDisplayFocus(activeDay?.focus || '')}
+                        </div>
+                        {Array.isArray(activeDay?.muscle_groups_targeted) && activeDay.muscle_groups_targeted.length > 0 && (
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '6px' }}>
+                            {activeDay.muscle_groups_targeted.map((muscle, mi) => {
+                              const tagStyle = getMuscleTagStyle(muscle);
+                              return (
+                                <span key={mi} style={{
+                                  padding: '2px 7px',
+                                  borderRadius: '10px',
+                                  fontSize: '10px',
+                                  fontWeight: '700',
+                                  textTransform: 'uppercase',
+                                  letterSpacing: '0.4px',
+                                  background: tagStyle.bg,
+                                  color: tagStyle.text,
+                                  border: `1px solid ${tagStyle.border}`,
+                                }}>
+                                  {muscle}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
                       <button
                         style={styles.backBtn}
                         onClick={async () => {

@@ -2055,7 +2055,9 @@ class WorkoutEngine:
             return sorted(unique)
 
         if intensity <= 0.65:
-            return list(range(7 - rest_days, 7))
+            experience = profile.get('experience', 'Beginner') if profile else 'Beginner'
+            if experience != 'Beginner':
+                return list(range(7 - rest_days, 7))
 
         if self.xgb_rest_model is not None and profile is not None:
             try:
