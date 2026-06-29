@@ -66,8 +66,8 @@ async def chatbot_endpoint(
     - Graceful degradation when AI is unavailable
     """
     try:
-        require_user_id_from_request(http_request, x_auth_token)
-        
+        user_id = require_user_id_from_request(http_request, x_auth_token)
+
         # --- Rate Limiting ---
         client_id = _get_client_ip(http_request)
         now = time.time()

@@ -439,8 +439,45 @@ async def update_profile(
             if _has_value_change(existing_user.get(field), value)
         ]
 
-        if not changed_fields:
-            logger.info(f"[{request_id}] No effective field changes detected")
+        merged_user = {**existing_user, **update_data}
+        plan_profile = _build_plan_profile(merged_user, user_id)
+
+        has_workout_field_change = any(field in WORKOUT_PLAN_FIELDS for field in changed_fields)
+        has_nutrition_field_change = any(field in NUTRITION_PLAN_FIELDS for field in changed_fields)
+
+        # Check if the saved plan was generated with different parameters
+        workout_meta = existing_user.get('workoutWeekMetadata')
+        is_workout_out_of_sync = bool(
+            workout_meta and (
+                workout_meta.get('experience') != merged_user.get('experience') or
+                workout_meta.get('goal') != merged_user.get('goal') or
+                workout_meta.get('days_per_week') != merged_user.get('days_per_week') or
+                _normalize_for_compare(workout_meta.get('equipment')) != _normalize_for_compare(merged_user.get('equipment')) or
+                _normalize_for_compare(workout_meta.get('body_issues')) != _normalize_for_compare(merged_user.get('body_issues'))
+            )
+        )
+
+        nutrition_meta = existing_user.get('nutritionWeekMetadata')
+        is_nutrition_out_of_sync = bool(
+            nutrition_meta and (
+                nutrition_meta.get('goal') != merged_user.get('goal') or
+                nutrition_meta.get('dietary_preference') != merged_user.get('dietary_preference') or
+                _normalize_for_compare(nutrition_meta.get('allergies')) != _normalize_for_compare(merged_user.get('allergies'))
+            )
+        )
+
+        needs_workout_regen = bool(
+            has_workout_field_change or 
+            is_workout_out_of_sync
+        )
+        
+        needs_nutrition_regen = bool(
+            has_nutrition_field_change or 
+            is_nutrition_out_of_sync
+        )
+
+        if not changed_fields and not needs_workout_regen and not needs_nutrition_regen:
+            logger.info(f"[{request_id}] No effective field changes and no plan regeneration needed")
             existing_user.pop('password', None)
             existing_user['_id'] = str(existing_user['_id'])
             return {
@@ -457,12 +494,6 @@ async def update_profile(
                 'regenerated_nutrition': None,
                 'errors': [],
             }
-
-        merged_user = {**existing_user, **update_data}
-        plan_profile = _build_plan_profile(merged_user, user_id)
-
-        needs_workout_regen = any(field in WORKOUT_PLAN_FIELDS for field in changed_fields)
-        needs_nutrition_regen = any(field in NUTRITION_PLAN_FIELDS for field in changed_fields)
 
         logger.info(f"[{request_id}] Changed fields: {changed_fields}")
         logger.info(f"[{request_id}] Workout regeneration needed: {needs_workout_regen}")
@@ -550,16 +581,45 @@ async def update_profile(
             'water_liters': plan_profile['water_liters'],
         }
 
+        # Get current ISO week start (Monday) in IST or UTC
+        from datetime import timedelta
+        try:
+            from zoneinfo import ZoneInfo
+            now_ist = datetime.now(ZoneInfo("Asia/Kolkata"))
+        except Exception:
+            now_ist = _utcnow()
+        monday = now_ist - timedelta(days=now_ist.weekday())
+        week_start_date = monday.date().isoformat()
+
         if isinstance(workout_plan_result, dict) and workout_plan_result.get('status') == 'success':
+            week_metadata = {
+                "week_start_date": week_start_date,
+                "generated_at": _utcnow().isoformat(),
+                "engine_version": "v2",
+                "experience": plan_profile.get('experience'),
+                "goal": plan_profile.get('goal'),
+                "days_per_week": plan_profile.get('days_per_week'),
+                "equipment": plan_profile.get('equipment'),
+                "body_issues": plan_profile.get('body_issues'),
+            }
             update_payload.update({
                 'workoutPlan': workout_plan_result['plan'],
+                'workoutWeekMetadata': week_metadata,
                 'workoutPlanGeneratedAt': _utcnow(),
                 'workoutPlanRegenerated': True,
             })
 
         if isinstance(nutrition_plan_result, dict) and nutrition_plan_result.get('status') == 'success':
+            nutrition_metadata = {
+                "week_start_date": week_start_date,
+                "generated_at": _utcnow().isoformat(),
+                "goal": plan_profile.get('goal'),
+                "dietary_preference": plan_profile.get('dietary_preference'),
+                "allergies": plan_profile.get('allergies'),
+            }
             update_payload.update({
                 'latestNutritionPlan': nutrition_plan_result['plan'],
+                'nutritionWeekMetadata': nutrition_metadata,
                 'nutritionPlanGeneratedAt': _utcnow(),
                 'nutritionPlanRegenerated': True,
             })
@@ -665,6 +725,18 @@ async def update_profile(
             'workout_regenerated': bool(needs_workout_regen and workout_regen_success),
             'nutrition_regenerated': bool(needs_nutrition_regen and nutrition_regen_success),
         }
+        response_data['regenerated_workout'] = None
+        response_data['regenerated_nutrition'] = None
+        if workout_regen_success:
+            response_data['regenerated_workout'] = {
+                'status': 'success',
+                'plan': workout_plan_result['plan']
+            }
+        if nutrition_regen_success:
+            response_data['regenerated_nutrition'] = {
+                'status': 'success',
+                'plan': nutrition_plan_result['plan']
+            }
 
         # Cold-start onboarding message (empty string when not applicable)
         response_data['personalization_message'] = personalization_message

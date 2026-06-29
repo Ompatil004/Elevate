@@ -3511,7 +3511,8 @@ const getDynamicWaterGoal = (weightKg = 70, sleepHours = 0, workoutCompleted = f
   // +250ml if sleep is poor (< 7 hours)
   if (sleepHours > 0 && sleepHours < 7) targetLiters += 0.25;
 
-  return Math.min(5.0, Math.max(2.0, targetLiters));
+  const rawGoal = Math.min(5.0, Math.max(2.0, targetLiters));
+  return parseFloat(rawGoal.toFixed(1));
 };
 
 export default Dashboard;
