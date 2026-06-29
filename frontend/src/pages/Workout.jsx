@@ -93,8 +93,8 @@ const styles = {
   exPreview: { fontSize: '13px', color: 'var(--app-text-muted)', marginBottom: '4px', display: 'flex', justifyContent: 'space-between' },
   sessionContainer: { position: 'fixed', top: '80px', left: 0, width: '100%', height: 'calc(100vh - 80px)', background: 'var(--app-bg)', zIndex: 500, display: 'flex', padding: '20px', gap: '20px', animation: 'fadeIn 0.3s ease-out' },
   selectionList: { flex: '0 0 350px', background: 'var(--app-surface)', borderRadius: '24px', border: '1px solid var(--app-border)', display: 'flex', flexDirection: 'column', padding: '20px', overflowY: 'auto' },
-  sidebarHeader: { fontSize: '18px', fontWeight: '800', color: 'var(--app-text)', marginBottom: '20px', display:'flex', justifyContent:'space-between', alignItems:'center' },
-  backBtn: { fontSize: '12px', padding: '6px 12px', background: 'var(--app-border)', borderRadius: '8px', color: 'var(--app-text)', border:'none', cursor:'pointer' },
+  sidebarHeader: { fontSize: '18px', fontWeight: '800', color: 'var(--app-text)', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+  backBtn: { fontSize: '12px', padding: '6px 12px', background: 'var(--app-border)', borderRadius: '8px', color: 'var(--app-text)', border: 'none', cursor: 'pointer' },
   selectionPreview: { flex: 1, background: 'var(--app-bg)', borderRadius: '24px', border: '1px solid var(--app-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', color: '#52525b' },
   focusContainer: { width: '100%', height: '100%', display: 'flex', gap: '20px' },
   focusLeft: { flex: '4', display: 'flex', flexDirection: 'column', background: 'var(--app-surface)', borderRadius: '24px', padding: '24px', border: '1px solid var(--app-border)' },
@@ -105,12 +105,12 @@ const styles = {
   controlsContainer: { height: '80px', display: 'flex', gap: '15px' },
   focusRight: { flex: '6', background: 'var(--app-bg)', borderRadius: '24px', border: '2px solid #6366f1', overflow: 'hidden', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 50px rgba(99, 102, 241, 0.1)' },
   videoFeed: { width: '100%', height: '100%', objectFit: 'contain', transform: 'scaleX(-1)' },
-  recBadge: { position: 'absolute', top: 20, left: 20, background: 'rgba(220, 38, 38, 0.9)', padding: '6px 12px', borderRadius: '8px', color: 'white', fontWeight: '700', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', zIndex:10 },
+  recBadge: { position: 'absolute', top: 20, left: 20, background: 'rgba(220, 38, 38, 0.9)', padding: '6px 12px', borderRadius: '8px', color: 'white', fontWeight: '700', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', zIndex: 10 },
   exerciseItem: { padding: '18px', borderRadius: '16px', marginBottom: '12px', background: 'var(--quote-bg)', border: '1px solid var(--app-border)', cursor: 'pointer', transition: 'all 0.2s ease', position: 'relative' },
   exerciseItemActive: { background: 'var(--day-card-selected-bg, linear-gradient(135deg, #1e1b4b 0%, #312e81 100%))', borderColor: '#6366f1', boxShadow: '0 4px 20px rgba(99, 102, 241, 0.3)' },
-  btnStartLarge: { padding: '15px 40px', fontSize:'16px', borderRadius: '12px', background: '#6366f1', color: 'white', border: 'none', fontWeight: '800', cursor: 'pointer', marginTop:'20px', boxShadow: '0 4px 20px rgba(99, 102, 241, 0.4)' },
-  btnStop: { flex: 1, borderRadius: '16px', background: 'var(--app-surface2)', border: '1px solid var(--app-border)', color: '#ef4444', fontWeight: '800', fontSize: '16px', cursor: 'pointer', transition:'all 0.2s' },
-  btnDone: { flex: 1, borderRadius: '16px', background: '#22c55e', color: 'white', fontWeight: '800', fontSize: '16px', border:'none', cursor: 'pointer', boxShadow: '0 4px 15px rgba(34, 197, 94, 0.3)' },
+  btnStartLarge: { padding: '15px 40px', fontSize: '16px', borderRadius: '12px', background: '#6366f1', color: 'white', border: 'none', fontWeight: '800', cursor: 'pointer', marginTop: '20px', boxShadow: '0 4px 20px rgba(99, 102, 241, 0.4)' },
+  btnStop: { flex: 1, borderRadius: '16px', background: 'var(--app-surface2)', border: '1px solid var(--app-border)', color: '#ef4444', fontWeight: '800', fontSize: '16px', cursor: 'pointer', transition: 'all 0.2s' },
+  btnDone: { flex: 1, borderRadius: '16px', background: '#22c55e', color: 'white', fontWeight: '800', fontSize: '16px', border: 'none', cursor: 'pointer', boxShadow: '0 4px 15px rgba(34, 197, 94, 0.3)' },
   historyPanel: { position: 'fixed', top: '80px', right: '0', width: '400px', height: 'calc(100vh - 80px)', background: 'var(--app-bg)', borderLeft: '1px solid var(--app-border)', zIndex: 1500, padding: '24px', overflowY: 'auto', animation: 'slideInRight 0.3s ease-out', boxShadow: '-20px 0 50px rgba(0,0,0,0.5)' },
   historyItem: { background: 'var(--app-surface)', borderRadius: '16px', padding: '20px', marginBottom: '16px', border: '1px solid var(--app-border)', cursor: 'pointer', transition: 'all 0.2s' },
   historyDate: { fontSize: '14px', fontWeight: '700', color: 'var(--app-text)', marginBottom: '12px' },
@@ -331,10 +331,10 @@ const Workout = ({ onLogout }) => {
   const [isDoneSession, setIsDoneSession] = useState(false);
   const [_completedExercisesCount, setCompletedExercisesCount] = useState(0); // tracks per-exercise progress for Dashboard
   const [mediaUrlIndex, setMediaUrlIndex] = useState(0);
-  
+
   // Bug #2 Fix: Pose detector loading state
   const [poseLoadingStatus, setPoseLoadingStatus] = useState('initializing'); // 'initializing' → 'warming' → 'ready'
-  
+
   const [viewportWidth, setViewportWidth] = useState(
     typeof window !== 'undefined' ? window.innerWidth : 1280
   );
@@ -348,43 +348,43 @@ const Workout = ({ onLogout }) => {
   const isMobileLayout = viewportWidth <= 980;
   const workoutLayout = isMobileLayout
     ? {
-        container: { ...styles.container, padding: 'clamp(12px, 4vw, 24px)' },
-        h1: { ...styles.h1, fontSize: 'clamp(28px, 5vw, 42px)', marginBottom: 'clamp(16px, 3vw, 30px)' },
-        grid: { ...styles.grid, gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 'clamp(12px, 2.4vw, 20px)' },
-        card: { ...styles.card, padding: 'clamp(14px, 2.4vw, 24px)', minHeight: '180px' },
-        restDay: { ...styles.restDay, padding: 'clamp(12px, 2.8vw, 20px)' },
-        sessionContainer: {
-          ...styles.sessionContainer,
-          height: 'calc(100dvh - 80px)',
-          flexWrap: 'wrap',
-          alignContent: 'flex-start',
-          overflowY: 'auto',
-          padding: 'clamp(10px, 2vw, 20px)',
-          gap: 'clamp(10px, 2vw, 20px)'
-        },
-        selectionList: { ...styles.selectionList, flex: '1 1 min(100%, 350px)', maxWidth: 'min(100%, 360px)' },
-        focusContainer: { ...styles.focusContainer, minHeight: 0, height: 'auto', flexWrap: 'wrap', gap: 'clamp(10px, 2vw, 20px)' },
-        focusLeft: { ...styles.focusLeft, flex: '1 1 min(100%, 420px)', padding: 'clamp(12px, 2.5vw, 24px)' },
-        controlsContainer: { ...styles.controlsContainer, height: 'auto', minHeight: '68px', gap: '12px', flexWrap: 'wrap' },
-        focusRight: { ...styles.focusRight, flex: '1 1 min(100%, 520px)', minHeight: '280px' },
-        historyPanel: { ...styles.historyPanel, width: 'min(96vw, 400px)', height: 'calc(100dvh - 80px)', padding: 'clamp(14px, 2.5vw, 24px)' },
-        previewMedia: { width: 'min(100%, 420px)', aspectRatio: '16 / 10', marginBottom: '24px', flex: 'none' }
-      }
+      container: { ...styles.container, padding: 'clamp(12px, 4vw, 24px)' },
+      h1: { ...styles.h1, fontSize: 'clamp(28px, 5vw, 42px)', marginBottom: 'clamp(16px, 3vw, 30px)' },
+      grid: { ...styles.grid, gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 'clamp(12px, 2.4vw, 20px)' },
+      card: { ...styles.card, padding: 'clamp(14px, 2.4vw, 24px)', minHeight: '180px' },
+      restDay: { ...styles.restDay, padding: 'clamp(12px, 2.8vw, 20px)' },
+      sessionContainer: {
+        ...styles.sessionContainer,
+        height: 'calc(100dvh - 80px)',
+        flexWrap: 'wrap',
+        alignContent: 'flex-start',
+        overflowY: 'auto',
+        padding: 'clamp(10px, 2vw, 20px)',
+        gap: 'clamp(10px, 2vw, 20px)'
+      },
+      selectionList: { ...styles.selectionList, flex: '1 1 min(100%, 350px)', maxWidth: 'min(100%, 360px)' },
+      focusContainer: { ...styles.focusContainer, minHeight: 0, height: 'auto', flexWrap: 'wrap', gap: 'clamp(10px, 2vw, 20px)' },
+      focusLeft: { ...styles.focusLeft, flex: '1 1 min(100%, 420px)', padding: 'clamp(12px, 2.5vw, 24px)' },
+      controlsContainer: { ...styles.controlsContainer, height: 'auto', minHeight: '68px', gap: '12px', flexWrap: 'wrap' },
+      focusRight: { ...styles.focusRight, flex: '1 1 min(100%, 520px)', minHeight: '280px' },
+      historyPanel: { ...styles.historyPanel, width: 'min(96vw, 400px)', height: 'calc(100dvh - 80px)', padding: 'clamp(14px, 2.5vw, 24px)' },
+      previewMedia: { width: 'min(100%, 420px)', aspectRatio: '16 / 10', marginBottom: '24px', flex: 'none' }
+    }
     : {
-        container: styles.container,
-        h1: styles.h1,
-        grid: styles.grid,
-        card: styles.card,
-        restDay: styles.restDay,
-        sessionContainer: styles.sessionContainer,
-        selectionList: styles.selectionList,
-        focusContainer: styles.focusContainer,
-        focusLeft: styles.focusLeft,
-        controlsContainer: styles.controlsContainer,
-        focusRight: styles.focusRight,
-        historyPanel: styles.historyPanel,
-        previewMedia: { width: '350px', height: '220px', marginBottom: '30px', flex: 'none' }
-      };
+      container: styles.container,
+      h1: styles.h1,
+      grid: styles.grid,
+      card: styles.card,
+      restDay: styles.restDay,
+      sessionContainer: styles.sessionContainer,
+      selectionList: styles.selectionList,
+      focusContainer: styles.focusContainer,
+      focusLeft: styles.focusLeft,
+      controlsContainer: styles.controlsContainer,
+      focusRight: styles.focusRight,
+      historyPanel: styles.historyPanel,
+      previewMedia: { width: '350px', height: '220px', marginBottom: '30px', flex: 'none' }
+    };
 
   const showConfirmDialog = useCallback((message, onConfirm) => {
     setConfirmDialog({ show: true, message, onConfirm });
@@ -784,7 +784,7 @@ const Workout = ({ onLogout }) => {
   }, [isCameraOn, stream]);
 
   // ===== HELPER FUNCTIONS =====
-  
+
   /**
    * Create fallback workout plan if backend returns empty
    */
@@ -826,7 +826,7 @@ const Workout = ({ onLogout }) => {
         media_type: 'image'
       }
     ];
-    
+
     return dayNames.map((day, idx) => ({
       day_of_week: idx,
       day: day,
@@ -843,7 +843,7 @@ const Workout = ({ onLogout }) => {
   const normalizeToSevenDays = (plan) => {
     const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     const normalized = [...plan];
-    
+
     // Pad with rest days if less than 7
     while (normalized.length < 7) {
       const idx = normalized.length;
@@ -856,7 +856,7 @@ const Workout = ({ onLogout }) => {
         note: 'Recovery and rest'
       });
     }
-    
+
     // Trim if more than 7
     return normalized.slice(0, 7);
   };
@@ -1013,7 +1013,7 @@ const Workout = ({ onLogout }) => {
 
         // ===== VALIDATE RESPONSE STRUCTURE =====
         // Backend returns: { success: true, workout: [...], exercises_count: number }
-        
+
         if (!response.data) {
           throw new Error('Empty response from server');
         }
@@ -1025,7 +1025,7 @@ const Workout = ({ onLogout }) => {
 
         // Check for workout array (could be at response.data.workout OR response.data.data.workout)
         let workoutPlan = null;
-        
+
         if (Array.isArray(response.data.workout)) {
           // ✅ Correct structure: { success: true, workout: [...] }
           workoutPlan = response.data.workout;
@@ -1164,7 +1164,7 @@ const Workout = ({ onLogout }) => {
         console.log("=".repeat(60));
         console.log("📊 Stored profile (from localStorage):", storedNormalized);
         console.log("📊 Current profile (from API):", currentNormalized);
-        
+
         let profileChanged = false;
         if (storedProfile && Object.keys(storedProfile).length > 0) {
           profileChanged = JSON.stringify(storedNormalized) !== JSON.stringify(currentNormalized);
@@ -1219,7 +1219,7 @@ const Workout = ({ onLogout }) => {
         setLoading(false);
       }
     };
-    
+
     const fetchHistory = async () => {
       try {
         const historyResponse = await getWorkoutHistory();
@@ -1267,7 +1267,7 @@ const Workout = ({ onLogout }) => {
                 localStorage.setItem('_exerciseStatus', JSON.stringify(merged));
                 localStorage.setItem('_exerciseStatusDay', entry.dayName || '');
                 localStorage.setItem('_exerciseStatusDate', todayStr);
-              } catch(e) { console.warn('LocalStorage error', e); }
+              } catch (e) { console.warn('LocalStorage error', e); }
               console.log('✅ Hydrated exerciseStatus from backend:', Object.keys(restoredStatus).length, 'exercises');
             }
           }
@@ -1292,7 +1292,7 @@ const Workout = ({ onLogout }) => {
 
     checkAndFetchPlan();
     fetchHistory();
-    
+
     // Cleanup function to prevent state updates on unmount
     return () => {
       isMounted = false;
@@ -1364,7 +1364,7 @@ const Workout = ({ onLogout }) => {
           clearInterval(timer);
           playTimerBeep();
           const targetSets = getTargetSets(activeExercise);
-          setCompletedSetsMap(prev => ({...prev, [activeExercise.name]: currentSet}));
+          setCompletedSetsMap(prev => ({ ...prev, [activeExercise.name]: currentSet }));
           if (currentSet >= targetSets) {
             handleExerciseCompleteRef.current?.();
           } else {
@@ -1402,7 +1402,7 @@ const Workout = ({ onLogout }) => {
         msg.pitch = 1.0;
         window.speechSynthesis.speak(msg);
       }
-      
+
       // Auto-clear feedback after 3.5 seconds to prevent it from getting stuck
       const timer = setTimeout(() => setFormFeedback(null), 3500);
       return () => clearTimeout(timer);
@@ -1426,7 +1426,7 @@ const Workout = ({ onLogout }) => {
         const idx = toDayIndex(d.day_of_week, 0);
         const normalizedType = d.type || (isRestDay(d) ? 'rest' : 'workout');
         const normalizedExercises = Array.isArray(d.exercises) ? d.exercises : [];
-        return [idx, { 
+        return [idx, {
           ...d,
           day_of_week: idx,
           day: d.day || days[idx],
@@ -1596,10 +1596,10 @@ const Workout = ({ onLogout }) => {
           // Check if user is logged in (Authentication is handled via HttpOnly cookies)
           // Get user email - try localStorage first, then fetch from API if needed
           let email = '';
-          
+
           const storedUser = getFromStorage('user', {});
           email = storedUser.email || '';
-          
+
           // If email not found in localStorage, try fetching from API
           if (!email) {
             try {
@@ -1613,7 +1613,7 @@ const Workout = ({ onLogout }) => {
           } else {
             console.log('📧 Email from localStorage:', email);
           }
-          
+
           if (!email) {
             showError('Unable to get user email. Please try logging in again.', 4000);
             console.error('❌ Email not found. User may need to re-login.');
@@ -1621,7 +1621,7 @@ const Workout = ({ onLogout }) => {
           }
 
           showSuccess('Swapping rest day...', 1500);
-          
+
           const response = await swapRestToWorkout({
             email: email,
             rest_day_index: todayIdx,
@@ -1638,15 +1638,15 @@ const Workout = ({ onLogout }) => {
             );
             setPlan(swappedPlan);
             setWeekMetadata(updatedWeekMetadata);
-            
+
             // Save to storage
             setToStorage('workoutPlan', swappedPlan);
             setToStorage('workoutPlanTimestamp', new Date().toISOString());
             setToStorage(StorageKeys.WORKOUT_WEEK_METADATA, updatedWeekMetadata);
-            
+
             // DON'T save a decision - the plan is already swapped from backend
             // The displayPlan local swap logic should NOT apply here
-            
+
             // Log schedule swap to workout history & activities!
             const isUndo = response.data?.message?.toLowerCase().includes('undone') || response.data?.message === 'Swap undone successfully';
             if (isUndo) {
@@ -1699,7 +1699,7 @@ const Workout = ({ onLogout }) => {
         } catch (error) {
           console.error('Error swapping rest day:', error);
           let errorMessage = 'Failed to swap rest day. ';
-          
+
           if (error.response) {
             // Server responded with error
             errorMessage += error.response.data?.detail || error.response.data?.message || `Server error: ${error.response.status}`;
@@ -1710,7 +1710,7 @@ const Workout = ({ onLogout }) => {
             // Error setting up request
             errorMessage += error.message || 'Unknown error occurred.';
           }
-          
+
           showError(errorMessage, 5000);
         }
       }
@@ -2070,7 +2070,7 @@ const Workout = ({ onLogout }) => {
       const totalCount = activeDay?.exercises?.length || 1;
       const completedSoFar = Object.values({ ...exerciseStatus, [getExerciseStatusKey(activeExercise)]: 'completed' }).filter(s => s === 'completed').length;
       const impliedScore = Math.min(1, completedSoFar / Math.max(totalCount, 1));
-      
+
       // Stop the camera stream first
       releaseCameraStream();
       setIsCameraOn(false);
@@ -2157,21 +2157,21 @@ const Workout = ({ onLogout }) => {
 
   const handleRepUpdate = (repsCount) => {
     if (isResting || isDoneSession || !activeExercise || !isPoseTrackableExercise(activeExercise)) return;
-    
+
     setCurrentReps(repsCount);
 
     const targetReps = getTargetReps(activeExercise);
     const targetSets = getTargetSets(activeExercise);
 
     if (repsCount >= targetReps) {
-      setCompletedSetsMap(prev => ({...prev, [activeExercise.name]: currentSet}));
+      setCompletedSetsMap(prev => ({ ...prev, [activeExercise.name]: currentSet }));
       if (currentSet >= targetSets) {
-         handleExerciseComplete();
+        handleExerciseComplete();
       } else {
-         const duration = getRestSeconds(activeExercise);
-         setRestTimeLeft(duration);
-         setRestEndTime(Date.now() + duration * 1000);
-         setIsResting(true);
+        const duration = getRestSeconds(activeExercise);
+        setRestTimeLeft(duration);
+        setRestEndTime(Date.now() + duration * 1000);
+        setIsResting(true);
       }
     }
   };
@@ -2193,7 +2193,7 @@ const Workout = ({ onLogout }) => {
           ? `Partial session: ${completedExercises.length}/${totalCount} exercises completed, ${skippedNames.length} skipped`
           : 'Completed session';
         await saveLog(activeDay.focus || 'Workout', detail, activeDay.day || '');
-        
+
         // ALSO log activity to the backend for the Dashboard's Activity section!
         await logActivityToBackend({
           activity_type: 'workout',
@@ -2224,7 +2224,7 @@ const Workout = ({ onLogout }) => {
         setToStorage(`workout_done_${activeDay.day}`, 'true');
         setToStorage(StorageKeys.TODAY_WORKOUT_DONE, 'true');
         // Clear partial status cache since session is now fully done
-        try { localStorage.removeItem('_exerciseStatus'); } catch(e) { console.warn('LocalStorage error', e); }
+        try { localStorage.removeItem('_exerciseStatus'); } catch (e) { console.warn('LocalStorage error', e); }
 
         // ✅ FIX: Update completedDayIndices React state so the UI reflects completion immediately.
         const completedDayIdx = activeDay.day_of_week ?? -1;
@@ -2242,7 +2242,7 @@ const Workout = ({ onLogout }) => {
           return updatedPlan;
         });
       }
-      
+
       try {
         // ✅ FIX: Persist exercise_status so skipped/completed ticks are restored on re-login.
         // Build a name-keyed map (readable) alongside the raw status key map.
@@ -2254,19 +2254,19 @@ const Workout = ({ onLogout }) => {
           }
         });
         await saveUserWorkoutToNode({
-           dayName: activeDay.day,
-           dateStr: getLocalDateStr(),
-           focus: activeDay.focus,
-           exercises: activeDay.exercises.map(ex => ({
-             name: ex.name,
-             duration: ex.duration || "Custom",
-             status: statusSnapshot[getExerciseStatusKey(ex)] || 'pending',
-           })),
-           exercise_status_by_name: exerciseStatusByName,
-           completedAt: new Date().toISOString(),
-           status: isPartialSession ? 'partial' : 'completed',
-           completed_exercises: completedExercises.length,
-           skipped_exercises: skippedNames,
+          dayName: activeDay.day,
+          dateStr: getLocalDateStr(),
+          focus: activeDay.focus,
+          exercises: activeDay.exercises.map(ex => ({
+            name: ex.name,
+            duration: ex.duration || "Custom",
+            status: statusSnapshot[getExerciseStatusKey(ex)] || 'pending',
+          })),
+          exercise_status_by_name: exerciseStatusByName,
+          completedAt: new Date().toISOString(),
+          status: isPartialSession ? 'partial' : 'completed',
+          completed_exercises: completedExercises.length,
+          skipped_exercises: skippedNames,
         });
         console.log("Workout saved to Node backend successfully.");
       } catch (err) {
@@ -2370,10 +2370,10 @@ const Workout = ({ onLogout }) => {
           .history-card:hover { border-color: #6366f1 !important; background: var(--app-border) !important; transform: translateX(4px); }
         `}</style>
 
-        <Navbar 
+        <Navbar
           isDark={theme === 'dark'}
-          navigate={navigate} 
-          activePage="workout" 
+          navigate={navigate}
+          activePage="workout"
           onLogout={handleLogout}
           rightContent={
             <>
@@ -2422,11 +2422,11 @@ const Workout = ({ onLogout }) => {
                       const previewExercises = dayExercises.filter((ex) => !ex?.is_warmup);
                       const displayExercises = previewExercises.length > 0 ? previewExercises : dayExercises;
 
-                      let cardStyle = {...workoutLayout.card};
+                      let cardStyle = { ...workoutLayout.card };
                       if (status === 'TODAY') {
-                        cardStyle = {...cardStyle, ...styles.cardActive};
+                        cardStyle = { ...cardStyle, ...styles.cardActive };
                       } else if (status === 'COMPLETED') {
-                        cardStyle = {...cardStyle, ...styles.cardDone};
+                        cardStyle = { ...cardStyle, ...styles.cardDone };
                       } else if (status === 'NOT_STARTED') {
                         cardStyle = {
                           ...cardStyle,
@@ -2435,19 +2435,19 @@ const Workout = ({ onLogout }) => {
                           opacity: 0.75,
                         };
                       } else if (status === 'PAST') {
-                        cardStyle = {...cardStyle, ...styles.cardMissed};
+                        cardStyle = { ...cardStyle, ...styles.cardMissed };
                       } else if (isRest || isPlaceholder) {
-                        cardStyle = {...cardStyle, border: '1px dashed rgba(255,255,255,0.2)', opacity: 0.7};
+                        cardStyle = { ...cardStyle, border: '1px dashed rgba(255,255,255,0.2)', opacity: 0.7 };
                       }
 
                       return (
-                        <div 
+                        <div
                           key={`${dayIdx}-${day.day || idx}`}
                           className="plan-card"
                           style={cardStyle}
                           onClick={() => !isPlaceholder && isToday && handleDayClick(dayIdx)}
                         >
-                          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px'}}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                             <div>
                               <div style={styles.dayTitle}>
                                 {weekdayNames[dayIdx] || `Day ${idx + 1}`}
@@ -2463,26 +2463,26 @@ const Workout = ({ onLogout }) => {
                               fontWeight: '700',
                               textTransform: 'uppercase',
                               background: status === 'TODAY' ? 'rgba(99, 102, 241, 0.2)' :
-                                         status === 'COMPLETED' ? 'rgba(34, 197, 94, 0.2)' :
-                                     status === 'NOT_STARTED' ? 'rgba(113, 113, 122, 0.2)' :
-                                         status === 'PAST' ? 'rgba(239, 68, 68, 0.2)' :
-                                         status === 'REST' ? 'rgba(245, 158, 11, 0.2)' :
-                                         status === 'NO PLAN' ? 'rgba(113, 113, 122, 0.2)' :
-                                         'rgba(161, 161, 170, 0.2)',
+                                status === 'COMPLETED' ? 'rgba(34, 197, 94, 0.2)' :
+                                  status === 'NOT_STARTED' ? 'rgba(113, 113, 122, 0.2)' :
+                                    status === 'PAST' ? 'rgba(239, 68, 68, 0.2)' :
+                                      status === 'REST' ? 'rgba(245, 158, 11, 0.2)' :
+                                        status === 'NO PLAN' ? 'rgba(113, 113, 122, 0.2)' :
+                                          'rgba(161, 161, 170, 0.2)',
                               color: status === 'TODAY' ? '#a5b4fc' :
-                                    status === 'COMPLETED' ? '#22c55e' :
-                                status === 'NOT_STARTED' ? 'var(--app-text-muted)' :
+                                status === 'COMPLETED' ? '#22c55e' :
+                                  status === 'NOT_STARTED' ? 'var(--app-text-muted)' :
                                     status === 'PAST' ? '#ef4444' :
-                                    status === 'REST' ? '#f59e0b' :
-                                    status === 'NO PLAN' ? 'var(--app-text-muted)' :
-                                    'var(--app-text-muted)',
+                                      status === 'REST' ? '#f59e0b' :
+                                        status === 'NO PLAN' ? 'var(--app-text-muted)' :
+                                          'var(--app-text-muted)',
                               border: `1px solid ${status === 'TODAY' ? 'rgba(99, 102, 241, 0.3)' :
-                                       status === 'COMPLETED' ? 'rgba(34, 197, 94, 0.3)' :
-                                   status === 'NOT_STARTED' ? 'rgba(113, 113, 122, 0.3)' :
-                                       status === 'PAST' ? 'rgba(239, 68, 68, 0.3)' :
-                                       status === 'REST' ? 'rgba(245, 158, 11, 0.3)' :
-                                       status === 'NO PLAN' ? 'rgba(113, 113, 122, 0.3)' :
-                                       'rgba(161, 161, 170, 0.3)'}`
+                                status === 'COMPLETED' ? 'rgba(34, 197, 94, 0.3)' :
+                                  status === 'NOT_STARTED' ? 'rgba(113, 113, 122, 0.3)' :
+                                    status === 'PAST' ? 'rgba(239, 68, 68, 0.3)' :
+                                      status === 'REST' ? 'rgba(245, 158, 11, 0.3)' :
+                                        status === 'NO PLAN' ? 'rgba(113, 113, 122, 0.3)' :
+                                          'rgba(161, 161, 170, 0.3)'}`
                             }}>
                               {status}
                             </div>
@@ -2519,7 +2519,7 @@ const Workout = ({ onLogout }) => {
                           ) : (
                             <>
                               {displayExercises.length > 0 && (
-                                <div style={{flex:1, marginBottom:'12px'}}>
+                                <div style={{ flex: 1, marginBottom: '12px' }}>
                                   {displayExercises.slice(0, 3).map((ex, i) => (
                                     <div key={i} style={styles.exPreview}>
                                       <span>• {ex.name}</span>
@@ -2527,7 +2527,7 @@ const Workout = ({ onLogout }) => {
                                     </div>
                                   ))}
                                   {displayExercises.length > 3 && (
-                                    <div style={{...styles.exPreview, color:'var(--app-text-muted)', fontSize:'11px'}}>
+                                    <div style={{ ...styles.exPreview, color: 'var(--app-text-muted)', fontSize: '11px' }}>
                                       +{displayExercises.length - 3} more exercises
                                     </div>
                                   )}
@@ -2577,7 +2577,7 @@ const Workout = ({ onLogout }) => {
                       );
                     })
                 ) : (
-                  <div style={{gridColumn: '1 / -1', textAlign: 'center', padding: '40px', color: 'var(--app-text-muted)', fontSize: '16px'}}>
+                  <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px', color: 'var(--app-text-muted)', fontSize: '16px' }}>
                     No plan yet. Generate to see your week.
                   </div>
                 )}
@@ -2650,22 +2650,22 @@ const Workout = ({ onLogout }) => {
                               ...(isSelected ? styles.exerciseItemActive : {}),
                               ...(isWarmupSection
                                 ? {
-                                    borderColor: 'rgba(245, 158, 11, 0.3)',
-                                    background: 'rgba(245, 158, 11, 0.06)',
-                                  }
+                                  borderColor: 'rgba(245, 158, 11, 0.3)',
+                                  background: 'rgba(245, 158, 11, 0.06)',
+                                }
                                 : {}),
                               ...(isCompleted
                                 ? {
-                                    opacity: 0.55,
-                                    borderColor: '#22c55e',
-                                  }
+                                  opacity: 0.55,
+                                  borderColor: '#22c55e',
+                                }
                                 : {}),
                               ...(isSkipped
                                 ? {
-                                    opacity: 0.45,
-                                    borderColor: '#ef4444',
-                                    textDecoration: 'line-through',
-                                  }
+                                  opacity: 0.45,
+                                  borderColor: '#ef4444',
+                                  textDecoration: 'line-through',
+                                }
                                 : {}),
                             }}
                           >
@@ -2717,7 +2717,7 @@ const Workout = ({ onLogout }) => {
                           )}
 
                           {mainExercises.map((exercise, index) => renderExerciseItem(exercise, index, false))}
-                          
+
                           {/* END WORKOUT SESSION EARLY BUTTON */}
                           {Object.values(exerciseStatus).some(s => s === 'completed' || s === 'skipped') && (
                             <button
@@ -2761,14 +2761,14 @@ const Workout = ({ onLogout }) => {
                   <div style={styles.selectionPreview}>
                     {activeExercise ? (
                       <>
-                        <div style={{fontSize:'32px', fontWeight:'800', color:'var(--app-text)', marginBottom:'10px'}}>{activeExercise.name}</div>
-                        <div style={{fontSize:'16px', color:'#a5b4fc', marginBottom:'30px', fontFamily:'monospace'}}>
+                        <div style={{ fontSize: '32px', fontWeight: '800', color: 'var(--app-text)', marginBottom: '10px' }}>{activeExercise.name}</div>
+                        <div style={{ fontSize: '16px', color: '#a5b4fc', marginBottom: '30px', fontFamily: 'monospace' }}>
                           {(() => {
                             const targetSets = activeExerciseTimed ? activeExerciseTargetSets : activeExercise.sets;
                             const doneSets = completedSetsMap[activeExercise.name] || 0;
                             const isFullyDone = exerciseStatus[getExerciseStatusKey(activeExercise)] === 'completed';
                             const displaySets = isFullyDone ? targetSets : doneSets;
-                            
+
                             if (displaySets > 0) {
                               return `${displaySets}/${targetSets} SETS COMPLETED x ${activeExerciseTimed ? formatDurationClock(activeExerciseDuration) + ' TIMER' : activeExercise.reps + ' REPS'}`;
                             } else {
@@ -2776,7 +2776,7 @@ const Workout = ({ onLogout }) => {
                             }
                           })()}
                         </div>
-                        <div style={{...styles.gifLargeContainer, ...workoutLayout.previewMedia}}>
+                        <div style={{ ...styles.gifLargeContainer, ...workoutLayout.previewMedia }}>
                           {renderActiveExerciseMedia()}
                         </div>
                         <button style={styles.btnStartLarge} onClick={startCamera}>
@@ -2785,8 +2785,8 @@ const Workout = ({ onLogout }) => {
                       </>
                     ) : (
                       <>
-                        <div style={{fontSize:'60px', marginBottom:'20px'}}>👈</div>
-                        <div style={{fontSize:'18px', fontWeight:'600'}}>Select an exercise from the left to begin</div>
+                        <div style={{ fontSize: '60px', marginBottom: '20px' }}>👈</div>
+                        <div style={{ fontSize: '18px', fontWeight: '600' }}>Select an exercise from the left to begin</div>
                       </>
                     )}
                   </div>
@@ -2797,32 +2797,32 @@ const Workout = ({ onLogout }) => {
                 <div style={workoutLayout.focusContainer}>
                   <div style={workoutLayout.focusLeft}>
                     <div style={styles.activeExTitle}>{activeExercise.name}</div>
-                    
+
                     {!isResting ? (
                       <div style={styles.activeExStats}>
                         {activeExerciseTimed ? (
                           <>
-                            <span style={{color: 'var(--app-text)'}}>SET {currentSet} OF {activeExerciseTargetSets}</span> • <span style={{color: '#22c55e'}}>{formatDurationClock(exerciseTimeLeft)} LEFT</span>
+                            <span style={{ color: 'var(--app-text)' }}>SET {currentSet} OF {activeExerciseTargetSets}</span> • <span style={{ color: '#22c55e' }}>{formatDurationClock(exerciseTimeLeft)} LEFT</span>
                           </>
                         ) : (
                           <>
-                            <span style={{color: 'var(--app-text)'}}>SET {currentSet} OF {activeExercise.sets}</span> • <span style={{color: '#22c55e'}}>{currentReps} / {activeExercise.reps} REPS</span>
+                            <span style={{ color: 'var(--app-text)' }}>SET {currentSet} OF {activeExercise.sets}</span> • <span style={{ color: '#22c55e' }}>{currentReps} / {activeExercise.reps} REPS</span>
                           </>
                         )}
                       </div>
                     ) : (
-                      <div style={{...styles.activeExStats, color: '#f59e0b', fontSize: '24px'}}>
+                      <div style={{ ...styles.activeExStats, color: '#f59e0b', fontSize: '24px' }}>
                         RESTING: {restTimeLeft}s
                       </div>
                     )}
-                    
+
                     {formFeedback && !isResting && activeExercisePoseTrackable && (() => {
-                       const isPos = ['Great job!', 'Keep it up!', 'Perfect form!', 'You got this!', 'Nice work!'].includes(formFeedback);
-                       return (
-                         <div style={{background: isPos ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)', color: isPos ? '#4ade80' : '#ef4444', padding: '10px', borderRadius: '8px', marginBottom: '15px', fontWeight: 'bold', fontSize: '14px'}}>
-                           {isPos ? '✅' : '⚠️'} {formFeedback}
-                         </div>
-                       );
+                      const isPos = ['Great job!', 'Keep it up!', 'Perfect form!', 'You got this!', 'Nice work!'].includes(formFeedback);
+                      return (
+                        <div style={{ background: isPos ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)', color: isPos ? '#4ade80' : '#ef4444', padding: '10px', borderRadius: '8px', marginBottom: '15px', fontWeight: 'bold', fontSize: '14px' }}>
+                          {isPos ? '✅' : '⚠️'} {formFeedback}
+                        </div>
+                      );
                     })()}
 
                     {/* Priority 1: AI Variation Suggestion Card */}
@@ -2846,9 +2846,11 @@ const Workout = ({ onLogout }) => {
                         <div style={{ flex: 1, paddingRight: '20px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
                             <span style={{ fontSize: '12px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.6px', color: '#a5b4fc' }}>AI Coach</span>
-                            <span style={{ padding: '2px 8px', borderRadius: '20px', fontSize: '10px', fontWeight: 700,
+                            <span style={{
+                              padding: '2px 8px', borderRadius: '20px', fontSize: '10px', fontWeight: 700,
                               background: variationResult.suggestion?.action === 'progress' ? 'rgba(34,197,94,0.2)' : variationResult.suggestion?.action === 'regress' ? 'rgba(239,68,68,0.2)' : 'rgba(245,158,11,0.2)',
-                              color: variationResult.suggestion?.action === 'progress' ? '#22c55e' : variationResult.suggestion?.action === 'regress' ? '#ef4444' : '#f59e0b' }}>
+                              color: variationResult.suggestion?.action === 'progress' ? '#22c55e' : variationResult.suggestion?.action === 'regress' ? '#ef4444' : '#f59e0b'
+                            }}>
                               {(variationResult.suggestion?.action || 'maintain').toUpperCase()}
                             </span>
                             <span style={{ fontSize: '11px', color: 'var(--app-text-muted)' }}>Score: {Math.round((variationResult.formScore || 0) * 100)}%</span>
@@ -2864,11 +2866,11 @@ const Workout = ({ onLogout }) => {
                     )}
 
                     <div style={styles.gifLargeContainer}>
-                      <div style={{position:'absolute', top:15, left:15, background:'rgba(0,0,0,0.7)', padding:'4px 10px', borderRadius:'6px', fontSize:'12px', fontWeight:'700', color:'white', zIndex:5}}>FORM GUIDE</div>
+                      <div style={{ position: 'absolute', top: 15, left: 15, background: 'rgba(0,0,0,0.7)', padding: '4px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: '700', color: 'white', zIndex: 5 }}>FORM GUIDE</div>
                       {renderActiveExerciseMedia()}
                     </div>
 
-                    
+
                     <div style={workoutLayout.controlsContainer}>
                       <button style={styles.btnStop} className="btn-stop" onClick={stopCamera}>END SESSION</button>
                       <button style={styles.btnDone} className="btn-done" onClick={() => handleExerciseSkipped(activeExercise)}>SKIP TO NEXT</button>
@@ -2889,17 +2891,17 @@ const Workout = ({ onLogout }) => {
                         <video ref={videoRef} autoPlay playsInline muted style={styles.videoFeed} />
 
                         {/* MASSIVE IN-VIDEO UI OVERLAYS FOR POSTURE AND REPS */}
-                        <div style={{position: 'absolute', top: 20, left: 20, zIndex: 25, display: 'flex', flexDirection: 'column', gap: '10px'}}>
-                            {!isResting && (
-                                <div style={{background: 'var(--overlay-bg)', padding: '10px 20px', borderRadius: '12px', border: '2px solid var(--app-border)'}}>
-                                    <div style={{color: 'var(--app-text-muted)', fontSize: '14px', fontWeight: 'bold'}}>SET {currentSet} OF {activeExerciseTargetSets}</div>
-                                    {activeExerciseTimed ? (
-                                      <div style={{color: '#22c55e', fontSize: '48px', fontWeight: '900', lineHeight: '1'}}>{formatDurationClock(exerciseTimeLeft)}</div>
-                                    ) : (
-                                      <div style={{color: '#22c55e', fontSize: '48px', fontWeight: '900', lineHeight: '1'}}>{currentReps} <span style={{fontSize: '24px', color: 'var(--app-text)'}}>/ {activeExercise.reps}</span></div>
-                                    )}
-                                </div>
-                            )}
+                        <div style={{ position: 'absolute', top: 20, left: 20, zIndex: 25, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                          {!isResting && (
+                            <div style={{ background: 'var(--overlay-bg)', padding: '10px 20px', borderRadius: '12px', border: '2px solid var(--app-border)' }}>
+                              <div style={{ color: 'var(--app-text-muted)', fontSize: '14px', fontWeight: 'bold' }}>SET {currentSet} OF {activeExerciseTargetSets}</div>
+                              {activeExerciseTimed ? (
+                                <div style={{ color: '#22c55e', fontSize: '48px', fontWeight: '900', lineHeight: '1' }}>{formatDurationClock(exerciseTimeLeft)}</div>
+                              ) : (
+                                <div style={{ color: '#22c55e', fontSize: '48px', fontWeight: '900', lineHeight: '1' }}>{currentReps} <span style={{ fontSize: '24px', color: 'var(--app-text)' }}>/ {activeExercise.reps}</span></div>
+                              )}
+                            </div>
+                          )}
                         </div>
 
                         {/* Bug #2 Fix: Warming message overlay with auto-dismiss */}
@@ -2956,29 +2958,29 @@ const Workout = ({ onLogout }) => {
                         )}
 
                         {formFeedback && !isResting && activeExercisePoseTrackable && (() => {
-                            const isPos = ['Great job!', 'Keep it up!', 'Perfect form!', 'You got this!', 'Nice work!'].includes(formFeedback);
-                            return (
-                              <div style={{
-                                  position: 'absolute', 
-                                  top: '50%', 
-                                  left: '50%', 
-                                  transform: 'translate(-50%, -50%)', 
-                                  background: isPos ? 'rgba(34, 197, 94, 0.9)' : 'rgba(239, 68, 68, 0.9)', 
-                                  color: 'var(--app-text)', 
-                                  padding: '20px 40px', 
-                                  borderRadius: '16px', 
-                                  zIndex: 30, 
-                                  fontWeight: '900', 
-                                  fontSize: '32px',
-                                  textAlign: 'center',
-                                  border: '4px solid #fff',
-                                  boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
-                                  animation: 'pulseBorder 1s infinite'
-                              }}>
-                               {isPos ? '✅ EXCELLENT' : '⚠️ INCORRECT POSTURE'}<br/>
-                               <span style={{fontSize: '18px', fontWeight: '500', opacity: 0.9}}>{formFeedback}</span>
-                             </div>
-                            );
+                          const isPos = ['Great job!', 'Keep it up!', 'Perfect form!', 'You got this!', 'Nice work!'].includes(formFeedback);
+                          return (
+                            <div style={{
+                              position: 'absolute',
+                              top: '50%',
+                              left: '50%',
+                              transform: 'translate(-50%, -50%)',
+                              background: isPos ? 'rgba(34, 197, 94, 0.9)' : 'rgba(239, 68, 68, 0.9)',
+                              color: 'var(--app-text)',
+                              padding: '20px 40px',
+                              borderRadius: '16px',
+                              zIndex: 30,
+                              fontWeight: '900',
+                              fontSize: '32px',
+                              textAlign: 'center',
+                              border: '4px solid #fff',
+                              boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
+                              animation: 'pulseBorder 1s infinite'
+                            }}>
+                              {isPos ? '✅ EXCELLENT' : '⚠️ INCORRECT POSTURE'}<br />
+                              <span style={{ fontSize: '18px', fontWeight: '500', opacity: 0.9 }}>{formFeedback}</span>
+                            </div>
+                          );
                         })()}
                         {isCameraOn && activeExercisePoseTrackable && (
                           <PoseDetector
@@ -3012,34 +3014,34 @@ const Workout = ({ onLogout }) => {
                         )}
 
                         {activeExerciseNeedsCamera && (
-                          <div style={styles.recBadge}><div style={{width:10, height:10, background:'white', borderRadius:'50%', animation:'pulseBorder 1s infinite'}}></div>REC</div>
+                          <div style={styles.recBadge}><div style={{ width: 10, height: 10, background: 'white', borderRadius: '50%', animation: 'pulseBorder 1s infinite' }}></div>REC</div>
                         )}
 
                         {activeExerciseNeedsCamera && isResting && (
-                           <div style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'var(--overlay-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', zIndex: 30}}>
-                             <div style={{fontSize: '32px', color: 'var(--app-text-muted)', marginBottom: '10px', fontWeight: '800'}}>RECOVERY TIME</div>
-                             <div style={{fontSize: '100px', fontWeight: '900', color: '#f59e0b'}}>{restTimeLeft}</div>
-                             <div style={{fontSize: '24px', color: '#22c55e', fontWeight: 'bold', marginBottom: '5px'}}>Set {currentSet}/{activeExerciseTimed ? activeExerciseTargetSets : activeExercise.sets} Completed!</div>
-                             <div style={{fontSize: '18px', color: 'var(--app-text)', marginTop: '10px', marginBottom: '30px'}}>Next: Set {currentSet + 1} of {activeExercise.name}</div>
-                             <div style={{display: 'flex', gap: '15px'}}>
-                               <button onClick={() => {
-                                 const newTime = Math.max(0, restTimeLeft - 10);
-                                 setRestTimeLeft(newTime);
-                                 setRestEndTime(Date.now() + newTime * 1000);
-                               }} style={{background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '12px 20px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold'}}>-10s</button>
-                               
-                               <button onClick={() => {
-                                 setRestTimeLeft(0);
-                                 setRestEndTime(Date.now() - 100);
-                               }} style={{background: 'var(--btn-skip-bg)', border: 'none', color: 'var(--btn-skip-text)', padding: '12px 24px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '16px'}}>Skip Rest</button>
-                               
-                               <button onClick={() => {
-                                 const newTime = restTimeLeft + 30;
-                                 setRestTimeLeft(newTime);
-                                 setRestEndTime(Date.now() + newTime * 1000);
-                               }} style={{background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '12px 20px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold'}}>+30s</button>
-                             </div>
-                           </div>
+                          <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'var(--overlay-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', zIndex: 30 }}>
+                            <div style={{ fontSize: '32px', color: 'var(--app-text-muted)', marginBottom: '10px', fontWeight: '800' }}>RECOVERY TIME</div>
+                            <div style={{ fontSize: '100px', fontWeight: '900', color: '#f59e0b' }}>{restTimeLeft}</div>
+                            <div style={{ fontSize: '24px', color: '#22c55e', fontWeight: 'bold', marginBottom: '5px' }}>Set {currentSet}/{activeExerciseTimed ? activeExerciseTargetSets : activeExercise.sets} Completed!</div>
+                            <div style={{ fontSize: '18px', color: 'var(--app-text)', marginTop: '10px', marginBottom: '30px' }}>Next: Set {currentSet + 1} of {activeExercise.name}</div>
+                            <div style={{ display: 'flex', gap: '15px' }}>
+                              <button onClick={() => {
+                                const newTime = Math.max(0, restTimeLeft - 10);
+                                setRestTimeLeft(newTime);
+                                setRestEndTime(Date.now() + newTime * 1000);
+                              }} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '12px 20px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>-10s</button>
+
+                              <button onClick={() => {
+                                setRestTimeLeft(0);
+                                setRestEndTime(Date.now() - 100);
+                              }} style={{ background: 'var(--btn-skip-bg)', border: 'none', color: 'var(--btn-skip-text)', padding: '12px 24px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '16px' }}>Skip Rest</button>
+
+                              <button onClick={() => {
+                                const newTime = restTimeLeft + 30;
+                                setRestTimeLeft(newTime);
+                                setRestEndTime(Date.now() + newTime * 1000);
+                              }} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '12px 20px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>+30s</button>
+                            </div>
+                          </div>
                         )}
                       </>
                     )}
@@ -3160,9 +3162,9 @@ const Workout = ({ onLogout }) => {
 
         {showHistory && (
           <div style={workoutLayout.historyPanel}>
-            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'24px'}}>
-              <div style={{fontSize:'20px', fontWeight:'800', color:'var(--app-text)'}}>History</div>
-              <button onClick={() => setShowHistory(false)} style={{background:'none', border:'none', color:'var(--app-text)', fontSize:'20px', cursor:'pointer'}}>✕</button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <div style={{ fontSize: '20px', fontWeight: '800', color: 'var(--app-text)' }}>History</div>
+              <button onClick={() => setShowHistory(false)} style={{ background: 'none', border: 'none', color: 'var(--app-text)', fontSize: '20px', cursor: 'pointer' }}>✕</button>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '16px' }}>
@@ -3201,22 +3203,22 @@ const Workout = ({ onLogout }) => {
                 {pastWorkouts && pastWorkouts.length > 0 ? (
                   pastWorkouts.map((day, i) => (
                     <div key={i} style={styles.historyItem} className="history-card" onClick={() => setSelectedHistory(selectedHistory === i ? null : i)}>
-                      <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div style={styles.historyDate}>{day.date || new Date().toLocaleDateString()}</div>
-                        <div style={{fontSize:'12px', fontWeight:'700', color: day.status === 'Completed' ? '#22c55e' : '#ef4444'}}>{day.status || 'Completed'}</div>
+                        <div style={{ fontSize: '12px', fontWeight: '700', color: day.status === 'Completed' ? '#22c55e' : '#ef4444' }}>{day.status || 'Completed'}</div>
                       </div>
                       {selectedHistory === i && day.details && (
-                        <div style={{marginTop:'15px', paddingTop:'15px', borderTop:'1px solid var(--app-border)'}}>
+                        <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid var(--app-border)' }}>
                           <div style={styles.historyLabel}>Details:</div>
                           <div style={styles.historyList}>
-                            <div style={{marginBottom:'4px'}}>{day.details}</div>
+                            <div style={{ marginBottom: '4px' }}>{day.details}</div>
                           </div>
                         </div>
                       )}
                     </div>
                   ))
                 ) : (
-                  <div style={{textAlign:'center', padding:'40px', color:'#52525b'}}>No workout history yet</div>
+                  <div style={{ textAlign: 'center', padding: '40px', color: '#52525b' }}>No workout history yet</div>
                 )}
               </>
             ) : (
@@ -3254,7 +3256,7 @@ const Workout = ({ onLogout }) => {
 
                       return (
                         <div key={`swap-history-${idx}`} style={styles.historyItem} className="history-card">
-                          <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'8px'}}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                             <div style={{ ...styles.historyDate, marginBottom: 0 }}>
                               {isRestToWorkout ? 'Rest -> Workout' : 'Workout -> Rest'}
                             </div>
@@ -3270,7 +3272,7 @@ const Workout = ({ onLogout }) => {
                       );
                     })
                 ) : (
-                  <div style={{textAlign:'center', padding:'40px', color:'#52525b'}}>No swaps recorded this week</div>
+                  <div style={{ textAlign: 'center', padding: '40px', color: '#52525b' }}>No swaps recorded this week</div>
                 )}
               </>
             )}
@@ -3330,11 +3332,11 @@ const Workout = ({ onLogout }) => {
                 <div style={{ fontSize: '50px', marginBottom: '15px' }}>
                   {variationResult.suggestion?.action === 'progress' ? '🚀' : variationResult.suggestion?.action === 'regress' ? '🔄' : '🎉'}
                 </div>
-                
+
                 <h2 style={{ fontSize: '24px', fontWeight: '800', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  {variationResult.suggestion?.action === 'progress' ? 'Progression Unlocked!' : 
-                   variationResult.suggestion?.action === 'regress' ? 'Form Correction Recommended' : 
-                   'Workout Complete!'}
+                  {variationResult.suggestion?.action === 'progress' ? 'Progression Unlocked!' :
+                    variationResult.suggestion?.action === 'regress' ? 'Form Correction Recommended' :
+                      'Workout Complete!'}
                 </h2>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(99, 102, 241, 0.15)', padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '700', color: '#a5b4fc', marginBottom: '24px' }}>
                   <span>AI COACH RATING</span> • <span>SCORE: {Math.round((variationResult.formScore || 0) * 100)}%</span>
@@ -3353,9 +3355,9 @@ const Workout = ({ onLogout }) => {
                   </div>
                   {variationResult.suggestion?.suggested_exercise && (
                     <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--app-text)', marginBottom: '8px' }}>
-                      {variationResult.suggestion.action === 'progress' ? 'Try next: ' : 
-                       variationResult.suggestion.action === 'regress' ? 'Easier swap: ' : 
-                       'Keep variation: '}
+                      {variationResult.suggestion.action === 'progress' ? 'Try next: ' :
+                        variationResult.suggestion.action === 'regress' ? 'Easier swap: ' :
+                          'Keep variation: '}
                       <span style={{ color: '#22d3ee' }}>{variationResult.suggestion.suggested_exercise}</span>
                     </div>
                   )}

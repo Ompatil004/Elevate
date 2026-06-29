@@ -66,6 +66,11 @@ const nutritionAnimations = `
   .macro-stat-hover:hover { background: rgba(255,255,255,0.04) !important; transform: scale(1.03); }
   .icon-hover:hover { background: var(--app-border) !important; }
   .logout-btn:hover { background: rgba(239, 68, 68, 0.2) !important; }
+  @media (max-width: 640px) {
+    .meal-card { overflow-x: hidden !important; }
+    .meal-header { padding-right: 120px !important; }
+    .food-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  }
 `;
 
 // ──────────────────────────────────────────────────────────────
@@ -1178,7 +1183,7 @@ function MealCard({ meal, isLocked, isSequenceLocked, unlockMessage, checkedFood
         </div>
       )}
 
-      <div style={styles.mealHeader}>
+      <div style={styles.mealHeader} className="meal-header">
         <div style={{ display: "flex", alignItems: "center" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center" }}>
@@ -1201,6 +1206,7 @@ function MealCard({ meal, isLocked, isSequenceLocked, unlockMessage, checkedFood
         </div>
       </div>
 
+      <div className="food-table-scroll">
       <div style={styles.foodTableHeader} className="food-table-header">
         <div></div><div>Food</div><div style={{ textAlign: "center", color: "#a78bfa" }}>Portion</div><div style={{ textAlign: "center" }}>Cal</div>
         <div style={{ textAlign: "center" }}>Pro</div><div style={{ textAlign: "center" }}>Carb</div>
@@ -1247,6 +1253,7 @@ function MealCard({ meal, isLocked, isSequenceLocked, unlockMessage, checkedFood
             </div>
           );
         })}
+      </div>
       </div>
 
       <div style={styles.mealMacroTotal}>

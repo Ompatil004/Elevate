@@ -237,6 +237,10 @@ const getConfirmFrames = (pattern) => {
   return 2;
 };
 
+// Global singleton storage to cache initialized PoseLandmarker instance
+let globalPoseLandmarker = null;
+let globalPoseLandmarkerPromise = null;
+
 export default function PoseDetector({
   videoRef,
   isActive,
@@ -331,39 +335,53 @@ export default function PoseDetector({
     }
   }, [currentReps]);
 
-  // ─── Initialise MediaPipe ──
+  // ─── Initialise MediaPipe (Cached Singleton) ──
   useEffect(() => {
     let active = true;
     (async () => {
       try {
-        // Warm CDN/model caches before creating the detector for faster first use.
-        await preloadPoseAssets();
-        const vision = await FilesetResolver.forVisionTasks(FILESET_WASM_URL);
-
-        let lm = null;
-        let lastErr = null;
-
-        for (const candidate of POSE_MODEL_CANDIDATES) {
-          try {
-            lm = await PoseLandmarker.createFromOptions(vision, {
-              baseOptions: {
-                modelAssetPath: getModelAssetUrl(candidate.model),
-                delegate: candidate.delegate,
-              },
-              runningMode: 'VIDEO',
-              numPoses: 1,
-              minPoseDetectionConfidence: 0.55,
-              minPosePresenceConfidence: 0.55,
-              minTrackingConfidence: 0.6,
-            });
-            break;
-          } catch (err) {
-            lastErr = err;
+        if (globalPoseLandmarker) {
+          if (active) {
+            landmarkerRef.current = globalPoseLandmarker;
+            setIsModelLoaded(true);
           }
+          return;
         }
 
-        if (!lm) throw lastErr || new Error('Unable to load any MediaPipe pose model');
+        if (!globalPoseLandmarkerPromise) {
+          globalPoseLandmarkerPromise = (async () => {
+            await preloadPoseAssets();
+            const vision = await FilesetResolver.forVisionTasks(FILESET_WASM_URL);
 
+            let lm = null;
+            let lastErr = null;
+
+            for (const candidate of POSE_MODEL_CANDIDATES) {
+              try {
+                lm = await PoseLandmarker.createFromOptions(vision, {
+                  baseOptions: {
+                    modelAssetPath: getModelAssetUrl(candidate.model),
+                    delegate: candidate.delegate,
+                  },
+                  runningMode: 'VIDEO',
+                  numPoses: 1,
+                  minPoseDetectionConfidence: 0.55,
+                  minPosePresenceConfidence: 0.55,
+                  minTrackingConfidence: 0.6,
+                });
+                break;
+              } catch (err) {
+                lastErr = err;
+              }
+            }
+
+            if (!lm) throw lastErr || new Error('Unable to load any MediaPipe pose model');
+            globalPoseLandmarker = lm;
+            return lm;
+          })();
+        }
+
+        const lm = await globalPoseLandmarkerPromise;
         if (active) {
           landmarkerRef.current = lm;
           setIsModelLoaded(true);

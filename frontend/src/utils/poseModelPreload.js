@@ -1,11 +1,11 @@
 export const FILESET_WASM_URL = '/wasm';
 
 export const POSE_MODEL_CANDIDATES = [
-  { model: 'pose_landmarker_heavy', delegate: 'GPU' },
-  { model: 'pose_landmarker_full', delegate: 'GPU' },
   { model: 'pose_landmarker_lite', delegate: 'GPU' },
-  { model: 'pose_landmarker_full', delegate: 'CPU' },
+  { model: 'pose_landmarker_full', delegate: 'GPU' },
   { model: 'pose_landmarker_lite', delegate: 'CPU' },
+  { model: 'pose_landmarker_full', delegate: 'CPU' },
+  { model: 'pose_landmarker_heavy', delegate: 'GPU' },
 ];
 
 export const getModelAssetUrl = (model) =>
