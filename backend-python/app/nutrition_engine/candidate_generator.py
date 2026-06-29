@@ -172,6 +172,16 @@ class CandidateGenerator:
         self._user_pattern_cache = {}
         self._fuzzy_cache = {}
         self._base_scores_cache = {}
+        
+        # Warm up fuzzy match cache for side options and blueprint library foods
+        # to avoid calling difflib.get_close_matches in hot loops.
+        logger.info("Warming up fuzzy match cache for side options and blueprint library...")
+        for name in SIDE_OPTIONS:
+            self._fuzzy_match_food(name)
+            
+        for meal in self.meal_blueprints:
+            for food_name in meal.get("foods", []):
+                self._fuzzy_match_food(food_name)
             
     def _map_food_to_blueprint_role(self, food: Dict, template_role: str = "") -> str:
         sem = food.get("semantics", {})
@@ -2257,6 +2267,12 @@ class CandidateGenerator:
                             
             return score
 
+        # Precompute the goal scores for all valid ingredients once
+        goal_scores_cache = {ing.get("food_id"): _goal_score(ing) for ing in valid_ings}
+
+        def _fast_goal_score(node: dict) -> float:
+            return goal_scores_cache.get(node.get("food_id"), 0.001)
+
         # Determine required slots from template; fall back to a sensible default
         required_slots = template.get("required", [])
         if not required_slots:
@@ -2297,7 +2313,7 @@ class CandidateGenerator:
                         used_ids=used_ids,
                         valid_ings=valid_ings,
                         rng=rng,
-                        goal_score_fn=_goal_score,
+                        goal_score_fn=_fast_goal_score,
                     )
                     if food is None:
                         logger.debug(
@@ -2385,7 +2401,7 @@ class CandidateGenerator:
                         used_ids=used_ids,
                         valid_ings=valid_ings,
                         rng=rng,
-                        goal_score_fn=_goal_score,
+                        goal_score_fn=_fast_goal_score,
                     )
                     if food:
                         food["template_role"] = t_role
@@ -2453,7 +2469,7 @@ class CandidateGenerator:
                             candidate_replacements.append(ing)
                             
                         def _replacement_score(node):
-                            score = _goal_score(node)
+                            score = _fast_goal_score(node)
                             sem = node.get("semantics", {})
                             if sem.get("category") != rejected_fg:
                                 score += 2.0
