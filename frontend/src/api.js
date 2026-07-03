@@ -62,6 +62,7 @@ AuthAPI.interceptors.request.use(
         const token = localStorage.getItem('token');
         if (token) {
             config.headers['x-auth-token'] = token;
+            config.headers['Authorization'] = `Bearer ${token}`;
         }
 
         // SEC-12: attach CSRF token for state-mutating requests
@@ -181,6 +182,7 @@ FitnessAPI.interceptors.request.use(
         const token = localStorage.getItem('token');
         if (token) {
             config.headers['x-auth-token'] = token;
+            config.headers['Authorization'] = `Bearer ${token}`;
         }
 
         if (!CSRF_SAFE_METHODS.has((config.method || 'get').toLowerCase())) {

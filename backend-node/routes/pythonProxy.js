@@ -9,13 +9,14 @@ const DEFAULT_PYTHON_URL = process.env.NODE_ENV === 'production'
   : 'http://localhost:8000';
 
 const getPythonBaseUrl = () => {
-  const configured = process.env.PYTHON_API_URL
+  const configured = process.env.ML_API_URL
+    || process.env.PYTHON_API_URL
     || process.env.PYTHON_BACKEND_URL
     || process.env.VITE_PYTHON_API_URL
     || DEFAULT_PYTHON_URL;
   const trimmed = String(configured || '').trim().replace(/\/+$/, '');
   if (!/^https?:\/\//i.test(trimmed)) {
-    throw new Error('PYTHON_API_URL must be an absolute http(s) URL for the Node proxy');
+    throw new Error('ML_API_URL must be an absolute http(s) URL for the Node proxy');
   }
   return trimmed;
 };
@@ -31,9 +32,22 @@ const buildTargetUrl = (req) => {
 };
 
 const buildForwardHeaders = (req) => {
+  const incomingAuthorization = req.headers.authorization;
+  const legacyToken = req.headers['x-auth-token'] || req.cookies?.elevate_token || req.header('x-auth-token');
+
+  const authorization = incomingAuthorization ||
+    (legacyToken ? `Bearer ${legacyToken}` : null);
+
+  if (!authorization) {
+    const error = new Error('Missing authorization token');
+    error.statusCode = 401;
+    throw error;
+  }
+
   const headers = {
+    Authorization: authorization,
+    'x-auth-token': legacyToken || '',
     accept: req.headers.accept || 'application/json',
-    'x-auth-token': req.token || req.cookies?.elevate_token || req.header('x-auth-token'),
   };
 
   if (req.headers['content-type']) {
@@ -49,30 +63,77 @@ const buildForwardHeaders = (req) => {
 };
 
 router.use(auth, async (req, res) => {
+  const method = req.method.toUpperCase();
+  const url = buildTargetUrl(req);
+  const reqId = req.requestId || 'N/A';
+
   try {
-    const method = req.method.toUpperCase();
+    const headers = buildForwardHeaders(req);
+
+    // Safe logging - target path only, no secrets
+    console.log(`[python-proxy] [${reqId}] Proxying ${method} to Python path: ${req.path}`);
+
     const response = await axios({
       method,
-      url: buildTargetUrl(req),
-      headers: buildForwardHeaders(req),
+      url,
+      headers,
       data: ['GET', 'HEAD'].includes(method) ? undefined : req.body,
       timeout: getProxyTimeoutMs(),
       validateStatus: () => true,
     });
+
+    console.log(`[python-proxy] [${reqId}] Python target responded with status: ${response.status}`);
 
     const contentType = response.headers?.['content-type'];
     if (contentType) {
       res.setHeader('content-type', contentType);
     }
 
+    if (response.status === 401) {
+      return res.status(401).json({
+        message: 'Authentication failed with AI service',
+        error: 'Unauthorized',
+        details: response.data,
+      });
+    }
+
+    if (response.status === 422) {
+      let safeDetails = response.data;
+      if (response.data && Array.isArray(response.data.detail)) {
+        safeDetails = {
+          detail: response.data.detail.map(d => {
+            if (d && typeof d === 'object') {
+              const { input, ...rest } = d;
+              return rest;
+            }
+            return d;
+          })
+        };
+      }
+      return res.status(422).json({
+        message: 'Invalid request payload sent to AI service',
+        error: 'Unprocessable Entity',
+        details: safeDetails,
+      });
+    }
+
     return res.status(response.status).send(response.data);
   } catch (error) {
-    if (process.env.NODE_ENV !== 'production') {
-      console.error('[python-proxy] Request failed:', error.message);
+    if (error.statusCode === 401) {
+      console.warn(`[python-proxy] [${reqId}] Proxy rejected: Missing authorization token`);
+      return res.status(401).json({
+        message: error.message,
+        error: 'Unauthorized',
+      });
     }
-    return res.status(502).json({
-      message: 'Python backend proxy failed',
+
+    const errCode = error.code || error.message;
+    console.error(`[python-proxy] [${reqId}] Request to Python path ${req.path} failed. Error: ${errCode}`);
+
+    return res.status(503).json({
+      message: 'AI service is currently unavailable. Please try again later.',
       code: 'PYTHON_PROXY_FAILED',
+      details: errCode,
     });
   }
 });

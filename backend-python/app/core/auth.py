@@ -13,6 +13,11 @@ def extract_auth_token_from_request(
         return str(x_auth_token).strip()
     if request is None:
         return None
+    
+    auth_header = request.headers.get("authorization")
+    if auth_header and auth_header.lower().startswith("bearer "):
+        return auth_header[7:].strip()
+
     cookie_token = request.cookies.get("elevate_token")
     if cookie_token and str(cookie_token).strip():
         return str(cookie_token).strip()
