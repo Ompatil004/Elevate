@@ -724,6 +724,66 @@ _validate_required_env()
 # FastAPI app
 app = FastAPI(title="Elevate Fitness API", version="1.0.0")
 
+# Global Exception Handlers to return structured JSON
+from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    request_id = request.headers.get("x-request-id") or str(uuid.uuid4())[:8]
+    return JSONResponse(
+        status_code=422,
+        content={
+            "success": False,
+            "error": {
+                "code": "VALIDATION_ERROR",
+                "message": "Validation failed",
+                "details": exc.errors()
+            },
+            "request_id": request_id
+        }
+    )
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    request_id = request.headers.get("x-request-id") or str(uuid.uuid4())[:8]
+    detail = exc.detail
+    if isinstance(detail, dict):
+        error_info = {
+            "code": detail.get("code") or "HTTP_ERROR",
+            "message": detail.get("error") or detail.get("message") or "An HTTP error occurred",
+            "details": detail
+        }
+    else:
+        error_info = {
+            "code": "HTTP_ERROR",
+            "message": str(detail)
+        }
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "success": False,
+            "error": error_info,
+            "request_id": request_id
+        }
+    )
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception):
+    request_id = request.headers.get("x-request-id") or str(uuid.uuid4())[:8]
+    logger.error(f"[Global Error] [request_id={request_id}] Unhandled error: {exc}", exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={
+            "success": False,
+            "error": {
+                "code": "INTERNAL_ERROR",
+                "message": "An unexpected internal server error occurred."
+            },
+            "request_id": request_id
+        }
+    )
+
 # ── SEC-8: In-process rate limiter for CPU-heavy ML endpoints ─────────────────
 # Uses a token-bucket algorithm per user/IP key.
 # Keeps memory bounded: evicts keys that haven't been seen in 10 minutes.

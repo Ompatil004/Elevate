@@ -168,7 +168,7 @@ describe('Python Backend Proxy Route', () => {
 
     expect(res.status).toBe(502);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('PYTHON_UPSTREAM_ERROR');
+    expect(res.body.error.code).toBe('PYTHON_UPSTREAM_INVALID_RESPONSE');
     expect(res.body.error.message).toBe('AI service returned an invalid response.');
   });
 
@@ -217,5 +217,67 @@ describe('Python Backend Proxy Route', () => {
     expect(res.status).toBe(503);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('PYTHON_UPSTREAM_UNAVAILABLE');
+  });
+
+  it('valid upstream JSON object without success is passed through successfully', async () => {
+    axios.mockResolvedValueOnce({
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+      data: { plan_id: '12345', custom_field: 'hello' },
+    });
+
+    const res = await request(app)
+      .post('/api/python/workout')
+      .set('Cookie', `elevate_token=${validToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ plan_id: '12345', custom_field: 'hello' });
+  });
+
+  it('valid upstream JSON array is passed through successfully', async () => {
+    axios.mockResolvedValueOnce({
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+      data: [{ item: 'oats' }, { item: 'whey' }],
+    });
+
+    const res = await request(app)
+      .post('/api/python/workout')
+      .set('Cookie', `elevate_token=${validToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual([{ item: 'oats' }, { item: 'whey' }]);
+  });
+
+  it('upstream HTML 502 becomes Node JSON 502 with PYTHON_UPSTREAM_INVALID_RESPONSE', async () => {
+    axios.mockResolvedValueOnce({
+      status: 502,
+      headers: { 'content-type': 'text/html' },
+      data: '<html>Bad Gateway</html>',
+    });
+
+    const res = await request(app)
+      .post('/api/python/workout')
+      .set('Cookie', `elevate_token=${validToken}`);
+
+    expect(res.status).toBe(502);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('PYTHON_UPSTREAM_INVALID_RESPONSE');
+  });
+
+  it('upstream empty body becomes Node JSON 502 with PYTHON_UPSTREAM_INVALID_RESPONSE', async () => {
+    axios.mockResolvedValueOnce({
+      status: 502,
+      headers: { 'content-type': 'application/json' },
+      data: '',
+    });
+
+    const res = await request(app)
+      .post('/api/python/workout')
+      .set('Cookie', `elevate_token=${validToken}`);
+
+    expect(res.status).toBe(502);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('PYTHON_UPSTREAM_INVALID_RESPONSE');
   });
 });

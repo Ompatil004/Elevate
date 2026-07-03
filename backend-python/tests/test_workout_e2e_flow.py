@@ -61,6 +61,8 @@ class MockMongoCollection:
 class MockDatabase:
     def __init__(self, db_store):
         self.users = MockMongoCollection(db_store, "users")
+        self.weekly_workout_plans = MockMongoCollection(db_store, "weekly_workout_plans")
+        self.weekly_meal_plans = MockMongoCollection(db_store, "weekly_meal_plans")
 
 # --- Test Fixtures ---
 @pytest.fixture(autouse=True)
@@ -79,6 +81,19 @@ def setup_e2e_mocks(monkeypatch):
     monkeypatch.setattr("app.workout_engine.WorkoutEngine._lazy_load_wger", lambda self: None)
     monkeypatch.setattr("app.workout_engine.WorkoutEngine._initialize_wger_media_index", lambda self: None)
     monkeypatch.setattr("app.workout_engine.WorkoutEngine._check_url_reachable", lambda self, url, accept_any_response=False: True)
+
+    # Mock meal engine to avoid slow MIP solver execution in tests
+    dummy_meal_plan = {
+        "meals": [
+            {"meal_type": "breakfast", "name": "Oatmeal", "calories": 400, "protein": 20, "carbs": 50, "fat": 10, "fiber": 5}
+        ]
+    }
+    monkeypatch.setattr("app.meal_engine.MealEngine.generate_meal_plan", lambda self, profile, weekly_workout_plan: dummy_meal_plan)
+
+    # Prevent real mongo connection
+    async def dummy_connect():
+        pass
+    monkeypatch.setattr("app.db.connect_to_mongo", dummy_connect)
 
     random.seed(42)
 
@@ -117,6 +132,7 @@ def test_profile_update_to_persisted_fetch_e2e_flow(monkeypatch):
     # Intercept Database requests
     mock_db = MockDatabase(in_memory_db)
     monkeypatch.setattr(server, "get_database", lambda: mock_db)
+    monkeypatch.setattr("app.db.get_database", lambda: mock_db)
     
     # Mock Auth layer to decode user_id directly from header token
     monkeypatch.setattr(server, "_require_user_id_from_request", lambda req, token, req_id=None: token)
@@ -202,6 +218,7 @@ def test_concurrent_profile_updates_no_state_leakage(monkeypatch):
 
     mock_db = MockDatabase(in_memory_db)
     monkeypatch.setattr(server, "get_database", lambda: mock_db)
+    monkeypatch.setattr("app.db.get_database", lambda: mock_db)
     monkeypatch.setattr(server, "_require_user_id_from_request", lambda req, token, req_id=None: token)
     monkeypatch.setattr(server, "_find_user_by_id", lambda uid: mock_db.users.find_one({"_id": ObjectId(uid)}))
 

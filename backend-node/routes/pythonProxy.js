@@ -112,14 +112,50 @@ router.use(auth, async (req, res) => {
 
     console.log(`[python-proxy] [${reqId}] Python target responded with status: ${response.status}`);
 
-    // Validate if upstream response is valid JSON
-    const isJson = response.headers?.['content-type']?.includes('json');
-    if (!isJson && response.status >= 400) {
-      console.error(`[python-proxy] [${reqId}] Upstream returned non-JSON error page`);
+    // Parse and validate JSON safely with fallback parsing
+    let isJson = false;
+    let parsedData = null;
+
+    const contentType = response.headers?.['content-type'] || 'unknown';
+    const rawData = response.data;
+    
+    if (contentType.includes('json')) {
+      if (typeof rawData === 'string' && rawData.trim() === '') {
+        isJson = false;
+      } else {
+        isJson = true;
+        parsedData = rawData;
+      }
+    } else if (typeof rawData === 'string') {
+      if (rawData.trim() !== '') {
+        try {
+          parsedData = JSON.parse(rawData);
+          isJson = true;
+        } catch (e) {
+          // Not valid JSON string
+        }
+      }
+    } else if (rawData && typeof rawData === 'object') {
+      isJson = true;
+      parsedData = rawData;
+    }
+
+    const bodyStr = typeof rawData === 'string' ? rawData : JSON.stringify(rawData);
+    const bodyLength = bodyStr ? bodyStr.length : 0;
+    
+    // Log safe diagnostic metadata for upstream responses without exposing sensitive payloads/tokens
+    let preview = 'REDACTED';
+    if (response.status >= 400 || process.env.NODE_ENV !== 'production') {
+      preview = bodyStr ? bodyStr.slice(0, 100).replace(/[\r\n\t]+/g, ' ') : '';
+    }
+    console.log(`[python-proxy] [${reqId}] Upstream Response: path=${mappedPath} status=${response.status} contentType=${contentType} bodyLength=${bodyLength} preview="${preview}"`);
+
+    if (!isJson) {
+      console.error(`[python-proxy] [${reqId}] Upstream returned non-JSON/malformed response with status ${response.status}`);
       return res.status(502).json({
         success: false,
         error: {
-          code: 'PYTHON_UPSTREAM_ERROR',
+          code: 'PYTHON_UPSTREAM_INVALID_RESPONSE',
           message: 'AI service returned an invalid response.',
           request_id: reqId,
         }
@@ -134,16 +170,16 @@ router.use(auth, async (req, res) => {
             code: 'AUTH_REQUIRED',
             message: 'Authentication failed with AI service',
             request_id: reqId,
-            details: response.data,
+            details: parsedData,
           }
         });
       }
 
       if (response.status === 422) {
-        let safeDetails = response.data;
-        if (response.data && Array.isArray(response.data.detail)) {
+        let safeDetails = parsedData;
+        if (parsedData && Array.isArray(parsedData.detail)) {
           safeDetails = {
-            detail: response.data.detail.map(d => {
+            detail: parsedData.detail.map(d => {
               if (d && typeof d === 'object') {
                 const { input, ...rest } = d;
                 return rest;
@@ -171,16 +207,13 @@ router.use(auth, async (req, res) => {
           code: 'PYTHON_UPSTREAM_ERROR',
           message: `AI service returned an error status: ${response.status}`,
           request_id: reqId,
-          details: response.data,
+          details: parsedData,
         }
       });
     }
 
-    const contentType = response.headers?.['content-type'];
-    if (contentType) {
-      res.setHeader('content-type', contentType);
-    }
-    return res.status(response.status).send(response.data);
+    res.setHeader('content-type', 'application/json');
+    return res.status(response.status).json(parsedData);
 
   } catch (error) {
     if (error.statusCode === 401) {
