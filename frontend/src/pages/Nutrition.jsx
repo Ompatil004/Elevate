@@ -989,12 +989,12 @@ function Nutrition({ onLogout }) {
         <h1 style={styles.header}>Weekly Nutrition Plan</h1>
 
         {/* Day Selector */}
-        <div style={styles.daySelectorBar}>
+        <div style={styles.daySelectorBar} className="nutrition-day-selector">
           {weeklyPlan.days.map((day, index) => {
             const isToday = index === todayIdx;
             const isOtherDay = index !== todayIdx; // past OR future → read-only
             return (
-            <div key={day.date} onClick={() => setSelectedDayIndex(index)} className="day-card-hover" style={{ ...styles.dayCard, ...(selectedDayIndex === index ? styles.dayCardSelected : {}), ...(isToday ? styles.dayCardToday : {}), opacity: isOtherDay && selectedDayIndex !== index ? 0.6 : 1 }}>
+            <div key={day.date} onClick={() => setSelectedDayIndex(index)} className="day-card-hover nutrition-day-card" data-selected={selectedDayIndex === index ? 'true' : 'false'} style={{ ...styles.dayCard, ...(selectedDayIndex === index ? styles.dayCardSelected : {}), ...(isToday ? styles.dayCardToday : {}), opacity: isOtherDay && selectedDayIndex !== index ? 0.6 : 1 }}>
               {selectedDayIndex === index && <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "3px", background: "linear-gradient(90deg, #6366f1, #a78bfa)", borderRadius: "20px 20px 0 0" }} />}
               <div style={styles.dayName}>{day.day_name?.slice(0, 3)}</div>
               <div style={{ fontSize: "22px", fontWeight: "800", color: selectedDayIndex === index ? "var(--app-text)" : "#71717a", marginBottom: "8px", fontFamily: "monospace" }}>{Number(String(day.date).split('-')[2])}</div>
@@ -1008,7 +1008,7 @@ function Nutrition({ onLogout }) {
 
         {/* Daily Summary */}
         {selectedDay && (
-          <div style={styles.dailySummaryCard}>
+          <div style={styles.dailySummaryCard} className="nutrition-macro-grid">
             <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: "linear-gradient(90deg, #6366f1, #a78bfa, #6366f1)", opacity: 0.6 }} />
             <MacroStat value={selectedDay.daily_totals?.calories || 0} label="Calories" color="var(--app-text)" icon="🔥" />
             <MacroStat value={`${selectedDay.daily_totals?.protein_g || 0}g`} label="Protein" color="#10b981" icon="💪" />
@@ -1068,8 +1068,8 @@ function Nutrition({ onLogout }) {
 
       {/* Swap Modal — backend driven */}
       {swapModal.show && (
-        <div style={styles.swapModal} onClick={() => setSwapModal({ show: false, food: null, mealType: null, dayIndex: null })}>
-          <div style={styles.swapModalCard} onClick={e => e.stopPropagation()}>
+        <div style={styles.swapModal} className="swap-modal-backdrop" onClick={() => setSwapModal({ show: false, food: null, mealType: null, dayIndex: null })}>
+          <div style={styles.swapModalCard} className="swap-modal-card" onClick={e => e.stopPropagation()}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
               <div style={{ fontSize: "28px", fontWeight: "800", color: "var(--app-text)", letterSpacing: "-0.5px" }}>Swap Food</div>
               <button onClick={() => setSwapModal({ show: false, food: null, mealType: null, dayIndex: null })} style={{ background: "var(--app-border)", borderRadius: "50%", width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--app-text-muted)", border: "1px solid var(--app-border)", fontSize: "16px", cursor: "pointer", transition: "all 0.2s ease" }} className="icon-hover">✕</button>
@@ -1215,7 +1215,7 @@ function MealCard({ meal, isLocked, isSequenceLocked, unlockMessage, checkedFood
       </div>
 
       <div className="food-table-scroll">
-      <div style={styles.foodTableHeader} className="food-table-header">
+      <div style={styles.foodTableHeader} className="food-table-header food-table-header">
         <div></div><div>Food</div><div style={{ textAlign: "center", color: "#a78bfa" }}>Portion</div><div style={{ textAlign: "center" }}>Cal</div>
         <div style={{ textAlign: "center" }}>Pro</div><div style={{ textAlign: "center" }}>Carb</div>
         <div style={{ textAlign: "center" }}>Fat</div><div></div>
@@ -1233,16 +1233,19 @@ function MealCard({ meal, isLocked, isSequenceLocked, unlockMessage, checkedFood
               background: isChecked ? "rgba(34, 197, 94, 0.04)" : "rgba(255,255,255,0.02)",
               ...(isSequenceLocked ? { pointerEvents: "none", opacity: 0.5 } : {}),
             }}>
+              {/* Col 1: Checkbox */}
               <div onClick={() => !isDisabled && onCheckFood(food.id, meal.name, meal.meal_type, dayIndex)} style={{
                 ...styles.checkbox, ...(isChecked ? styles.checkboxChecked : {}),
                 ...(isDisabled && !isChecked ? { opacity: 0.3, cursor: "not-allowed" } : {}),
-              }}>
+              }} role="checkbox" aria-checked={isChecked} aria-label={`Mark ${food.name} as eaten`}>
                 {isChecked && "✓"}
               </div>
-              <div style={{ display: "flex", flexDirection: "column" }}>
-                <span style={{ fontWeight: "600", color: isChecked ? "var(--app-text-muted)" : "var(--app-text)", textDecoration: isChecked ? "line-through" : "none" }}>{food.name}</span>
+              {/* Col 2: Food name */}
+              <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+                <span style={{ fontWeight: "600", color: isChecked ? "var(--app-text-muted)" : "var(--app-text)", textDecoration: isChecked ? "line-through" : "none", overflowWrap: "break-word" }}>{food.name}</span>
                 {isChecked && itemTickTime && <span style={{ fontSize: "10px", color: "#22c55e", fontFamily: "monospace", marginTop: "2px" }}>✓ {itemTickTime}</span>}
               </div>
+              {/* Col 3: Portion (desktop) */}
               <div style={{ textAlign: "center" }}>
                 <span style={{
                   fontSize: "12px", fontWeight: "700", color: "#a78bfa",
@@ -1253,18 +1256,30 @@ function MealCard({ meal, isLocked, isSequenceLocked, unlockMessage, checkedFood
                   {(!food.serving || food.serving.match(/^(~?\d+(?:\.\d+)?)(g|ml)$/i)) ? getFallbackServing(food.name, food.calories) : food.serving}
                 </span>
               </div>
+              {/* Col 4-7: Macros (desktop) */}
               <div style={{ textAlign: "center", color: "var(--app-text)", fontWeight: "600", fontFamily: "monospace", fontSize: "13px" }}>{food.calories}</div>
               <div style={{ textAlign: "center", color: "#10b981", fontFamily: "monospace", fontSize: "13px" }}>{food.protein_g}g</div>
               <div style={{ textAlign: "center", color: "#3b82f6", fontFamily: "monospace", fontSize: "13px" }}>{food.carbs_g}g</div>
               <div style={{ textAlign: "center", color: "#f59e0b", fontFamily: "monospace", fontSize: "13px" }}>{food.fat_g}g</div>
-              <button className="swap-btn-hover" onClick={() => !isDisabled && onSwapFood(food, meal.meal_type, dayIndex)} disabled={isDisabled} style={{ ...styles.swapBtn, ...(isDisabled ? { opacity: 0.3, cursor: "not-allowed" } : {}) }}>🔄</button>
+              {/* Col 8: Swap button */}
+              <button className="swap-btn-hover" onClick={() => !isDisabled && onSwapFood(food, meal.meal_type, dayIndex)} disabled={isDisabled} aria-label={`Swap ${food.name}`} style={{ ...styles.swapBtn, ...(isDisabled ? { opacity: 0.3, cursor: "not-allowed" } : {}) }}>🔄</button>
+              {/* Mobile macro metadata — shown via CSS on ≤600px, hidden on desktop */}
+              <div className="food-macro-meta" style={{ display: "none" }}>
+                <span style={{ fontSize: "11px", color: "#a78bfa", fontWeight: "700" }}>
+                  {(!food.serving || food.serving.match(/^(~?\d+(?:\.\d+)?)(g|ml)$/i)) ? getFallbackServing(food.name, food.calories) : food.serving}
+                </span>
+                <span style={{ fontSize: "11px", color: "var(--app-text)", fontWeight: "700", fontFamily: "monospace" }}>{food.calories} cal</span>
+                <span style={{ fontSize: "11px", color: "#10b981", fontFamily: "monospace" }}>P: {food.protein_g}g</span>
+                <span style={{ fontSize: "11px", color: "#3b82f6", fontFamily: "monospace" }}>C: {food.carbs_g}g</span>
+                <span style={{ fontSize: "11px", color: "#f59e0b", fontFamily: "monospace" }}>F: {food.fat_g}g</span>
+              </div>
             </div>
           );
         })}
       </div>
       </div>
 
-      <div style={styles.mealMacroTotal}>
+      <div style={styles.mealMacroTotal} className="meal-macro-total">
         <div style={{ fontSize: "13px", fontWeight: "800", color: "var(--app-text)", fontFamily: "monospace" }}>{meal.totals?.calories || 0} cal</div>
         <div style={{ fontSize: "13px", fontWeight: "700", color: "#10b981", fontFamily: "monospace" }}>{meal.totals?.protein_g || 0}g pro</div>
         <div style={{ fontSize: "13px", fontWeight: "700", color: "#3b82f6", fontFamily: "monospace" }}>{meal.totals?.carbs_g || 0}g carb</div>
@@ -1279,7 +1294,7 @@ function HistoryPanel({ mealHistory, expandedDates, setExpandedDates, expandedMe
   const mealTypeColors = { breakfast: "#f59e0b", lunch: "#3b82f6", dinner: "#8b5cf6", snack: "#10b981" };
 
   return (
-    <div style={styles.historyPanel}>
+    <div style={styles.historyPanel} className="nutrition-history-panel">
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
         <div>
           <div style={{ fontSize: "20px", fontWeight: "800", color: "var(--app-text)" }}>Meal History</div>

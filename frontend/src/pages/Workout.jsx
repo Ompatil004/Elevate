@@ -366,6 +366,7 @@ const Workout = ({ onLogout }) => {
   }, []);
 
   const isMobileLayout = viewportWidth <= 980;
+  const isSmallMobile  = viewportWidth <= 600;
   const workoutLayout = isMobileLayout
     ? {
       container: { ...styles.container, padding: 'clamp(12px, 4vw, 24px)' },
@@ -375,20 +376,27 @@ const Workout = ({ onLogout }) => {
       restDay: { ...styles.restDay, padding: 'clamp(12px, 2.8vw, 20px)' },
       sessionContainer: {
         ...styles.sessionContainer,
-        height: 'calc(100dvh - 80px)',
+        height: isSmallMobile ? 'auto' : 'calc(100dvh - 80px)',
+        minHeight: 'calc(100dvh - 80px)',
         flexWrap: 'wrap',
         alignContent: 'flex-start',
         overflowY: 'auto',
         padding: 'clamp(10px, 2vw, 20px)',
         gap: 'clamp(10px, 2vw, 20px)'
       },
-      selectionList: { ...styles.selectionList, flex: '1 1 min(100%, 350px)', maxWidth: 'min(100%, 360px)' },
-      focusContainer: { ...styles.focusContainer, minHeight: 0, height: 'auto', flexWrap: 'wrap', gap: 'clamp(10px, 2vw, 20px)' },
-      focusLeft: { ...styles.focusLeft, flex: '1 1 min(100%, 420px)', padding: 'clamp(12px, 2.5vw, 24px)' },
-      controlsContainer: { ...styles.controlsContainer, height: 'auto', minHeight: '68px', gap: '12px', flexWrap: 'wrap' },
-      focusRight: { ...styles.focusRight, flex: '1 1 min(100%, 520px)', minHeight: '280px' },
+      selectionList: {
+        ...styles.selectionList,
+        flex: isSmallMobile ? 'none' : '1 1 min(100%, 350px)',
+        maxWidth: isSmallMobile ? '100%' : 'min(100%, 360px)',
+        maxHeight: isSmallMobile ? '260px' : 'none',
+        width: '100%'
+      },
+      focusContainer: { ...styles.focusContainer, minHeight: 0, height: 'auto', flexWrap: 'wrap', flexDirection: isSmallMobile ? 'column' : 'row', gap: 'clamp(10px, 2vw, 20px)' },
+      focusLeft: { ...styles.focusLeft, flex: '1 1 min(100%, 420px)', width: '100%', padding: 'clamp(12px, 2.5vw, 24px)' },
+      controlsContainer: { ...styles.controlsContainer, height: 'auto', minHeight: isSmallMobile ? '56px' : '68px', gap: '10px', flexWrap: isSmallMobile ? 'nowrap' : 'wrap' },
+      focusRight: { ...styles.focusRight, flex: '1 1 min(100%, 520px)', minHeight: isSmallMobile ? '220px' : '280px', width: '100%' },
       historyPanel: { ...styles.historyPanel, width: 'min(96vw, 400px)', height: 'calc(100dvh - 80px)', padding: 'clamp(14px, 2.5vw, 24px)' },
-      previewMedia: { width: 'min(100%, 420px)', aspectRatio: '16 / 10', marginBottom: '24px', flex: 'none' }
+      previewMedia: { width: isSmallMobile ? '100%' : 'min(100%, 420px)', aspectRatio: '16 / 10', marginBottom: '24px', flex: 'none' }
     }
     : {
       container: styles.container,
@@ -2637,10 +2645,10 @@ const Workout = ({ onLogout }) => {
           )}
 
           {activeDay && (
-            <div style={workoutLayout.sessionContainer}>
+            <div style={workoutLayout.sessionContainer} className="workout-session-container">
               {!isCameraOn && (
                 <>
-                  <div style={workoutLayout.selectionList}>
+                  <div style={workoutLayout.selectionList} className="workout-selection-list">
                     <div style={styles.sidebarHeader}>
                       <div>
                         <div>Today's Routine</div>
@@ -2872,8 +2880,8 @@ const Workout = ({ onLogout }) => {
               )}
 
               {isCameraOn && (
-                <div style={workoutLayout.focusContainer}>
-                  <div style={workoutLayout.focusLeft}>
+                <div style={workoutLayout.focusContainer} className="workout-focus-container">
+                  <div style={workoutLayout.focusLeft} className="workout-focus-left">
                     <div style={styles.activeExTitle}>{activeExercise.name}</div>
 
                     {!isResting ? (
@@ -2949,12 +2957,12 @@ const Workout = ({ onLogout }) => {
                     </div>
 
 
-                    <div style={workoutLayout.controlsContainer}>
-                      <button style={styles.btnStop} className="btn-stop" onClick={stopCamera}>END SESSION</button>
-                      <button style={styles.btnDone} className="btn-done" onClick={() => handleExerciseSkipped(activeExercise)}>SKIP TO NEXT</button>
+                    <div style={workoutLayout.controlsContainer} className="workout-controls-container">
+                      <button style={{ ...styles.btnStop, minHeight: '48px' }} className="btn-stop" onClick={stopCamera}>END SESSION</button>
+                      <button style={{ ...styles.btnDone, minHeight: '48px' }} className="btn-done" onClick={() => handleExerciseSkipped(activeExercise)}>SKIP TO NEXT</button>
                     </div>
                   </div>
-                  <div style={workoutLayout.focusRight}>
+                  <div style={workoutLayout.focusRight} className="workout-focus-right workout-camera-wrapper">
                     {activeExercise && !activeExerciseNeedsCamera ? (
                       <TimerExerciseMode
                         key={getExerciseStatusKey(activeExercise) || activeExercise?.name || 'timer-mode'}

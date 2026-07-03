@@ -169,8 +169,8 @@ const MultiSelect = ({ name, options, value, onChange, isOpen, onToggle, isNoneC
       )}
       
       {value.length > 0 && (
-        <div style={styles.selectedItems}>
-          {value.map(item => <div key={item} style={styles.selectedTag}>✓ {item}</div>)}
+        <div style={styles.selectedItems} className="profile-chips-container">
+          {value.map(item => <div key={item} style={styles.selectedTag} className="selected-tag">✓ {item}</div>)}
         </div>
       )}
     </div>
@@ -826,11 +826,11 @@ function ProfileSetup({ onLogout }) {
 
       {/* CONDITIONAL: Show Cancel button when editing, Logout when setting up */}
       {isEditing ? (
-        <button onClick={() => navigate('/dashboard')} style={styles.cancelBtn}>
+        <button onClick={() => navigate('/dashboard')} style={styles.cancelBtn} className="profile-cancel-btn">
           CANCEL
         </button>
       ) : (
-        <button onClick={() => { if(typeof onLogout === 'function') onLogout(); else { logoutSafe(); navigate('/'); } }} style={styles.cancelBtn}>
+        <button onClick={() => { if(typeof onLogout === 'function') onLogout(); else { logoutSafe(); navigate('/'); } }} style={styles.cancelBtn} className="profile-cancel-btn">
           LOGOUT
         </button>
       )}
@@ -861,14 +861,14 @@ function ProfileSetup({ onLogout }) {
                 <input type="file" ref={fileInputRef} style={{display:'none'}} accept="image/*" onChange={handleImageUpload} />
               </div>
 
-              <div style={styles.nameGroup} className="nameGroup">
+              <div style={styles.nameGroup} className="nameGroup profile-name-group">
                 <div style={styles.formGroup}>
                     <label style={styles.label}>First Name</label>
-                    <input style={styles.input} type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="John" required />
+                    <input style={styles.input} className="profile-input" type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="John" required />
                 </div>
                 <div style={styles.formGroup}>
                     <label style={styles.label}>Last Name</label>
-                    <input style={styles.input} type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Doe" />
+                    <input style={styles.input} className="profile-input" type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Doe" />
                 </div>
               </div>
             </div>
@@ -879,10 +879,10 @@ function ProfileSetup({ onLogout }) {
                     <div style={styles.sectionIcon}>📊</div> Basic Metrics
                 </h3>
                 <div style={styles.formRow4} className="form-row-4">
-                  <div style={styles.formGroup}><label style={styles.label}>Age</label><input style={styles.input} type="number" name="age" value={formData.age} onChange={handleChange} placeholder="Years" required /></div>
-                  <div style={styles.formGroup}><label style={styles.label}>Weight (kg)</label><input style={styles.input} type="number" name="weight" value={formData.weight} onChange={handleChange} placeholder="kg" step="0.1" required /></div>
-                  <div style={styles.formGroup}><label style={styles.label}>Height (cm)</label><input style={styles.input} type="number" name="height" value={formData.height} onChange={handleChange} placeholder="cm" required /></div>
-                  <div style={styles.formGroup}><label style={styles.label}>Gender</label><select style={styles.select} name="gender" value={formData.gender} onChange={handleChange}><option>Male</option><option>Female</option></select></div>
+                  <div style={styles.formGroup}><label style={styles.label}>Age</label><input style={styles.input} className="profile-input" type="number" name="age" value={formData.age} onChange={handleChange} placeholder="Years" required /></div>
+                  <div style={styles.formGroup}><label style={styles.label}>Weight (kg)</label><input style={styles.input} className="profile-input" type="number" name="weight" value={formData.weight} onChange={handleChange} placeholder="kg" step="0.1" required /></div>
+                  <div style={styles.formGroup}><label style={styles.label}>Height (cm)</label><input style={styles.input} className="profile-input" type="number" name="height" value={formData.height} onChange={handleChange} placeholder="cm" required /></div>
+                  <div style={styles.formGroup}><label style={styles.label}>Gender</label><select style={styles.select} className="profile-select" name="gender" value={formData.gender} onChange={handleChange}><option>Male</option><option>Female</option></select></div>
                 </div>
             </div>
 
@@ -892,9 +892,9 @@ function ProfileSetup({ onLogout }) {
                     <div style={styles.sectionIcon}>🎯</div> Goals & Lifestyle
                 </h3>
                 <div style={styles.formRow3} className="form-row-3">
-                  <div style={styles.formGroup}><label style={styles.label}>Primary Goal</label><select style={styles.select} name="goal" value={formData.goal} onChange={handleChange}><option>Muscle Gain</option><option>Weight Loss</option><option>Maintenance</option></select></div>
-                  <div style={styles.formGroup}><label style={styles.label}>Experience Level</label><select style={styles.select} name="experience" value={formData.experience} onChange={handleChange}><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select></div>
-                  <div style={styles.formGroup}><label style={styles.label}>Diet Type</label><select style={styles.select} name="dietary_preference" value={formData.dietary_preference} onChange={handleChange}><option>Non-Veg</option><option>Veg</option><option>Vegan</option></select></div>
+                  <div style={styles.formGroup}><label style={styles.label}>Primary Goal</label><select style={styles.select} className="profile-select" name="goal" value={formData.goal} onChange={handleChange}><option>Muscle Gain</option><option>Weight Loss</option><option>Maintenance</option></select></div>
+                  <div style={styles.formGroup}><label style={styles.label}>Experience Level</label><select style={styles.select} className="profile-select" name="experience" value={formData.experience} onChange={handleChange}><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select></div>
+                  <div style={styles.formGroup}><label style={styles.label}>Diet Type</label><select style={styles.select} className="profile-select" name="dietary_preference" value={formData.dietary_preference} onChange={handleChange}><option>Non-Veg</option><option>Veg</option><option>Vegan</option></select></div>
                 </div>
             </div>
 
@@ -963,7 +963,7 @@ function ProfileSetup({ onLogout }) {
               </div>
             </div>
 
-            <button type="submit" style={{...styles.button, ...(loading && styles.buttonDisabled), marginTop: '15px'}} disabled={loading}>
+            <button type="submit" style={{...styles.button, ...(loading && styles.buttonDisabled), marginTop: '15px'}} className="profile-submit-btn" disabled={loading}>
               {loading ? "Analyzing Data..." : (isEditing ? "Save Changes" : "Generate My Plan →")}
             </button>
 

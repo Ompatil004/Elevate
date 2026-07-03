@@ -475,9 +475,14 @@ export default function Navbar({ navigate, activePage, onLogout, rightContent, i
           })}
         </div>
         
-        <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+        <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '12px', paddingBottom: '16px' }}>
+          {rightContent && (
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginBottom: '8px' }}>
+              {rightContent}
+            </div>
+          )}
           <div
-            style={{ ...s.logoutBtn, justifyContent: 'center', width: '100%' }}
+            style={{ ...s.logoutBtn, justifyContent: 'center', width: '100%', minHeight: '44px' }}
             onClick={() => {
               onLogout?.();
               closeMenu();

@@ -1,38 +1,39 @@
-/* 
+/*
   responsive.css
-  All mobile-specific overrides and responsive hacks should go here 
-  to keep component CSS and global App.css clean. 
+  Central mobile stylesheet for Elevate Fitness.
+  Breakpoints:
+    <= 360px  — extra-small phone
+    <= 480px  — phone
+    <= 600px  — narrow mobile (table-to-card conversion)
+    <= 768px  — tablet / mobile nav layout
+    >= 1024px — desktop (unchanged)
 */
 
-/* 
-  Global Responsive Overrides 
-*/
+/* ─── Global safety layer ─── */
 html, body {
   overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
 }
 
-/* Base utility for charts */
+img, video, canvas, iframe {
+  max-width: 100%;
+}
+
+/* ─── Global utility: chart containers ─── */
 .chart-container {
   width: 100%;
   overflow: hidden;
 }
 
-/* Mobile specific overrides */
-@media (max-width: 575.98px) {
-  /* Extra small devices (phones, less than 576px) */
-  
+/* ─── Touch-target minimums for interactive elements ─── */
+button, [role="button"], a, select, input[type="checkbox"], input[type="radio"] {
+  touch-action: manipulation;
 }
 
+/* =========================================================
+   CHATBOT PAGE
+   ========================================================= */
 @media (max-width: 767.98px) {
-  /* Small devices (landscape phones, less than 768px) */
-  
-  /* Convert 100vw to 100% to prevent scrollbar issues */
-  .full-width-mobile {
-    width: 100% !important;
-    max-width: 100% !important;
-  }
-
-  /* Chatbot full screen fix */
   .chatbot-container {
     height: 100dvh !important;
     width: 100% !important;
@@ -41,38 +42,8 @@ html, body {
     bottom: 0 !important;
     right: 0 !important;
   }
-}
 
-@media (max-width: 991.98px) {
-  /* Medium devices (tablets, less than 992px) */
-  
-  /* Nutrition Table overrides */
-  .food-table-header {
-    display: none !important;
-  }
-  
-  .food-row-hover {
-    display: flex !important;
-    flex-direction: column !important;
-    min-width: 0 !important;
-    padding: 15px !important;
-    gap: 8px !important;
-    align-items: flex-start !important;
-  }
-
-  .food-row-hover > div {
-    text-align: left !important;
-    width: 100% !important;
-  }
-
-  .food-row-hover > div:first-child {
-    width: auto !important;
-    position: absolute;
-    right: 15px;
-    top: 15px;
-  }
-
-  /* Chatbot Mobile 100dvh Override */
+  /* Full-screen fix */
   .chatbot-page-wrapper {
     height: 100dvh !important;
     min-height: 100dvh !important;
@@ -81,14 +52,666 @@ html, body {
     flex-direction: column !important;
     padding-bottom: 0 !important;
   }
+
+  /* Chat bubble max width on narrow screens */
+  .chat-bubble {
+    max-width: 88% !important;
+  }
 }
 
-/* 
-  Fix flex columns for mobile 
-  Adding this to elements that use d-flex but need to stack on mobile
-*/
-@media (max-width: 767.98px) {
+/* =========================================================
+   NAVBAR — Mobile layout (≤ 768px already handled by
+   hamburger drawer in Navbar.jsx, these are tweaks)
+   ========================================================= */
+@media (max-width: 768px) {
+  /* Ensure right-side icon cluster doesn't crowd navbar */
+  .nav-right-icons {
+    gap: 8px !important;
+  }
+
+  /* Notification dropdown: prevent overflow on smallest phones */
+  .notif-dropdown-mobile {
+    right: -8px !important;
+    width: min(94vw, 320px) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Shrink notification badge container on very small screens */
+  .notification-container {
+    top: 10px;
+    right: 10px;
+    max-width: calc(100vw - 20px);
+  }
+
+  .notification-item {
+    min-width: calc(100vw - 40px) !important;
+    max-width: calc(100vw - 40px) !important;
+    padding: 12px 14px;
+  }
+
+  .notification-message {
+    font-size: 13px;
+  }
+}
+
+/* =========================================================
+   LOGIN / REGISTER PAGE
+   ========================================================= */
+
+/* Stack panels at 768px; hide left panel below 480px (per user instruction) */
+@media (max-width: 768px) {
+  .login-card {
+    flex-direction: column !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* Show a minimal branding strip in the left panel at 480-768px */
+  .login-left {
+    padding: 28px 24px 20px !important;
+    text-align: center !important;
+    align-items: center !important;
+    min-height: auto !important;
+  }
+
+  .stats-showcase {
+    display: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Hide decorative left panel entirely; show only form */
+  .login-left {
+    display: none !important;
+  }
+
+  .login-card {
+    max-width: 100% !important;
+    margin: 0 !important;
+    border-radius: 16px !important;
+    width: 100% !important;
+  }
+
+  .login-container {
+    padding: 12px !important;
+    align-items: flex-start !important;
+    padding-top: 32px !important;
+  }
+
+  /* Branding inside the form right panel — visible without left panel */
+  .login-right {
+    padding: 28px 20px 24px !important;
+  }
+
+  /* Ensure the form branding header is visible */
+  .welcome-header {
+    margin-bottom: 24px !important;
+  }
+
+  .login-right h3 {
+    font-size: 22px !important;
+  }
+
+  .btn-login {
+    min-height: 48px;
+  }
+}
+
+@media (max-width: 360px) {
+  .login-right {
+    padding: 20px 14px 20px !important;
+  }
+
+  .form-group-custom input {
+    font-size: 16px !important; /* prevents iOS zoom */
+  }
+}
+
+/* =========================================================
+   PROFILE SETUP PAGE
+   ========================================================= */
+@media (max-width: 768px) {
+  /* Cancel button: don't overflow on small screens */
+  .profile-cancel-btn {
+    top: 8px !important;
+    right: 8px !important;
+    padding: 6px 12px !important;
+    font-size: 11px !important;
+  }
+
+  /* Form header row: stack avatar and name fields */
+  .profile-header-row {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+
+  .profile-name-group {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+}
+
+@media (max-width: 600px) {
+  /* Chip groups: make chips tappable and wrapping */
+  .profile-chips-container {
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+
+  .profile-chip {
+    min-height: 40px !important;
+    padding: 8px 14px !important;
+    font-size: 13px !important;
+  }
+
+  /* Multi-select dropdown: open upward with max height */
+  .multi-select-wrapper .multi-select-dropdown {
+    max-height: min(200px, 36dvh) !important;
+  }
+
+  /* Equipment/health condition chips grid */
+  .profile-chip-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  /* Selected tags: wrap nicely */
+  .selected-tag {
+    font-size: 11px !important;
+    padding: 5px 10px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Form inputs: prevent iOS zoom (min 16px) */
+  .profile-input,
+  .profile-select {
+    font-size: 16px !important;
+    min-height: 44px !important;
+  }
+
+  /* Submit button: full-height tap target */
+  .profile-submit-btn {
+    min-height: 50px !important;
+    font-size: 15px !important;
+  }
+}
+
+/* =========================================================
+   DASHBOARD PAGE — Bento grid collapse
+   ========================================================= */
+@media (max-width: 1024px) {
+  /* chartSection and activitySection already span 12 cols via Dashboard.css
+     at 480px. At tablet, make chart+activity full width too. */
+  .chartSection { grid-column: span 12 !important; }
+  .activitySection { grid-column: span 12 !important; }
+}
+
+@media (max-width: 768px) {
+  /* Convert 12-column grid to 1 column */
+  .container {
+    grid-template-columns: 1fr !important;
+    padding: clamp(10px, 3vw, 20px) !important;
+  }
+
+  /* All bento boxes span full width */
+  .bentoBox,
+  .heroSection,
+  .statsRow,
+  .chartSection,
+  .activitySection {
+    grid-column: span 1 !important;
+    width: 100% !important;
+  }
+
+  .statsRow {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* Hero section: stack vertically */
+  .heroSection {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 16px !important;
+  }
+
+  .heroLeft, .heroCenter, .heroRight {
+    width: 100% !important;
+    align-items: flex-start !important;
+  }
+
+  /* Action buttons: horizontal scroll row on tablet */
+  .heroCenter {
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding-bottom: 4px !important;
+  }
+
+  .circleBtn {
+    min-width: 200px !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Streak row: center on mobile */
+  .heroRight {
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .statsRow {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .streakNumber {
+    font-size: 40px !important;
+  }
+
+  /* Chart: reduce height on very small screens */
+  .chartSection {
+    height: 300px !important;
+  }
+
+  .activitySection {
+    height: auto !important;
+    min-height: 240px !important;
+  }
+
+  /* Hero action buttons: single column */
+  .heroCenter {
+    flex-direction: column !important;
+    overflow-x: visible !important;
+  }
+
+  .circleBtn {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .container {
+    padding: 8px !important;
+    gap: 10px !important;
+  }
+
+  .bentoBox {
+    padding: 12px !important;
+  }
+}
+
+/* =========================================================
+   NUTRITION PAGE
+   ========================================================= */
+
+/* ── Day selector: horizontal scroll on ≤ 600px ── */
+@media (max-width: 600px) {
+  .nutrition-day-selector {
+    display: flex !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    gap: 8px !important;
+    padding-bottom: 6px !important;
+    /* Hide scrollbar visually but keep it functional */
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    /* Prevent grid stretching */
+    grid-template-columns: unset !important;
+  }
+
+  .nutrition-day-selector::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .nutrition-day-card {
+    min-width: 72px !important;
+    flex-shrink: 0 !important;
+    transform: none !important; /* disable scale on mobile to prevent scroll jump */
+  }
+
+  /* Don't scale selected card on mobile (causes layout jump in scroll) */
+  .nutrition-day-card[data-selected="true"],
+  .day-card-hover:hover {
+    transform: none !important;
+  }
+}
+
+/* ── Macro stats grid: 2-col then 1-col on mobile ── */
+@media (max-width: 600px) {
+  .nutrition-macro-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .nutrition-macro-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+}
+
+/* ── Meal card: prevent horizontal overflow ── */
+@media (max-width: 600px) {
+  .meal-card {
+    overflow-x: hidden !important;
+    padding: 14px !important;
+  }
+
+  /* Meal header: wrap progress bar below title */
+  .meal-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+    padding-right: 0 !important;
+  }
+
+  /* Completed badge: static position on mobile */
+  .completed-badge-mobile {
+    position: static !important;
+    display: inline-flex !important;
+    margin-bottom: 8px !important;
+  }
+}
+
+/* ── Food table → stacked card layout on ≤ 600px ── */
+@media (max-width: 600px) {
+  /* Hide the desktop column header */
+  .food-table-header {
+    display: none !important;
+  }
+
+  /* Each food row becomes a compact card:
+     3-col grid: [checkbox] [food name] [swap btn]
+     then full-width meta row below */
+  .food-row-hover {
+    display: grid !important;
+    grid-template-columns: 28px 1fr 38px !important;
+    grid-template-rows: auto auto !important;
+    column-gap: 10px !important;
+    row-gap: 6px !important;
+    min-width: 0 !important;
+    padding: 12px 10px !important;
+    align-items: start !important;
+  }
+
+  /* Checkbox: col 1, row 1 */
+  .food-row-hover > *:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: center;
+    margin-top: 2px;
+  }
+
+  /* Food name div: col 2, row 1 */
+  .food-row-hover > *:nth-child(2) {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+    min-width: 0;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+
+  /* Portion cell (col 3 in desktop) — hide on mobile, data shown in meta */
+  .food-row-hover > *:nth-child(3) {
+    display: none !important;
+  }
+
+  /* Macro cells cal/pro/carb/fat (desktop cols 4-7) — hide on mobile */
+  .food-row-hover > *:nth-child(4),
+  .food-row-hover > *:nth-child(5),
+  .food-row-hover > *:nth-child(6),
+  .food-row-hover > *:nth-child(7) {
+    display: none !important;
+  }
+
+  /* Swap button: col 3, row 1 */
+  .food-row-hover > *:nth-child(8) {
+    grid-column: 3;
+    grid-row: 1;
+    align-self: center;
+  }
+
+  /* food-macro-meta: show on mobile, span all 3 cols, row 2 */
+  .food-macro-meta {
+    display: flex !important;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    flex-wrap: wrap !important;
+    gap: 4px 10px !important;
+    padding-left: 38px; /* indent under checkbox width */
+    align-items: center;
+  }
+}
+
+
+/* ── Swap modal: mobile-safe ── */
+@media (max-width: 480px) {
+  .swap-modal-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 20px 20px 0 0 !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    max-height: 88dvh !important;
+  }
+
+  /* The backdrop aligns card at bottom */
+  .swap-modal-backdrop {
+    align-items: flex-end !important;
+  }
+}
+
+/* ── History panel: full-width slide-in on mobile ── */
+@media (max-width: 600px) {
+  .nutrition-history-panel {
+    width: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: 0 !important;
+    height: 100dvh !important;
+    z-index: 2000 !important;
+  }
+}
+
+/* ── Meal macro totals row: wrap on small screens ── */
+@media (max-width: 480px) {
+  .meal-macro-total {
+    gap: 12px !important;
+    flex-wrap: wrap !important;
+    justify-content: flex-start !important;
+  }
+}
+
+/* =========================================================
+   WORKOUT PAGE
+   ========================================================= */
+
+/* ── Weekly plan day cards: keep grid fluid on tablet ── */
+@media (max-width: 768px) {
+  .workout-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+    gap: 12px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .workout-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+
+  .workout-page-container {
+    padding: 16px !important;
+  }
+
+  .workout-h1 {
+    font-size: clamp(22px, 6vw, 32px) !important;
+    margin-bottom: 20px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .workout-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── Session container: stack panels on mobile ── */
+@media (max-width: 768px) {
+  .workout-session-container {
+    flex-direction: column !important;
+    padding: 10px !important;
+    gap: 12px !important;
+    height: auto !important;
+    min-height: calc(100dvh - 80px) !important;
+    overflow-y: auto !important;
+  }
+
+  /* Exercise selection list */
+  .workout-selection-list {
+    flex: none !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: 280px !important;
+  }
+
+  /* Focus panel (exercise detail + camera) */
+  .workout-focus-container {
+    flex-direction: column !important;
+    flex: 1 !important;
+    height: auto !important;
+  }
+
+  .workout-focus-left {
+    flex: none !important;
+    width: 100% !important;
+  }
+
+  .workout-focus-right {
+    flex: none !important;
+    width: 100% !important;
+    min-height: 260px !important;
+    aspect-ratio: 4 / 3 !important;
+  }
+}
+
+/* ── Controls: full-width tap targets on mobile ── */
+@media (max-width: 600px) {
+  .workout-controls-container {
+    flex-direction: column !important;
+    height: auto !important;
+    gap: 10px !important;
+  }
+
+  .btn-stop, .btn-done {
+    min-height: 48px !important;
+    font-size: 15px !important;
+    border-radius: 14px !important;
+  }
+
+  /* Start session button */
+  .btn-start-large {
+    width: 100% !important;
+    min-height: 50px !important;
+    font-size: 15px !important;
+    margin-top: 12px !important;
+  }
+}
+
+/* ── Camera container responsive ── */
+@media (max-width: 768px) {
+  .workout-camera-wrapper {
+    width: 100% !important;
+    min-height: 220px !important;
+    max-height: 50vh !important;
+    aspect-ratio: 4 / 3 !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .workout-camera-wrapper {
+    min-height: 180px !important;
+    aspect-ratio: unset !important;
+    height: 48vw !important;
+  }
+}
+
+/* ── Exercise item in sidebar ── */
+@media (max-width: 480px) {
+  .workout-exercise-item {
+    padding: 12px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .workout-exercise-title {
+    font-size: 14px !important;
+  }
+
+  .workout-exercise-meta {
+    font-size: 12px !important;
+  }
+}
+
+/* ── History panel: full-width on mobile ── */
+@media (max-width: 600px) {
+  .workout-history-panel {
+    width: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    border-left: none !important;
+    border-top: 1px solid var(--app-border) !important;
+  }
+}
+
+/* ── Timer exercise mode ── */
+@media (max-width: 480px) {
+  .timer-exercise-container {
+    padding: 12px !important;
+    font-size: 14px !important;
+  }
+
+  .timer-display {
+    font-size: clamp(36px, 10vw, 56px) !important;
+  }
+}
+
+/* =========================================================
+   FLEX COLUMN UTILITY (safe-use version)
+   ========================================================= */
+@media (max-width: 768px) {
   .flex-mobile-column {
     flex-direction: column !important;
+  }
+}
+
+/* =========================================================
+   GENERAL OVERFLOW SAFETY LAYER
+   Last resort: only catches elements that slip through above fixes.
+   Applied narrowly — not on body which would break sticky navbars.
+   ========================================================= */
+@media (max-width: 600px) {
+  .full-width-mobile {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Prevent any fixed-width table from forcing horizontal scroll */
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
   }
 }
