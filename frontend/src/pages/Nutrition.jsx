@@ -341,7 +341,13 @@ function Nutrition({ onLogout }) {
       const cachedPlan = getFromStorage(StorageKeys.NUTRITION_CACHE);
       const hasValidDays = cachedPlan && Array.isArray(cachedPlan.days) && cachedPlan.days.length > 0;
 
-      if (!cacheInvalid && hasValidDays && cachedDate === weekStartStr && cachedPlan._weekStart === weekStartStr && cachedPlan._profileHash === profileHash) {
+      // Invalidate cache if daily totals contain zero, NaN, or undefined values for macros
+      const isStale = cachedPlan && Array.isArray(cachedPlan.days) && cachedPlan.days.some(d => {
+        const p = d.daily_totals?.protein_g;
+        return p === undefined || p === null || isNaN(Number(p)) || Number(p) === 0;
+      });
+
+      if (!cacheInvalid && hasValidDays && !isStale && cachedDate === weekStartStr && cachedPlan._weekStart === weekStartStr && cachedPlan._profileHash === profileHash) {
         // Use cached plan — no network request needed
         setWeeklyPlan({ week_start: weekStartStr, days: cachedPlan.days });
         setDailyTarget(cachedPlan.daily_target || {});
@@ -579,8 +585,8 @@ function Nutrition({ onLogout }) {
           const completedTimeStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
           const mealData = {
             name: meal.name, meal_type: meal.meal_type,
-            calories: meal.totals.calories, protein: meal.totals.protein_g,
-            carbs: meal.totals.carbs_g, fat: meal.totals.fat_g,
+            calories: meal.totals?.calories || 0, protein: meal.totals?.protein_g || 0,
+            carbs: meal.totals?.carbs_g || 0, fat: meal.totals?.fat_g || 0,
             completed_at: new Date().toISOString(), completed_time_str: completedTimeStr,
             foods: meal.foods.map(f => ({
               name: f.name, calories: f.calories,
@@ -620,10 +626,10 @@ function Nutrition({ onLogout }) {
             dayName: today,
             mealType: meal.meal_type,
             name: meal.name,
-            calories: meal.totals.calories,
-            protein: meal.totals.protein_g,
-            carbs: meal.totals.carbs_g,
-            fat: meal.totals.fat_g,
+            calories: meal.totals?.calories || 0,
+            protein: meal.totals?.protein_g || 0,
+            carbs: meal.totals?.carbs_g || 0,
+            fat: meal.totals?.fat_g || 0,
             completedAt: mealData.completed_at
           }).then(res => {
             // ✅ BUG FIX: Consume todayTotals from backend to signal Dashboard
@@ -650,7 +656,7 @@ function Nutrition({ onLogout }) {
               console.log('✅ Macro sync signal stored for Dashboard:', totals, '| mealsCount:', mealsCount);
 
               // Direct activity logging backup
-              const mealCal = meal.totals.calories;
+              const mealCal = meal.totals?.calories || 0;
               const actDetails = mealCal ? `${Math.round(mealCal)} cal consumed` : 'Meal logged';
               logActivityToBackend({
                 activity_type: 'meal',
@@ -1004,10 +1010,10 @@ function Nutrition({ onLogout }) {
         {selectedDay && (
           <div style={styles.dailySummaryCard}>
             <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: "linear-gradient(90deg, #6366f1, #a78bfa, #6366f1)", opacity: 0.6 }} />
-            <MacroStat value={selectedDay.daily_totals.calories} label="Calories" color="var(--app-text)" icon="🔥" />
-            <MacroStat value={`${selectedDay.daily_totals.protein_g}g`} label="Protein" color="#10b981" icon="💪" />
-            <MacroStat value={`${selectedDay.daily_totals.carbs_g}g`} label="Carbs" color="#3b82f6" icon="⚡" />
-            <MacroStat value={`${selectedDay.daily_totals.fat_g}g`} label="Fats" color="#f59e0b" icon="🥑" />
+            <MacroStat value={selectedDay.daily_totals?.calories || 0} label="Calories" color="var(--app-text)" icon="🔥" />
+            <MacroStat value={`${selectedDay.daily_totals?.protein_g || 0}g`} label="Protein" color="#10b981" icon="💪" />
+            <MacroStat value={`${selectedDay.daily_totals?.carbs_g || 0}g`} label="Carbs" color="#3b82f6" icon="⚡" />
+            <MacroStat value={`${selectedDay.daily_totals?.fat_g || 0}g`} label="Fats" color="#f59e0b" icon="🥑" />
 
             <MacroStat
               value={`${selectedDayConsumedTotals.calories} cal`}
@@ -1259,10 +1265,10 @@ function MealCard({ meal, isLocked, isSequenceLocked, unlockMessage, checkedFood
       </div>
 
       <div style={styles.mealMacroTotal}>
-        <div style={{ fontSize: "13px", fontWeight: "800", color: "var(--app-text)", fontFamily: "monospace" }}>{meal.totals.calories} cal</div>
-        <div style={{ fontSize: "13px", fontWeight: "700", color: "#10b981", fontFamily: "monospace" }}>{meal.totals.protein_g}g pro</div>
-        <div style={{ fontSize: "13px", fontWeight: "700", color: "#3b82f6", fontFamily: "monospace" }}>{meal.totals.carbs_g}g carb</div>
-        <div style={{ fontSize: "13px", fontWeight: "700", color: "#f59e0b", fontFamily: "monospace" }}>{meal.totals.fat_g}g fat</div>
+        <div style={{ fontSize: "13px", fontWeight: "800", color: "var(--app-text)", fontFamily: "monospace" }}>{meal.totals?.calories || 0} cal</div>
+        <div style={{ fontSize: "13px", fontWeight: "700", color: "#10b981", fontFamily: "monospace" }}>{meal.totals?.protein_g || 0}g pro</div>
+        <div style={{ fontSize: "13px", fontWeight: "700", color: "#3b82f6", fontFamily: "monospace" }}>{meal.totals?.carbs_g || 0}g carb</div>
+        <div style={{ fontSize: "13px", fontWeight: "700", color: "#f59e0b", fontFamily: "monospace" }}>{meal.totals?.fat_g || 0}g fat</div>
       </div>
     </div>
   );

@@ -126,6 +126,13 @@ async function main() {
     }
   ];
 
+  // Guard: check if an owner user already exists in the database to avoid E11000 index violation
+  const existingOwner = await UserModel.findOne({ role: 'owner' });
+  if (existingOwner) {
+    console.log(`⚠️ An owner already exists (${existingOwner.email}). Demoting seed owner to 'user' to avoid duplicate key constraints.`);
+    seedUsers[0].role = 'user';
+  }
+
   const insertedUsers = await UserModel.insertMany(seedUsers, { ordered: true });
   console.log(`✅ Created ${insertedUsers.length} seed users:`);
 
