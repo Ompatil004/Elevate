@@ -41,116 +41,181 @@ describe('Python Backend Proxy Route', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    process.env.ML_API_URL = 'https://elevate-pybackend.onrender.com';
   });
 
-  it('forwards incoming Authorization header unchanged (200)', async () => {
-    // Mock successful Python backend response
+  it('cookie-only elevate_token forwards Bearer token (200)', async () => {
     axios.mockResolvedValueOnce({
       status: 200,
       headers: { 'content-type': 'application/json' },
-      data: { success: true, plan: 'mock_workout_plan' },
+      data: { success: true },
     });
 
     const res = await request(app)
       .post('/api/python/workout')
       .set('Cookie', `elevate_token=${validToken}`)
-      .set('Authorization', 'Bearer incoming_custom_token')
       .send({ some: 'payload' });
 
     expect(res.status).toBe(200);
-    expect(res.body.success).toBe(true);
-
-    // Verify axios was called with the exact Authorization header
-    expect(axios).toHaveBeenCalledTimes(1);
-    const axiosArgs = axios.mock.calls[0][0];
-    expect(axiosArgs.headers.Authorization).toBe('Bearer incoming_custom_token');
-    expect(axiosArgs.url).toBe('https://elevate-pybackend.onrender.com/workout');
-  });
-
-  it('constructs Authorization Bearer header from legacy x-auth-token header (200)', async () => {
-    axios.mockResolvedValueOnce({
-      status: 200,
-      headers: { 'content-type': 'application/json' },
-      data: { success: true, nutrition: 'mock_nutrition_plan' },
-    });
-
-    const res = await request(app)
-      .post('/api/python/nutrition')
-      .set('x-auth-token', validToken)
-      .send({ some: 'payload' });
-
-    expect(res.status).toBe(200);
-    expect(res.body.success).toBe(true);
-
     expect(axios).toHaveBeenCalledTimes(1);
     const axiosArgs = axios.mock.calls[0][0];
     expect(axiosArgs.headers.Authorization).toBe(`Bearer ${validToken}`);
-    expect(axiosArgs.url).toBe('https://elevate-pybackend.onrender.com/nutrition');
   });
 
-  it('rejects with 401 directly without calling Python when auth token is missing', async () => {
-    // We bypass the Node auth middleware (or simulate it returning true but token missing)
-    // Actually, our middleware 'auth' itself rejects if no token is found in cookie/x-auth-token.
+  it('Authorization header takes precedence over cookie (200)', async () => {
+    axios.mockResolvedValueOnce({
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+      data: { success: true },
+    });
+
+    const customToken = 'Bearer custom_precedence_token';
+    const res = await request(app)
+      .post('/api/python/workout')
+      .set('Cookie', `elevate_token=${validToken}`)
+      .set('Authorization', customToken)
+      .send({ some: 'payload' });
+
+    expect(res.status).toBe(200);
+    expect(axios).toHaveBeenCalledTimes(1);
+    const axiosArgs = axios.mock.calls[0][0];
+    expect(axiosArgs.headers.Authorization).toBe(customToken);
+  });
+
+  it('missing all auth methods returns 401 JSON', async () => {
     const res = await request(app)
       .post('/api/python/workout')
       .send({ some: 'payload' });
 
     expect(res.status).toBe(401);
+    expect(res.body.message).toBeDefined();
     expect(axios).not.toHaveBeenCalled();
   });
 
-  it('returns Python 401 as 401 with safe error message', async () => {
-    axios.mockResolvedValueOnce({
-      status: 401,
-      headers: { 'content-type': 'application/json' },
-      data: { error: 'Missing auth token' },
-    });
+  it('malformed/missing ML_API_URL returns 503 JSON without crashing app', async () => {
+    process.env.ML_API_URL = 'invalid-url-no-http';
 
     const res = await request(app)
       .post('/api/python/workout')
-      .set('Authorization', 'Bearer bad_token')
-      .set('Cookie', `elevate_token=${validToken}`)
-      .send({ some: 'payload' });
-
-    expect(res.status).toBe(401);
-    expect(res.body.message).toBe('Authentication failed with AI service');
-    expect(res.body.error).toBe('Unauthorized');
-  });
-
-  it('returns Python 422 as 422 with validation details', async () => {
-    axios.mockResolvedValueOnce({
-      status: 422,
-      headers: { 'content-type': 'application/json' },
-      data: { detail: 'validation failed' },
-    });
-
-    const res = await request(app)
-      .post('/api/python/nutrition')
-      .set('Authorization', 'Bearer valid_token')
-      .set('Cookie', `elevate_token=${validToken}`)
-      .send({ some: 'payload' });
-
-    expect(res.status).toBe(422);
-    expect(res.body.message).toBe('Invalid request payload sent to AI service');
-    expect(res.body.error).toBe('Unprocessable Entity');
-    expect(res.body.details).toEqual({ detail: 'validation failed' });
-  });
-
-  it('returns 503 on Python timeout / connection failure', async () => {
-    // Simulate connection failure (reject promise)
-    axios.mockRejectedValueOnce({
-      code: 'ETIMEDOUT',
-      message: 'timeout of 120000ms exceeded',
-    });
-
-    const res = await request(app)
-      .post('/api/python/workout')
-      .set('Authorization', 'Bearer valid_token')
       .set('Cookie', `elevate_token=${validToken}`)
       .send({ some: 'payload' });
 
     expect(res.status).toBe(503);
-    expect(res.body.message).toBe('AI service is currently unavailable. Please try again later.');
-    expect(res.body.code).toBe('PYTHON_PROXY_FAILED');
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('PYTHON_SERVICE_NOT_CONFIGURED');
+    expect(axios).not.toHaveBeenCalled();
+  });
+
+  it('exact /nutrition route mapping (200)', async () => {
+    axios.mockResolvedValueOnce({
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+      data: { success: true },
+    });
+
+    const res = await request(app)
+      .post('/api/python/nutrition')
+      .set('Cookie', `elevate_token=${validToken}`)
+      .send({});
+
+    expect(res.status).toBe(200);
+    const axiosArgs = axios.mock.calls[0][0];
+    expect(axiosArgs.url).toBe('https://elevate-pybackend.onrender.com/nutrition');
+  });
+
+  it('exact /week route mapping (200)', async () => {
+    axios.mockResolvedValueOnce({
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+      data: { success: true },
+    });
+
+    const res = await request(app)
+      .get('/api/python/week')
+      .set('Cookie', `elevate_token=${validToken}`);
+
+    expect(res.status).toBe(200);
+    const axiosArgs = axios.mock.calls[0][0];
+    expect(axiosArgs.url).toBe('https://elevate-pybackend.onrender.com/api/weekly-plan');
+  });
+
+  it('exact /weekly-plan route mapping (200)', async () => {
+    axios.mockResolvedValueOnce({
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+      data: { success: true },
+    });
+
+    const res = await request(app)
+      .get('/api/python/weekly-plan')
+      .set('Cookie', `elevate_token=${validToken}`);
+
+    expect(res.status).toBe(200);
+    const axiosArgs = axios.mock.calls[0][0];
+    expect(axiosArgs.url).toBe('https://elevate-pybackend.onrender.com/api/weekly-plan');
+  });
+
+  it('upstream HTML 502 becomes safe JSON 502', async () => {
+    axios.mockResolvedValueOnce({
+      status: 502,
+      headers: { 'content-type': 'text/html' },
+      data: '<html>Bad Gateway</html>',
+    });
+
+    const res = await request(app)
+      .post('/api/python/workout')
+      .set('Cookie', `elevate_token=${validToken}`);
+
+    expect(res.status).toBe(502);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('PYTHON_UPSTREAM_ERROR');
+    expect(res.body.error.message).toBe('AI service returned an invalid response.');
+  });
+
+  it('upstream 500 preserves status', async () => {
+    axios.mockResolvedValueOnce({
+      status: 500,
+      headers: { 'content-type': 'application/json' },
+      data: { error: 'Internal Server Error' },
+    });
+
+    const res = await request(app)
+      .post('/api/python/workout')
+      .set('Cookie', `elevate_token=${validToken}`);
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('PYTHON_UPSTREAM_ERROR');
+  });
+
+  it('upstream 503 preserves status', async () => {
+    axios.mockResolvedValueOnce({
+      status: 503,
+      headers: { 'content-type': 'application/json' },
+      data: { error: 'Service Unavailable' },
+    });
+
+    const res = await request(app)
+      .post('/api/python/workout')
+      .set('Cookie', `elevate_token=${validToken}`);
+
+    expect(res.status).toBe(503);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('PYTHON_UPSTREAM_ERROR');
+  });
+
+  it('connection failure returns JSON 503', async () => {
+    axios.mockRejectedValueOnce({
+      code: 'ECONNREFUSED',
+      message: 'connect ECONNREFUSED',
+    });
+
+    const res = await request(app)
+      .post('/api/python/workout')
+      .set('Cookie', `elevate_token=${validToken}`);
+
+    expect(res.status).toBe(503);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('PYTHON_UPSTREAM_UNAVAILABLE');
   });
 });
