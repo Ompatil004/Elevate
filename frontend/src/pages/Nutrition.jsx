@@ -1034,7 +1034,7 @@ function Nutrition({ onLogout }) {
             // Sequence-lock (e.g. "finish breakfast first") only applies to today.
             const isSequenceLocked = selectedDayIndex === todayIdx ? !isMealUnlocked(mealTypeKey, selectedDayIndex) : false;
             const unlockMessage = isSequenceLocked ? getUnlockMessage(mealTypeKey) : null;
-            const checkedCount = meal.foods.filter(f => checkedFoods[`${selectedDay.date}-${f.id}`] || isCompleted).length;
+            const checkedCount = (meal.foods || []).filter(f => checkedFoods[`${selectedDay.date}-${f.id}`] || isCompleted).length;
             // Any day that isn't today (past OR future) is read-only — no ticking/swapping.
             const isReadOnlyDay = selectedDayIndex !== todayIdx;
             return (
@@ -1046,7 +1046,7 @@ function Nutrition({ onLogout }) {
                 unlockMessage={unlockMessage}
                 checkedFoods={checkedFoods} tickTimes={tickTimes}
                 today={selectedDay.date} checkedCount={checkedCount}
-                totalCount={meal.foods.length}
+                totalCount={meal.foods ? meal.foods.length : 0}
                 onCheckFood={handleCheckFood}
                 onSwapFood={openSwapModal}
                 dayIndex={selectedDayIndex} isFutureDay={isReadOnlyDay}
@@ -1104,7 +1104,7 @@ function Nutrition({ onLogout }) {
                       <div>
                         <div style={{ fontSize: "16px", fontWeight: "700", color: isSelected ? "var(--app-text)" : "var(--app-text)" }}>{optName}</div>
                         <div style={{ fontSize: "13px", color: "var(--app-text-muted)", marginTop: "4px" }}>
-                          {(!option.serving || option.serving.match(/^(~?\d+(?:\.\d+)?)(g|ml)$/i)) ? getFallbackServing(optName, option.calories) : option.serving}
+                          {(!option.serving || String(option.serving).match(/^(~?\d+(?:\.\d+)?)(g|ml)$/i)) ? getFallbackServing(optName, option.calories) : option.serving}
                         </div>
                         <div style={{ display: "flex", gap: "12px", marginTop: "8px" }}>
                           <span style={{ fontSize: "12px", color: "#10b981", fontWeight: "600", fontFamily: "monospace" }}>P: {option.protein}g</span>
@@ -1222,7 +1222,7 @@ function MealCard({ meal, isLocked, isSequenceLocked, unlockMessage, checkedFood
       </div>
 
       <div style={styles.foodList}>
-        {meal.foods.map((food) => {
+        {(meal.foods || []).map((food) => {
           const checkKey = `${today}-${food.id}`;
           const isChecked = !!checkedFoods[checkKey] || isLocked;
           const itemTickTime = tickTimes[checkKey];
@@ -1253,7 +1253,7 @@ function MealCard({ meal, isLocked, isSequenceLocked, unlockMessage, checkedFood
                   padding: "3px 7px", fontFamily: "monospace",
                   whiteSpace: "nowrap",
                 }}>
-                  {(!food.serving || food.serving.match(/^(~?\d+(?:\.\d+)?)(g|ml)$/i)) ? getFallbackServing(food.name, food.calories) : food.serving}
+                  {(!food.serving || String(food.serving).match(/^(~?\d+(?:\.\d+)?)(g|ml)$/i)) ? getFallbackServing(food.name, food.calories) : food.serving}
                 </span>
               </div>
               {/* Col 4-7: Macros (desktop) */}
