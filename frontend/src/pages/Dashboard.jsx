@@ -2409,7 +2409,9 @@ function Dashboard({ onLogout }) {
           const wp = await getWorkoutPlanForNutrition(profile);
           const workoutIntensity = getTodayWorkoutIntensity(wp);
 
-          const response = await generateNutritionPlan({
+          // ARCH-7 v2: Use backgroundCB so warmup failures never block
+          // user-initiated nutrition generation.
+          const response = await withCircuitBreaker(backgroundCB, () => generateNutritionPlan({
             age: profile.age,
             weight: profile.weight,
             height: profile.height,
@@ -2419,7 +2421,7 @@ function Dashboard({ onLogout }) {
             allergies: profile.allergies || [],
             workout_intensity: workoutIntensity,
             weekly_workout_plan: wp,
-          });
+          }));
 
           if (response?.data?.success && response?.data?.nutrition) {
             const nutrition = response.data.nutrition;
@@ -2465,6 +2467,10 @@ function Dashboard({ onLogout }) {
           }
         }
       } catch (err) {
+        if (err?.isCircuitOpen) {
+          if (import.meta.env.DEV) console.log('🥗 [Dashboard] Background pre-fetch skipped (circuit open)');
+          return;
+        }
         console.warn('🥗 [Dashboard] Background pre-fetch failed:', err?.message || err);
       }
     };

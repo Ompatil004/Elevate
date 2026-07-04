@@ -491,7 +491,18 @@ function Nutrition({ onLogout }) {
         setRetryCountdown(retrySec);
         showError(`The AI planning service is temporarily unavailable. Please retry in ${retrySec} seconds.`, 5000);
       } else {
-        showError(error.response?.data?.detail || error.response?.data?.error || "Failed to load nutrition plan.", 5000);
+        const errorData = error.response?.data;
+        let msg = "Failed to load nutrition plan.";
+        if (typeof errorData?.error === 'string') {
+          msg = errorData.error;
+        } else if (errorData?.error?.message) {
+          msg = errorData.error.message;
+        } else if (errorData?.detail) {
+          msg = typeof errorData.detail === 'string' ? errorData.detail : JSON.stringify(errorData.detail);
+        } else if (error.message) {
+          msg = error.message;
+        }
+        showError(msg, 5000);
       }
     } finally {
       setLoading(false);

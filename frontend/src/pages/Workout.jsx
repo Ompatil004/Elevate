@@ -1189,8 +1189,17 @@ const Workout = ({ onLogout }) => {
           errorMessage = 'Backend error. Please try again later.';
         } else if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
           errorMessage = 'Request timed out. Backend is taking too long to respond.';
-        } else if (err.response?.data?.detail) {
-          errorMessage = err.response.data.detail;
+        } else {
+          const errorData = err.response?.data;
+          if (typeof errorData?.error === 'string') {
+            errorMessage = errorData.error;
+          } else if (errorData?.error?.message) {
+            errorMessage = errorData.error.message;
+          } else if (errorData?.detail) {
+            errorMessage = typeof errorData.detail === 'string' ? errorData.detail : JSON.stringify(errorData.detail);
+          } else if (err.message) {
+            errorMessage = err.message;
+          }
         }
 
         if (isMounted && hydratedFromCache && showErrorMsg) {
