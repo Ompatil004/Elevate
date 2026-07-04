@@ -292,6 +292,7 @@ const Workout = ({ onLogout }) => {
   const autoStartHandledRef = useRef(false);
   const handleExerciseCompleteRef = useRef(null);
   const videoRef = useRef(null);
+  const workoutLoadInProgressRef = useRef(null);
 
   const { showError, showSuccess } = useNotification();
   const { theme, toggleTheme } = useTheme();
@@ -998,6 +999,22 @@ const Workout = ({ onLogout }) => {
         }
         console.log('👤 User profile for workout:', userProfile);
 
+        // Generate stable profile key for single-flight guard
+        const userId = userProfile.user_id || userProfile._id || userProfile.id || 'anonymous';
+        const equipmentKey = Array.isArray(userProfile.equipment) ? [...userProfile.equipment].sort().join(',') : '';
+        const issuesKey = Array.isArray(userProfile.body_issues) ? [...userProfile.body_issues].sort().join(',') : '';
+        const profileKey = `${userId}:${userProfile.age || 25}:${userProfile.weight || 70}:${userProfile.height || 175}:${userProfile.gender || 'Male'}:${userProfile.goal || 'Muscle Gain'}:${userProfile.experience || 'Beginner'}:${userProfile.days_per_week || 4}:${equipmentKey}:${issuesKey}`;
+
+        // Check if load is already in progress for this profile key
+        if (workoutLoadInProgressRef.current === profileKey) {
+          console.log(`[Workout] duplicate load prevented { profileKey: "${profileKey}" }`);
+          return;
+        }
+
+        console.log(`[Workout] load triggered { reason: "${forceRefresh ? 'forceRefresh' : 'cacheCheck'}", profileKey: "${profileKey}" }`);
+        workoutLoadInProgressRef.current = profileKey;
+        const fetchStartTime = Date.now();
+
         // **Check if cached plan exists and is not expired**
         let cachedPlan = getFromStorage('workoutPlan');
         let cachedTimestamp = getFromStorage('workoutPlanTimestamp');
@@ -1148,7 +1165,12 @@ const Workout = ({ onLogout }) => {
           // For rate limiting, just log without showing error popup
           console.warn('⚠️ Workout request rate limited. Will retry on next render.');
         }
+
+        const durationMs = Date.now() - fetchStartTime;
+        console.log(`[Workout] request completed { profileKey: "${profileKey}", durationMs: ${durationMs} }`);
       } catch (err) {
+        const durationMs = Date.now() - fetchStartTime;
+        console.log(`[Workout] request failed { profileKey: "${profileKey}", durationMs: ${durationMs}, error: "${err?.message || err}" }`);
         console.error('❌ Error fetching workout plan:', err);
 
         if (err?.isCircuitOpen) {
@@ -1210,6 +1232,7 @@ const Workout = ({ onLogout }) => {
           console.warn('⚠️ Workout request rate limited. Will retry on next render.');
         }
       } finally {
+        workoutLoadInProgressRef.current = null;
         if (isMounted) {
           setLoading(false);
         }
