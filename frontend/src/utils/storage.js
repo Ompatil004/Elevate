@@ -387,15 +387,16 @@ export const getStorageSize = () => {
  */
 export const safeJSONParse = (key, defaultValue = null) => {
   try {
+    const resolvedKey = getNamespacedKey(key);
     const primary = _getPrimaryStore(key);
-    let item = primary.getItem(key);
+    let item = primary.getItem(resolvedKey);
     if (item === null) {
       const fallback = _getFallbackStore(key);
       if (fallback) {
-        item = fallback.getItem(key);
+        item = fallback.getItem(resolvedKey);
         if (item !== null) {
-          primary.setItem(key, item);
-          fallback.removeItem(key);
+          primary.setItem(resolvedKey, item);
+          fallback.removeItem(resolvedKey);
         }
       }
     }
@@ -403,9 +404,10 @@ export const safeJSONParse = (key, defaultValue = null) => {
     return JSON.parse(item);
   } catch (error) {
     try {
-      _getPrimaryStore(key).removeItem(key);
+      const resolvedKey = getNamespacedKey(key);
+      _getPrimaryStore(key).removeItem(resolvedKey);
       const fallback = _getFallbackStore(key);
-      if (fallback) fallback.removeItem(key);
+      if (fallback) fallback.removeItem(resolvedKey);
     } catch {
       // Ignore cleanup failures; returning fallback keeps app stable.
     }
