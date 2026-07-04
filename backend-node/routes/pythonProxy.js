@@ -14,51 +14,24 @@ const getProxyTimeoutMs = () => {
 };
 
 // Route mapping helper
-const mapPythonPath = (suffix) => {
-  let cleanPath = '/' + suffix.replace(/^\/+/, '');
-  
-  // Normalise out "/api" prefix if it exists to avoid /api/api duplication
-  if (cleanPath.startsWith('/api/')) {
-    cleanPath = '/' + cleanPath.slice(5);
-  }
+function normalizePythonPath(path) {
+  const cleanPath = path.replace(/^\/api\/python/, '');
 
-  // Exact mappings
-  if (cleanPath === '/week' || cleanPath === '/weekly-plan') {
-    return '/api/weekly-plan';
-  }
-  if (cleanPath === '/daily-log/week') {
-    return '/api/daily-log/week';
-  }
-  if (cleanPath === '/swap-meal') {
-    return '/nutrition/swap';
-  }
-  if (cleanPath === '/workout') {
-    return '/workout';
-  }
-  if (cleanPath === '/daily-log') {
-    return '/api/daily-log';
-  }
-  if (cleanPath === '/workout/session-result') {
-    return '/api/workout/session-result';
-  }
-  if (cleanPath === '/swap-rest-day') {
-    return '/api/swap-rest-day';
-  }
-  if (cleanPath === '/swap-rest-to-workout') {
-    return '/api/swap-rest-to-workout';
-  }
-  if (cleanPath === '/swap-workout-to-rest') {
-    return '/api/swap-workout-to-rest';
-  }
+  const routeMap = {
+    '/nutrition': '/nutrition',
+    '/weekly-plan': '/api/weekly-plan',
+    '/api/weekly-plan': '/api/weekly-plan',
+    '/week': '/api/weekly-plan',
+    '/daily-log/week': '/api/daily-log/week',
+    '/api/daily-log/week': '/api/daily-log/week',
+    '/workout': '/workout',
+    '/api/workout': '/workout',
+    '/swap-meal': '/nutrition/swap',
+    '/chat': '/chat',
+  };
 
-  // Prepend "/api" to certain paths if not already there to align with FastAPI routing
-  const apiRequiredPaths = ['/weekly-plan', '/daily-log/week', '/swap-options', '/swap-rest-day', '/swap-rest-to-workout', '/swap-workout-to-rest', '/workout/session-result', '/daily-log'];
-  if (apiRequiredPaths.some(p => cleanPath === p || cleanPath.startsWith(p + '/'))) {
-    return '/api' + cleanPath;
-  }
-
-  return cleanPath;
-};
+  return routeMap[cleanPath] || cleanPath;
+}
 
 // Credential derivation helper
 const buildForwardHeaders = (req) => {
@@ -130,31 +103,31 @@ router.use(auth, async (req, res) => {
     }
 
     // 2. Build target URL
-    const suffix = req.originalUrl.slice(req.baseUrl.length) || '/';
-    const mappedPath = mapPythonPath(suffix);
-    const targetUrl = `${base}/${mappedPath.replace(/^\/+/, '')}`;
+    const resolvedPath = normalizePythonPath(req.path);
+    const targetUrl = `${base}/${resolvedPath.replace(/^\/+/, '')}`;
 
     // 3. Build headers (throws 401 if token missing)
     const headers = buildForwardHeaders(req);
 
-    console.log(`[python-proxy] [${reqId}] Proxying ${method} to Python path: ${mappedPath}`);
+    // [python-proxy] structured logging (Phase 3)
+    console.log(`[python-proxy] requestId=${reqId} method=${method} incoming=${req.path} resolved=${resolvedPath} upstream=${base}${resolvedPath}`);
 
     const response = await axios({
       method,
       url: targetUrl,
       headers,
+      params: req.query,
       data: ['GET', 'HEAD'].includes(method) ? undefined : req.body,
       timeout: getProxyTimeoutMs(),
       validateStatus: () => true,
     });
 
-    console.log(`[python-proxy] [${reqId}] Python target responded with status: ${response.status}`);
+    const contentType = response.headers?.['content-type'] || 'unknown';
+    console.log(`[python-proxy] requestId=${reqId} upstreamStatus=${response.status} contentType=${contentType}`);
 
     // Parse and validate JSON safely with fallback parsing
     let isJson = false;
     let parsedData = null;
-
-    const contentType = response.headers?.['content-type'] || 'unknown';
     const rawData = response.data;
     
     if (contentType.includes('json')) {
@@ -178,24 +151,14 @@ router.use(auth, async (req, res) => {
       parsedData = rawData;
     }
 
-    const bodyStr = typeof rawData === 'string' ? rawData : JSON.stringify(rawData);
-    const bodyLength = bodyStr ? bodyStr.length : 0;
-    
-    // Log safe diagnostic metadata for upstream responses without exposing sensitive payloads/tokens
-    let preview = 'REDACTED';
-    if (response.status >= 400 || process.env.NODE_ENV !== 'production') {
-      preview = bodyStr ? bodyStr.slice(0, 100).replace(/[\r\n\t]+/g, ' ') : '';
-    }
-    console.log(`[python-proxy] [${reqId}] Upstream Response: path=${mappedPath} status=${response.status} contentType=${contentType} bodyLength=${bodyLength} preview="${preview}"`);
-
     if (!isJson) {
       console.error(`[python-proxy] [${reqId}] Upstream returned non-JSON/malformed response with status ${response.status}`);
       return res.status(502).json({
         success: false,
         error: {
-          code: 'PYTHON_UPSTREAM_INVALID_RESPONSE',
-          message: 'AI service returned an invalid response.',
-          request_id: reqId,
+          code: 'PYTHON_UPSTREAM_ERROR',
+          message: 'AI service is temporarily unavailable',
+          requestId: reqId
         }
       });
     }
@@ -243,9 +206,8 @@ router.use(auth, async (req, res) => {
         success: false,
         error: {
           code: 'PYTHON_UPSTREAM_ERROR',
-          message: `AI service returned an error status: ${response.status}`,
-          request_id: reqId,
-          details: parsedData,
+          message: 'AI service is temporarily unavailable',
+          requestId: reqId
         }
       });
     }
@@ -267,15 +229,14 @@ router.use(auth, async (req, res) => {
     }
 
     const errCode = error.code || error.message;
-    console.error(`[python-proxy] [${reqId}] Request to Python failed. Error: ${errCode}`);
+    console.error(`[python-proxy] requestId=${reqId} networkError=${errCode} message="Request to Python failed"`);
 
     return res.status(503).json({
       success: false,
       error: {
-        code: 'PYTHON_UPSTREAM_UNAVAILABLE',
-        message: 'AI service is currently unavailable. Please try again later.',
-        request_id: reqId,
-        details: errCode,
+        code: 'PYTHON_UPSTREAM_ERROR',
+        message: 'AI service is temporarily unavailable',
+        requestId: reqId
       }
     });
   }

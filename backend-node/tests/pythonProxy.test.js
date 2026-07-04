@@ -155,6 +155,38 @@ describe('Python Backend Proxy Route', () => {
     expect(axiosArgs.url).toBe('https://elevate-pybackend.onrender.com/api/weekly-plan');
   });
 
+  it('exact /api/weekly-plan route mapping (200)', async () => {
+    axios.mockResolvedValueOnce({
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+      data: { success: true },
+    });
+
+    const res = await request(app)
+      .get('/api/python/api/weekly-plan')
+      .set('Cookie', `elevate_token=${validToken}`);
+
+    expect(res.status).toBe(200);
+    const axiosArgs = axios.mock.calls[0][0];
+    expect(axiosArgs.url).toBe('https://elevate-pybackend.onrender.com/api/weekly-plan');
+  });
+
+  it('exact /api/daily-log/week route mapping (200)', async () => {
+    axios.mockResolvedValueOnce({
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+      data: { success: true },
+    });
+
+    const res = await request(app)
+      .get('/api/python/api/daily-log/week')
+      .set('Cookie', `elevate_token=${validToken}`);
+
+    expect(res.status).toBe(200);
+    const axiosArgs = axios.mock.calls[0][0];
+    expect(axiosArgs.url).toBe('https://elevate-pybackend.onrender.com/api/daily-log/week');
+  });
+
   it('upstream HTML 502 becomes safe JSON 502', async () => {
     axios.mockResolvedValueOnce({
       status: 502,
@@ -168,8 +200,8 @@ describe('Python Backend Proxy Route', () => {
 
     expect(res.status).toBe(502);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('PYTHON_UPSTREAM_INVALID_RESPONSE');
-    expect(res.body.error.message).toBe('AI service returned an invalid response.');
+    expect(res.body.error.code).toBe('PYTHON_UPSTREAM_ERROR');
+    expect(res.body.error.message).toBe('AI service is temporarily unavailable');
   });
 
   it('upstream 500 preserves status', async () => {
@@ -216,7 +248,7 @@ describe('Python Backend Proxy Route', () => {
 
     expect(res.status).toBe(503);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('PYTHON_UPSTREAM_UNAVAILABLE');
+    expect(res.body.error.code).toBe('PYTHON_UPSTREAM_ERROR');
   });
 
   it('valid upstream JSON object without success is passed through successfully', async () => {
@@ -249,7 +281,7 @@ describe('Python Backend Proxy Route', () => {
     expect(res.body).toEqual([{ item: 'oats' }, { item: 'whey' }]);
   });
 
-  it('upstream HTML 502 becomes Node JSON 502 with PYTHON_UPSTREAM_INVALID_RESPONSE', async () => {
+  it('upstream HTML 502 becomes Node JSON 502 with PYTHON_UPSTREAM_ERROR', async () => {
     axios.mockResolvedValueOnce({
       status: 502,
       headers: { 'content-type': 'text/html' },
@@ -262,10 +294,10 @@ describe('Python Backend Proxy Route', () => {
 
     expect(res.status).toBe(502);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('PYTHON_UPSTREAM_INVALID_RESPONSE');
+    expect(res.body.error.code).toBe('PYTHON_UPSTREAM_ERROR');
   });
 
-  it('upstream empty body becomes Node JSON 502 with PYTHON_UPSTREAM_INVALID_RESPONSE', async () => {
+  it('upstream empty body becomes Node JSON 502 with PYTHON_UPSTREAM_ERROR', async () => {
     axios.mockResolvedValueOnce({
       status: 502,
       headers: { 'content-type': 'application/json' },
@@ -278,6 +310,6 @@ describe('Python Backend Proxy Route', () => {
 
     expect(res.status).toBe(502);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('PYTHON_UPSTREAM_INVALID_RESPONSE');
+    expect(res.body.error.code).toBe('PYTHON_UPSTREAM_ERROR');
   });
 });
