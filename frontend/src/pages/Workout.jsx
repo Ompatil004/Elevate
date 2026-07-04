@@ -307,13 +307,41 @@ const Workout = ({ onLogout }) => {
   const [isCameraOn, setIsCameraOn] = useState(false);
   const [stream, setStream] = useState(null);
 
+  const [circuitOpen, setCircuitOpen] = useState(false);
+  const [retryCountdown, setRetryCountdown] = useState(0);
+
+  const checkAndFetchPlanRef = useRef(null);
+
   const [showHistory, setShowHistory] = useState(false);
   const [historyTab, setHistoryTab] = useState('workout');
   const [selectedHistory, setSelectedHistory] = useState(null);
+
   const [weekMetadata, setWeekMetadata] = useState(() => getFromStorage(StorageKeys.WORKOUT_WEEK_METADATA, null));
   const [poseTrackingError] = useState(null);
   const [, setLoading] = useState(false);
-  const [, setError] = useState(null);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let timer;
+    if (circuitOpen && retryCountdown > 0) {
+      timer = setInterval(() => {
+        setRetryCountdown(prev => {
+          if (prev <= 1) {
+            setCircuitOpen(false);
+            setError(null);
+            if (checkAndFetchPlanRef.current) {
+              checkAndFetchPlanRef.current();
+            }
+            return 0;
+          }
+          setError(`The AI planning service is temporarily unavailable. Please retry in ${prev - 1} seconds.`);
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [circuitOpen, retryCountdown]);
+
   const [pastWorkouts, setPastWorkouts] = useState([]);
   // ✅ FIX: Track completed day indices in React state, hydrated from backend on mount.
   // Old approach read localStorage keys ('workout_done_Monday') which reset on every new browser session.
@@ -1180,6 +1208,7 @@ const Workout = ({ onLogout }) => {
     };
 
     const checkAndFetchPlan = async () => {
+      checkAndFetchPlanRef.current = checkAndFetchPlan;
       try {
         // Always fetch profile first to get latest data
         const profileRes = await getProfile();
@@ -1349,29 +1378,6 @@ const Workout = ({ onLogout }) => {
         console.error('Failed to fetch workout history:', err);
       }
     };
-
-    const [circuitOpen, setCircuitOpen] = useState(false);
-    const [retryCountdown, setRetryCountdown] = useState(0);
-
-    useEffect(() => {
-      let timer;
-      if (circuitOpen && retryCountdown > 0) {
-        timer = setInterval(() => {
-          setRetryCountdown(prev => {
-            if (prev <= 1) {
-              setCircuitOpen(false);
-              setError(null);
-              // Retry fetching the plan now that the circuit has closed/cooldown expired
-              checkAndFetchPlan();
-              return 0;
-            }
-            setError(`The AI planning service is temporarily unavailable. Please retry in ${prev - 1} seconds.`);
-            return prev - 1;
-          });
-        }, 1000);
-      }
-      return () => clearInterval(timer);
-    }, [circuitOpen, retryCountdown]);
 
     checkAndFetchPlan();
     fetchHistory();

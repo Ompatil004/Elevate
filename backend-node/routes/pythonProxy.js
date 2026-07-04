@@ -15,10 +15,48 @@ const getProxyTimeoutMs = () => {
 
 // Route mapping helper
 const mapPythonPath = (suffix) => {
-  const cleanPath = '/' + suffix.replace(/^\/+/, '');
+  let cleanPath = '/' + suffix.replace(/^\/+/, '');
+  
+  // Normalise out "/api" prefix if it exists to avoid /api/api duplication
+  if (cleanPath.startsWith('/api/')) {
+    cleanPath = '/' + cleanPath.slice(5);
+  }
+
+  // Exact mappings
   if (cleanPath === '/week' || cleanPath === '/weekly-plan') {
     return '/api/weekly-plan';
   }
+  if (cleanPath === '/daily-log/week') {
+    return '/api/daily-log/week';
+  }
+  if (cleanPath === '/swap-meal') {
+    return '/nutrition/swap';
+  }
+  if (cleanPath === '/workout') {
+    return '/workout';
+  }
+  if (cleanPath === '/daily-log') {
+    return '/api/daily-log';
+  }
+  if (cleanPath === '/workout/session-result') {
+    return '/api/workout/session-result';
+  }
+  if (cleanPath === '/swap-rest-day') {
+    return '/api/swap-rest-day';
+  }
+  if (cleanPath === '/swap-rest-to-workout') {
+    return '/api/swap-rest-to-workout';
+  }
+  if (cleanPath === '/swap-workout-to-rest') {
+    return '/api/swap-workout-to-rest';
+  }
+
+  // Prepend "/api" to certain paths if not already there to align with FastAPI routing
+  const apiRequiredPaths = ['/weekly-plan', '/daily-log/week', '/swap-options', '/swap-rest-day', '/swap-rest-to-workout', '/swap-workout-to-rest', '/workout/session-result', '/daily-log'];
+  if (apiRequiredPaths.some(p => cleanPath === p || cleanPath.startsWith(p + '/'))) {
+    return '/api' + cleanPath;
+  }
+
   return cleanPath;
 };
 
