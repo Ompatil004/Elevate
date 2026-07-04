@@ -1106,8 +1106,25 @@ const Workout = ({ onLogout }) => {
           console.log('💾 Workout plan cached');
           console.log(`📊 Plan has ${normalizedPlan.length} days`);
         }
+        if (isMounted && hydratedFromCache && showErrorMsg) {
+          setError(errorMessage);
+          showError(errorMessage, 5000);
+        } else if (isMounted && !showErrorMsg) {
+          // For rate limiting, just log without showing error popup
+          console.warn('⚠️ Workout request rate limited. Will retry on next render.');
+        }
       } catch (err) {
         console.error('❌ Error fetching workout plan:', err);
+
+        if (err?.isCircuitOpen) {
+          if (isMounted) {
+            setCircuitOpen(true);
+            const retrySec = Math.max(1, Math.ceil((err.retryAfterMs || 8000) / 1000));
+            setRetryCountdown(retrySec);
+            setError(`The AI planning service is temporarily unavailable. Please retry in ${retrySec} seconds.`);
+          }
+          return;
+        }
 
         if (!hydratedFromCache) {
           const recoveredFromPersistedPlan = await tryLoadPersistedPlan('recovery-after-error');
@@ -1325,6 +1342,29 @@ const Workout = ({ onLogout }) => {
         console.error('Failed to fetch workout history:', err);
       }
     };
+
+    const [circuitOpen, setCircuitOpen] = useState(false);
+    const [retryCountdown, setRetryCountdown] = useState(0);
+
+    useEffect(() => {
+      let timer;
+      if (circuitOpen && retryCountdown > 0) {
+        timer = setInterval(() => {
+          setRetryCountdown(prev => {
+            if (prev <= 1) {
+              setCircuitOpen(false);
+              setError(null);
+              // Retry fetching the plan now that the circuit has closed/cooldown expired
+              checkAndFetchPlan();
+              return 0;
+            }
+            setError(`The AI planning service is temporarily unavailable. Please retry in ${prev - 1} seconds.`);
+            return prev - 1;
+          });
+        }, 1000);
+      }
+      return () => clearInterval(timer);
+    }, [circuitOpen, retryCountdown]);
 
     checkAndFetchPlan();
     fetchHistory();

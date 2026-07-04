@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useNotification } from '../components/NotificationProvider';
 import { useTheme } from '../context/ThemeContext';
 import ConfirmDialog from '../components/ConfirmDialog';
-import { getProfile, saveTrends, getTrends, logActivityToBackend, getRecentActivities, syncActivitiesToBackend, saveDailyLog, getWeeklyLogs, getWeeklyWorkoutPlan, generateNutritionPlan } from '../api';
+import { getProfile, saveTrends, getTrends, logActivityToBackend, getRecentActivities, syncActivitiesToBackend, saveDailyLog, getWeeklyLogs, getWeeklyWorkoutPlan, generateNutritionPlan, backgroundCB } from '../api';
+import { withCircuitBreaker } from '../utils/circuitBreaker';
 import Navbar from '../components/Navbar';
 import { preloadPoseAssets } from '../utils/poseModelPreload';
 import { QUOTES } from '../data/quotes';
@@ -889,7 +890,9 @@ function Dashboard({ onLogout }) {
 
             if (needsWarmup) {
               console.log('[Dashboard] Warming up workout plan cache in background...');
-              getWeeklyWorkoutPlan().then((workoutResponse) => {
+              // ARCH-7 v2: Use backgroundCB so warmup failures never block
+              // user-initiated workout/nutrition generation.
+              withCircuitBreaker(backgroundCB, () => getWeeklyWorkoutPlan()).then((workoutResponse) => {
                 const plan = workoutResponse?.data?.plan || workoutResponse?.data?.data?.plan || [];
                 if (plan.length > 0) {
                   localStorage.setItem('workoutPlan', JSON.stringify(plan));
@@ -898,6 +901,11 @@ function Dashboard({ onLogout }) {
                   console.log('[Dashboard] Background workout cache pre-warmed successfully');
                 }
               }).catch((err) => {
+                // Silently skip if circuit is open — this is just a background warmup
+                if (err?.isCircuitOpen) {
+                  if (import.meta.env.DEV) console.log('[Dashboard] Background warmup skipped (circuit open)');
+                  return;
+                }
                 console.warn('[Dashboard] Background workout cache warmup failed:', err?.message || err);
               });
             }

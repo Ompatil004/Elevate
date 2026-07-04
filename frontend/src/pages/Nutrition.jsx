@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useNotification } from "../components/NotificationProvider";
 import { useTheme } from "../context/ThemeContext";
-import { getProfile, generateNutritionPlan, getNutritionSwapOptions, generateWorkout, saveUserMealToNode, getMealHistory, saveMealHistory, saveTrends, logActivityToBackend } from "../api";
+import { getProfile, generateNutritionPlan, getNutritionSwapOptions, generateWorkout, saveUserMealToNode, getMealHistory, saveMealHistory, saveTrends, logActivityToBackend, backgroundCB } from "../api";
+import { withCircuitBreaker } from "../utils/circuitBreaker";
 import { StorageKeys, getFromStorage, setToStorage, logoutSafe, getLocalDateStr, safeJSONParse } from "../utils/storage";
 import Navbar from "../components/Navbar";
 import ConfirmDialog from "../components/ConfirmDialog";
@@ -171,12 +172,31 @@ function Nutrition({ onLogout }) {
     return `Complete ${prevType.charAt(0).toUpperCase() + prevType.slice(1)} to unlock`;
   };
 
+  const [circuitOpen, setCircuitOpen] = useState(false);
+  const [retryCountdown, setRetryCountdown] = useState(0);
+
   useEffect(() => {
     fetchNutritionPlan();
     loadHistory();
     loadCheckedFoods();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    let timer;
+    if (circuitOpen && retryCountdown > 0) {
+      timer = setInterval(() => {
+        setRetryCountdown(prev => {
+          if (prev <= 1) {
+            setCircuitOpen(false);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [circuitOpen, retryCountdown]);
 
   // ✅ BUG FIX 2: Backend Persistence to Frontend
   useEffect(() => {
@@ -280,13 +300,17 @@ function Nutrition({ onLogout }) {
 
     // Do not block nutrition load on workout generation when cache is missing.
     // Use moderate intensity now; warm workout cache in background for next visit.
-    generateWorkout(profile).then((workoutResponse) => {
+    withCircuitBreaker(backgroundCB, () => generateWorkout(profile)).then((workoutResponse) => {
       const generatedPlan = Array.isArray(workoutResponse?.data?.workout) ? workoutResponse.data.workout : [];
       if (generatedPlan.length > 0) {
         localStorage.setItem("workoutPlan", JSON.stringify(generatedPlan));
         localStorage.setItem("workoutPlanTimestamp", new Date().toISOString());
       }
     }).catch((err) => {
+      if (err?.isCircuitOpen) {
+        if (import.meta.env.DEV) console.log('Background workout cache warmup skipped (circuit open)');
+        return;
+      }
       console.warn('Background workout cache warmup failed:', err?.message || err);
     });
 
@@ -461,7 +485,14 @@ function Nutrition({ onLogout }) {
       }
     } catch (error) {
       console.error("Nutrition error:", error);
-      showError(error.response?.data?.detail || error.response?.data?.error || "Failed to load nutrition plan.", 5000);
+      if (error?.isCircuitOpen) {
+        setCircuitOpen(true);
+        const retrySec = Math.max(1, Math.ceil((error.retryAfterMs || 8000) / 1000));
+        setRetryCountdown(retrySec);
+        showError(`The AI planning service is temporarily unavailable. Please retry in ${retrySec} seconds.`, 5000);
+      } else {
+        showError(error.response?.data?.detail || error.response?.data?.error || "Failed to load nutrition plan.", 5000);
+      }
     } finally {
       setLoading(false);
     }
@@ -938,7 +969,24 @@ function Nutrition({ onLogout }) {
             <div style={{ fontSize: "64px", marginBottom: "24px" }}>🍽️</div>
             <div style={{ fontSize: "24px", fontWeight: "800", color: "var(--app-text)", marginBottom: "12px" }}>No Nutrition Plan</div>
             <div style={{ fontSize: "14px", color: "#71717a", marginBottom: "32px" }}>Generate a personalized meal plan based on your profile</div>
-            <button onClick={fetchNutritionPlan} style={{ padding: "16px 40px", background: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)", color: "var(--app-text)", border: "none", borderRadius: "16px", fontSize: "16px", fontWeight: "700", cursor: "pointer", boxShadow: "0 4px 20px rgba(99, 102, 241, 0.4)" }}>Generate Plan</button>
+            <button
+              onClick={fetchNutritionPlan}
+              disabled={circuitOpen}
+              style={{
+                padding: "16px 40px",
+                background: circuitOpen ? "var(--app-border)" : "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
+                color: circuitOpen ? "var(--app-text-muted)" : "var(--app-text)",
+                border: "none",
+                borderRadius: "16px",
+                fontSize: "16px",
+                fontWeight: "700",
+                cursor: circuitOpen ? "not-allowed" : "pointer",
+                boxShadow: circuitOpen ? "none" : "0 4px 20px rgba(99, 102, 241, 0.4)",
+                opacity: circuitOpen ? 0.6 : 1
+              }}
+            >
+              {circuitOpen ? `Retry in ${retryCountdown}s` : "Generate Plan"}
+            </button>
           </div>
         </div>
         <ConfirmDialog

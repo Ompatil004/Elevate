@@ -1,5 +1,7 @@
 import axios from 'axios';
-import { pythonBackendCB } from './utils/circuitBreaker';
+import { workoutCB, nutritionCB, backgroundCB, withCircuitBreaker, CircuitOpenError } from './utils/circuitBreaker';
+// Re-export for UI components that need to check breaker state or show countdown
+export { workoutCB, nutritionCB, backgroundCB, CircuitOpenError };
 
 // ===== API CONFIGURATION =====
 // Auth endpoints (login/register) are on Node.js backend (port 5000)
@@ -171,14 +173,12 @@ const _slimFitnessPayload = (url, data) => {
     return data;
 };
 
-// ARCH-7: Wrap FitnessAPI with circuit breaker to protect against Python backend downtime.
-// The interceptor checks the breaker state BEFORE sending each request.
+// ARCH-7 v2: FitnessAPI interceptors handle auth, CSRF, and payload slimming only.
+// Circuit breaker logic is applied per-function (generateWorkout, generateNutritionPlan)
+// instead of globally, so background warmup failures don't block user actions.
 FitnessAPI.interceptors.request.use(
     async (config) => {
-        // ARCH-7: Use circuit-breaker preflight so OPEN can transition to HALF_OPEN probe.
-        pythonBackendCB.beforeRequest();
         // Auth cookie is sent to Node; Node forwards the JWT to Python as x-auth-token.
-        // Fallback for cross-site deployments (e.g. Render): send token header if stored in localStorage
         const token = localStorage.getItem('token');
         if (token) {
             config.headers['x-auth-token'] = token;
@@ -208,36 +208,23 @@ FitnessAPI.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-// ARCH-7: Record failures/successes from the Python backend into the circuit breaker.
-// CRITICAL FIX: Do NOT record CircuitOpenError as a backend failure — it's a client-side
-// preflight rejection, not an actual backend error. Recording it would cause the failure
-// counter to increment indefinitely while OPEN, preventing recovery.
+// FitnessAPI response interceptor — DEV-only safe diagnostics, no circuit breaker.
 FitnessAPI.interceptors.response.use(
     (response) => {
-        pythonBackendCB.recordSuccess();
         if (import.meta.env.DEV) {
             console.log('[FitnessAPI] Success:', response.status, response.config?.url);
         }
         return response;
     },
     (error) => {
-        // Skip circuit breaker's own errors — they are NOT backend failures
-        if (error?.isCircuitOpen) {
-            if (import.meta.env.DEV) {
-                console.warn('[FitnessAPI] CircuitOpenError — not recording as backend failure');
-            }
-            return Promise.reject(error);
-        }
-        if (import.meta.env.DEV) {
+        if (import.meta.env.DEV && !error?.isCircuitOpen) {
             console.error('[FitnessAPI] Error:', {
                 url: error.config?.url,
                 method: error.config?.method,
                 status: error.response?.status || 'NETWORK_ERROR',
                 message: error.message,
-                data: error.response?.data,
             });
         }
-        pythonBackendCB.recordFailure(error);
         return Promise.reject(error);
     }
 );
@@ -319,7 +306,14 @@ export const generateNutritionPlan = (payload) => {
     const { signal } = nutritionRequestController;
 
     if (import.meta.env.DEV) console.log('[generateNutritionPlan] Making new request to /nutrition');
-    nutritionRequestInFlight = FitnessAPI.post('/nutrition', _pickNutritionPayload(payload), { signal })
+    // ARCH-7 v2: Use dedicated nutritionCB breaker
+    nutritionRequestInFlight = withCircuitBreaker(nutritionCB, async () => {
+        const response = await FitnessAPI.post('/nutrition', _pickNutritionPayload(payload), { signal });
+        if (!response?.data || response.data.success !== true || !response.data.nutrition?.weekly_plan) {
+            throw new Error('Malformed nutrition response structure');
+        }
+        return response;
+    })
         .then((response) => {
             if (import.meta.env.DEV) console.log('[generateNutritionPlan] Request successful');
             return response;
@@ -329,7 +323,9 @@ export const generateNutritionPlan = (payload) => {
                 if (import.meta.env.DEV) console.log('[generateNutritionPlan] Request cancelled');
                 return null;
             }
-            console.error('[generateNutritionPlan] Request failed:', error.message);
+            if (import.meta.env.DEV && !error?.isCircuitOpen) {
+                console.error('[generateNutritionPlan] Request failed:', error.message);
+            }
             throw error;
         })
         .finally(() => {
@@ -478,7 +474,14 @@ export const generateWorkout = (profileData) => {
     const { signal } = workoutRequestController;
 
     if (import.meta.env.DEV) console.log('[generateWorkout] Making new request to /workout');
-    workoutRequestInFlight = FitnessAPI.post('/workout', _pickWorkoutProfile(profileData), { signal })
+    // ARCH-7 v2: Use dedicated workoutCB breaker (not the global shared one)
+    workoutRequestInFlight = withCircuitBreaker(workoutCB, async () => {
+        const response = await FitnessAPI.post('/workout', _pickWorkoutProfile(profileData), { signal });
+        if (!response?.data || response.data.success !== true || (!Array.isArray(response.data.workout) && !response.data.data?.weekly_plan)) {
+            throw new Error('Malformed workout response structure');
+        }
+        return response;
+    })
         .then((response) => {
             if (import.meta.env.DEV) console.log('[generateWorkout] Request successful');
             return response;
@@ -488,7 +491,9 @@ export const generateWorkout = (profileData) => {
                 if (import.meta.env.DEV) console.log('[generateWorkout] Request cancelled (component unmounted)');
                 return null; // resolve with null on cancel — callers should check
             }
-            console.error('[generateWorkout] Request failed:', error.message);
+            if (import.meta.env.DEV && !error?.isCircuitOpen) {
+                console.error('[generateWorkout] Request failed:', error.message);
+            }
             throw error;
         })
         .finally(() => {
