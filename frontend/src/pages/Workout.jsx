@@ -903,6 +903,8 @@ const Workout = ({ onLogout }) => {
 
       const tryLoadPersistedPlan = async (reason = 'normal') => {
         try {
+          // Bypass or isolate breaker for cache-recovery reads. If it's a recovery read, we don't want
+          // to trip workoutCB or nutritionCB. We do not wrap getWeeklyWorkoutPlan in circuit breakers.
           const weeklyPlanResponse = await getWeeklyWorkoutPlan();
           const persistedPlan =
             weeklyPlanResponse?.data?.plan
@@ -935,6 +937,11 @@ const Workout = ({ onLogout }) => {
 
           return true;
         } catch (persistedErr) {
+          // If the error is a CircuitOpenError, don't write stack traces.
+          if (persistedErr?.isCircuitOpen) {
+            if (import.meta.env.DEV) console.log(`[tryLoadPersistedPlan] Skipped due to circuit open (${reason})`);
+            return false;
+          }
           console.warn(`⚠️ Could not load persisted weekly plan (${reason}):`, persistedErr?.message || persistedErr);
           return false;
         }

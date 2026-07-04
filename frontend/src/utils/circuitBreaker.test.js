@@ -216,6 +216,22 @@ describe('Integration Scenarios', () => {
     expect(workoutCB.state).toBe('CLOSED');
   });
 
+  it('workout and nutrition breakers are fully independent', async () => {
+    const serviceError = { response: { status: 503 } };
+    
+    // Fail workout 3 times to open it
+    for (let i = 0; i < 3; i++) {
+      workoutCB.recordFailure(serviceError);
+    }
+    expect(workoutCB.isOpen).toBe(true);
+    expect(nutritionCB.isOpen).toBe(false);
+
+    // Nutrition request should still succeed
+    const mockRequestFn = vi.fn().mockResolvedValue({ data: { success: true, nutrition: { weekly_plan: {} } } });
+    const result = await nutritionCB.execute(mockRequestFn);
+    expect(result.data.success).toBe(true);
+  });
+
   it('recovery closes the breaker and allows subsequent requests', async () => {
     const serviceError = { response: { status: 503 } };
     
