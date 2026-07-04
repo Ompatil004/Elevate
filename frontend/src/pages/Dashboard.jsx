@@ -861,7 +861,21 @@ function Dashboard({ onLogout }) {
       try {
         checkInterruptedSessions();
 
-        const { data } = await getProfile();
+        const profileReqName = 'User profile & dashboard trends';
+        console.log(`[Dashboard] request start { name: "${profileReqName}" }`);
+        const profileStartTime = Date.now();
+        let data;
+        try {
+          const profileRes = await getProfile();
+          data = profileRes.data;
+          const durationMs = Date.now() - profileStartTime;
+          console.log(`[Dashboard] request complete { name: "${profileReqName}", durationMs: ${durationMs} }`);
+        } catch (profileErr) {
+          const durationMs = Date.now() - profileStartTime;
+          console.log(`[Dashboard] request failed { name: "${profileReqName}", durationMs: ${durationMs}, error: "${profileErr?.message || profileErr}" }`);
+          throw profileErr;
+        }
+
         if (!data.goal || !data.weight || !data.age) {
           navigate('/profile-setup', { replace: true });
           return;
@@ -1159,20 +1173,37 @@ function Dashboard({ onLogout }) {
             // DB value 0 the diff would be 0===0 and the save would be silently skipped).
             lastSaved.current = { water: syncedWater, sleep: syncedSleep, workout_completed: !!todayRecord?.workout_completed };
 
-            // Sync to Python AI coach on load
-            try {
-              await saveDailyLog({
-                sleep_hours: syncedSleep,
-                water_ml: syncedWater * 1000,
-                workout_completed: !!todayRecord?.workout_completed
-              });
-              const weeklyRes = await getWeeklyLogs();
-              if (weeklyRes?.data?.success && weeklyRes?.data?.summary) {
-                setWeeklyAverages(weeklyRes.data.summary);
+            // Sync to Python AI coach in background (Optional)
+            const syncDailyLogBackground = async () => {
+              const saveName = 'Initial daily log sync';
+              const averagesName = 'AI Coach weekly logs (initial)';
+              console.log(`[Dashboard] request start { name: "${saveName}" }`);
+              const syncStart = Date.now();
+              try {
+                await saveDailyLog({
+                  sleep_hours: syncedSleep,
+                  water_ml: syncedWater * 1000,
+                  workout_completed: !!todayRecord?.workout_completed
+                }, { timeout: 12000 });
+                const saveDuration = Date.now() - syncStart;
+                console.log(`[Dashboard] request complete { name: "${saveName}", durationMs: ${saveDuration} }`);
+
+                console.log(`[Dashboard] request start { name: "${averagesName}" }`);
+                const avgStart = Date.now();
+                const weeklyRes = await getWeeklyLogs({ timeout: 12000 });
+                const avgDuration = Date.now() - avgStart;
+                console.log(`[Dashboard] request complete { name: "${averagesName}", durationMs: ${avgDuration} }`);
+                if (weeklyRes?.data?.success && weeklyRes?.data?.summary) {
+                  setWeeklyAverages(weeklyRes.data.summary);
+                }
+              } catch (pyErr) {
+                const elapsed = Date.now() - syncStart;
+                console.log(`[Dashboard] request failed { name: "${saveName}", durationMs: ${elapsed}, error: "${pyErr?.message || pyErr}" }`);
+                console.warn('Initial Python sync failed', pyErr);
+                setWeeklyAverages('error');
               }
-            } catch (pyErr) {
-              console.warn('Initial Python sync failed', pyErr);
-            }
+            };
+            syncDailyLogBackground();
 
           }
 
@@ -1314,15 +1345,26 @@ function Dashboard({ onLogout }) {
           setToStorage(StorageKeys.TODAY_MEALS_DONE, 'true');
         }
 
-        // Fetch weekly averages for adaptive coaching card
-        try {
-          const weeklyRes = await getWeeklyLogs();
-          if (weeklyRes?.data?.success && weeklyRes?.data?.summary) {
-            setWeeklyAverages(weeklyRes.data.summary);
+        // Fetch weekly averages for adaptive coaching card in the background (Optional)
+        const fetchAILogsBackground = async () => {
+          const name = 'AI Coach weekly logs';
+          console.log(`[Dashboard] request start { name: "${name}" }`);
+          const bgStartTime = Date.now();
+          try {
+            const weeklyRes = await getWeeklyLogs({ timeout: 12000 });
+            const durationMs = Date.now() - bgStartTime;
+            console.log(`[Dashboard] request complete { name: "${name}", durationMs: ${durationMs} }`);
+            if (weeklyRes?.data?.success && weeklyRes?.data?.summary) {
+              setWeeklyAverages(weeklyRes.data.summary);
+            }
+          } catch (weeklyErr) {
+            const durationMs = Date.now() - bgStartTime;
+            console.log(`[Dashboard] request failed { name: "${name}", durationMs: ${durationMs}, error: "${weeklyErr?.message || weeklyErr}" }`);
+            console.warn('Failed to load weekly logs for AI Coach:', weeklyErr);
+            setWeeklyAverages('error');
           }
-        } catch (weeklyErr) {
-          console.warn('Failed to load weekly logs for AI Coach:', weeklyErr);
-        }
+        };
+        fetchAILogsBackground();
 
         return { workoutDone: finalWorkoutDone, mealDone: finalMealDone };
       } catch (error) {
@@ -1958,15 +2000,26 @@ function Dashboard({ onLogout }) {
 
         // Sync with the Python daily logs backend
         try {
+          const saveName = 'Debounced daily log sync';
+          const averagesName = 'AI Coach weekly logs (debounced)';
+          console.log(`[Dashboard] request start { name: "${saveName}" }`);
+          const syncStart = Date.now();
+
           await saveDailyLog({
             sleep_hours: sleep,
             water_ml: water * 1000, // liters to ml
             workout_completed: workout_completed,
             date: todayStr,
-          });
+          }, { timeout: 12000 });
+          const saveDuration = Date.now() - syncStart;
+          console.log(`[Dashboard] request complete { name: "${saveName}", durationMs: ${saveDuration} }`);
 
-          // Re-fetch weekly logs to update dashboard card
-          const weeklyRes = await getWeeklyLogs();
+          console.log(`[Dashboard] request start { name: "${averagesName}" }`);
+          const avgStart = Date.now();
+          const weeklyRes = await getWeeklyLogs({ timeout: 12000 });
+          const avgDuration = Date.now() - avgStart;
+          console.log(`[Dashboard] request complete { name: "${averagesName}", durationMs: ${avgDuration} }`);
+
           if (weeklyRes?.data?.success && weeklyRes?.data?.summary) {
             setWeeklyAverages(weeklyRes.data.summary);
           }
@@ -3369,12 +3422,7 @@ title = {`${Math.round(macros.f)}g Fats`}
                     </div>
                   </div>
                   <div style={{display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center'}}>
-                    <div className="glassPill glassPill">
-                      <button className="glassBtn control-btn-hover glassBtn" onClick={handleSleepRemove}>-</button>
-                      <span className="glassText">+30 MIN</span>
-                      <button className="glassBtn control-btn-hover glassBtn" onClick={handleSleepAdd}>+</button>
-                    </div>
-                    <div style={{marginTop: '10px', fontSize: '12px', color: qualityColor}}>
+                  <div style={{marginTop: '10px', fontSize: '12px', color: qualityColor}}>
                       Readiness: {stats.focusScore}%
                     </div>
                   </div>
@@ -3386,7 +3434,32 @@ title = {`${Math.round(macros.f)}g Fats`}
           </div >
 
           {/* AI COACH SUMMARY / ADAPTIVE MODIFIERS */}
-          {weeklyAverages && (
+          {weeklyAverages === 'error' && (
+            <div
+              style={{
+                gridColumn: 'span 12',
+                background: 'linear-gradient(135deg, rgba(30, 27, 75, 0.5) 0%, rgba(15, 23, 42, 0.6) 100%)',
+                border: '1px solid rgba(239, 68, 68, 0.2)',
+                padding: '20px',
+                marginBottom: '20px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+              }}
+              className="bentoBox"
+            >
+              <div style={{ fontSize: '24px' }}>🤖</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                <span style={{ fontSize: '14px', fontWeight: '700', color: 'var(--app-text-muted)' }}>
+                  AI Coach insights are temporarily unavailable.
+                </span>
+                <span style={{ fontSize: '12px', color: 'rgba(239, 68, 68, 0.8)' }}>
+                  Connection to planning service timed out. You can still use your daily check-in and logs normally.
+                </span>
+              </div>
+            </div>
+          )}
+          {weeklyAverages && weeklyAverages !== 'error' && (
             <div
               style={{
                 gridColumn: 'span 12',
@@ -3432,64 +3505,65 @@ title = {`${Math.round(macros.f)}g Fats`}
                     fontWeight: '700',
                     padding: '3px 10px',
                     borderRadius: '20px',
-                    background: 'rgba(139, 92, 246, 0.15)',
-                    color: '#c084fc',
-                    border: '1px solid rgba(139, 92, 246, 0.3)',
-                    textTransform: 'uppercase',
+                    background: 'rgba(192, 132, 252, 0.15)',
+                    border: '1px solid rgba(192, 132, 252, 0.3)',
+                    color: '#e9d5ff',
+                    letterSpacing: '0.5px',
                   }}
                 >
                   {(weeklyAverages.days_logged || 0)} Days Tracked
                 </div>
               </div>
 
+              {/* Weekly Stats Sub-grid */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '15px' }}>
-                {/* Sleep Metrics */}
-                <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <div style={{ fontSize: '11px', color: 'var(--app-text-muted)', marginBottom: '4px' }}>WEEKLY SLEEP AVG</div>
-                  <div style={{ fontSize: '24px', fontWeight: '800', color: '#a78bfa' }}>
+                {/* Avg Sleep */}
+                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--app-border)', padding: '12px 16px', borderRadius: '10px' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--app-text-muted)', fontWeight: '700', textTransform: 'uppercase', marginBottom: '4px', letterSpacing: '0.5px' }}>Weekly Avg Sleep</div>
+                  <div style={{ fontSize: '20px', fontWeight: '900', color: 'var(--app-text)' }}>
                     {(weeklyAverages.avg_sleep_hours || 0)} <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--app-text-muted)' }}>hours / night</span>
                   </div>
                   {weeklyAverages.deload_flag ? (
                     <div style={{ fontSize: '11px', color: '#f87171', marginTop: '6px', fontWeight: '600' }}>
-                      ⚠️ Critical sleep deficit. Recovery Deload active.
+                      🚨 Recovery deload activated
                     </div>
                   ) : (weeklyAverages.avg_sleep_hours || 0) < 6.0 ? (
-                    <div style={{ fontSize: '11px', color: '#fbbf24', marginTop: '6px', fontWeight: '600' }}>
-                      ⚠️ Sleep deficit. Intensity reduced by 10%.
+                    <div style={{ fontSize: '11px', color: '#facc15', marginTop: '6px', fontWeight: '600' }}>
+                      ⚠️ Moderate sleep deficit
                     </div>
                   ) : (
                     <div style={{ fontSize: '11px', color: '#34d399', marginTop: '6px', fontWeight: '600' }}>
-                      ✓ Sleep is optimal. Recovery normal.
+                      ✅ Optimal recovery sleep
                     </div>
                   )}
                 </div>
 
-                {/* Hydration Metrics */}
-                <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <div style={{ fontSize: '11px', color: 'var(--app-text-muted)', marginBottom: '4px' }}>WEEKLY HYDRATION AVG</div>
-                  <div style={{ fontSize: '24px', fontWeight: '800', color: '#60a5fa' }}>
+                {/* Avg Hydration */}
+                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--app-border)', padding: '12px 16px', borderRadius: '10px' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--app-text-muted)', fontWeight: '700', textTransform: 'uppercase', marginBottom: '4px', letterSpacing: '0.5px' }}>Weekly Avg Hydration</div>
+                  <div style={{ fontSize: '20px', fontWeight: '900', color: 'var(--app-text)' }}>
                     {((weeklyAverages.avg_water_ml || 0) / 1000).toFixed(2)} <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--app-text-muted)' }}>L / day</span>
                   </div>
                   {weeklyAverages.dehydration_flag ? (
                     <div style={{ fontSize: '11px', color: '#f87171', marginTop: '6px', fontWeight: '600' }}>
-                      ⚠️ Dehydration detected. Cardio & work reduced.
+                      ⚠️ Dehydration detected
                     </div>
                   ) : (
                     <div style={{ fontSize: '11px', color: '#34d399', marginTop: '6px', fontWeight: '600' }}>
-                      ✓ Hydration targets met.
+                      ✅ Well hydrated
                     </div>
                   )}
                 </div>
 
-                {/* Workout Consistency */}
-                <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <div style={{ fontSize: '11px', color: 'var(--app-text-muted)', marginBottom: '4px' }}>WORKOUT FREQUENCY</div>
-                  <div style={{ fontSize: '24px', fontWeight: '800', color: '#34d399' }}>
+                {/* Attendance Rate */}
+                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--app-border)', padding: '12px 16px', borderRadius: '10px' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--app-text-muted)', fontWeight: '700', textTransform: 'uppercase', marginBottom: '4px', letterSpacing: '0.5px' }}>Workout Attendance</div>
+                  <div style={{ fontSize: '20px', fontWeight: '900', color: 'var(--app-text)' }}>
                     {Math.round((weeklyAverages.workout_completion_rate || 0) * 100)}% <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--app-text-muted)' }}>completion</span>
                   </div>
                   <div style={{ fontSize: '11px', color: (weeklyAverages.workout_completion_rate || 0) >= 0.57 ? '#34d399' : '#f87171', marginTop: '6px', fontWeight: '600' }}>
-                    {(weeklyAverages.workout_completion_rate || 0) >= 0.57 
-                      ? '🔥 Consistency bonus active: +1 set!' 
+                    {(weeklyAverages.workout_completion_rate || 0) >= 0.57
+                      ? '🔥 Consistency bonus active (+1 set)'
                       : '⚠️ Attendance deficit. Volume increases paused.'}
                   </div>
                 </div>

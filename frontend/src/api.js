@@ -650,12 +650,12 @@ export const postSessionResult = (payload) =>
  * Save daily sleep/water/workout check-in.
  * @param {object} payload - { sleep_hours, water_ml, workout_completed, date? }
  */
-export const saveDailyLog = (payload) =>
-    FitnessAPI.post('/api/daily-log', payload);
+export const saveDailyLog = (payload, config = {}) =>
+    FitnessAPI.post('/api/daily-log', payload, config);
 
 /** Get last 7 daily check-in logs + summary for the current user. */
-export const getWeeklyLogs = () =>
-    FitnessAPI.get('/api/daily-log/week');
+export const getWeeklyLogs = (config = {}) =>
+    FitnessAPI.get('/api/daily-log/week', config);
 
 // Legacy compatibility exports for activity tracking
 export const logActivityToBackend = (activityData) =>
