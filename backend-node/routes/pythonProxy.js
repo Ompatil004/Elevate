@@ -81,7 +81,10 @@ router.use(auth, async (req, res) => {
   const method = req.method.toUpperCase();
   const reqId = req.requestId || 'N/A';
 
+  let resolvedPath = '';
+  const startTime = Date.now();
   try {
+    resolvedPath = normalizePythonPath(req.path);
     // 1. Safe base URL normalization & validation
     const configured = process.env.ML_API_URL
       || process.env.PYTHON_API_URL
@@ -103,7 +106,7 @@ router.use(auth, async (req, res) => {
     }
 
     // 2. Build target URL
-    const resolvedPath = normalizePythonPath(req.path);
+    resolvedPath = normalizePythonPath(req.path);
     const targetUrl = `${base}/${resolvedPath.replace(/^\/+/, '')}`;
 
     // 3. Build headers (throws 401 if token missing)
@@ -121,9 +124,10 @@ router.use(auth, async (req, res) => {
       timeout: getProxyTimeoutMs(),
       validateStatus: () => true,
     });
+    const durationMs = Date.now() - startTime;
 
     const contentType = response.headers?.['content-type'] || 'unknown';
-    console.log(`[python-proxy] requestId=${reqId} upstreamStatus=${response.status} contentType=${contentType}`);
+    console.log(`[python-proxy] requestId=${reqId} method=${method} incoming=${req.path} resolved=${resolvedPath} upstreamStatus=${response.status} durationMs=${durationMs} contentType=${contentType}`);
 
     // Parse and validate JSON safely with fallback parsing
     let isJson = false;
@@ -229,7 +233,8 @@ router.use(auth, async (req, res) => {
     }
 
     const errCode = error.code || error.message;
-    console.error(`[python-proxy] requestId=${reqId} networkError=${errCode} message="Request to Python failed"`);
+    const durationMs = Date.now() - startTime;
+    console.error(`[python-proxy] requestId=${reqId} method=${method} incoming=${req.path} resolved=${resolvedPath} networkError=${errCode} durationMs=${durationMs} message="Request to Python failed"`);
 
     return res.status(503).json({
       success: false,

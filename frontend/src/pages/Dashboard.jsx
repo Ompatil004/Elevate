@@ -889,6 +889,8 @@ function Dashboard({ onLogout }) {
             }
 
             if (needsWarmup) {
+              console.log('[Dashboard] Background workout cache warmup skipped (automatic generation disabled for stability)');
+              /*
               console.log('[Dashboard] Warming up workout plan cache in background...');
               // ARCH-7 v2: Use backgroundCB so warmup failures never block
               // user-initiated workout/nutrition generation.
@@ -908,6 +910,7 @@ function Dashboard({ onLogout }) {
                 }
                 console.warn('[Dashboard] Background workout cache warmup failed:', err?.message || err);
               });
+              */
             }
 
 
@@ -2375,6 +2378,8 @@ function Dashboard({ onLogout }) {
         const isCacheValid = !cacheInvalid && hasValidDays && cachedDate === weekStartStr && cachedPlan._weekStart === weekStartStr && cachedPlan._profileHash === profileHash;
 
         if (!isCacheValid) {
+          console.log('🥗 [Dashboard] Background pre-fetch skipped (automatic generation disabled for stability)');
+          /*
           console.log('🥗 [Dashboard] Pre-fetching nutrition plan in background...');
           
           // Helper to get workout plan (similar to Nutrition.jsx)
@@ -2465,6 +2470,7 @@ function Dashboard({ onLogout }) {
             setToStorage(StorageKeys.NUTRITION_CACHE_INVALID, 'false');
             console.log('🥗 [Dashboard] Pre-fetched and cached nutrition plan successfully!');
           }
+          */
         }
       } catch (err) {
         if (err?.isCircuitOpen) {

@@ -290,24 +290,41 @@ export const getWeeklyWorkoutPlan = () =>
 export const getWorkoutSwapOptions = (dayIndex) =>
     FitnessAPI.get('/api/swap-options', { params: { day_index: dayIndex } });
 
-let nutritionRequestInFlight = null;
-let nutritionRequestController = null;
+// Deduplication maps for concurrent identical requests
+const activeWorkoutRequests = new Map();
+const activeNutritionRequests = new Map();
+
+const getDeduplicationKey = (payload, type) => {
+    if (!payload || typeof payload !== 'object') return 'default';
+    const userId = payload.user_id || payload._id || payload.id || 'anonymous';
+    if (type === 'workout') {
+        const p = _pickWorkoutProfile(payload);
+        return `workout:${userId}:${p.age}:${p.weight}:${p.height}:${p.goal}:${p.experience}:${p.days_per_week}:${(p.equipment || []).join(',')}`;
+    }
+    if (type === 'nutrition') {
+        const p = _pickNutritionPayload(payload);
+        return `nutrition:${userId}:${p.age}:${p.weight}:${p.height}:${p.goal}:${p.dietary_preference}:${p.workout_intensity}`;
+    }
+    return userId;
+};
 
 export const generateNutritionPlan = (payload) => {
-    if (nutritionRequestInFlight) {
-        if (import.meta.env.DEV) console.log('[generateNutritionPlan] Reusing in-flight request');
-        const wrappedPromise = Promise.resolve(nutritionRequestInFlight);
-        wrappedPromise.promise = nutritionRequestInFlight;
-        wrappedPromise.cancel = () => nutritionRequestController?.abort();
+    const key = getDeduplicationKey(payload, 'nutrition');
+    if (activeNutritionRequests.has(key)) {
+        if (import.meta.env.DEV) console.log('[generateNutritionPlan] Reusing in-flight request for key:', key);
+        const active = activeNutritionRequests.get(key);
+        const wrappedPromise = Promise.resolve(active.promise);
+        wrappedPromise.promise = active.promise;
+        wrappedPromise.cancel = () => active.controller?.abort();
         return wrappedPromise;
     }
 
-    nutritionRequestController = new AbortController();
-    const { signal } = nutritionRequestController;
+    const controller = new AbortController();
+    const { signal } = controller;
 
     if (import.meta.env.DEV) console.log('[generateNutritionPlan] Making new request to /nutrition');
     // ARCH-7 v2: Use dedicated nutritionCB breaker
-    nutritionRequestInFlight = withCircuitBreaker(nutritionCB, async () => {
+    const promise = withCircuitBreaker(nutritionCB, async () => {
         const response = await FitnessAPI.post('/nutrition', _pickNutritionPayload(payload), { signal });
         if (!response?.data || response.data.success !== true || !response.data.nutrition?.weekly_plan) {
             throw new Error('Malformed nutrition response structure');
@@ -329,13 +346,14 @@ export const generateNutritionPlan = (payload) => {
             throw error;
         })
         .finally(() => {
-            nutritionRequestInFlight = null;
-            nutritionRequestController = null;
+            activeNutritionRequests.delete(key);
         });
 
-    const retPromise = nutritionRequestInFlight;
+    activeNutritionRequests.set(key, { promise, controller });
+
+    const retPromise = promise;
     retPromise.promise = retPromise;
-    retPromise.cancel = () => nutritionRequestController?.abort();
+    retPromise.cancel = () => controller.abort();
 
     return retPromise;
 };
@@ -452,30 +470,23 @@ export const getUserProgress = () =>
 // Workout helpers (Issue #4 – async generation + caching)
 // ─────────────────────────────────────────────────────────────────────────────
 
-let workoutRequestInFlight = null;
-let workoutRequestController = null; // Bug #63 fix: tracks AbortController for in-flight request
-
-/**
- * Standard synchronous plan generation with request coalescing.
- * - If multiple components ask for /workout at the same time, they share one request.
- * - Returns { promise, cancel } so callers can abort on unmount (Bug #63 fix).
- */
 export const generateWorkout = (profileData) => {
-    if (workoutRequestInFlight) {
-        if (import.meta.env.DEV) console.log('[generateWorkout] Reusing in-flight request');
-        const wrappedPromise = Promise.resolve(workoutRequestInFlight);
-        wrappedPromise.promise = workoutRequestInFlight;
-        wrappedPromise.cancel = () => workoutRequestController?.abort();
+    const key = getDeduplicationKey(profileData, 'workout');
+    if (activeWorkoutRequests.has(key)) {
+        if (import.meta.env.DEV) console.log('[generateWorkout] Reusing in-flight request for key:', key);
+        const active = activeWorkoutRequests.get(key);
+        const wrappedPromise = Promise.resolve(active.promise);
+        wrappedPromise.promise = active.promise;
+        wrappedPromise.cancel = () => active.controller?.abort();
         return wrappedPromise;
     }
 
-    // Bug #63 fix: create a fresh AbortController for each new request
-    workoutRequestController = new AbortController();
-    const { signal } = workoutRequestController;
+    const controller = new AbortController();
+    const { signal } = controller;
 
     if (import.meta.env.DEV) console.log('[generateWorkout] Making new request to /workout');
     // ARCH-7 v2: Use dedicated workoutCB breaker (not the global shared one)
-    workoutRequestInFlight = withCircuitBreaker(workoutCB, async () => {
+    const promise = withCircuitBreaker(workoutCB, async () => {
         const response = await FitnessAPI.post('/workout', _pickWorkoutProfile(profileData), { signal });
         if (!response?.data || response.data.success !== true || (!Array.isArray(response.data.workout) && !response.data.data?.weekly_plan)) {
             throw new Error('Malformed workout response structure');
@@ -497,13 +508,14 @@ export const generateWorkout = (profileData) => {
             throw error;
         })
         .finally(() => {
-            workoutRequestInFlight = null;
-            workoutRequestController = null;
+            activeWorkoutRequests.delete(key);
         });
 
-    const retPromise = workoutRequestInFlight;
+    activeWorkoutRequests.set(key, { promise, controller });
+
+    const retPromise = promise;
     retPromise.promise = retPromise;
-    retPromise.cancel = () => workoutRequestController?.abort();
+    retPromise.cancel = () => controller.abort();
 
     return retPromise;
 };
