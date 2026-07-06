@@ -1,0 +1,113 @@
+.professional-footer {
+  width: 100%;
+  background: rgba(9, 9, 11, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(99, 102, 241, 0.2);
+  padding: 1.5rem 0;
+  position: relative;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  margin-top: auto;
+}
+
+.footer-content {
+  max-width: 1200px;
+  width: 100%;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.footer-text {
+  color: #a5b4fc;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.footer-subtext-inline {
+  color: #818cf8;
+  font-size: 0.9rem;
+}
+
+.lightning-icon {
+  color: #facc15;
+  filter: drop-shadow(0 0 4px rgba(250, 204, 21, 0.6));
+  animation: pulse-glow 2s infinite alternate;
+}
+
+@keyframes pulse-glow {
+  from { filter: drop-shadow(0 0 2px rgba(250, 204, 21, 0.4)); }
+  to { filter: drop-shadow(0 0 8px rgba(250, 204, 21, 0.9)); transform: scale(1.1); }
+}
+
+.footer-brand {
+  font-weight: 700;
+  background: linear-gradient(90deg, #c7d2fe, #facc15, #c7d2fe);
+  background-size: 200% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: shine 3s linear infinite;
+}
+
+@keyframes shine {
+  to {
+    background-position: 200% center;
+  }
+}
+
+.footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.footer-link {
+  color: #a5b4fc;
+  text-decoration: none;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  position: relative;
+  padding-bottom: 2px;
+}
+
+.footer-link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(90deg, #6366f1, #a855f7);
+  transition: width 0.3s ease;
+  border-radius: 2px;
+}
+
+.footer-link:hover {
+  color: #ffffff;
+}
+
+.footer-link:hover::after {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .footer-content {
+    flex-direction: column;
+    text-align: center;
+    justify-content: center;
+  }
+}

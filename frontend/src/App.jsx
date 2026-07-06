@@ -5,6 +5,7 @@ import { logoutSafe } from './utils/storage';
 import { getSessionStatus, logoutUser } from './api';
 import { ThemeProvider } from './context/ThemeContext';
 import AuroraBackground from './components/AuroraBackground';
+import Footer from './components/Footer';
 import './App.css';
 
 const Login     = lazy(() => import('./pages/Login'));
@@ -73,7 +74,7 @@ function AppInner({ isAuthenticated, setIsAuthenticated }) {
 
 
   return (
-    <>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100dvh' }}>
       {!isAdminRoute && <AuroraBackground />}
       <Suspense fallback={<PageLoader />}>
       <Routes>
@@ -146,7 +147,8 @@ function AppInner({ isAuthenticated, setIsAuthenticated }) {
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Suspense>
-    </>
+      <Footer />
+    </div>
   );
 }
 
