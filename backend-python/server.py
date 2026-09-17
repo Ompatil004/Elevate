@@ -1359,6 +1359,39 @@ async def health_check():
     }
 
 
+# ==========================================
+# KEEP-ALIVE PINGER (Render free-tier)
+# ==========================================
+# Render free-tier spins down services after 15 min of inactivity.
+# This background task pings /health every 10 min to keep the service alive.
+
+import asyncio
+import httpx as _httpx
+
+
+@app.on_event("startup")
+async def _start_keep_alive_pinger():
+    """Start a background task that pings /health every 10 minutes."""
+    service_url = os.getenv("RENDER_EXTERNAL_URL")
+    if not service_url:
+        logger.info("RENDER_EXTERNAL_URL not set — keep-alive pinger disabled (local dev)")
+        return
+
+    async def _keep_alive_loop():
+        ping_url = f"{service_url.rstrip('/')}/health"
+        logger.info(f"Keep-alive pinger started → {ping_url} every 10 min")
+        async with _httpx.AsyncClient(timeout=30) as client:
+            while True:
+                await asyncio.sleep(10 * 60)  # 10 minutes
+                try:
+                    resp = await client.get(ping_url)
+                    logger.info(f"Keep-alive ping OK (status={resp.status_code})")
+                except Exception as exc:
+                    logger.warning(f"Keep-alive ping failed: {exc}")
+
+    asyncio.create_task(_keep_alive_loop())
+
+
 @app.get("/debug/status")
 async def debug_status():
     """Diagnostics endpoint for verifying backend component health."""
