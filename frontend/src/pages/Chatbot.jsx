@@ -510,9 +510,13 @@ function Chatbot({ onLogout }) {
       };
       setMessages(prev => [...prev, botMsg]);
     } catch (err) {
-      let errorMsg = "I'm having trouble connecting right now. Please check that the Python backend is running.";
+      let errorMsg = "I'm having trouble connecting right now. Please try again in a moment.";
       if (err.response?.status === 429) {
         errorMsg = "You're sending messages too fast! Please wait a moment. 😅";
+      } else if (err.response?.status === 502 || err.response?.status === 503 || err.response?.status === 504) {
+        errorMsg = "The AI Backend server is currently waking up or restarting on Render. Please try sending your message again in 10-15 seconds. ⏳";
+      } else if (err.response?.data?.reply || err.response?.data?.message || err.response?.data?.error?.message) {
+        errorMsg = err.response.data.reply || err.response.data.message || err.response.data.error.message;
       } else if (err.code === 'ERR_NETWORK' || err.code === 'ECONNREFUSED') {
         errorMsg = "Can't reach the AI server. Make sure the Python backend (port 8000) is running.";
         setError('Connection failed — is the Python backend running on port 8000?');
