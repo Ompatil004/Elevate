@@ -127,7 +127,11 @@ def _get_model() -> Optional[genai.GenerativeModel]:
             break
         except Exception as e:
             err_str = str(e).lower()
-            if '429' in err_str or 'quota' in err_str or 'exhausted' in err_str:
+            if 'leaked' in err_str or 'permissiondenied' in err_str or '403' in err_str:
+                print(f"[Gemini] CRITICAL: API Key rejected by Google (PermissionDenied 403 / Leaked key): {e}")
+                print(f"[Gemini] Please generate a NEW API key at https://aistudio.google.com/app/apikey")
+                break
+            elif '429' in err_str or 'quota' in err_str or 'exhausted' in err_str:
                 print(f"[Gemini] Model {candidate}: quota exhausted, trying next...")
             elif '404' in err_str or 'not found' in err_str:
                 print(f"[Gemini] Model {candidate}: not available, trying next...")
