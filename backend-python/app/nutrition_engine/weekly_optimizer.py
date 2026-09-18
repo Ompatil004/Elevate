@@ -227,9 +227,9 @@ class WeeklyOptimizer:
                         _seed_p1 = day_num * 1000 + meal_type_idx * 100 + attempts
                         evaluated_templates = 0
                         
-                        # Dynamic candidate distribution
-                        target_counts = {'breakfast': 12, 'lunch': 15, 'dinner': 15, 'snack': 8}
-                        total_target = target_counts.get(meal_type, 12)
+                        # Dynamic candidate distribution (optimized for sub-5s response time on cloud instances)
+                        target_counts = {'breakfast': 5, 'lunch': 6, 'dinner': 6, 'snack': 4}
+                        total_target = target_counts.get(meal_type, 5)
                         per_template_count = max(2, total_target // max(1, len(feasible_templates)))
                         
                         candidate_pool = []

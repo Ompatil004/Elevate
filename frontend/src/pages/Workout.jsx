@@ -977,6 +977,7 @@ const Workout = ({ onLogout }) => {
       };
 
       let fetchStartTime = Date.now();
+      let profileKey = 'unknown';
 
       try {
         fetchStartTime = Date.now();
@@ -1006,7 +1007,7 @@ const Workout = ({ onLogout }) => {
         const userId = userProfile.user_id || userProfile._id || userProfile.id || 'anonymous';
         const equipmentKey = Array.isArray(userProfile.equipment) ? [...userProfile.equipment].sort().join(',') : '';
         const issuesKey = Array.isArray(userProfile.body_issues) ? [...userProfile.body_issues].sort().join(',') : '';
-        const profileKey = `${userId}:${userProfile.age || 25}:${userProfile.weight || 70}:${userProfile.height || 175}:${userProfile.gender || 'Male'}:${userProfile.goal || 'Muscle Gain'}:${userProfile.experience || 'Beginner'}:${userProfile.days_per_week || 4}:${equipmentKey}:${issuesKey}`;
+        profileKey = `${userId}:${userProfile.age || 25}:${userProfile.weight || 70}:${userProfile.height || 175}:${userProfile.gender || 'Male'}:${userProfile.goal || 'Muscle Gain'}:${userProfile.experience || 'Beginner'}:${userProfile.days_per_week || 4}:${equipmentKey}:${issuesKey}`;
 
         // Check if load is already in progress for this profile key
         if (workoutLoadInProgressRef.current === profileKey) {
@@ -1016,7 +1017,6 @@ const Workout = ({ onLogout }) => {
 
         console.log(`[Workout] load triggered { reason: "${forceRefresh ? 'forceRefresh' : 'cacheCheck'}", profileKey: "${profileKey}" }`);
         workoutLoadInProgressRef.current = profileKey;
-        const fetchStartTime = Date.now();
 
         // **Check if cached plan exists and is not expired**
         let cachedPlan = getFromStorage('workoutPlan');
