@@ -18,6 +18,8 @@ function normalizePythonPath(path) {
   const cleanPath = path.replace(/^\/api\/python/, '');
 
   const routeMap = {
+    '/health': '/health',
+    '/api/health': '/health',
     '/nutrition': '/nutrition',
     '/weekly-plan': '/api/weekly-plan',
     '/api/weekly-plan': '/api/weekly-plan',

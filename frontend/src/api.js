@@ -430,6 +430,8 @@ export const sendChatbotMessage = (message, profile, history, options = {}) => {
 };
 
 
+export const getHealth = () => FitnessAPI.get('/health', { timeout: 15000 });
+
 export const generateAIPlan = (profileData) =>
     FitnessAPI.post('/generate-plan', profileData);
 

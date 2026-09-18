@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ConfirmDialog from '../components/ConfirmDialog';
-import { sendChatbotMessage, getProfile } from '../api';
+import { sendChatbotMessage, getProfile, getHealth } from '../api';
 import { logoutSafe } from '../utils/storage';
 import { useTheme } from '../context/ThemeContext';
 import Navbar from '../components/Navbar';
@@ -402,6 +402,7 @@ function TypingIndicator({ styles }) {
   );
 }
 
+
 function Chatbot({ onLogout }) {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
@@ -420,15 +421,32 @@ function Chatbot({ onLogout }) {
   const cooldownTimerRef = useRef(null);
 
   useEffect(() => {
+    let isMounted = true;
+
+    const checkConnection = async () => {
+      try {
+        const res = await getHealth();
+        if (isMounted) {
+          const isOffline = res?.data?.status === 'degraded' || res?.data?.dependencies?.mongo?.ok === false;
+          setAiStatus(isOffline ? 'offline' : 'online');
+        }
+      } catch {
+        if (isMounted) setAiStatus('online');
+      }
+    };
+
     const loadProfile = async () => {
       try {
         const res = await getProfile();
-        setProfile(res.data || {});
+        if (isMounted) setProfile(res.data || {});
       } catch {
         console.log('Could not load profile for chatbot context');
       }
     };
+
+    checkConnection();
     loadProfile();
+
     const savedChat = sessionStorage.getItem('elevate_chat');
     if (savedChat) {
       try {
@@ -438,7 +456,9 @@ function Chatbot({ onLogout }) {
         }
       } catch { /* ignore */ }
     }
+
     return () => {
+      isMounted = false;
       if (cooldownTimerRef.current) clearTimeout(cooldownTimerRef.current);
     };
   }, []);
