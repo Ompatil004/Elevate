@@ -64,10 +64,10 @@ def _get_model() -> Optional[genai.GenerativeModel]:
     if env_model:
         model_candidates.append(env_model)
     for c in [
-        'gemini-1.5-flash',
-        'gemini-1.5-pro',
         'gemini-2.5-flash',
         'gemini-2.0-flash',
+        'gemini-1.5-flash',
+        'gemini-1.5-pro',
         'gemini-flash-latest',
         'gemini-2.5-pro'
     ]:

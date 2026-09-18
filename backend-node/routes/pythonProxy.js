@@ -28,6 +28,7 @@ function normalizePythonPath(path) {
     '/api/workout': '/workout',
     '/swap-meal': '/nutrition/swap',
     '/chat': '/chat',
+    '/api/chat': '/api/chat',
   };
 
   return routeMap[cleanPath] || cleanPath;
