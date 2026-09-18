@@ -12,7 +12,8 @@ from pydantic import BaseModel, Field
 
 from app.core.auth import require_user_id_from_request
 from app.core.responses import api_success
-from app.gemini_service import get_chatbot_response, is_gemini_available
+from app.gemini_service import get_chatbot_response, is_gemini_available, get_current_model_name
+from app.circuit_breaker import gemini_cb
 from app.db import get_database
 
 logger = logging.getLogger(__name__)
@@ -185,9 +186,18 @@ async def chatbot_endpoint(
 
         history = request.history or []
 
-        logger.info(f"[Chatbot-Python] AI provider request start (+{_time.monotonic()-_t0:.2f}s)")
+        logger.info(
+            f"[Chatbot-Python] AI provider request start (+{_time.monotonic()-_t0:.2f}s) "
+            f"promptLength={len(message)} historyCount={len(history)} "
+            f"profileFields={list(profile.keys())} "
+            f"circuitState={gemini_cb.state} failureCount={gemini_cb._failure_count} "
+            f"activeModel={get_current_model_name()}"
+        )
         reply = get_chatbot_response(message, profile, history)
-        logger.info(f"[Chatbot-Python] AI provider response received (+{_time.monotonic()-_t0:.2f}s)")
+        logger.info(
+            f"[Chatbot-Python] AI provider response received (+{_time.monotonic()-_t0:.2f}s) "
+            f"model={get_current_model_name()} replyLength={len(reply) if isinstance(reply, str) else 0}"
+        )
 
         offline_mode = not is_gemini_available()
 

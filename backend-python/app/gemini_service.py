@@ -20,18 +20,26 @@ logger = logging.getLogger(__name__)
 # ===== LAZY INITIALIZATION WITH MODEL FALLBACK =====
 _model: Optional[genai.GenerativeModel] = None
 _model_initialized = False
-_model_name = None
+_model_name: Optional[str] = None
 _configured_api_key: Optional[str] = None
+_last_init_attempt_time: float = 0.0
+_INIT_RETRY_COOLDOWN_SECONDS: float = 10.0
+
+
+def get_current_model_name() -> Optional[str]:
+    """Return the name of the currently active Gemini model."""
+    return _model_name
 
 
 def _get_model() -> Optional[genai.GenerativeModel]:
     """Lazily initialize the Gemini model on first use with automatic fallback."""
+    import time
     api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
 
-    global _model, _model_initialized, _model_name, _configured_api_key
+    global _model, _model_initialized, _model_name, _configured_api_key, _last_init_attempt_time
 
-    # Fast path: already initialized for the same key.
-    if _model_initialized and api_key == _configured_api_key:
+    # Fast path: already successfully initialized for the same key.
+    if _model_initialized and _model is not None and api_key == _configured_api_key:
         return _model
 
     # If key changed during runtime, allow re-initialization without server restart.
@@ -41,11 +49,17 @@ def _get_model() -> Optional[genai.GenerativeModel]:
         _model_name = None
         _model_initialized = False
 
+    # If previous attempt failed, enforce cooldown to avoid spinning on every request
+    now = time.monotonic()
+    if _model_initialized and _model is None and (now - _last_init_attempt_time) < _INIT_RETRY_COOLDOWN_SECONDS:
+        return None
+
+    _last_init_attempt_time = now
+
     if not api_key:
         _model = None
         _model_initialized = True
         _configured_api_key = None
-        # Bug #4: Show a helpful, actionable message when the key is missing.
         env_keys = [k for k in os.environ if 'GEMINI' in k or 'GOOGLE' in k or 'API_KEY' in k]
         hint = f"Available env keys matching GEMINI/GOOGLE/API_KEY: {env_keys}" if env_keys else "No GEMINI/GOOGLE env keys found in environment."
         print("")
@@ -63,28 +77,29 @@ def _get_model() -> Optional[genai.GenerativeModel]:
     model_candidates = []
     if env_model:
         model_candidates.append(env_model)
+    # Verified working models on Google API with current SDK
     for c in [
-        'gemini-2.5-flash',
-        'gemini-2.0-flash',
-        'gemini-1.5-flash',
-        'gemini-1.5-pro',
+        'gemini-flash-lite-latest',
+        'gemini-3.5-flash-lite',
+        'gemini-3.6-flash',
+        'gemini-3.8-flash',
         'gemini-flash-latest',
-        'gemini-2.5-pro'
+        'gemini-2.5-flash-lite',
     ]:
         if c not in model_candidates:
             model_candidates.append(c)
 
     # Enhanced diagnostic: Log API key presence (masked)
     masked_key = api_key[:10] + "..." + api_key[-4:] if len(api_key) > 14 else "***"
-    print(f"[Gemini] Attempting to initialize with API key: {masked_key}")
-    print(f"[Gemini] Model candidates: {model_candidates}")
+    print(f"[Gemini] [Chatbot-Python] GEMINI_API_KEY = PRESENT ({masked_key})")
+    print(f"[Gemini] [Chatbot-Python] Model candidates: {model_candidates}")
 
     try:
         genai.configure(api_key=api_key)
         _configured_api_key = api_key
-        print(f"[Gemini] Configuration successful")
+        print(f"[Gemini] [Chatbot-Python] Configuration successful")
     except Exception as e:
-        print(f"[Gemini] configure failed: {e}")
+        print(f"[Gemini] [Chatbot-Python] configure failed: {e}")
         _model = None
         _model_initialized = True
         _configured_api_key = None
@@ -93,15 +108,14 @@ def _get_model() -> Optional[genai.GenerativeModel]:
     # Try each model candidate until one works
     for candidate in model_candidates:
         try:
-            print(f"[Gemini] Testing model: {candidate}...")
+            print(f"[Gemini] [Chatbot-Python] Testing model: {candidate}...")
             test_model = genai.GenerativeModel(candidate)
 
-            # Validation call: avoid tiny token limits and ensure we can read text output.
-            # request_options timeout (15s) prevents hanging indefinitely during model probe.
+            # Validation call: fast 8s timeout prevents hanging on deprecated or slow models.
             response = test_model.generate_content(
                 "Reply exactly with: OK",
                 generation_config=genai.types.GenerationConfig(max_output_tokens=128, temperature=0),
-                request_options={"timeout": 15},
+                request_options={"timeout": 8},
             )
 
             has_text = False
@@ -125,23 +139,28 @@ def _get_model() -> Optional[genai.GenerativeModel]:
 
             _model = test_model
             _model_name = candidate
-            print(f"[Gemini] AI initialized successfully with model: {candidate}")
+            _model_initialized = True
+            print(f"[Gemini] [Chatbot-Python] AI initialized successfully with model: {candidate}")
             break
         except Exception as e:
             err_str = str(e).lower()
             if 'leaked' in err_str or 'permissiondenied' in err_str or '403' in err_str:
-                print(f"[Gemini] CRITICAL: API Key rejected by Google (PermissionDenied 403 / Leaked key): {e}")
-                print(f"[Gemini] Please generate a NEW API key at https://aistudio.google.com/app/apikey")
+                print(f"[Gemini] [Chatbot-Python] CRITICAL: API Key rejected by Google (PermissionDenied 403 / Leaked key): {e}")
+                print(f"[Gemini] [Chatbot-Python] Please generate a NEW API key at https://aistudio.google.com/app/apikey")
                 break
             elif '429' in err_str or 'quota' in err_str or 'exhausted' in err_str:
-                print(f"[Gemini] Model {candidate}: quota exhausted, trying next...")
+                print(f"[Gemini] [Chatbot-Python] Model {candidate}: quota exhausted, trying next...")
             elif '404' in err_str or 'not found' in err_str:
-                print(f"[Gemini] Model {candidate}: not available, trying next...")
+                print(f"[Gemini] [Chatbot-Python] Model {candidate}: not available (404), trying next...")
+            elif '504' in err_str or 'deadline' in err_str or 'timeout' in err_str:
+                print(f"[Gemini] [Chatbot-Python] Model {candidate}: deadline/timeout, trying next...")
             else:
-                print(f"[Gemini] Model {candidate}: {type(e).__name__}: {str(e)[:80]}")
-    
+                print(f"[Gemini] [Chatbot-Python] Model {candidate}: {type(e).__name__}: {str(e)[:80]}")
+
     if _model is None:
-        print("[Gemini] All Gemini models failed. AI chatbot will use offline fallback responses.")
+        print("[Gemini] [Chatbot-Python] All Gemini models failed. AI chatbot will use offline fallback responses.")
+    else:
+        print(f"[Gemini] [Chatbot-Python] Active model ready: {_model_name}")
 
     _model_initialized = True
     return _model
@@ -406,7 +425,10 @@ def get_chatbot_response(user_message: str, profile: Dict[str, Any], chat_histor
 
     # If model is unavailable, use smart offline fallback
     if not model:
+        logger.warning("[Chatbot-Python] Gemini model is unavailable; using offline fallback")
         return _build_contextual_offline_response(user_message, profile, chat_history)
+
+    logger.info(f"[Chatbot-Python] Using Gemini model: {_model_name}, circuit state: {gemini_cb.state}, failure count: {gemini_cb._failure_count}")
 
     # Build conversation context from history
     history_context = ""
@@ -456,12 +478,13 @@ RESPONSE (be concise, helpful, and motivating):"""
         return reply
 
     except CircuitBreakerOpen as cbo:
-        print(f"[Gemini] {cbo}")
+        logger.error(f"[Chatbot-Python] Circuit breaker is OPEN: {cbo}")
+        print(f"[Gemini] [Chatbot-Python] {cbo}")
         return _build_contextual_offline_response(user_message, profile, chat_history)
     except Exception as e:
         error_str = str(e).lower()
-        logger.error(f"Gemini API error: {e}")
-        print(f"[Gemini] Chatbot error: {e}")
+        logger.error(f"[Chatbot-Python] Gemini API error: {type(e).__name__}: {e}")
+        print(f"[Gemini] [Chatbot-Python] Chatbot error: {type(e).__name__}: {e}")
 
         # If quota exhausted, use fallback
         if '429' in error_str or 'quota' in error_str or 'exhausted' in error_str or 'rate' in error_str:
