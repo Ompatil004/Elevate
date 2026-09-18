@@ -115,45 +115,73 @@ router.use(auth, async (req, res) => {
     // [python-proxy] structured logging (Phase 3)
     console.log(`[python-proxy] requestId=${reqId} method=${method} incoming=${req.path} resolved=${resolvedPath} upstream=${base}${resolvedPath}`);
 
-    const response = await axios({
-      method,
-      url: targetUrl,
-      headers,
-      params: req.query,
-      data: ['GET', 'HEAD'].includes(method) ? undefined : req.body,
-      timeout: getProxyTimeoutMs(),
-      validateStatus: () => true,
-    });
-    const durationMs = Date.now() - startTime;
-
-    const contentType = response.headers?.['content-type'] || 'unknown';
-    console.log(`[python-proxy] requestId=${reqId} method=${method} incoming=${req.path} resolved=${resolvedPath} upstreamStatus=${response.status} durationMs=${durationMs} contentType=${contentType}`);
-
-    // Parse and validate JSON safely with fallback parsing
+    const maxAttempts = (process.env.NODE_ENV === 'production' && !process.env.JEST_WORKER_ID) ? 3 : 1;
+    let response;
     let isJson = false;
     let parsedData = null;
-    const rawData = response.data;
-    
-    if (contentType.includes('json')) {
-      if (typeof rawData === 'string' && rawData.trim() === '') {
+    let attempts = 0;
+
+    while (attempts < maxAttempts) {
+      attempts++;
+      try {
+        response = await axios({
+          method,
+          url: targetUrl,
+          headers,
+          params: req.query,
+          data: ['GET', 'HEAD'].includes(method) ? undefined : req.body,
+          timeout: getProxyTimeoutMs(),
+          validateStatus: () => true,
+        });
+
+        const contentType = response.headers?.['content-type'] || 'unknown';
+        const rawData = response.data;
+
         isJson = false;
-      } else {
-        isJson = true;
-        parsedData = rawData;
-      }
-    } else if (typeof rawData === 'string') {
-      if (rawData.trim() !== '') {
-        try {
-          parsedData = JSON.parse(rawData);
+        parsedData = null;
+
+        if (contentType.includes('json')) {
+          if (typeof rawData === 'string' && rawData.trim() === '') {
+            isJson = false;
+          } else {
+            isJson = true;
+            parsedData = rawData;
+          }
+        } else if (typeof rawData === 'string') {
+          if (rawData.trim() !== '') {
+            try {
+              parsedData = JSON.parse(rawData);
+              isJson = true;
+            } catch (e) {
+              // Not valid JSON string
+            }
+          }
+        } else if (rawData && typeof rawData === 'object') {
           isJson = true;
-        } catch (e) {
-          // Not valid JSON string
+          parsedData = rawData;
         }
+
+        // If upstream is cold-starting (non-JSON HTML or 502/503/504 status), retry if attempts remain
+        if ((!isJson || [502, 503, 504].includes(response.status)) && attempts < maxAttempts) {
+          console.warn(`[python-proxy] [${reqId}] Upstream cold-start detected (status=${response.status}). Retrying attempt ${attempts}/${maxAttempts} in 3.5s...`);
+          await new Promise((resolve) => setTimeout(resolve, 3500));
+          continue;
+        }
+
+        break;
+      } catch (err) {
+        if (attempts < maxAttempts) {
+          console.warn(`[python-proxy] [${reqId}] Upstream network error (${err.code || err.message}). Retrying attempt ${attempts}/${maxAttempts} in 3.5s...`);
+          await new Promise((resolve) => setTimeout(resolve, 3500));
+          continue;
+        }
+        throw err;
       }
-    } else if (rawData && typeof rawData === 'object') {
-      isJson = true;
-      parsedData = rawData;
     }
+
+    const durationMs = Date.now() - startTime;
+    const contentType = response.headers?.['content-type'] || 'unknown';
+    console.log(`[python-proxy] requestId=${reqId} method=${method} incoming=${req.path} resolved=${resolvedPath} upstreamStatus=${response.status} durationMs=${durationMs} contentType=${contentType}`);
 
     if (!isJson) {
       console.error(`[python-proxy] [${reqId}] Upstream returned non-JSON/malformed response with status ${response.status}`);
