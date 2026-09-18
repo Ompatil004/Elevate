@@ -976,7 +976,10 @@ const Workout = ({ onLogout }) => {
         }
       };
 
+      let fetchStartTime = Date.now();
+
       try {
+        fetchStartTime = Date.now();
         if (isMounted) {
           setLoading(true);
           setError(null);
@@ -1157,13 +1160,6 @@ const Workout = ({ onLogout }) => {
           setToStorage(StorageKeys.WORKOUT_WEEK_METADATA, normalizedWeekMetadata);
           console.log('💾 Workout plan cached');
           console.log(`📊 Plan has ${normalizedPlan.length} days`);
-        }
-        if (isMounted && hydratedFromCache && showErrorMsg) {
-          setError(errorMessage);
-          showError(errorMessage, 5000);
-        } else if (isMounted && !showErrorMsg) {
-          // For rate limiting, just log without showing error popup
-          console.warn('⚠️ Workout request rate limited. Will retry on next render.');
         }
 
         const durationMs = Date.now() - fetchStartTime;
