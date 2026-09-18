@@ -425,7 +425,7 @@ export const sendChatbotMessage = (message, profile, history, options = {}) => {
             history: sanitizedHistory,
             consent_to_health_processing: includeSensitive,
         },
-        { timeout: 30000 }
+        { timeout: 90000 }  // 90s — allows Render free-tier cold-start (50-60s) to complete
     );
 };
 

@@ -496,33 +496,70 @@ function Chatbot({ onLogout }) {
     setCooldown(true);
     cooldownTimerRef.current = setTimeout(() => setCooldown(false), 1500);
 
-    try {
-      const chatResponse = await sendChatbotMessage(trimmed, profile, updatedMessages);
-      const replyText = chatResponse.data?.reply || chatResponse.data?.message || "I couldn't generate a response. Please try again.";
-      const isOffline = chatResponse.data?.offline_mode || 
-                        replyText.includes('offline mode') ||
-                        replyText.includes('AI service temporarily unavailable');
-      setAiStatus(isOffline ? 'offline' : 'online');
-      const botMsg = {
-        role: 'bot',
-        text: replyText,
-        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-      };
-      setMessages(prev => [...prev, botMsg]);
-    } catch (err) {
-      // Detailed diagnostics — helps identify connection issues
-      console.error('[Chatbot] sendMessage error:', {
-        status: err.response?.status,
-        code: err.code,
-        message: err.message,
-        data: err.response?.data,
-      });
+    const MAX_ATTEMPTS = 2;
+    let lastErr = null;
 
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      try {
+        if (attempt === 2) {
+          // Show waking-up hint before retry
+          setMessages(prev => [...prev, {
+            role: 'bot',
+            text: '⏳ The AI server is waking up (Render cold start). Retrying automatically...',
+            time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+            isInfo: true
+          }]);
+          // Wait 5s before retry to give Render time to boot
+          await new Promise(r => setTimeout(r, 5000));
+        }
+
+        const chatResponse = await sendChatbotMessage(trimmed, profile, updatedMessages);
+        const replyText = chatResponse.data?.reply || chatResponse.data?.message || "I couldn't generate a response. Please try again.";
+        const isOffline = chatResponse.data?.offline_mode ||
+                          replyText.includes('offline mode') ||
+                          replyText.includes('AI service temporarily unavailable');
+        setAiStatus(isOffline ? 'offline' : 'online');
+
+        // Remove the waking-up info message if present, then add real reply
+        setMessages(prev => {
+          const filtered = prev.filter(m => !m.isInfo);
+          return [...filtered, {
+            role: 'bot',
+            text: replyText,
+            time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+          }];
+        });
+        lastErr = null;
+        break; // success — exit retry loop
+
+      } catch (err) {
+        lastErr = err;
+        console.error(`[Chatbot] sendMessage error (attempt ${attempt}/${MAX_ATTEMPTS}):`, {
+          status: err.response?.status,
+          code: err.code,
+          message: err.message,
+          data: err.response?.data,
+        });
+
+        const isTimeout = err.code === 'ECONNABORTED' || err.message?.includes('timeout');
+        const isColdStart = err.response?.status === 502 || err.response?.status === 503 || err.response?.status === 504;
+
+        // Only retry on timeout or cold-start errors
+        if ((isTimeout || isColdStart) && attempt < MAX_ATTEMPTS) {
+          continue;
+        }
+        break;
+      }
+    }
+
+    // Handle final error after all attempts
+    if (lastErr) {
+      const err = lastErr;
       let errorMsg = "I'm having trouble connecting right now. Please try again in a moment.";
       if (err.response?.status === 429) {
         errorMsg = "You're sending messages too fast! Please wait a moment. 😅";
       } else if (err.response?.status === 502 || err.response?.status === 503 || err.response?.status === 504) {
-        errorMsg = "The AI Backend server is currently waking up on Render. Please try again in 10-15 seconds. ⏳";
+        errorMsg = "The AI server is still waking up on Render. Please wait 20-30 seconds and try again. ⏳";
       } else if (err.response?.status === 401) {
         errorMsg = "Session expired — please log out and log back in. 🔑";
       } else if (err.response?.status === 422) {
@@ -530,21 +567,24 @@ function Chatbot({ onLogout }) {
       } else if (err.response?.data?.reply || err.response?.data?.message || err.response?.data?.error?.message) {
         errorMsg = err.response.data.reply || err.response.data.message || err.response.data.error.message;
       } else if (err.code === 'ERR_NETWORK' || err.code === 'ECONNREFUSED') {
-        errorMsg = "Can't reach the AI server. Make sure the Python backend (port 8000) is running.";
-        setError('Connection failed — is the Python backend running on port 8000?');
+        errorMsg = "Can't reach the AI server. Please check your internet connection.";
       } else if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
-        errorMsg = "The request timed out — the AI server may be sleeping. Please try again in 15 seconds. ⏳";
+        errorMsg = "The AI server is taking too long to respond. It may still be waking up — please try again in 30 seconds. ⏳";
       }
-      setMessages(prev => [...prev, {
-        role: 'bot',
-        text: errorMsg,
-        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-        isError: true
-      }]);
-    } finally {
-      setIsTyping(false);
-      setTimeout(() => inputRef.current?.focus(), 100);
+      // Remove any waking-up info messages, then show error
+      setMessages(prev => {
+        const filtered = prev.filter(m => !m.isInfo);
+        return [...filtered, {
+          role: 'bot',
+          text: errorMsg,
+          time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+          isError: true
+        }];
+      });
     }
+
+    setIsTyping(false);
+    setTimeout(() => inputRef.current?.focus(), 100);
   }, [messages, profile, isTyping, cooldown]);
 
   const handleSubmit = (e) => {
