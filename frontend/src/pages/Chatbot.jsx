@@ -510,16 +510,30 @@ function Chatbot({ onLogout }) {
       };
       setMessages(prev => [...prev, botMsg]);
     } catch (err) {
+      // Detailed diagnostics — helps identify connection issues
+      console.error('[Chatbot] sendMessage error:', {
+        status: err.response?.status,
+        code: err.code,
+        message: err.message,
+        data: err.response?.data,
+      });
+
       let errorMsg = "I'm having trouble connecting right now. Please try again in a moment.";
       if (err.response?.status === 429) {
         errorMsg = "You're sending messages too fast! Please wait a moment. 😅";
       } else if (err.response?.status === 502 || err.response?.status === 503 || err.response?.status === 504) {
-        errorMsg = "The AI Backend server is currently waking up or restarting on Render. Please try sending your message again in 10-15 seconds. ⏳";
+        errorMsg = "The AI Backend server is currently waking up on Render. Please try again in 10-15 seconds. ⏳";
+      } else if (err.response?.status === 401) {
+        errorMsg = "Session expired — please log out and log back in. 🔑";
+      } else if (err.response?.status === 422) {
+        errorMsg = "Invalid request format. Please try refreshing the page.";
       } else if (err.response?.data?.reply || err.response?.data?.message || err.response?.data?.error?.message) {
         errorMsg = err.response.data.reply || err.response.data.message || err.response.data.error.message;
       } else if (err.code === 'ERR_NETWORK' || err.code === 'ECONNREFUSED') {
         errorMsg = "Can't reach the AI server. Make sure the Python backend (port 8000) is running.";
         setError('Connection failed — is the Python backend running on port 8000?');
+      } else if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+        errorMsg = "The request timed out — the AI server may be sleeping. Please try again in 15 seconds. ⏳";
       }
       setMessages(prev => [...prev, {
         role: 'bot',
