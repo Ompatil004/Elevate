@@ -23,9 +23,9 @@ describe('PoseDetector Routing & Metadata Propagation', () => {
     expect(route(ex)).toBe('SQUAT');
   });
 
-  it('routes Pull Up to HINGE (via vertical_pull)', () => {
+  it('routes Pull Up to PULL (via vertical_pull)', () => {
     const ex = { name: 'Pull Up', movement_pattern: 'vertical_pull' };
-    expect(route(ex)).toBe('HINGE');
+    expect(route(ex)).toBe('PULL');
   });
 
   it('routes Lateral Raise to RAISE', () => {
