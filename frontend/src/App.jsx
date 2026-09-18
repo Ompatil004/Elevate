@@ -7,23 +7,44 @@ import { ThemeProvider } from './context/ThemeContext';
 import AuroraBackground from './components/AuroraBackground';
 import './App.css';
 
-const Login     = lazy(() => import('./pages/Login'));
-const Register  = lazy(() => import('./pages/Register'));
-const Dashboard = lazy(() => import('./pages/Dashboard'));
-const ProfileSetup = lazy(() => import('./pages/ProfileSetup'));
-const Workout   = lazy(() => import('./pages/Workout'));
-const Nutrition = lazy(() => import('./pages/Nutrition'));
-const Chatbot   = lazy(() => import('./pages/Chatbot'));
-const DashboardActionIdeas = lazy(() => import('./pages/DashboardActionIdeas'));
-const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
-const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
-const AdminRoute = lazy(() => import('./components/admin/AdminRoute'));
-const AdminLayout = lazy(() => import('./components/admin/AdminLayout'));
-const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'));
-const AdminUsers = lazy(() => import('./pages/admin/Users'));
-const AdminContent = lazy(() => import('./pages/admin/Content'));
-const AdminSystem = lazy(() => import('./pages/admin/System'));
-const AdminAudit = lazy(() => import('./pages/admin/Audit'));
+// Safe lazy loader that automatically reloads the tab once if a new deployment changed Vite chunk hashes
+const safeLazy = (importFn) => lazy(async () => {
+  const key = 'elevate_chunk_retry';
+  try {
+    const module = await importFn();
+    sessionStorage.removeItem(key);
+    return module;
+  } catch (error) {
+    const isChunkError = error?.message?.includes('dynamically imported module')
+      || error?.message?.includes('Importing a module script failed')
+      || error?.name === 'TypeError';
+
+    if (isChunkError && !sessionStorage.getItem(key)) {
+      sessionStorage.setItem(key, '1');
+      console.warn('New app deployment detected — refreshing tab for updated assets...');
+      window.location.reload();
+    }
+    throw error;
+  }
+});
+
+const Login     = safeLazy(() => import('./pages/Login'));
+const Register  = safeLazy(() => import('./pages/Register'));
+const Dashboard = safeLazy(() => import('./pages/Dashboard'));
+const ProfileSetup = safeLazy(() => import('./pages/ProfileSetup'));
+const Workout   = safeLazy(() => import('./pages/Workout'));
+const Nutrition = safeLazy(() => import('./pages/Nutrition'));
+const Chatbot   = safeLazy(() => import('./pages/Chatbot'));
+const DashboardActionIdeas = safeLazy(() => import('./pages/DashboardActionIdeas'));
+const ForgotPassword = safeLazy(() => import('./pages/ForgotPassword'));
+const AdminLogin = safeLazy(() => import('./pages/admin/AdminLogin'));
+const AdminRoute = safeLazy(() => import('./components/admin/AdminRoute'));
+const AdminLayout = safeLazy(() => import('./components/admin/AdminLayout'));
+const AdminDashboard = safeLazy(() => import('./pages/admin/Dashboard'));
+const AdminUsers = safeLazy(() => import('./pages/admin/Users'));
+const AdminContent = safeLazy(() => import('./pages/admin/Content'));
+const AdminSystem = safeLazy(() => import('./pages/admin/System'));
+const AdminAudit = safeLazy(() => import('./pages/admin/Audit'));
 
 // ------------------------------------------------------------------
 // Full-screen loader that matches the dark theme — prevents white flash
