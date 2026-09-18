@@ -13,6 +13,13 @@ const getProxyTimeoutMs = () => {
   return Number.isFinite(value) && value > 0 ? value : 120000;
 };
 
+// Chat-specific timeout: Gemini has a 25s hard timeout + ~10s overhead = 35s max.
+// Keep below the 90s frontend timeout so Node always responds before Axios gives up.
+const getChatTimeoutMs = () => {
+  const value = Number(process.env.PYTHON_CHAT_TIMEOUT_MS || 40000);
+  return Number.isFinite(value) && value > 0 ? value : 40000;
+};
+
 // Route mapping helper
 function normalizePythonPath(path) {
   const cleanPath = path.replace(/^\/api\/python/, '');
@@ -115,10 +122,15 @@ router.use(auth, async (req, res) => {
     // 3. Build headers (throws 401 if token missing)
     const headers = buildForwardHeaders(req);
 
-    // [python-proxy] structured logging (Phase 3)
-    console.log(`[python-proxy] requestId=${reqId} method=${method} incoming=${req.path} resolved=${resolvedPath} upstream=${base}${resolvedPath}`);
+    // [python-proxy] structured logging
+    const isChat = req.path.includes('/chat');
+    const proxyTimeout = isChat ? getChatTimeoutMs() : getProxyTimeoutMs();
+    console.log(`[python-proxy] requestId=${reqId} method=${method} incoming=${req.path} resolved=${resolvedPath} upstream=${base}${resolvedPath} timeout=${proxyTimeout}ms`);
+    if (isChat) console.log(`[Chatbot-Node] request received path=${req.path} requestId=${reqId}`);
 
-    const maxAttempts = (process.env.NODE_ENV === 'production' && !process.env.JEST_WORKER_ID) ? 3 : 1;
+    // Chat requests use 1 attempt only: the Python endpoint has its own Gemini timeout (25s)
+    // and will always return within 40s; retrying a chat on network error would double block time.
+    const maxAttempts = isChat ? 1 : ((process.env.NODE_ENV === 'production' && !process.env.JEST_WORKER_ID) ? 3 : 1);
     let response;
     let isJson = false;
     let parsedData = null;
@@ -127,15 +139,17 @@ router.use(auth, async (req, res) => {
     while (attempts < maxAttempts) {
       attempts++;
       try {
+        const _attemptStart = Date.now();
         response = await axios({
           method,
           url: targetUrl,
           headers,
           params: req.query,
           data: ['GET', 'HEAD'].includes(method) ? undefined : req.body,
-          timeout: getProxyTimeoutMs(),
+          timeout: proxyTimeout,
           validateStatus: () => true,
         });
+        if (isChat) console.log(`[Chatbot-Node] Python response received in ${Date.now()-_attemptStart}ms status=${response.status} requestId=${reqId}`);
 
         const contentType = response.headers?.['content-type'] || 'unknown';
         const rawData = response.data;

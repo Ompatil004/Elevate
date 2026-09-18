@@ -65,6 +65,10 @@ async def chatbot_endpoint(
     - Conversation history support
     - Graceful degradation when AI is unavailable
     """
+    import time as _time
+    _t0 = _time.monotonic()
+    logger.info(f"[Chatbot-Python] request received")
+
     try:
         user_id = require_user_id_from_request(http_request, x_auth_token)
 
@@ -142,14 +146,23 @@ async def chatbot_endpoint(
             if key in allowed_keys
         }
         
-        # Fetch real-time activity and workout history
+        # Fetch real-time activity and workout history — with explicit timeouts
+        _db_t0 = _time.monotonic()
+        logger.info(f"[Chatbot-Python] DB lookup start (+{_db_t0-_t0:.2f}s)")
         try:
             from datetime import datetime, timezone
             from bson import ObjectId
+            import asyncio as _asyncio
             db = get_database()
             today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-            daily_log = await db.daily_logs.find_one({"user_id": user_id, "date": today_str})
-            user_doc = await db.users.find_one({"_id": ObjectId(user_id)})
+            # Hard 5s timeout on DB queries — prevents indefinite hang if Mongo is slow
+            daily_log, user_doc = await _asyncio.wait_for(
+                _asyncio.gather(
+                    db.daily_logs.find_one({"user_id": user_id, "date": today_str}),
+                    db.users.find_one({"_id": ObjectId(user_id)}),
+                ),
+                timeout=5.0,
+            )
             
             profile["_daily_log"] = {
                 "water_ml": daily_log.get("water_ml", 0) if daily_log else 0,
@@ -166,11 +179,16 @@ async def chatbot_endpoint(
                     } for w in workouts[-3:]
                 ]
         except Exception as db_exc:
-            logger.warning(f"Could not load real-time user activity logs: {db_exc}")
+            logger.warning(f"[Chatbot-Python] DB lookup failed after {_time.monotonic()-_db_t0:.2f}s: {db_exc}")
+
+        logger.info(f"[Chatbot-Python] DB lookup complete (+{_time.monotonic()-_t0:.2f}s)")
 
         history = request.history or []
 
+        logger.info(f"[Chatbot-Python] AI provider request start (+{_time.monotonic()-_t0:.2f}s)")
         reply = get_chatbot_response(message, profile, history)
+        logger.info(f"[Chatbot-Python] AI provider response received (+{_time.monotonic()-_t0:.2f}s)")
+
         offline_mode = not is_gemini_available()
 
         # Check if reply is from fallback
@@ -179,6 +197,7 @@ async def chatbot_endpoint(
             "ai service temporarily unavailable" in reply.lower()
         )
         
+        logger.info(f"[Chatbot-Python] responding in {_time.monotonic()-_t0:.2f}s offline={offline_mode or is_fallback}")
         return api_success(
             "Chat response generated", 
             data={"reply": reply, "offline_mode": offline_mode or is_fallback},
@@ -186,8 +205,8 @@ async def chatbot_endpoint(
         )
 
     except Exception as e:
-        logger.error(f"Gemini API error: {e}")
-        logger.error(f"Chatbot error: {e}")
+        logger.error(f"[Chatbot-Python] unhandled error after {_time.monotonic()-_t0:.2f}s: {e}")
         traceback.print_exc()
         fallback_reply = "I'm having a brief technical issue. Please try again in a moment! 🔄"
         return api_success("Chat response generated", data={"reply": fallback_reply, "offline_mode": True}, reply=fallback_reply)
+

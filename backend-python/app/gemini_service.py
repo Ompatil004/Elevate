@@ -97,9 +97,11 @@ def _get_model() -> Optional[genai.GenerativeModel]:
             test_model = genai.GenerativeModel(candidate)
 
             # Validation call: avoid tiny token limits and ensure we can read text output.
+            # request_options timeout (15s) prevents hanging indefinitely during model probe.
             response = test_model.generate_content(
                 "Reply exactly with: OK",
                 generation_config=genai.types.GenerationConfig(max_output_tokens=128, temperature=0),
+                request_options={"timeout": 15},
             )
 
             has_text = False
@@ -441,7 +443,9 @@ RESPONSE (be concise, helpful, and motivating):"""
                     max_output_tokens=1024,
                     temperature=0.7,
                     top_p=0.9,
-                )
+                ),
+                # Hard 25s timeout so the Python endpoint never hangs past frontend expectation
+                request_options={"timeout": 25},
             )
         # ARCH-7: circuit breaker guards chatbot calls
         response = gemini_cb.call(_call)
