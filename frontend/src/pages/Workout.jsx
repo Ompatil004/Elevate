@@ -1000,7 +1000,7 @@ const Workout = ({ onLogout }) => {
           showErrorMsg = false;
         } else if (!err.response) {
           // Network error - backend not reachable
-          errorMessage = 'Cannot connect to backend server. Please ensure it\'s running on port 8000.';
+          errorMessage = 'Cannot connect to backend server. Please ensure the service is running.';
         } else if (err.response?.status === 404) {
           errorMessage = 'Workout endpoint not found. Backend may need updating.';
         } else if (err.response?.status === 500) {
@@ -1020,7 +1020,7 @@ const Workout = ({ onLogout }) => {
           }
         }
 
-        if (isMounted && hydratedFromCache && showErrorMsg) {
+        if (isMounted && showErrorMsg) {
           setError(errorMessage);
           showError(errorMessage, 5000);
         } else if (isMounted && !showErrorMsg) {

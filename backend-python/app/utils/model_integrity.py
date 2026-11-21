@@ -102,7 +102,7 @@ def _load_checksums() -> dict[str, str]:
     if not CHECKSUM_FILE.exists():
         return {}
     result: dict[str, str] = {}
-    with CHECKSUM_FILE.open() as fh:
+    with CHECKSUM_FILE.open(encoding="utf-8", errors="replace") as fh:
         for line in fh:
             line = line.strip()
             if not line or line.startswith("#"):

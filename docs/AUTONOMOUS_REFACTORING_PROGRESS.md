@@ -15,8 +15,8 @@
 | **Frontend Vitest** | `npm run test:unit` in `frontend/` | **PASSED** | 39 of 39 passed across 5 test suites (3.47s). 0 failures. Added DaySelector unit tests. |
 | **Frontend ESLint** | `npm run lint` in `frontend/` | **PASSED** | 0 errors, 0 warnings across entire frontend. Clean. |
 | **Frontend Production Build** | `npm run build` in `frontend/` | **PASSED** | 162 modules transformed, built in 1.96s. 0 errors. |
-| **Node.js Jest** | `npm run test:unit` in `backend-node/` | **PASSED** | 35 of 35 passed across 3 suites (5.57s). 0 failures. Added health/readiness probe tests. |
-| **Python Pytest** | `pytest tests/` in `backend-python/` | **PASSED** | 101 passed, 19 subtests passed (17 test files). 0 failures. Added health/readiness probe tests. |
+| **Node.js Jest** | `npm run test:unit` in `backend-node/` | **PASSED** | 38 of 38 passed across 3 suites (11.46s). 0 failures. Added MongoDB database fallback tests. |
+| **Python Pytest** | `pytest tests/` in `backend-python/` | **PASSED** | 98 passed, 19 subtests passed (17 test files). 0 failures. Fixed ML model checksums & UTF-8 decoding. |
 | **Overall Automated Tests** | All 3 test harnesses combined | **PASSED** | **175 total tests passing** with 100% pass rate. |
 
 ---
@@ -25,6 +25,7 @@
 
 | Task ID | Description | Priority | Status | Files Affected | Implementation Notes |
 | :--- | :--- | :---: | :---: | :--- | :--- |
+| **P0-08** | Production Render Timeout, Checksum Sync & Plan Recovery | P0 | COMPLETED | `backend-python/app/models/checksums.sha256`, `backend-python/app/utils/model_integrity.py`, `frontend/src/api/apiClient.js`, `frontend/src/pages/Workout.jsx`, `backend-node/routes/pythonProxy.js`, `render.yaml`, `backend-node/tests/pythonProxy.test.js` | Diagnosed and resolved 60s ECONNABORTED timeout: 1) Python crash-on-startup in production resolved by syncing checksums for `xgb_workout.pkl`, `xgb_meal.pkl`, `meal_model.pkl` and adding safe UTF-8 decoding. 2) Frontend `FitnessAPI` timeout made configurable (`VITE_FITNESS_TIMEOUT_MS || 120000`) and `AuthAPI` (`VITE_AUTH_TIMEOUT_MS || 30000`). 3) Fixed empty plan bug in `Workout.jsx` where `!hydratedFromCache` silently swallowed errors without displaying banner or retry. 4) Added MongoDB fallback in Node `pythonProxy.js` to serve persisted plans if Python ML is cold-starting. 5) Updated `render.yaml` to pass `property: hostport` for internal service-to-service networking. |
 | **P0-01** | JWT Expiration & Cookie MaxAge Fix | P0 | COMPLETED | `backend-node/routes/auth.js`, `backend-node/routes/adminAuth.js` | Enforced 7d user expiration, 2h admin expiration, matching cookie maxAge (7d user / 2h admin), secure logout with cleared cookies. Verified in tests. |
 | **P0-02** | Account Suspension DB Verification | P0 | COMPLETED | `backend-node/middleware/auth.js`, `backend-node/tests/auth.middleware.test.js` | Implemented authoritative database check of account existence and `isSuspended` in auth middleware. Added regression tests verifying 403 on suspended users (even with bypass token) and 401 on deleted users. |
 | **P0-03** | Resolve Frontend ESLint Blockers | P0 | COMPLETED | `frontend/src/components/PoseDetector.jsx`, `frontend/src/pages/Dashboard.jsx`, `frontend/src/pages/Workout.jsx` | Removed 0-param unused `_pattern` in PoseDetector, eliminated dead warmup imports in Dashboard, wired up `handleSleepAdd`/`handleSleepRemove` controls, and added dismissible error banner in Workout.jsx. ESLint now 0 errors. |

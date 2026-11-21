@@ -24,6 +24,7 @@ process.env.ML_API_URL = 'https://elevate-pybackend.onrender.com';
 
 const authMiddleware = require('../middleware/auth');
 const pythonProxyRouter = require('../routes/pythonProxy');
+const User = require('../models/User');
 
 function buildApp() {
   const app = express();
@@ -50,6 +51,11 @@ describe('Python Backend Proxy Route', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     process.env.ML_API_URL = 'https://elevate-pybackend.onrender.com';
+    User.findById.mockImplementation((id) => ({
+      select: jest.fn().mockReturnValue({
+        lean: jest.fn().mockResolvedValue({ _id: id, isSuspended: false, role: 'user' })
+      })
+    }));
   });
 
   it('cookie-only elevate_token forwards Bearer token (200)', async () => {
@@ -335,5 +341,79 @@ describe('Python Backend Proxy Route', () => {
     expect(res.status).toBe(502);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('PYTHON_UPSTREAM_ERROR');
+  });
+
+  it('serves database fallback for /api/weekly-plan when upstream Python times out / errors', async () => {
+    axios.mockRejectedValueOnce(new Error('timeout of 120000ms exceeded'));
+    const mockPlan = Array(7).fill({ day: 'Monday', exercises: [{ name: 'Pushup' }] });
+    User.findById.mockImplementation((id) => ({
+      select: jest.fn().mockReturnValue({
+        lean: jest.fn().mockResolvedValue({
+          _id: id,
+          isSuspended: false,
+          role: 'user',
+          workoutPlan: mockPlan,
+          workoutWeekMetadata: { week_start_date: '2026-11-17' },
+        })
+      })
+    }));
+
+    const res = await request(app)
+      .get('/api/weekly-plan')
+      .set('Cookie', `elevate_token=${validToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.plan).toEqual(mockPlan);
+    expect(res.body.data.week_metadata.week_start_date).toBe('2026-11-17');
+  });
+
+  it('serves database fallback for POST /workout when upstream Python fails', async () => {
+    axios.mockRejectedValueOnce(new Error('connect ECONNREFUSED'));
+    const mockPlan = Array(7).fill({ day: 'Monday', exercises: [{ name: 'Squat' }] });
+    User.findById.mockImplementation((id) => ({
+      select: jest.fn().mockReturnValue({
+        lean: jest.fn().mockResolvedValue({
+          _id: id,
+          isSuspended: false,
+          role: 'user',
+          workoutPlan: mockPlan,
+        })
+      })
+    }));
+
+    const res = await request(app)
+      .post('/api/python/workout')
+      .set('Cookie', `elevate_token=${validToken}`)
+      .send({ experience: 'Beginner' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.workout).toEqual(mockPlan);
+    expect(res.body.exercises_count).toBe(7);
+  });
+
+  it('serves database fallback for POST /nutrition when upstream Python fails', async () => {
+    axios.mockRejectedValueOnce(new Error('connect ECONNREFUSED'));
+    const mockNutrition = { weekly_plan: { Monday: { breakfast: [] } } };
+    User.findById.mockImplementation((id) => ({
+      select: jest.fn().mockReturnValue({
+        lean: jest.fn().mockResolvedValue({
+          _id: id,
+          isSuspended: false,
+          role: 'user',
+          latestNutritionPlan: mockNutrition,
+        })
+      })
+    }));
+
+    const res = await request(app)
+      .post('/api/python/nutrition')
+      .set('Cookie', `elevate_token=${validToken}`)
+      .send({ goal: 'Weight Loss' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.nutrition).toEqual(mockNutrition);
   });
 });

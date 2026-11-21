@@ -146,6 +146,13 @@ All quality gates, unit tests, integration tests, API suites, and automated brow
 - **Render Infrastructure as Code (`render.yaml`):** Added root blueprint defining `elevate-node` web service, `elevate-python` web service, and `elevate-frontend` static site with declared health check paths and environment variables.
 - **Uptime Architecture Clarification:** Documented Render Free tier sleep behavior; eliminated internal keep-alive loop to prevent container resource contention.
 
+### Phase 11: Render Production Timeout (60s ECONNABORTED) & Plan Recovery
+- **Python ML Startup Crash Elimination:** Fixed `UnicodeDecodeError` in `model_integrity.py` by adding `encoding="utf-8", errors="replace"` and synchronizing SHA-256 hashes in `checksums.sha256` for `xgb_workout.pkl`, `xgb_meal.pkl`, and `meal_model.pkl`. Verified clean production startup without `SystemExit(1)`.
+- **Frontend Configurable Timeout:** Increased hardcoded 60s timeout in `FitnessAPI` to `VITE_FITNESS_TIMEOUT_MS || 120000` (120s), giving Render free tier instances sufficient cold-start wakeup and ML generation time.
+- **Silent Error Swallowing Fix:** Corrected `Workout.jsx:1023` where `!hydratedFromCache` prevented error states and notification banners from rendering, leaving the user with an empty plan and no feedback.
+- **Node-to-Python Internal Networking:** Updated `render.yaml` to inject `property: hostport` (`elevate-python:10000`) and enhanced `pythonProxy.js` to normalize internal hostname:port targets by prepending `http://`.
+- **MongoDB Atlas Fallback:** Implemented automatic database fallback in Node's `pythonProxy.js` that checks for existing 7-day plans in MongoDB when Python is waking up or temporarily unavailable, returning HTTP 200 with the persisted plan instantly.
+
 ---
 
 ## 5. Summary of Automated Test Results
@@ -156,9 +163,9 @@ All quality gates, unit tests, integration tests, API suites, and automated brow
 =================================================================================
 • Frontend Vitest:       39 / 39 PASSED    (100%)
 • Frontend ESLint:        0 errors, 0 warnings
-• Frontend Vite Build:  162 modules bundled in 2.69s
-• Backend Node Jest:     35 / 35 PASSED    (100%)
-• Backend Python Pytest: 93 / 93 PASSED    (100%)
+• Frontend Vite Build:  162 modules bundled in 8.23s
+• Backend Node Jest:     38 / 38 PASSED    (100%)
+• Backend Python Pytest: 98 / 98 PASSED    (100%)
 • Python Stabilization:  35 / 35 days OK   (100%)
 • E2E API Audit:         22 / 22 PASSED    (100%)
 • Playwright Browser:     6 / 6 stages OK  (100%)

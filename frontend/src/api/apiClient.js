@@ -33,7 +33,7 @@ export const AuthAPI = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 15000,
+  timeout: Number(import.meta.env.VITE_AUTH_TIMEOUT_MS || 30000),
   withCredentials: true,
 });
 
@@ -43,7 +43,7 @@ export const FitnessAPI = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 60000,
+  timeout: Number(import.meta.env.VITE_FITNESS_TIMEOUT_MS || 120000),
   withCredentials: true,
 });
 

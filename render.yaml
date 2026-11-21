@@ -28,7 +28,7 @@ services:
         fromService:
           type: web
           name: elevate-python
-          property: host
+          property: hostport
       - key: CORS_ORIGINS
         sync: false
 
@@ -67,7 +67,4 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_URL
-        fromService:
-          type: web
-          name: elevate-node
-          property: host
+        value: https://elevate-11.onrender.com/api

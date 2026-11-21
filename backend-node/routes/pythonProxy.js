@@ -93,6 +93,83 @@ const buildForwardHeaders = (req) => {
   return headers;
 };
 
+// Database fallback helper for workout & nutrition plans during cold starts or transient failures
+async function tryServeDatabaseFallback(req, resolvedPath, method, reqId) {
+  const userId = req.user?.id || req.user?._id || req.userId;
+  if (!userId) return null;
+  try {
+    const User = require('../models/User');
+    const user = await User.findById(userId).select('workoutPlan workoutWeekMetadata latestNutritionPlan').lean();
+    if (!user) return null;
+
+    // 1. Weekly plan fallback
+    if (['/api/weekly-plan', '/weekly-plan'].includes(resolvedPath) && method === 'GET') {
+      if (Array.isArray(user.workoutPlan) && user.workoutPlan.length === 7) {
+        console.log(`[python-proxy] [${reqId}] Recovered weekly-plan from MongoDB fallback for user ${userId}`);
+        return {
+          status: 200,
+          body: {
+            success: true,
+            data: {
+              plan: user.workoutPlan,
+              week_metadata: user.workoutWeekMetadata || null,
+              user_context: { user_id: String(userId) },
+            },
+            plan: user.workoutPlan,
+            week_metadata: user.workoutWeekMetadata || null,
+            user_context: { user_id: String(userId) },
+          }
+        };
+      }
+    }
+
+    // 2. Workout generation fallback
+    if (resolvedPath === '/workout' && method === 'POST') {
+      if (Array.isArray(user.workoutPlan) && user.workoutPlan.length === 7) {
+        console.log(`[python-proxy] [${reqId}] Recovered workout from MongoDB fallback for user ${userId}`);
+        const totalExercises = user.workoutPlan.reduce(
+          (sum, d) => sum + (Array.isArray(d.exercises) ? d.exercises.length : 0),
+          0
+        );
+        return {
+          status: 200,
+          body: {
+            success: true,
+            workout: user.workoutPlan,
+            exercises_count: totalExercises,
+            week_metadata: user.workoutWeekMetadata || null,
+            data: {
+              workout: user.workoutPlan,
+              exercises_count: totalExercises,
+              week_metadata: user.workoutWeekMetadata || null,
+            }
+          }
+        };
+      }
+    }
+
+    // 3. Nutrition plan fallback
+    if (resolvedPath === '/nutrition' && method === 'POST') {
+      if (user.latestNutritionPlan && typeof user.latestNutritionPlan === 'object') {
+        console.log(`[python-proxy] [${reqId}] Recovered nutrition from MongoDB fallback for user ${userId}`);
+        return {
+          status: 200,
+          body: {
+            success: true,
+            nutrition: user.latestNutritionPlan,
+            data: {
+              nutrition: user.latestNutritionPlan,
+            }
+          }
+        };
+      }
+    }
+  } catch (fallbackErr) {
+    console.warn(`[python-proxy] [${reqId}] MongoDB fallback lookup failed:`, fallbackErr.message);
+  }
+  return null;
+}
+
 router.use(auth, async (req, res) => {
   const method = req.method.toUpperCase();
   const reqId = req.requestId || 'N/A';
@@ -107,7 +184,13 @@ router.use(auth, async (req, res) => {
       || process.env.PYTHON_BACKEND_URL
       || process.env.VITE_PYTHON_API_URL
       || DEFAULT_PYTHON_URL;
-    const base = String(configured || '').trim().replace(/\/+$/, '');
+    let base = String(configured || '').trim().replace(/\/+$/, '');
+    if (base && !/^https?:\/\//i.test(base)) {
+      // Support Render internal service networking (e.g. elevate-python:10000 or host:port)
+      if (/^([a-zA-Z0-9_.-]+):(\d+)$/.test(base) || /^elevate-python$/i.test(base)) {
+        base = `http://${base}`;
+      }
+    }
 
     if (!base || !/^https?:\/\/.+/.test(base)) {
       console.error(`[python-proxy] [${reqId}] Invalid ML_API_URL configured: "${base}"`);
@@ -208,6 +291,11 @@ router.use(auth, async (req, res) => {
 
     if (!isJson) {
       console.error(`[python-proxy] [${reqId}] Upstream returned non-JSON/malformed response with status ${response.status}`);
+      const fallback = await tryServeDatabaseFallback(req, resolvedPath, method, reqId);
+      if (fallback) {
+        res.setHeader('content-type', 'application/json');
+        return res.status(fallback.status).json(fallback.body);
+      }
       return res.status(502).json({
         success: false,
         error: {
@@ -255,6 +343,14 @@ router.use(auth, async (req, res) => {
         });
       }
 
+      if (response.status >= 500) {
+        const fallback = await tryServeDatabaseFallback(req, resolvedPath, method, reqId);
+        if (fallback) {
+          res.setHeader('content-type', 'application/json');
+          return res.status(fallback.status).json(fallback.body);
+        }
+      }
+
       const is500 = response.status === 500;
       const is503 = response.status === 503;
       return res.status(is500 ? 500 : (is503 ? 503 : 502)).json({
@@ -286,6 +382,12 @@ router.use(auth, async (req, res) => {
     const errCode = error.code || error.message;
     const durationMs = Date.now() - startTime;
     console.error(`[python-proxy] requestId=${reqId} method=${method} incoming=${req.path} resolved=${resolvedPath} networkError=${errCode} durationMs=${durationMs} message="Request to Python failed"`);
+
+    const fallback = await tryServeDatabaseFallback(req, resolvedPath, method, reqId);
+    if (fallback) {
+      res.setHeader('content-type', 'application/json');
+      return res.status(fallback.status).json(fallback.body);
+    }
 
     return res.status(503).json({
       success: false,
