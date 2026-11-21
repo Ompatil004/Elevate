@@ -25,265 +25,24 @@ import { syncBridge, SyncTypes } from '../utils/syncBridge';
 import { preloadPoseAssets } from '../utils/poseModelPreload';
 import AuroraBackground from '../components/AuroraBackground';
 
-// Define full weekday names array
-const weekdayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-const WORKOUT_PLAN_CACHE_VERSION = '2026-06-29-muscle-groups-weekly-cache';
-const DEFAULT_FALLBACK_GIF = '';
-
-// --- STYLES (Your Exact Styles Preserved) ---
-const styles = {
-  page: { background: 'transparent', minHeight: '100dvh', color: 'var(--app-text)', fontFamily: "'Inter', sans-serif", overflowX: 'hidden', position: 'relative', zIndex: 1, paddingTop: 'clamp(64px, 9vw, 80px)' },
-  navbar: {
-    display: 'flex', alignItems: 'center',
-    padding: '0 clamp(12px, 4vw, 40px)', height: 'clamp(64px, 9vw, 80px)',
-    gap: 'clamp(8px, 2vw, 18px)',
-    borderBottom: '1px solid var(--app-border)',
-    background: 'var(--app-nav-bg, rgba(9, 9, 11, 0.6))', backdropFilter: 'blur(16px)',
-    position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
-    overflowX: 'auto'
-  },
-  brand: {
-    flex: 1,
-    fontSize: '22px', fontWeight: '900', letterSpacing: '-1px',
-    background: 'var(--brand-grad, linear-gradient(to right, #ffffff, #a5b4fc))',
-    WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-    display: 'flex', alignItems: 'center', gap: '10px'
-  },
-  navCenter: {
-    display: 'flex', gap: 'clamp(4px, 1.5vw, 8px)', height: '100%', alignItems: 'center',
-    justifyContent: 'center'
-  },
-  navLink: {
-    display: 'flex', alignItems: 'center', padding: '8px clamp(10px, 2vw, 20px)',
-    fontSize: 'clamp(11px, 1.7vw, 13px)', fontWeight: '600', color: 'var(--app-text-muted)',
-    cursor: 'pointer', borderRadius: '20px', transition: 'all 0.2s',
-    textTransform: 'uppercase', letterSpacing: '0.5px',
-    border: '1px solid transparent'
-  },
-  navLinkActive: {
-    background: 'var(--app-border)', color: 'var(--app-text)',
-    boxShadow: '0 0 20px var(--app-border)',
-    border: '1px solid var(--app-border)'
-  },
-  navRight: {
-    flex: 1,
-    display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2vw, 24px)',
-    justifyContent: 'flex-end'
-  },
-  brandDot: { width: '8px', height: '8px', background: '#6366f1', borderRadius: '50%', boxShadow: '0 0 15px #6366f1' },
-  dateDisplay: { fontSize: 'clamp(11px, 1.6vw, 13px)', fontWeight: '600', color: 'var(--app-text-muted)', fontFamily: 'sans-serif', letterSpacing: '0.5px', marginRight: '8px' },
-  iconButton: { width: 'clamp(36px, 6vw, 42px)', height: 'clamp(36px, 6vw, 42px)', borderRadius: '12px', background: 'var(--quote-bg)', border: '1px solid var(--app-border)', color: 'var(--app-text)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '18px', transition: 'all 0.2s', position: 'relative' },
-  notifDropdown: { position: 'absolute', top: '60px', right: '0px', width: 'min(92vw, 340px)', background: 'var(--app-surface)', border: '1px solid var(--app-border)', borderRadius: '16px', padding: '16px', zIndex: 2000, boxShadow: '0 20px 50px rgba(0,0,0,0.5)', animation: 'slideDown 0.2s ease-out' },
-  notifItem: { padding: '12px 16px', borderBottom: '1px solid var(--app-border)', fontSize: '13px', color: 'var(--app-text)' },
-  logoutBtn: { display: 'flex', alignItems: 'center', gap: '8px', padding: '0 clamp(10px, 2vw, 20px)', borderRadius: '12px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#ef4444', cursor: 'pointer', transition: 'all 0.2s ease', height: 'clamp(36px, 6vw, 42px)' },
-  logoutText: { fontSize: '12px', fontWeight: '700', letterSpacing: '0.5px', textTransform: 'uppercase' },
-  container: { maxWidth: '1600px', margin: '0 auto', padding: '40px' },
-  h1: { fontSize: '42px', fontWeight: '800', marginBottom: '40px', background: 'var(--h1-grad)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-1px', filter: 'drop-shadow(0 2px 12px rgba(99,102,241,0.18))' },
-  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' },
-  card: { background: 'var(--app-surface)', borderRadius: '20px', padding: '24px', border: '1px solid var(--app-border)', position: 'relative', transition: 'transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease', overflow: 'hidden', minHeight: '200px', display: 'flex', flexDirection: 'column' },
-  cardDone: { opacity: 0.5, border: '1px solid #22c55e', background: 'rgba(34, 197, 94, 0.05)' },
-  overlayDone: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--overlay-bg)', zIndex: 10, flexDirection: 'column', gap: '10px' },
-  cardMissed: { opacity: 0.5, border: '1px solid #ef4444', background: 'rgba(239, 68, 68, 0.05)' },
-  overlayMissed: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--overlay-bg)', zIndex: 10, flexDirection: 'column', gap: '10px' },
-  cardLocked: { opacity: 0.6, cursor: 'not-allowed', border: '1px dashed var(--app-border)' },
-  overlayLocked: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--overlay-bg)', zIndex: 10, flexDirection: 'column', gap: '10px' },
-  cardActive: { border: '2px solid #6366f1', background: 'var(--day-card-selected-bg)', boxShadow: '0 0 30px rgba(99, 102, 241, 0.15)', cursor: 'pointer', transform: 'scale(1.02)' },
-  dayTitle: { fontSize: '14px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px', color: 'var(--app-text-muted)' },
-  focusText: { fontSize: '20px', fontWeight: '800', color: 'var(--app-text)', marginBottom: '16px', lineHeight: '1.3' },
-  exPreview: { fontSize: '13px', color: 'var(--app-text-muted)', marginBottom: '4px', display: 'flex', justifyContent: 'space-between' },
-  sessionContainer: { position: 'fixed', top: '80px', left: 0, width: '100%', height: 'calc(100vh - 80px)', background: 'var(--app-bg)', zIndex: 500, display: 'flex', padding: '20px', gap: '20px', animation: 'fadeIn 0.3s ease-out' },
-  selectionList: { flex: '0 0 350px', background: 'var(--app-surface)', borderRadius: '24px', border: '1px solid var(--app-border)', display: 'flex', flexDirection: 'column', padding: '20px', overflowY: 'auto' },
-  sidebarHeader: { fontSize: '18px', fontWeight: '800', color: 'var(--app-text)', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-  backBtn: { fontSize: '12px', padding: '6px 12px', background: 'var(--app-border)', borderRadius: '8px', color: 'var(--app-text)', border: 'none', cursor: 'pointer' },
-  selectionPreview: { flex: 1, background: 'var(--app-bg)', borderRadius: '24px', border: '1px solid var(--app-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', color: '#52525b' },
-  focusContainer: { width: '100%', height: '100%', display: 'flex', gap: '20px' },
-  focusLeft: { flex: '4', display: 'flex', flexDirection: 'column', background: 'var(--app-surface)', borderRadius: '24px', padding: '24px', border: '1px solid var(--app-border)' },
-  activeExTitle: { fontSize: '28px', fontWeight: '800', color: 'var(--app-text)', marginBottom: '8px', lineHeight: '1.2' },
-  activeExStats: { fontSize: '16px', color: '#a5b4fc', fontWeight: '600', marginBottom: '20px', fontFamily: 'monospace' },
-  gifLargeContainer: { flex: 1, background: 'var(--app-bg)', borderRadius: '16px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', border: '1px solid var(--app-border)', marginBottom: '20px' },
-  gifLarge: { width: '100%', height: '100%', objectFit: 'contain' },
-  controlsContainer: { height: '80px', display: 'flex', gap: '15px' },
-  focusRight: { flex: '6', background: 'var(--app-bg)', borderRadius: '24px', border: '2px solid #6366f1', overflow: 'hidden', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 50px rgba(99, 102, 241, 0.1)' },
-  videoFeed: { width: '100%', height: '100%', objectFit: 'contain', transform: 'scaleX(-1)' },
-  recBadge: { position: 'absolute', top: 20, left: 20, background: 'rgba(220, 38, 38, 0.9)', padding: '6px 12px', borderRadius: '8px', color: 'white', fontWeight: '700', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', zIndex: 10 },
-  exerciseItem: { padding: '18px', borderRadius: '16px', marginBottom: '12px', background: 'var(--quote-bg)', border: '1px solid var(--app-border)', cursor: 'pointer', transition: 'all 0.2s ease', position: 'relative' },
-  exerciseItemActive: { background: 'var(--day-card-selected-bg, linear-gradient(135deg, #1e1b4b 0%, #312e81 100%))', borderColor: '#6366f1', boxShadow: '0 4px 20px rgba(99, 102, 241, 0.3)' },
-  btnStartLarge: { padding: '15px 40px', fontSize: '16px', borderRadius: '12px', background: '#6366f1', color: 'white', border: 'none', fontWeight: '800', cursor: 'pointer', marginTop: '20px', boxShadow: '0 4px 20px rgba(99, 102, 241, 0.4)' },
-  btnStop: { flex: 1, borderRadius: '16px', background: 'var(--app-surface2)', border: '1px solid var(--app-border)', color: '#ef4444', fontWeight: '800', fontSize: '16px', cursor: 'pointer', transition: 'all 0.2s' },
-  btnDone: { flex: 1, borderRadius: '16px', background: '#22c55e', color: 'white', fontWeight: '800', fontSize: '16px', border: 'none', cursor: 'pointer', boxShadow: '0 4px 15px rgba(34, 197, 94, 0.3)' },
-  historyPanel: { position: 'fixed', top: '80px', right: '0', width: '400px', height: 'calc(100vh - 80px)', background: 'var(--app-bg)', borderLeft: '1px solid var(--app-border)', zIndex: 1500, padding: '24px', overflowY: 'auto', animation: 'slideInRight 0.3s ease-out', boxShadow: '-20px 0 50px rgba(0,0,0,0.5)' },
-  historyItem: { background: 'var(--app-surface)', borderRadius: '16px', padding: '20px', marginBottom: '16px', border: '1px solid var(--app-border)', cursor: 'pointer', transition: 'all 0.2s' },
-  historyDate: { fontSize: '14px', fontWeight: '700', color: 'var(--app-text)', marginBottom: '12px' },
-  historySection: { marginBottom: '10px' },
-  historyLabel: { fontSize: '11px', color: '#a5b4fc', fontWeight: '700', textTransform: 'uppercase', marginBottom: '4px' },
-  historyList: { fontSize: '13px', color: 'var(--app-text-muted)', lineHeight: '1.4' },
-  restDay: { padding: '20px', background: 'rgba(245, 158, 11, 0.1)', borderRadius: '12px', color: '#f59e0b', fontSize: '14px', textAlign: 'center', fontWeight: '500' }
-};
-
-const AnimatedImageSequence = ({ urls, alt, onError }) => {
-  const [index, setIndex] = useState(0);
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setIndex(prev => (prev + 1) % urls.length);
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [urls]);
-  return <img src={urls[index]} alt={alt} style={styles.gifLarge} onError={onError} loading="lazy" />;
-};
-
-// History dynamically fetched from node
-
-const getTodayIdx = () => {
-  // Use IST to stay aligned with date handling across the app/backend.
-  const weekday = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'Asia/Kolkata',
-    weekday: 'short',
-  }).format(new Date());
-
-  const indexByWeekday = {
-    Mon: 0,
-    Tue: 1,
-    Wed: 2,
-    Thu: 3,
-    Fri: 4,
-    Sat: 5,
-    Sun: 6,
-  };
-
-  return indexByWeekday[weekday] ?? 0;
-};
-
-// Returns background/text/border colors for a muscle group badge
-const getMuscleTagStyle = (muscle) => {
-  const m = (muscle || '').toLowerCase();
-  if (m === 'chest') return { bg: 'rgba(239,68,68,0.15)', text: '#f87171', border: 'rgba(239,68,68,0.3)' };
-  if (m === 'back') return { bg: 'rgba(59,130,246,0.15)', text: '#60a5fa', border: 'rgba(59,130,246,0.3)' };
-  if (m === 'legs') return { bg: 'rgba(16,185,129,0.15)', text: '#34d399', border: 'rgba(16,185,129,0.3)' };
-  if (m === 'shoulders') return { bg: 'rgba(245,158,11,0.15)', text: '#fbbf24', border: 'rgba(245,158,11,0.3)' };
-  if (m === 'arms') return { bg: 'rgba(168,85,247,0.15)', text: '#c084fc', border: 'rgba(168,85,247,0.3)' };
-  if (m === 'core') return { bg: 'rgba(236,72,153,0.15)', text: '#f472b6', border: 'rgba(236,72,153,0.3)' };
-  return { bg: 'rgba(113,113,122,0.15)', text: 'var(--app-text-muted)', border: 'rgba(113,113,122,0.3)' };
-};
-
-// For Beginner "Full Body (X Focus)" labels, extract the meaningful part
-const getDisplayFocus = (focus) => {
-  if (!focus) return 'Workout';
-  const match = focus.match(/Full Body \((.+)\)/);
-  if (match) return match[1];
-  return focus;
-};
-
-const isRestDay = (day) => {
-  if (!day || day.is_placeholder) return false;
-  // 1. Explicit type field from backend engine (most reliable)
-  if (day.type === 'rest') return true;
-  // 2. Focus field containing 'rest' (e.g. "Rest Day", "Rest", "Active Recovery")
-  const focus = `${day.focus || ''}`.toLowerCase();
-  if (focus.includes('rest') || focus === 'active recovery') return true;
-  // 3. Day label or note containing 'rest'
-  const label = `${day.day || ''}`.toLowerCase();
-  const note = `${day.note || ''}`.toLowerCase();
-  if (label.includes('rest') || note.includes('rest') || note.includes('recovery')) return true;
-  // 4. No exercises AND type is not 'workout' → treat as rest
-  const exercises = day.exercises || [];
-  if (exercises.length === 0 && day.type !== 'workout') return true;
-  return false;
-};
-
-const getDayStatus = (day, todayIdx, completedIds = new Set()) => {
-  if (day?.is_placeholder && day?.type === 'past') return 'NOT_STARTED';
-  if (day?.is_placeholder) return 'NO PLAN';
-  if (isRestDay(day)) return 'REST';
-  // Days before registration are explicitly marked as "past" by the backend.
-  if (day.type === 'past') return 'NOT_STARTED';
-  const dow = day.day_of_week ?? 0;
-  if (completedIds.has(dow)) return 'COMPLETED';
-  if (dow === todayIdx) return 'TODAY';
-  if (dow < todayIdx) return 'PAST';
-  return 'UPCOMING';
-};
-
-const findNextWorkoutDayIndex = (plan, todayIdx) => {
-  const safe = Array.isArray(plan) ? plan : [];
-  for (let idx = todayIdx + 1; idx <= 6; idx += 1) {
-    const day = safe[idx];
-    if (day && !day.is_placeholder && !isRestDay(day)) return idx;
-  }
-  return null;
-};
-
-const getFutureOriginalRestDays = (plan, sourceDayIdx, todayIdx) => {
-  const safe = Array.isArray(plan) ? plan : [];
-  return safe.filter((day) => {
-    const idx = Number(day?.day_of_week);
-    if (!Number.isInteger(idx)) return false;
-    if (idx <= sourceDayIdx) return false;
-    if (idx < todayIdx) return false;
-    if (day?.is_placeholder) return false;
-    if (!isRestDay(day)) return false;
-    if (day?.is_original_rest === false) return false;
-    if (day?.is_swapped) return false;
-    if (day?.is_swappable === false) return false;
-    return true;
-  });
-};
-
-const getWeekStartDateIso = () => {
-  const now = new Date();
-  const day = now.getDay(); // 0=Sun..6=Sat
-  const mondayOffset = day === 0 ? -6 : 1 - day;
-  const monday = new Date(now);
-  monday.setDate(now.getDate() + mondayOffset);
-  return getLocalDateStr(monday);
-};
-
-const buildWeekMetadataFromPlan = (weeklyPlan = [], existingMetadata = null) => {
-  const plan = Array.isArray(weeklyPlan) ? weeklyPlan : [];
-  const metadata = (existingMetadata && typeof existingMetadata === 'object') ? existingMetadata : {};
-  const existingSwapHistory = Array.isArray(metadata.swap_history) ? metadata.swap_history : [];
-  const existingSwapLimits = metadata.swap_limits || {};
-
-  const currentCounts = plan.reduce((acc, day) => {
-    if (day?.is_placeholder) return acc;
-    if (day?.type === 'rest') acc.rest_days += 1;
-    if (day?.type === 'workout') acc.workout_days += 1;
-    return acc;
-  }, { rest_days: 0, workout_days: 0 });
-
-  const originalCounts = plan.reduce((acc, day) => {
-    if (day?.is_placeholder) return acc;
-    const isOriginalRest = typeof day?.is_original_rest === 'boolean' ? day.is_original_rest : day?.type === 'rest';
-    const isOriginalWorkout = typeof day?.is_original_workout === 'boolean' ? day.is_original_workout : day?.type === 'workout';
-    if (isOriginalRest) acc.rest_days += 1;
-    if (isOriginalWorkout) acc.workout_days += 1;
-    return acc;
-  }, { rest_days: 0, workout_days: 0 });
-
-  const maxSwapsPerWeek = Math.max(1, Number(existingSwapLimits.max_swaps_per_week || 3));
-  const swapsUsed = typeof existingSwapLimits.swaps_used === 'number' ? existingSwapLimits.swaps_used : existingSwapHistory.length;
-
-  return {
-    week_start_date: metadata.week_start_date || getWeekStartDateIso(),
-    user_registration_day: Number.isInteger(metadata.user_registration_day) ? metadata.user_registration_day : null,
-    is_new_user_week: Boolean(metadata.is_new_user_week),
-    swap_history: existingSwapHistory,
-    swap_limits: {
-      max_swaps_per_week: maxSwapsPerWeek,
-      swaps_used: swapsUsed,
-      swaps_remaining: Math.max(0, maxSwapsPerWeek - swapsUsed),
-    },
-    original_counts: originalCounts,
-    current_counts: currentCounts,
-    updated_at: metadata.updated_at || new Date().toISOString(),
-  };
-};
-
-const formatSwapTimestamp = (value) => {
-  if (!value) return 'Unknown time';
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return String(value);
-  return parsed.toLocaleString();
-};
+import {
+  styles,
+  AnimatedImageSequence,
+  weekdayNames,
+  WORKOUT_PLAN_CACHE_VERSION,
+  DEFAULT_FALLBACK_GIF,
+  getTodayIdx,
+  getMuscleTagStyle,
+  getDisplayFocus,
+  isRestDay,
+  findNextWorkoutDayIndex,
+  getFutureOriginalRestDays,
+  buildWeekMetadataFromPlan,
+  DaySelector,
+  RestDaySwapModal,
+  SwapHistoryModal,
+  ExerciseVariationModal,
+} from '../features/workout';
 
 const Workout = ({ onLogout }) => {
   const navigate = useNavigate();
@@ -929,16 +688,28 @@ const Workout = ({ onLogout }) => {
 
     const fetchWorkoutPlan = async (forceRefresh = false, profileData = null) => {
       let hydratedFromCache = false;
+      let resolveLoad = null;
 
       const tryLoadPersistedPlan = async (reason = 'normal') => {
         try {
           // Bypass or isolate breaker for cache-recovery reads. If it's a recovery read, we don't want
           // to trip workoutCB or nutritionCB. We do not wrap getWeeklyWorkoutPlan in circuit breakers.
           const weeklyPlanResponse = await getWeeklyWorkoutPlan();
-          const persistedPlan =
-            weeklyPlanResponse?.data?.plan
-            || weeklyPlanResponse?.data?.data?.plan
-            || [];
+          const weeklyPlanRaw = weeklyPlanResponse?.data?.data || weeklyPlanResponse?.data || {};
+          let rawPlan = weeklyPlanRaw.plan || weeklyPlanRaw.weekly_plan || weeklyPlanRaw.workout;
+          if (!rawPlan && weeklyPlanRaw.weekly_schedule) {
+            rawPlan = Object.entries(weeklyPlanRaw.weekly_schedule).map(([k, v], idx) => ({
+              day: k,
+              day_of_week: typeof v?.day_of_week === 'number' ? v.day_of_week : idx,
+              focus: v?.focus || 'Workout',
+              exercises: v?.exercises || [],
+              is_rest: v?.is_rest ?? false,
+              is_placeholder: v?.is_placeholder ?? false
+            }));
+          } else if (!rawPlan && Array.isArray(weeklyPlanRaw)) {
+            rawPlan = weeklyPlanRaw;
+          }
+          const persistedPlan = Array.isArray(rawPlan) ? rawPlan : [];
           const persistedWeekMetadata =
             weeklyPlanResponse?.data?.week_metadata
             || weeklyPlanResponse?.data?.data?.week_metadata
@@ -954,13 +725,15 @@ const Workout = ({ onLogout }) => {
             persistedWeekMetadata || weekMetadata
           );
 
+          // Always cache to storage so subsequent mounts or parallel effects can read it
+          setToStorage('workoutPlan', normalizedPlan);
+          setToStorage('workoutPlanTimestamp', new Date().toISOString());
+          setToStorage('workoutPlanVersion', WORKOUT_PLAN_CACHE_VERSION);
+          setToStorage(StorageKeys.WORKOUT_WEEK_METADATA, normalizedWeekMetadata);
+
           if (isMounted) {
             setPlan(normalizedPlan);
             setWeekMetadata(normalizedWeekMetadata);
-            setToStorage('workoutPlan', normalizedPlan);
-            setToStorage('workoutPlanTimestamp', new Date().toISOString());
-            setToStorage('workoutPlanVersion', WORKOUT_PLAN_CACHE_VERSION);
-            setToStorage(StorageKeys.WORKOUT_WEEK_METADATA, normalizedWeekMetadata);
             console.log(`✅ Loaded persisted weekly plan from backend (${reason})`);
           }
 
@@ -1010,13 +783,20 @@ const Workout = ({ onLogout }) => {
         profileKey = `${userId}:${userProfile.age || 25}:${userProfile.weight || 70}:${userProfile.height || 175}:${userProfile.gender || 'Male'}:${userProfile.goal || 'Muscle Gain'}:${userProfile.experience || 'Beginner'}:${userProfile.days_per_week || 4}:${equipmentKey}:${issuesKey}`;
 
         // Check if load is already in progress for this profile key
-        if (workoutLoadInProgressRef.current === profileKey) {
-          console.log(`[Workout] duplicate load prevented { profileKey: "${profileKey}" }`);
+        if (workoutLoadInProgressRef.current && workoutLoadInProgressRef.current.key === profileKey) {
+          console.log(`[Workout] In-flight load detected, awaiting existing promise...`);
+          await workoutLoadInProgressRef.current.promise;
+          const freshlyCached = getFromStorage('workoutPlan');
+          if (Array.isArray(freshlyCached) && freshlyCached.length > 0 && isMounted) {
+            setPlan(normalizeWeeklyPlan(freshlyCached));
+            setLoading(false);
+          }
           return;
         }
 
         console.log(`[Workout] load triggered { reason: "${forceRefresh ? 'forceRefresh' : 'cacheCheck'}", profileKey: "${profileKey}" }`);
-        workoutLoadInProgressRef.current = profileKey;
+        const loadPromise = new Promise((resolve) => { resolveLoad = resolve; });
+        workoutLoadInProgressRef.current = { key: profileKey, promise: loadPromise };
 
         // **Check if cached plan exists and is not expired**
         let cachedPlan = getFromStorage('workoutPlan');
@@ -1086,7 +866,13 @@ const Workout = ({ onLogout }) => {
         // after relogin when generation is rate-limited or temporarily unavailable.
         const loadedPersistedPlan = await tryLoadPersistedPlan('pre-generate');
         if (loadedPersistedPlan && !forceRefresh) {
-          if (isMounted) setLoading(false);
+          if (isMounted) {
+            const stored = getFromStorage('workoutPlan');
+            if (Array.isArray(stored) && stored.length > 0) {
+              setPlan(normalizeWeeklyPlan(stored));
+            }
+            setLoading(false);
+          }
           return;
         }
 
@@ -1121,10 +907,24 @@ const Workout = ({ onLogout }) => {
           // ✅ Correct structure: { success: true, workout: [...] }
           workoutPlan = response.data.workout;
           console.log('📊 Using response.data.workout');
+        } else if (response.data.data && Array.isArray(response.data.data.workout)) {
+          // ✅ Nested structure: { success: true, data: { workout: [...] } }
+          workoutPlan = response.data.data.workout;
+          console.log('📊 Using response.data.data.workout');
         } else if (response.data.data && Array.isArray(response.data.data.weekly_plan)) {
           // Fallback for alternative structure: { success: true, data: { weekly_plan: [...] } }
           workoutPlan = response.data.data.weekly_plan;
           console.log('📊 Using response.data.data.weekly_plan (fallback)');
+        } else if (response.data.data?.weekly_schedule) {
+          workoutPlan = Object.entries(response.data.data.weekly_schedule).map(([k, v], idx) => ({
+            day: k,
+            day_of_week: typeof v?.day_of_week === 'number' ? v.day_of_week : idx,
+            focus: v?.focus || 'Workout',
+            exercises: v?.exercises || [],
+            is_rest: v?.is_rest ?? false,
+            is_placeholder: v?.is_placeholder ?? false
+          }));
+          console.log('📊 Using mapped weekly_schedule');
         } else {
           console.error('❌ Invalid response structure:', response.data);
           throw new Error('Backend returned invalid workout structure');
@@ -1229,6 +1029,7 @@ const Workout = ({ onLogout }) => {
         }
       } finally {
         workoutLoadInProgressRef.current = null;
+        resolveLoad?.();
         if (isMounted) {
           setLoading(false);
         }
@@ -1311,6 +1112,10 @@ const Workout = ({ onLogout }) => {
           await fetchWorkoutPlan(profileChanged, currentProfile);
           setToStorage('workoutPlanProfile', currentNormalized);
           console.log("✅ New workout plan fetched and profile saved");
+          const freshPlan = getFromStorage('workoutPlan');
+          if (Array.isArray(freshPlan) && freshPlan.length > 0 && isMounted) {
+            setPlan(normalizeWeeklyPlan(freshPlan));
+          }
         } else {
           console.log("✅ Using cached workout plan");
           const cached = getFromStorage('workoutPlan');
@@ -1333,6 +1138,10 @@ const Workout = ({ onLogout }) => {
         setWeekMetadata(fallbackMetadata);
         setToStorage(StorageKeys.WORKOUT_WEEK_METADATA, fallbackMetadata);
       } finally {
+        const anyPlan = getFromStorage('workoutPlan');
+        if (Array.isArray(anyPlan) && anyPlan.length > 0 && isMounted) {
+          setPlan(normalizeWeeklyPlan(anyPlan));
+        }
         setLoading(false);
       }
     };
@@ -1413,6 +1222,7 @@ const Workout = ({ onLogout }) => {
     // Cleanup function to prevent state updates on unmount
     return () => {
       isMounted = false;
+      workoutLoadInProgressRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency - runs once on mount
@@ -2522,206 +2332,51 @@ const Workout = ({ onLogout }) => {
           </div>
         )}
 
+        {error && (
+          <div style={{
+            padding: '12px',
+            background: 'rgba(239, 68, 68, 0.12)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: '8px',
+            margin: '10px 40px',
+            color: '#ef4444',
+            fontSize: '13px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}>
+            <span>⚠️ {error}</span>
+            <button
+              onClick={() => setError(null)}
+              style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', fontWeight: 'bold' }}
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
         <div style={workoutLayout.container} className="workout-container-enter">
           {!activeDay && (
             <>
               <h1 style={workoutLayout.h1} className="workout-page-h1">Your Weekly Plan</h1>
-              <div style={workoutLayout.grid}>
-                {safePlan.length > 0 ? (
-                  sortedDisplayPlan
-                    .map((day, idx) => {
-                      const dayIdx = toDayIndex(day.day_of_week, idx);
-                      const isRest = isRestDay(day);
-                      const isPlaceholder = !!day.is_placeholder;
-                      const status = getDayStatus(day, todayIdx, completedIds);
-                      const isToday = status === 'TODAY' || (status === 'REST' && dayIdx === todayIdx);
-                      const dayExercises = day.exercises || []; // FIXED: Define here
-                      const previewExercises = dayExercises.filter((ex) => !ex?.is_warmup);
-                      const displayExercises = previewExercises.length > 0 ? previewExercises : dayExercises;
-
-                      let cardStyle = { ...workoutLayout.card };
-                      if (status === 'TODAY') {
-                        cardStyle = { ...cardStyle, ...styles.cardActive };
-                      } else if (status === 'COMPLETED') {
-                        cardStyle = { ...cardStyle, ...styles.cardDone };
-                      } else if (status === 'NOT_STARTED') {
-                        cardStyle = {
-                          ...cardStyle,
-                          border: '1px dashed rgba(161, 161, 170, 0.25)',
-                          background: 'rgba(113, 113, 122, 0.05)',
-                          opacity: 0.75,
-                        };
-                      } else if (status === 'PAST') {
-                        cardStyle = { ...cardStyle, ...styles.cardMissed };
-                      } else if (isRest || isPlaceholder) {
-                        cardStyle = { ...cardStyle, border: '1px dashed rgba(255,255,255,0.2)', opacity: 0.7 };
-                      }
-
-                      return (
-                        <div
-                          key={`${dayIdx}-${day.day || idx}`}
-                          className="plan-card"
-                          style={cardStyle}
-                          onClick={() => !isPlaceholder && isToday && handleDayClick(dayIdx)}
-                        >
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={styles.dayTitle}>
-                                {weekdayNames[dayIdx] || `Day ${idx + 1}`}
-                              </div>
-                              <div style={styles.focusText}>
-                                {getDisplayFocus(day.focus || day.day || 'Workout')}
-                              </div>
-                              {Array.isArray(day.muscle_groups_targeted) && day.muscle_groups_targeted.length > 0 && !isRest && (
-                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '6px', marginBottom: '4px' }}>
-                                  {day.muscle_groups_targeted.map((muscle, mi) => {
-                                    const tagStyle = getMuscleTagStyle(muscle);
-                                    return (
-                                      <span key={mi} style={{
-                                        padding: '2px 7px',
-                                        borderRadius: '10px',
-                                        fontSize: '10px',
-                                        fontWeight: '700',
-                                        textTransform: 'uppercase',
-                                        letterSpacing: '0.4px',
-                                        background: tagStyle.bg,
-                                        color: tagStyle.text,
-                                        border: `1px solid ${tagStyle.border}`,
-                                        whiteSpace: 'nowrap',
-                                      }}>
-                                        {muscle}
-                                      </span>
-                                    );
-                                  })}
-                                </div>
-                              )}
-                            </div>
-                            <div style={{
-                              padding: '4px 10px',
-                              borderRadius: '20px',
-                              fontSize: '11px',
-                              fontWeight: '700',
-                              textTransform: 'uppercase',
-                              background: status === 'TODAY' ? 'rgba(99, 102, 241, 0.2)' :
-                                status === 'COMPLETED' ? 'rgba(34, 197, 94, 0.2)' :
-                                  status === 'NOT_STARTED' ? 'rgba(113, 113, 122, 0.2)' :
-                                    status === 'PAST' ? 'rgba(239, 68, 68, 0.2)' :
-                                      status === 'REST' ? 'rgba(245, 158, 11, 0.2)' :
-                                        status === 'NO PLAN' ? 'rgba(113, 113, 122, 0.2)' :
-                                          'rgba(161, 161, 170, 0.2)',
-                              color: status === 'TODAY' ? '#a5b4fc' :
-                                status === 'COMPLETED' ? '#22c55e' :
-                                  status === 'NOT_STARTED' ? 'var(--app-text-muted)' :
-                                    status === 'PAST' ? '#ef4444' :
-                                      status === 'REST' ? '#f59e0b' :
-                                        status === 'NO PLAN' ? 'var(--app-text-muted)' :
-                                          'var(--app-text-muted)',
-                              border: `1px solid ${status === 'TODAY' ? 'rgba(99, 102, 241, 0.3)' :
-                                status === 'COMPLETED' ? 'rgba(34, 197, 94, 0.3)' :
-                                  status === 'NOT_STARTED' ? 'rgba(113, 113, 122, 0.3)' :
-                                    status === 'PAST' ? 'rgba(239, 68, 68, 0.3)' :
-                                      status === 'REST' ? 'rgba(245, 158, 11, 0.3)' :
-                                        status === 'NO PLAN' ? 'rgba(113, 113, 122, 0.3)' :
-                                          'rgba(161, 161, 170, 0.3)'}`
-                            }}>
-                              {status}
-                            </div>
-                          </div>
-
-                          {isRest ? (
-                            <div style={workoutLayout.restDay}>
-                              😴 Rest Day - Recovery & Preparation
-                              <div style={{ marginTop: '12px', fontSize: '11px', opacity: 0.9 }}>
-                                {isToday ? 'Tap this card to choose: keep rest day or borrow next workout.' : 'No workout today. Focus on recovery, stretching, or light walking.'}
-                              </div>
-                            </div>
-                          ) : status === 'NOT_STARTED' ? (
-                            <div style={{
-                              ...workoutLayout.restDay,
-                              display: 'flex',
-                              flexDirection: 'column',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              gap: '8px',
-                              color: 'var(--app-text-muted)',
-                            }}>
-                              <div style={{ fontSize: '34px' }}>📅</div>
-                              <div style={{ fontSize: '14px', fontWeight: '700' }}>Not Started Yet</div>
-                              <div style={{ fontSize: '12px', opacity: 0.9 }}>Your journey begins today!</div>
-                            </div>
-                          ) : isPlaceholder ? (
-                            <div style={workoutLayout.restDay}>
-                              📅 No plan for this day
-                              <div style={{ marginTop: '12px', fontSize: '11px', opacity: 0.9 }}>
-                                Generate a new plan to fill this day.
-                              </div>
-                            </div>
-                          ) : (
-                            <>
-                              {displayExercises.length > 0 && (
-                                <div style={{ flex: 1, marginBottom: '12px' }}>
-                                  {displayExercises.slice(0, 3).map((ex, i) => (
-                                    <div key={i} style={styles.exPreview}>
-                                      <span>• {ex.name}</span>
-                                      <span>{ex.sets}x{ex.reps}</span>
-                                    </div>
-                                  ))}
-                                  {displayExercises.length > 3 && (
-                                    <div style={{ ...styles.exPreview, color: 'var(--app-text-muted)', fontSize: '11px' }}>
-                                      +{displayExercises.length - 3} more exercises
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-                              {isToday && (
-                                <div style={{ marginTop: 'auto', display: 'grid', gap: '10px' }}>
-                                  <button
-                                    onClick={() => handleDayClick(dayIdx)}
-                                    style={{
-                                      width: '100%',
-                                      padding: '12px',
-                                      borderRadius: '12px',
-                                      border: 'none',
-                                      background: '#6366f1',
-                                      color: 'white',
-                                      fontWeight: '700',
-                                      fontSize: '14px',
-                                      cursor: 'pointer',
-                                    }}
-                                  >
-                                    START WORKOUT
-                                  </button>
-                                  {canSwapWorkoutToRest(dayIdx) && (
-                                    <button
-                                      onClick={() => openWorkoutToRestModal(dayIdx)}
-                                      style={{
-                                        width: '100%',
-                                        padding: '10px 12px',
-                                        borderRadius: '10px',
-                                        border: '1px solid rgba(245, 158, 11, 0.45)',
-                                        background: 'rgba(245, 158, 11, 0.12)',
-                                        color: '#f59e0b',
-                                        fontWeight: '700',
-                                        fontSize: '12px',
-                                        cursor: 'pointer',
-                                      }}
-                                    >
-                                      NEED REST TODAY?
-                                    </button>
-                                  )}
-                                </div>
-                              )}
-                            </>
-                          )}
-                        </div>
-                      );
-                    })
-                ) : (
+              {safePlan.length > 0 ? (
+                <DaySelector
+                  sortedDisplayPlan={sortedDisplayPlan}
+                  toDayIndex={toDayIndex}
+                  todayIdx={todayIdx}
+                  completedIds={completedIds}
+                  handleDayClick={handleDayClick}
+                  canSwapWorkoutToRest={canSwapWorkoutToRest}
+                  openWorkoutToRestModal={openWorkoutToRestModal}
+                  workoutLayout={workoutLayout}
+                />
+              ) : (
+                <div style={workoutLayout.grid}>
                   <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px', color: 'var(--app-text-muted)', fontSize: '16px' }}>
                     No plan yet. Generate to see your week.
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </>
           )}
 
@@ -3219,232 +2874,34 @@ const Workout = ({ onLogout }) => {
           )}
         </div>
 
-        {showWorkoutToRestModal && swapWorkoutDayIndex != null && (
-          <div
-            style={{
-              position: 'fixed',
-              inset: 0,
-              background: 'rgba(0,0,0,0.7)',
-              zIndex: 2200,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '16px',
-            }}
-          >
-            <div
-              style={{
-                width: 'min(560px, 96vw)',
-                background: 'var(--app-surface)',
-                border: '1px solid var(--app-border)',
-                borderRadius: '16px',
-                padding: '20px',
-                boxShadow: '0 25px 50px rgba(0,0,0,0.45)',
-              }}
-            >
-              <div style={{ fontSize: '18px', fontWeight: '800', color: 'var(--app-text)', marginBottom: '8px' }}>
-                Move Workout To A Future Rest Day
-              </div>
-              <div style={{ color: 'var(--app-text-muted)', fontSize: '13px', marginBottom: '16px' }}>
-                Pick a future original rest day for this workout. Swapped days are locked and cannot be swapped again.
-              </div>
+        <RestDaySwapModal
+          show={showWorkoutToRestModal && swapWorkoutDayIndex != null}
+          displayPlan={displayPlan}
+          swapWorkoutDayIndex={swapWorkoutDayIndex}
+          todayIdx={todayIdx}
+          selectedTargetRestDayIndex={selectedTargetRestDayIndex}
+          setSelectedTargetRestDayIndex={setSelectedTargetRestDayIndex}
+          onClose={() => {
+            setShowWorkoutToRestModal(false);
+            setSwapWorkoutDayIndex(null);
+            setSelectedTargetRestDayIndex(null);
+          }}
+          onConfirmSwap={handleConfirmWorkoutToRestSwap}
+          toDayIndex={toDayIndex}
+        />
 
-              <div style={{ display: 'grid', gap: '10px', marginBottom: '14px' }}>
-                {getFutureOriginalRestDays(displayPlan, swapWorkoutDayIndex, todayIdx).map((day) => {
-                  const idx = toDayIndex(day?.day_of_week, -1);
-                  const isSelected = idx === selectedTargetRestDayIndex;
-                  return (
-                    <button
-                      key={`swap-target-${idx}`}
-                      onClick={() => setSelectedTargetRestDayIndex(idx)}
-                      style={{
-                        textAlign: 'left',
-                        padding: '12px 14px',
-                        borderRadius: '10px',
-                        border: isSelected ? '1px solid #6366f1' : '1px solid var(--app-border)',
-                        background: isSelected ? 'rgba(99, 102, 241, 0.18)' : 'var(--quote-bg)',
-                        color: 'var(--app-text)',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      <div style={{ fontWeight: '700', fontSize: '14px' }}>{weekdayNames[idx] || day?.day || `Day ${idx + 1}`}</div>
-                      <div style={{ fontSize: '12px', color: 'var(--app-text-muted)' }}>Current: Rest Day</div>
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div
-                style={{
-                  fontSize: '12px',
-                  color: '#f59e0b',
-                  background: 'rgba(245, 158, 11, 0.1)',
-                  border: '1px solid rgba(245, 158, 11, 0.3)',
-                  borderRadius: '10px',
-                  padding: '10px 12px',
-                  marginBottom: '16px',
-                }}
-              >
-                This operation is one-time for both involved days. Use it only when needed.
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-                <button
-                  onClick={() => {
-                    setShowWorkoutToRestModal(false);
-                    setSwapWorkoutDayIndex(null);
-                    setSelectedTargetRestDayIndex(null);
-                  }}
-                  style={{
-                    padding: '10px 14px',
-                    borderRadius: '10px',
-                    border: '1px solid var(--app-border)',
-                    background: 'var(--app-surface2)',
-                    color: 'var(--app-text)',
-                    cursor: 'pointer',
-                    fontWeight: '600',
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleConfirmWorkoutToRestSwap}
-                  disabled={selectedTargetRestDayIndex == null}
-                  style={{
-                    padding: '10px 14px',
-                    borderRadius: '10px',
-                    border: 'none',
-                    background: selectedTargetRestDayIndex == null ? 'var(--btn-skip-bg)' : '#6366f1',
-                    color: selectedTargetRestDayIndex == null ? 'var(--btn-skip-text)' : 'var(--app-text)',
-                    cursor: selectedTargetRestDayIndex == null ? 'not-allowed' : 'pointer',
-                    fontWeight: '700',
-                  }}
-                >
-                  Confirm Move
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {showHistory && (
-          <div style={workoutLayout.historyPanel}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <div style={{ fontSize: '20px', fontWeight: '800', color: 'var(--app-text)' }}>History</div>
-              <button onClick={() => setShowHistory(false)} style={{ background: 'none', border: 'none', color: 'var(--app-text)', fontSize: '20px', cursor: 'pointer' }}>✕</button>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '16px' }}>
-              <button
-                onClick={() => setHistoryTab('workout')}
-                style={{
-                  padding: '10px 12px',
-                  borderRadius: '10px',
-                  border: historyTab === 'workout' ? '1px solid #6366f1' : '1px solid var(--app-border)',
-                  background: historyTab === 'workout' ? 'rgba(99,102,241,0.18)' : 'var(--quote-bg)',
-                  color: 'var(--app-text)',
-                  fontWeight: '700',
-                  cursor: 'pointer',
-                }}
-              >
-                Workouts
-              </button>
-              <button
-                onClick={() => setHistoryTab('swap')}
-                style={{
-                  padding: '10px 12px',
-                  borderRadius: '10px',
-                  border: historyTab === 'swap' ? '1px solid #f59e0b' : '1px solid var(--app-border)',
-                  background: historyTab === 'swap' ? 'rgba(245,158,11,0.15)' : 'var(--quote-bg)',
-                  color: 'var(--app-text)',
-                  fontWeight: '700',
-                  cursor: 'pointer',
-                }}
-              >
-                Swaps ({swapLimits.used}/{swapLimits.max})
-              </button>
-            </div>
-
-            {historyTab === 'workout' ? (
-              <>
-                {pastWorkouts && pastWorkouts.length > 0 ? (
-                  pastWorkouts.map((day, i) => (
-                    <div key={i} style={styles.historyItem} className="history-card" onClick={() => setSelectedHistory(selectedHistory === i ? null : i)}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div style={styles.historyDate}>{day.date || new Date().toLocaleDateString()}</div>
-                        <div style={{ fontSize: '12px', fontWeight: '700', color: day.status === 'Completed' ? '#22c55e' : '#ef4444' }}>{day.status || 'Completed'}</div>
-                      </div>
-                      {selectedHistory === i && day.details && (
-                        <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid var(--app-border)' }}>
-                          <div style={styles.historyLabel}>Details:</div>
-                          <div style={styles.historyList}>
-                            <div style={{ marginBottom: '4px' }}>{day.details}</div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  ))
-                ) : (
-                  <div style={{ textAlign: 'center', padding: '40px', color: '#52525b' }}>No workout history yet</div>
-                )}
-              </>
-            ) : (
-              <>
-                <div
-                  style={{
-                    background: 'rgba(245, 158, 11, 0.08)',
-                    border: '1px solid rgba(245, 158, 11, 0.28)',
-                    borderRadius: '12px',
-                    padding: '12px',
-                    marginBottom: '14px',
-                  }}
-                >
-                  <div style={{ fontSize: '12px', color: '#fbbf24', fontWeight: '700', marginBottom: '4px' }}>
-                    Weekly Swap Limits
-                  </div>
-                  <div style={{ fontSize: '13px', color: 'var(--app-text)' }}>
-                    Used: {swapLimits.used} / {swapLimits.max}
-                  </div>
-                  <div style={{ fontSize: '12px', color: 'var(--app-text-muted)', marginTop: '2px' }}>
-                    Remaining this week: {Math.max(0, swapLimits.remaining)}
-                  </div>
-                </div>
-
-                {swapHistory.length > 0 ? (
-                  swapHistory
-                    .slice()
-                    .reverse()
-                    .map((entry, idx) => {
-                      const fromIdx = Number(entry?.from_day);
-                      const toIdx = Number(entry?.to_day);
-                      const fromLabel = Number.isInteger(fromIdx) && fromIdx >= 0 && fromIdx <= 6 ? weekdayNames[fromIdx] : `Day ${fromIdx + 1}`;
-                      const toLabel = Number.isInteger(toIdx) && toIdx >= 0 && toIdx <= 6 ? weekdayNames[toIdx] : `Day ${toIdx + 1}`;
-                      const isRestToWorkout = entry?.direction === 'rest_to_workout';
-
-                      return (
-                        <div key={`swap-history-${idx}`} style={styles.historyItem} className="history-card">
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                            <div style={{ ...styles.historyDate, marginBottom: 0 }}>
-                              {isRestToWorkout ? 'Rest -> Workout' : 'Workout -> Rest'}
-                            </div>
-                            <div style={{ fontSize: '11px', color: 'var(--app-text-muted)' }}>{formatSwapTimestamp(entry?.timestamp)}</div>
-                          </div>
-                          <div style={{ fontSize: '13px', color: 'var(--app-text)', marginBottom: '6px' }}>
-                            {`${fromLabel} -> ${toLabel}`}
-                          </div>
-                          <div style={{ fontSize: '12px', color: 'var(--app-text-muted)' }}>
-                            Focus: {entry?.workout_focus || 'Workout'}
-                          </div>
-                        </div>
-                      );
-                    })
-                ) : (
-                  <div style={{ textAlign: 'center', padding: '40px', color: '#52525b' }}>No swaps recorded this week</div>
-                )}
-              </>
-            )}
-          </div>
-        )}
+        <SwapHistoryModal
+          show={showHistory}
+          onClose={() => setShowHistory(false)}
+          historyTab={historyTab}
+          setHistoryTab={setHistoryTab}
+          swapLimits={swapLimits}
+          swapHistory={swapHistory}
+          pastWorkouts={pastWorkouts}
+          selectedHistory={selectedHistory}
+          setSelectedHistory={setSelectedHistory}
+          workoutLayout={workoutLayout}
+        />
       </div>
       <ConfirmDialog
         show={confirmDialog.show}
@@ -3452,122 +2909,16 @@ const Workout = ({ onLogout }) => {
         onConfirm={handleConfirm}
         onCancel={handleCancelConfirm}
       />
-      {variationResult && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(15, 23, 42, 0.85)',
-          backdropFilter: 'blur(8px)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 9999,
-          animation: 'fadeIn 0.3s ease-out',
-        }}>
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(30, 27, 75, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%)',
-            border: '1px solid rgba(99, 102, 241, 0.35)',
-            boxShadow: '0 24px 64px rgba(0, 0, 0, 0.5), 0 0 40px rgba(99, 102, 241, 0.15)',
-            borderRadius: '24px',
-            width: '90%',
-            maxWidth: '520px',
-            padding: '30px',
-            position: 'relative',
-            color: 'var(--app-text)',
-            textAlign: 'center',
-            animation: 'slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-          }}>
-            {variationResult.loading ? (
-              <div style={{ padding: '40px 0' }}>
-                <div style={{
-                  width: '60px',
-                  height: '60px',
-                  border: '4px solid rgba(99, 102, 241, 0.1)',
-                  borderTop: '4px solid #6366f1',
-                  borderRadius: '50%',
-                  margin: '0 auto 20px',
-                  animation: 'spin 1s linear  infinite',
-                }} />
-                <h3 style={{ fontSize: '20px', fontWeight: '800', marginBottom: '8px' }}>SESSION COMPLETE!</h3>
-                <p style={{ color: 'var(--app-text-muted)', fontSize: '14px' }}>Analysing form and preparing progression suggestions...</p>
-              </div>
-            ) : (
-              <>
-                <div style={{ fontSize: '50px', marginBottom: '15px' }}>
-                  {variationResult.suggestion?.action === 'progress' ? '🚀' : variationResult.suggestion?.action === 'regress' ? '🔄' : '🎉'}
-                </div>
-
-                <h2 style={{ fontSize: '24px', fontWeight: '800', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  {variationResult.suggestion?.action === 'progress' ? 'Progression Unlocked!' :
-                    variationResult.suggestion?.action === 'regress' ? 'Form Correction Recommended' :
-                      'Workout Complete!'}
-                </h2>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(99, 102, 241, 0.15)', padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '700', color: '#a5b4fc', marginBottom: '24px' }}>
-                  <span>AI COACH RATING</span> • <span>SCORE: {Math.round((variationResult.formScore || 0) * 100)}%</span>
-                </div>
-
-                <div style={{
-                  background: 'rgba(255, 255, 255, 0.03)',
-                  border: '1px solid rgba(255, 255, 255, 0.06)',
-                  borderRadius: '16px',
-                  padding: '18px',
-                  marginBottom: '24px',
-                  textAlign: 'left',
-                }}>
-                  <div style={{ fontSize: '11px', fontWeight: '800', color: 'var(--app-text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
-                    Recommendation for {variationResult.exercise}
-                  </div>
-                  {variationResult.suggestion?.suggested_exercise && (
-                    <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--app-text)', marginBottom: '8px' }}>
-                      {variationResult.suggestion.action === 'progress' ? 'Try next: ' :
-                        variationResult.suggestion.action === 'regress' ? 'Easier swap: ' :
-                          'Keep variation: '}
-                      <span style={{ color: '#22d3ee' }}>{variationResult.suggestion.suggested_exercise}</span>
-                    </div>
-                  )}
-                  {variationResult.coaching?.primary_message ? (
-                    <p style={{ fontSize: '13px', color: 'var(--app-text-muted)', margin: 0, lineHeight: '1.5' }}>
-                      {variationResult.coaching.primary_message}
-                    </p>
-                  ) : variationResult.suggestion?.reason ? (
-                    <p style={{ fontSize: '13px', color: 'var(--app-text-muted)', margin: 0, lineHeight: '1.5' }}>
-                      {variationResult.suggestion.reason}
-                    </p>
-                  ) : null}
-                </div>
-
-                <button
-                  onClick={async () => {
-                    const payload = variationResult.statusPayload;
-                    setVariationResult(null);
-                    if (payload) {
-                      await finishSession(payload.isPartialSession, payload.options);
-                    }
-                  }}
-                  style={{
-                    background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '12px',
-                    padding: '14px 28px',
-                    fontWeight: '800',
-                    fontSize: '15px',
-                    width: '100%',
-                    cursor: 'pointer',
-                    boxShadow: '0 8px 20px rgba(99, 102, 241, 0.3)',
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  SAVE & EXIT WORKOUT
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-      )}
+      <ExerciseVariationModal
+        variationResult={variationResult}
+        onDismiss={async (result) => {
+          const payload = result?.statusPayload;
+          setVariationResult(null);
+          if (payload) {
+            await finishSession(payload.isPartialSession, payload.options);
+          }
+        }}
+      />
     </>
   );
 }

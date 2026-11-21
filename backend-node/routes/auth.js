@@ -15,28 +15,24 @@ const { validate, registerRules, loginRules, forgotPasswordRules, resetPasswordR
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const BCRYPT_SALT_ROUNDS = parseInt(process.env.BCRYPT_SALT_ROUNDS || '12', 10);
 
-// PERF-4: Embed isSuspended in the JWT so the auth middleware can enforce
-// suspension without a DB round-trip on every request.
-// NOTE: isSuspended is cached for the token lifetime (7 days). When an admin
-// suspends a user their existing token will expire within 7 days; for instant
-// revocation, call invalidateUserTokens() in the suspend endpoint.
+const USER_TOKEN_EXPIRY = process.env.USER_TOKEN_EXPIRY || '7d';
+const USER_COOKIE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+// PERF-4 / SEC-FIX: Embed user identity in JWT with explicit 7d expiration.
+// Authoritative account suspension is verified against the database.
 const generateToken = (userId, isSuspended = false) => {
   if (!process.env.JWT_SECRET) {
     throw new Error('JWT_SECRET is not configured');
   }
   return jwt.sign(
     { user: { id: userId.toString(), isSuspended: Boolean(isSuspended) } },
-    process.env.JWT_SECRET
+    process.env.JWT_SECRET,
+    { expiresIn: USER_TOKEN_EXPIRY }
   );
 };
 
 /**
- * SEC-1: Set the JWT as an HttpOnly, SameSite=Strict cookie so it is
- * inaccessible to JavaScript running on the page.
- *
- * The response body still contains `token` during the transition period
- * so the existing frontend can keep working without changes. Once all
- * clients are updated to rely on the cookie, the body field will be removed.
+ * SEC-1 / SEC-FIX: Set the JWT as an HttpOnly cookie with 7-day maxAge matching token expiration.
  */
 const setAuthCookie = (res, token) => {
   const isProd = process.env.NODE_ENV === 'production';
@@ -44,7 +40,7 @@ const setAuthCookie = (res, token) => {
     httpOnly: true,                                              // not readable by JS
     secure: isProd,                                             // HTTPS-only in prod
     sameSite: isProd ? 'none' : 'lax',
-    maxAge: 100 * 365 * 24 * 60 * 60 * 1000,                           // 100 years
+    maxAge: USER_COOKIE_MAX_AGE_MS,                             // 7 days
     path: '/',
   });
 };
@@ -57,16 +53,17 @@ const getSessionSnapshot = async (req) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    if (typeof decoded?.user?.isSuspended === 'boolean' && decoded.user.isSuspended) {
-      return { authenticated: false };
-    }
-
     const userId = decoded?.user?.id || decoded?.id;
     if (!userId) {
       return { authenticated: false };
     }
 
-    return { authenticated: true, userId: userId.toString() };
+    const user = await User.findById(userId).select('isSuspended role').lean();
+    if (!user || user.isSuspended) {
+      return { authenticated: false };
+    }
+
+    return { authenticated: true, userId: userId.toString(), role: user.role || 'user' };
   } catch {
     return { authenticated: false };
   }

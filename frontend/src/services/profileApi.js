@@ -6,7 +6,7 @@ import axios from 'axios';
 const NODE_API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 const PYTHON_PROXY_BASE_URL = `${NODE_API_BASE_URL.replace(/\/+$/, "")}/python`;
 const PUBLIC_PYTHON_API_URL = import.meta.env.VITE_PYTHON_API_URL || '';
-const PROFILE_UPDATE_ENDPOINT = '/profile/update';
+const PROFILE_UPDATE_ENDPOINT = '/profile/update-safe';
 
 // Request timeout in milliseconds
 const REQUEST_TIMEOUT = 15000;

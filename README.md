@@ -1,4 +1,4 @@
-<div align="center">
+ <div align="center">
 
 # 🏋️‍♂️ Elevate Fitness Platform
 
@@ -118,35 +118,53 @@ Elevate follows a dual-backend microservices architecture connected to a single 
 Elevate-fitness/
 ├── frontend/                     # React 19 SPA (Vite)
 │   ├── src/
-│   │   ├── components/           # PoseDetector, Navbar, AuroraBackground, etc.
-│   │   ├── pages/                # Dashboard, Workout, Nutrition, Chatbot, ProfileSetup
+│   │   ├── api/                  # Domain-sliced modular API clients
+│   │   │   ├── apiClient.js      # Axios instance, CSRF, and interceptors
+│   │   │   ├── authApi.js        # Authentication endpoints
+│   │   │   ├── profileApi.js     # User profile and metrics
+│   │   │   ├── workoutApi.js     # Workout generation and variations
+│   │   │   ├── nutritionApi.js   # Meal plans and food database
+│   │   │   ├── adminApi.js       # Admin portal and telemetry
+│   │   │   └── chatbotApi.js     # AI coach assistant endpoints
+│   │   ├── features/             # Feature-sliced modular business logic & UI
+│   │   │   ├── dashboard/        # ActivityChart & hero radial calculations
+│   │   │   ├── nutrition/        # MacroStat, MealCard, MealSwapModal, HistoryPanel
+│   │   │   ├── pose-detection/   # Biomechanical angle math, safety checks, rep FSM
+│   │   │   └── workout/          # DaySelector, swap modals, variations, animations
+│   │   ├── components/           # Reusable UI components (Navbar, AuroraBackground, etc.)
+│   │   ├── pages/                # Core route views (Dashboard, Workout, Nutrition, Chatbot)
 │   │   ├── pages/admin/          # Full Admin Panel pages
-│   │   ├── api.js                # Centralized API service layer
 │   │   └── App.jsx               # Router & Auth State
 │   └── package.json
 │
 ├── backend-node/                 # Express API Gateway & Auth Service
 │   ├── server.js                 # Server entry point
-│   ├── middleware/               # Auth, Admin Auth, CSRF, Rate Limiting
+│   ├── middleware/               # Authoritative Auth, Admin Auth, CSRF, Rate Limiting
 │   ├── models/                   # Mongoose Schemas (User, Exercise, SystemConfig, AuditLog)
 │   ├── routes/                   # Auth, Profile, Admin, and Python Reverse Proxy
+│   ├── tests/                    # Jest automated integration & unit tests
 │   └── package.json
 │
 ├── backend-python/               # FastAPI AI & Machine Learning Service
-│   ├── server.py                 # FastAPI application & Keep-Alive task
+│   ├── server.py                 # FastAPI application with modern Lifespan lifecycle
 │   ├── app/
-│   │   ├── workout_engine.py     # 7-Day ML Workout Generator
-│   │   ├── meal_engine.py        # 7-Day Nutrition Generator
-│   │   ├── pose_tracker.py       # Server-side Pose & Form Tracking
-│   │   ├── gemini_service.py     # Gemini AI Chatbot Integration
-│   │   ├── multi_output_xgboost_model.py # ML Workout Parameter Models
-│   │   ├── multitarget_nutrition_model.py# ML Nutrition Parameter Models
-│   │   ├── safety_layer.py       # Health & Safety Guardrails
-│   │   └── detectors/            # Exercise-specific Pose Detectors
+│   │   ├── feature_pipeline.py   # Machine learning feature extraction with canonical encoders
+│   │   ├── workout_engine.py     # 7-Day ML Workout Generator (XGBoost)
+│   │   ├── workout_rules.py      # Exercise safety, frequency gating, and split rules
+│   │   ├── nutrition_engine/     # Combinatorial meal generator (0% fallback rate)
+│   │   ├── pose_tracker.py       # Biomechanical joint analysis
+│   │   └── gemini_service.py     # Gemini AI Chatbot with offline circuit breaker
+│   ├── tests/                    # Pytest automated test suite (93 tests)
 │   ├── requirements.txt
 │   └── Dockerfile
 │
-└── PROJECT_ELEVATE_OVERVIEW.md   # Deep Technical Overview Document
+├── AUTONOMOUS_REFACTORING_PROGRESS.md # Progress tracking ledger
+├── FINAL_IMPLEMENTATION_REPORT.md     # Detailed transformation implementation report
+├── FINAL_TEST_REPORT.md               # 156 automated tests verification report
+├── FINAL_PROJECT_ARCHITECTURE.md      # Architecture diagrams & microservice flow
+├── FINAL_PROJECT_STRUCTURE.md         # Directory structure & module guide
+├── REMAINING_ISSUES.md                # Edge cases & future roadmap
+└── CHANGELOG.md                       # Comprehensive version changelog
 ```
 
 ---
@@ -239,30 +257,54 @@ Double-click `start_all.bat` at the repository root to launch all three servers 
 
 ## 🧪 Testing & Quality Assurance
 
+Elevate maintains a zero-tolerance regression standard with **156 automated test cases** passing with 100% success rate across all layers:
+
 ```bash
-# Run Frontend Tests (Vitest)
+# 1. Frontend Unit & Integration Tests (37 Vitest tests)
 cd frontend
 npm run test:unit
 
-# Run Node.js Backend Tests (Jest)
-cd backend-node
-npm run test:unit
+# 2. Frontend ESLint Static Analysis (0 errors, 0 warnings)
+cd frontend
+npm run lint
 
-# Run Python Backend Tests (Pytest)
+# 3. Frontend Production Build Check
+cd frontend
+npm run build
+
+# 4. Node.js Backend Tests (26 Jest tests covering auth, DB suspension checks, proxying)
+cd backend-node
+npm test
+
+# 5. Python Machine Learning & API Tests (93 Pytest tests + 19 subtests)
 cd backend-python
-pytest tests/ -v
+pytest tests/
 ```
 
 ---
 
-## 🚀 Deployment
+## 🚀 Deployment & Health Checks
 
-The project is pre-configured for simple cloud deployment on platforms like **Render**, **Railway**, or **AWS**:
+The project is pre-configured with Infrastructure as Code via `render.yaml` for zero-configuration cloud deployment on **Render**, **Railway**, or **AWS**:
 
-1. **Frontend**: Deployed as a Web Service / Static Site using Vite build output or Docker (`frontend/Dockerfile`).
-2. **Node Backend**: Deployed as a Node Web Service (`npm start`).
-3. **Python Backend**: Deployed as a Dockerized Web Service (`backend-python/Dockerfile`).
-   - Includes automatic self-ping keep-alive service (`RENDER_EXTERNAL_URL`) to eliminate 15-minute free tier cold starts!
+1. **Frontend**: Deployed as a Static Site (`frontend/dist`) or containerized with `frontend/Dockerfile`.
+2. **Node.js API Gateway**: Deployed as a Node Web Service (`backend-node`) with lightweight health checks.
+3. **Python ML Backend**: Deployed as a Python Web Service (`backend-python`) or containerized with `backend-python/Dockerfile`.
+
+### Health & Readiness Architecture
+
+Both backend services expose dedicated, standards-compliant probes:
+
+| Endpoint | Probe Type | Behavior | Target Response |
+| :--- | :--- | :--- | :--- |
+| `GET /health` | **Liveness** | Ultra-lightweight check returning 200 without DB/ML queries. Safe for Render health checks and container orchestrators. | `{"status":"ok","service":"...","timestamp":"..."}` |
+| `GET /ready` | **Readiness** | Validates live MongoDB connectivity and ML engine readiness. Returns 200 when ready, 503 when dependencies fail. | `{"status":"ready","checks":{...}}` |
+
+### Render Free Tier & Uptime Clarification
+
+- **Free Tier Inactivity:** Render Free tier web services spin down after 15 minutes of inactivity. Health endpoints allow orchestrators to know when a container is healthy, but do not independently prevent free instances from sleeping.
+- **No Internal Self-Pinging:** Internal infinite self-ping loops are intentionally avoided to prevent container resource contention and artificial wakeups.
+- **Always-On Production:** For 100% uptime with zero cold starts, upgrade web services to a paid Render instance (Starter or Standard tier), or configure a legitimate external uptime monitor (e.g. UptimeRobot, Better Uptime) with a standard 10–15 minute check interval.
 
 ---
 

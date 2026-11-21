@@ -11,16 +11,26 @@
 // ---- Date helpers ----------------------------------------------------------
 
 /**
- * Converts a Date object or ISO string to a YYYY-MM-DD key in IST.
+ * Converts a Date object or ISO string to a YYYY-MM-DD key in the specified IANA timezone.
+ * Defaults to process.env.APP_TIMEZONE or 'Asia/Kolkata' for backwards compatibility.
  * @param {Date|string} [date=new Date()]
- * @returns {string}
+ * @param {string} [timeZone] - IANA timezone identifier (e.g. 'Asia/Kolkata', 'America/New_York', 'UTC')
+ * @returns {string} YYYY-MM-DD formatted date string
  */
-const toDateKey = (date = new Date()) => {
+const toDateKey = (date = new Date(), timeZone = process.env.APP_TIMEZONE || 'Asia/Kolkata') => {
   const d = date instanceof Date ? date : new Date(date);
   if (Number.isNaN(d.getTime())) return '';
-  // Use IST offset (+05:30 = 330 minutes)
-  const ist = new Date(d.getTime() + 330 * 60 * 1000);
-  return ist.toISOString().slice(0, 10);
+  try {
+    const formatter = new Intl.DateTimeFormat('en-CA', {
+      timeZone: timeZone || 'Asia/Kolkata',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+    return formatter.format(d);
+  } catch {
+    return d.toISOString().slice(0, 10);
+  }
 };
 
 // ---- Meal type inference ----------------------------------------------------

@@ -360,15 +360,15 @@ breakfast_rotation:
     - Fruit
     - Traditional
   patterns:
-    South Indian:   [dosa, idli, uttapam, upma, pongal, paniyaram, appam, south indian]
-    North Indian:   [paratha, puri, bhature, thepla, north indian]
-    Maharashtrian:  [poha, sabudana, thalipeeth, misal, maharashtrian]
-    Egg Based:      [egg, omelette, bhurji, scrambled]
-    Oats & Cereals: [oats, cereal, muesli, cornflakes, porridge]
+    South Indian:   [dosa, idli, uttapam, upma, pongal, paniyaram, appam, adai]
+    North Indian:   [paratha, parantha, puri, bhature, thepla]
+    Maharashtrian:  [poha, sabudana, thalipeeth, misal]
+    Egg Based:      [egg, omelette, bhurji, scrambled, anda]
+    Oats & Cereals: [oats, cereal, muesli, cornflakes, porridge, daliya]
     Millets:        [millet, ragi, jowar, bajra]
     Smoothies:      [smoothie, shake, milkshake]
-    Fruit:          [fruit, apple, banana, papaya]
-    Traditional:    [cheela, chilla, khichdi, traditional]
+    Fruit:          [fruit, apple, banana, papaya, berries]
+    Traditional:    [cheela, chilla, khichdi, dal, pappu, curry, sabzi, traditional]
 
 # ── Variety Penalties & Limits ────────────────────────────────────────────────
 variety_penalties:

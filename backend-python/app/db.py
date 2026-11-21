@@ -1,9 +1,17 @@
 import os
+from dotenv import load_dotenv
 from motor.motor_asyncio import AsyncIOMotorClient
 
+# Ensure .env is loaded even when app.db is imported directly
+_dotenv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
+load_dotenv(dotenv_path=_dotenv_path)
 
-# MongoDB connection settings
-MONGODB_URL = os.getenv("MONGO_URI", "mongodb://127.0.0.1:27017/elevate_fitness")
+def get_mongodb_url() -> str:
+    """Return the currently configured MongoDB connection URI."""
+    return os.getenv("MONGO_URI", "mongodb://127.0.0.1:27017/elevate_fitness")
+
+# MongoDB connection settings (kept for backward compatibility with imports)
+MONGODB_URL = get_mongodb_url()
 
 # Global client variable
 client: AsyncIOMotorClient = None
@@ -39,9 +47,10 @@ async def connect_to_mongo():
         print("Mocking connect_to_mongo for pytest")
         return
 
+    mongo_url = get_mongodb_url()
     try:
-        _validate_mongo_security(MONGODB_URL)
-        client = AsyncIOMotorClient(MONGODB_URL)
+        _validate_mongo_security(mongo_url)
+        client = AsyncIOMotorClient(mongo_url)
         # Test the connection
         await client.admin.command('ping')
         print("MongoDB connection established")
@@ -77,10 +86,11 @@ def get_database():
 
     # Extract database name from the connection string
     # Handle different MongoDB URI formats
-    if MONGODB_URL.startswith("mongodb://"):
+    mongo_url = get_mongodb_url()
+    if mongo_url.startswith("mongodb://"):
         # Format: mongodb://host:port/database_name
         # or mongodb://username:password@host:port/database_name
-        path_parts = MONGODB_URL.split('/')
+        path_parts = mongo_url.split('/')
         if len(path_parts) >= 4:
             db_name = path_parts[3]
             # Remove query parameters if present
@@ -88,9 +98,9 @@ def get_database():
                 db_name = db_name.split('?')[0]
         else:
             db_name = "elevate_fitness"  # default
-    elif MONGODB_URL.startswith("mongodb+srv://"):
+    elif mongo_url.startswith("mongodb+srv://"):
         # Format: mongodb+srv://host/database_name
-        path_parts = MONGODB_URL.split('/')
+        path_parts = mongo_url.split('/')
         if len(path_parts) >= 4:
             db_name = path_parts[3]
             # Remove query parameters if present
@@ -101,7 +111,7 @@ def get_database():
     else:
         # Fallback: extract from custom format
         import re
-        match = re.search(r'/([^/\?]+)', MONGODB_URL)
+        match = re.search(r'/([^/\?]+)', mongo_url)
         if match:
             db_name = match.group(1)
             # Remove query parameters if present

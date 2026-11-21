@@ -9,8 +9,15 @@ const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const axios = require('axios');
 
-// Mock axios
+// Mock axios and User model
 jest.mock('axios');
+jest.mock('../models/User', () => ({
+  findById: jest.fn().mockImplementation((id) => ({
+    select: jest.fn().mockReturnValue({
+      lean: jest.fn().mockResolvedValue({ _id: id, isSuspended: false, role: 'user' })
+    })
+  }))
+}));
 
 process.env.JWT_SECRET = 'test_secret_min_32_chars_for_testing_only';
 process.env.ML_API_URL = 'https://elevate-pybackend.onrender.com';
@@ -23,6 +30,7 @@ function buildApp() {
   app.use(express.json());
   app.use(cookieParser());
   app.use('/api/python', pythonProxyRouter);
+  app.use('/api/weekly-plan', pythonProxyRouter);
   return app;
 }
 
@@ -164,6 +172,22 @@ describe('Python Backend Proxy Route', () => {
 
     const res = await request(app)
       .get('/api/python/api/weekly-plan')
+      .set('Cookie', `elevate_token=${validToken}`);
+
+    expect(res.status).toBe(200);
+    const axiosArgs = axios.mock.calls[0][0];
+    expect(axiosArgs.url).toBe('https://elevate-pybackend.onrender.com/api/weekly-plan');
+  });
+
+  it('direct /api/weekly-plan endpoint proxies to python upstream (200)', async () => {
+    axios.mockResolvedValueOnce({
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+      data: { success: true, plan: [] },
+    });
+
+    const res = await request(app)
+      .get('/api/weekly-plan')
       .set('Cookie', `elevate_token=${validToken}`);
 
     expect(res.status).toBe(200);

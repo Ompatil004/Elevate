@@ -182,6 +182,11 @@ def test_profile_update_to_persisted_fetch_e2e_flow(monkeypatch):
     fetched_body = fetch_resp.json()
     fetched_plan = fetched_body["data"]["plan"]
     
+    # Regression test: verify alias endpoint /weekly-plan also succeeds with 200
+    alias_resp = client.get("/weekly-plan", headers={"x-auth-token": mock_user_id})
+    assert alias_resp.status_code == 200
+    assert alias_resp.json()["data"]["plan"] == fetched_plan
+
     # Verify frontend-received payload has debug traces
     for day in fetched_plan:
         assert "debug_trace" in day

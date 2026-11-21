@@ -2,112 +2,45 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useNotification } from "../components/NotificationProvider";
 import { useTheme } from "../context/ThemeContext";
-import { getProfile, generateNutritionPlan, getNutritionSwapOptions, generateWorkout, saveUserMealToNode, getMealHistory, saveMealHistory, saveTrends, logActivityToBackend, backgroundCB } from "../api";
+import {
+  getProfile,
+  generateNutritionPlan,
+  getNutritionSwapOptions,
+  generateWorkout,
+  saveUserMealToNode,
+  getMealHistory,
+  saveMealHistory,
+  saveTrends,
+  logActivityToBackend,
+  backgroundCB,
+} from "../api";
 import { withCircuitBreaker } from "../utils/circuitBreaker";
-import { StorageKeys, getFromStorage, setToStorage, logoutSafe, getLocalDateStr, safeJSONParse } from "../utils/storage";
+import {
+  StorageKeys,
+  getFromStorage,
+  setToStorage,
+  logoutSafe,
+  getLocalDateStr,
+  safeJSONParse,
+} from "../utils/storage";
 import Navbar from "../components/Navbar";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { syncBridge, SyncTypes } from "../utils/syncBridge";
 import AuroraBackground from "../components/AuroraBackground";
 
-// Local-timezone date string helper is now imported from storage.js
-
-const styles = {
-  page: { background: "transparent", minHeight: "100dvh", color: "var(--app-text)", fontFamily: "'Inter', sans-serif", overflowX: "hidden", position: "relative", zIndex: 1, paddingTop: "clamp(64px, 9vw, 80px)" },
-  navbar: { display: "flex", alignItems: "center", padding: "0 clamp(12px, 4vw, 40px)", height: "clamp(64px, 9vw, 80px)", gap: "clamp(8px, 2vw, 18px)", borderBottom: "1px solid var(--app-border)", background: 'var(--app-nav-bg, rgba(9, 9, 11, 0.6))', backdropFilter: "blur(16px)", position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, overflowX: "auto" },
-  brand: { flex: 1, fontSize: "22px", fontWeight: "900", letterSpacing: "-1px", background: "var(--brand-grad, linear-gradient(to right, #ffffff, #a5b4fc))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", display: "flex", alignItems: "center", gap: "10px" },
-  navCenter: { display: "flex", gap: "clamp(4px, 1.5vw, 8px)", height: "100%", alignItems: "center", justifyContent: "center" },
-  navLink: { display: "flex", alignItems: "center", padding: "8px clamp(10px, 2vw, 20px)", fontSize: "clamp(11px, 1.7vw, 13px)", fontWeight: "600", color: "var(--app-text-muted)", cursor: "pointer", borderRadius: "20px", transition: "all 0.2s", textTransform: "uppercase", letterSpacing: "0.5px", border: "1px solid transparent" },
-  navLinkActive: { background: "var(--app-border)", color: "var(--app-text)", boxShadow: "0 0 20px var(--app-border)", border: "1px solid var(--app-border)" },
-  navRight: { flex: 1, display: "flex", alignItems: "center", gap: "clamp(8px, 2vw, 24px)", justifyContent: "flex-end" },
-  brandDot: { width: "8px", height: "8px", background: "#6366f1", borderRadius: "50%", boxShadow: "0 0 15px #6366f1" },
-  iconButton: { width: "clamp(36px, 6vw, 42px)", height: "clamp(36px, 6vw, 42px)", borderRadius: "12px", background: "var(--quote-bg)", border: "1px solid var(--app-border)", color: "var(--app-text)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: "18px", transition: "all 0.2s" },
-  logoutBtn: { display: "flex", alignItems: "center", gap: "8px", padding: "0 clamp(10px, 2vw, 20px)", borderRadius: "12px", background: "rgba(239, 68, 68, 0.1)", border: "1px solid rgba(239, 68, 68, 0.2)", color: "#ef4444", cursor: "pointer", transition: "all 0.2s ease", height: "clamp(36px, 6vw, 42px)" },
-  logoutText: { fontSize: "12px", fontWeight: "700", letterSpacing: "0.5px", textTransform: "uppercase" },
-  container: { maxWidth: "1400px", margin: "0 auto", padding: "clamp(12px, 4vw, 40px)" },
-  header: { fontSize: "clamp(28px, 5vw, 42px)", fontWeight: "800", color: "var(--app-text)", marginBottom: "clamp(18px, 3vw, 40px)", letterSpacing: "-1px", background: "var(--h1-grad)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", filter: "drop-shadow(0 4px 20px rgba(99, 102, 241, 0.3))" },
-  daySelectorBar: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(90px, 1fr))", gap: "10px", marginBottom: "20px" },
-  dayCard: { background: "var(--app-surface)", border: "1px solid var(--app-border)", borderRadius: "16px", padding: "clamp(8px, 1.8vw, 12px)", cursor: "pointer", transition: "all 0.3s ease", textAlign: "center", position: "relative", overflow: "hidden" },
-  dayCardSelected: { background: 'var(--day-card-selected-bg, linear-gradient(145deg, #1e1b4b 0%, #312e81 100%))', border: "2px solid #6366f1", transform: "scale(1.05)", boxShadow: "0 0 30px rgba(99, 102, 241, 0.2)" },
-  dayCardToday: { borderColor: "#10b981", boxShadow: "0 0 15px rgba(16, 185, 129, 0.15)" },
-  dayName: { fontSize: "12px", fontWeight: "700", color: "var(--app-text-muted)", marginBottom: "4px", textTransform: "uppercase", letterSpacing: "1px" },
-  dailySummaryCard: { background: "var(--app-surface)", borderRadius: "20px", padding: "clamp(12px, 2vw, 20px)", marginBottom: "20px", border: "1px solid var(--app-border)", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: "clamp(10px, 2vw, 16px)", position: "relative", overflow: "hidden" },
-  macroStat: { textAlign: "center", padding: "10px", borderRadius: "14px", background: 'var(--app-surface-hover, rgba(255,255,255,0.02))', border: "1px solid rgba(255,255,255,0.04)", transition: "all 0.2s ease" },
-  macroValue: { fontSize: "clamp(18px, 3vw, 26px)", fontWeight: "800", color: "var(--app-text)", marginBottom: "2px", fontFamily: "'Inter', sans-serif" },
-  macroLabel: { fontSize: "11px", color: "#71717a", textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: "700" },
-  mealList: { display: "grid", gap: "20px" },
-  mealCard: { background: "var(--app-surface)", borderRadius: "20px", padding: "clamp(14px, 2.8vw, 28px)", border: "1px solid var(--app-border)", transition: "all 0.3s ease", position: "relative", overflowX: "auto", overflowY: "hidden" },
-  mealCardCompleted: { border: "1px solid rgba(34, 197, 94, 0.4)", background: "var(--app-card-bg)" },
-  completedBadge: { position: "absolute", top: "15px", right: "15px", background: "rgba(34, 197, 94, 0.1)", color: "#22c55e", padding: "6px 14px", borderRadius: "20px", fontSize: "11px", fontWeight: "800", border: "1px solid rgba(34, 197, 94, 0.3)" },
-  mealHeader: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", paddingBottom: "16px", borderBottom: '1px solid var(--app-border)', gap: "12px", flexWrap: "wrap" },
-  mealName: { fontSize: "20px", fontWeight: "800", color: "var(--app-text)", letterSpacing: "-0.5px" },
-  foodTableHeader: { display: "grid", gridTemplateColumns: "30px minmax(140px, 2fr) minmax(80px, 1fr) repeat(4, minmax(54px, 1fr)) 44px", gap: "10px", minWidth: "660px", padding: "0 16px 12px", fontSize: "11px", fontWeight: "700", color: "#52525b", textTransform: "uppercase", letterSpacing: "1px" },
-  foodList: { display: "grid", gap: "8px" },
-  foodItemRow: { display: "grid", gridTemplateColumns: "30px minmax(140px, 2fr) minmax(80px, 1fr) repeat(4, minmax(54px, 1fr)) 44px", gap: "10px", minWidth: "660px", padding: "14px 16px", background: 'var(--app-surface-hover, rgba(255,255,255,0.02))', borderRadius: "14px", alignItems: "center", fontSize: "14px", border: '1px solid var(--app-border)', transition: "all 0.2s ease" },
-  checkbox: { width: "22px", height: "22px", borderRadius: "8px", border: "2px solid var(--app-border)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s", background: "transparent", fontSize: "12px" },
-  checkboxChecked: { background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)", borderColor: "#22c55e", boxShadow: "0 0 10px rgba(34, 197, 94, 0.3)", color: "#ffffff" },
-  swapBtn: { background: "rgba(99, 102, 241, 0.1)", border: "1px solid rgba(99, 102, 241, 0.2)", color: "#818cf8", cursor: "pointer", fontSize: "16px", padding: "6px", borderRadius: "10px", transition: "all 0.2s", width: "34px", height: "34px", display: "flex", alignItems: "center", justifyContent: "center" },
-  mealMacroTotal: { display: "flex", justifyContent: "flex-end", gap: "24px", marginTop: "16px", paddingTop: "16px", borderTop: '1px solid var(--app-border)', flexWrap: "wrap" },
-  historyPanel: { position: "fixed", top: "80px", right: "0", width: "min(96vw, 480px)", height: "calc(100dvh - 80px)", background: "var(--app-bg)", borderLeft: "1px solid var(--app-border)", zIndex: 1500, padding: "clamp(14px, 2.5vw, 24px)", overflowY: "auto", animation: "slideInRight 0.3s ease-out", boxShadow: "-20px 0 50px rgba(0,0,0,0.5)" },
-  swapModal: { position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(0,0,0,0.75)", backdropFilter: "blur(12px)", zIndex: 3000, display: "flex", alignItems: "center", justifyContent: "center", transition: "opacity 0.3s ease" },
-  swapModalCard: { background: "var(--app-surface)", padding: "clamp(16px, 3vw, 32px)", borderRadius: "24px", width: "min(96vw, 480px)", maxWidth: "480px", border: "1px solid rgba(99, 102, 241, 0.2)", boxShadow: "0 20px 60px rgba(0,0,0,0.6), 0 0 40px rgba(99, 102, 241, 0.1)", animation: "scaleIn 0.3s ease-out", maxHeight: "84dvh", display: "flex", flexDirection: "column" },
-  optionalBadge: { background: "rgba(245, 158, 11, 0.1)", color: "#f59e0b", padding: "4px 10px", borderRadius: "12px", fontSize: "10px", fontWeight: "800", border: "1px solid rgba(245, 158, 11, 0.3)", marginLeft: "10px", textTransform: "uppercase" },
-};
-
-const nutritionAnimations = `
-  @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-  @keyframes scaleIn { from { transform: scale(0.95) translateY(20px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.08); } 100% { transform: scale(1); } }
-  .day-card-hover:hover { transform: translateY(-3px) !important; border-color: rgba(99, 102, 241, 0.3) !important; box-shadow: 0 8px 25px rgba(0,0,0,0.3) !important; }
-  .food-row-hover:hover { background: rgba(255,255,255,0.04) !important; border-color: var(--app-border) !important; }
-  .meal-card-hover:hover { border-color: rgba(99, 102, 241, 0.15) !important; box-shadow: 0 8px 30px rgba(0,0,0,0.2) !important; }
-  .swap-btn-hover:hover { background: rgba(99, 102, 241, 0.2) !important; transform: scale(1.1); box-shadow: 0 0 12px rgba(99, 102, 241, 0.3); }
-  .macro-stat-hover:hover { background: rgba(255,255,255,0.04) !important; transform: scale(1.03); }
-  .icon-hover:hover { background: var(--app-border) !important; }
-  .logout-btn:hover { background: rgba(239, 68, 68, 0.2) !important; }
-  @media (max-width: 640px) {
-    .meal-card { overflow-x: hidden !important; }
-    .meal-header { padding-right: 120px !important; }
-    .food-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  }
-`;
-
-// ──────────────────────────────────────────────────────────────
-//  Fixed week anchoring (mirrors Workout.jsx so meal & workout pages
-//  share the SAME Monday–Sunday week and the SAME calendar dates).
-//  Monday = index 0 … Sunday = index 6. All date math is done in IST
-//  so it stays aligned with the backend (which slices "today" in IST).
-// ──────────────────────────────────────────────────────────────
-const NUTRITION_WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-
-const getTodayIdxIST = () => {
-  const weekday = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'Asia/Kolkata',
-    weekday: 'short',
-  }).format(new Date());
-  const indexByWeekday = { Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6 };
-  return indexByWeekday[weekday] ?? 0;
-};
-
-// Returns the 7 'YYYY-MM-DD' dates for the current ISO week, Monday→Sunday.
-// Uses pure UTC calendar arithmetic anchored on today's IST date so the result
-// never drifts across timezones, and guarantees week[todayIdx] === today (IST).
-const getWeekDatesIST = () => {
-  const todayStr = getLocalDateStr(); // IST 'YYYY-MM-DD'
-  const [y, m, d] = todayStr.split('-').map(Number);
-  const todayIdx = getTodayIdxIST();
-  const base = new Date(Date.UTC(y, m - 1, d));
-  const pad = (n) => String(n).padStart(2, '0');
-  const dates = [];
-  for (let i = 0; i < 7; i++) {
-    const dt = new Date(base);
-    dt.setUTCDate(base.getUTCDate() + (i - todayIdx));
-    dates.push(`${dt.getUTCFullYear()}-${pad(dt.getUTCMonth() + 1)}-${pad(dt.getUTCDate())}`);
-  }
-  return dates;
-};
+import {
+  styles,
+  nutritionAnimations,
+  NUTRITION_WEEKDAYS,
+  getTodayIdxIST,
+  getWeekDatesIST,
+  getTodayWorkoutIntensity,
+  isTodayRestDay,
+  MacroStat,
+  MealCard,
+  MealSwapModal,
+  HistoryPanel,
+} from "../features/nutrition";
 
 function Nutrition({ onLogout }) {
   const navigate = useNavigate();
@@ -136,8 +69,7 @@ function Nutrition({ onLogout }) {
   const [expandedMeals, setExpandedMeals] = useState({});
   const MEAL_ORDER = ["breakfast", "lunch", "dinner"];
 
-  // Index (Mon=0…Sun=6) of the real "today" within the fixed week. Only this day
-  // is interactive — past and future days are read-only.
+  // Index (Mon=0…Sun=6) of real "today" within the fixed week. Only this day is interactive.
   const todayIdx = getTodayIdxIST();
 
   const isMealUnlocked = (mealType, dayIdx) => {
@@ -198,7 +130,7 @@ function Nutrition({ onLogout }) {
     return () => clearInterval(timer);
   }, [circuitOpen, retryCountdown]);
 
-  // ✅ BUG FIX 2: Backend Persistence to Frontend
+  // Backend Persistence to Frontend
   useEffect(() => {
     if (!weeklyPlan?.days?.length || !mealHistory?.length) return;
 
@@ -230,7 +162,6 @@ function Nutrition({ onLogout }) {
         }
 
         if (Array.isArray(mealData.foods) && mealData.foods.length > 0) {
-          // Backend saved individual food items — match by name
           mealData.foods.forEach((food) => {
             const planFood = planMeal.foods.find((f) => f.name === food.name);
             if (!planFood) return;
@@ -244,8 +175,6 @@ function Nutrition({ onLogout }) {
             }
           });
         } else {
-          // ✅ FIX: Backend only saves meal totals (foods: []), but the meal IS locked.
-          // Synthetically mark ALL plan foods for this meal as checked to restore tick UI.
           planMeal.foods.forEach((planFood) => {
             const checkKey = `${dayEntry.date}-${planFood.id}`;
             if (!localChecked[checkKey]) {
@@ -268,38 +197,12 @@ function Nutrition({ onLogout }) {
     }
   }, [weeklyPlan, mealHistory]);
 
-  const getTodayWorkoutIntensity = (workoutPlan = []) => {
-    if (!Array.isArray(workoutPlan) || workoutPlan.length === 0) return "moderate";
-
-    const jsDay = new Date().getDay();
-    const todayIdx = (jsDay + 6) % 7; // Monday=0 ... Sunday=6
-    const todayPlan = workoutPlan.find((d) => (d?.day_of_week ?? -1) === todayIdx) || workoutPlan[todayIdx];
-
-    if (!todayPlan) return "moderate";
-    const label = `${todayPlan.day || todayPlan.focus || ""}`.toLowerCase();
-    const note = `${todayPlan.note || ""}`.toLowerCase();
-    if (label.includes("rest") || note.includes("rest")) return "rest";
-
-    const exercises = Array.isArray(todayPlan.exercises) ? todayPlan.exercises : [];
-    const totalSets = exercises.reduce((sum, ex) => {
-      const parsed = parseInt(String(ex?.sets ?? "0").replace(/[^0-9]/g, ""), 10);
-      return sum + (Number.isFinite(parsed) ? parsed : 0);
-    }, 0);
-
-    if (exercises.length >= 8 || totalSets >= 28) return "very_hard";
-    if (exercises.length >= 6 || totalSets >= 20) return "hard";
-    if (exercises.length >= 3 || totalSets >= 10) return "moderate";
-    return "light";
-  };
-
   const getWorkoutPlanForNutrition = async (profile) => {
     const cachedPlan = safeJSONParse("workoutPlan", null);
     if (Array.isArray(cachedPlan)) {
       return cachedPlan;
     }
 
-    // Do not block nutrition load on workout generation when cache is missing.
-    // Use moderate intensity now; warm workout cache in background for next visit.
     withCircuitBreaker(backgroundCB, () => generateWorkout(profile)).then((workoutResponse) => {
       const generatedPlan = Array.isArray(workoutResponse?.data?.workout) ? workoutResponse.data.workout : [];
       if (generatedPlan.length > 0) {
@@ -317,35 +220,6 @@ function Nutrition({ onLogout }) {
     return [];
   };
 
-  const isTodayRestDay = () => {
-    try {
-      const workoutPlan = safeJSONParse("workoutPlan", []);
-      if (!Array.isArray(workoutPlan) || workoutPlan.length === 0) return false;
-
-      const jsDay = new Date().getDay();
-      const todayIdx = (jsDay + 6) % 7;
-      const todayPlan = workoutPlan.find((d) => (d?.day_of_week ?? -1) === todayIdx) || workoutPlan[todayIdx];
-      if (!todayPlan) return false;
-      // 1. Explicit type from backend engine
-      if (todayPlan.type === 'rest') return true;
-      // 2. Focus field
-      const focus = `${todayPlan.focus || ""}`.toLowerCase();
-      if (focus.includes('rest') || focus === 'active recovery') return true;
-      // 3. Label / note
-      const label = `${todayPlan.day || ""}`.toLowerCase();
-      const note = `${todayPlan.note || ""}`.toLowerCase();
-      if (label.includes('rest') || note.includes('rest') || note.includes('recovery')) return true;
-      return false;
-    } catch {
-      return false;
-    }
-  };
-
-  /* ──────────────────────────────────────────
-   *  FETCH — builds 7-day plan from backend
-   *  ✅ FIX 7: Date-aware caching with profile hash
-   *  ✅ FIX 8: Cache invalidation on profile change
-   * ────────────────────────────────────────── */
   const fetchNutritionPlan = async () => {
     try {
       setLoading(true);
@@ -353,10 +227,6 @@ function Nutrition({ onLogout }) {
       const profile = profileRes.data;
       setUserProfile(profile);
 
-      // ✅ FIX 7+8: Check if we have a valid cached plan for THIS WEEK with same profile.
-      // The meal week is now fixed (Mon–Sun, same as the workout week) and cached by
-      // week-start, so the plan stays stable for the whole week and only rebuilds on a
-      // new ISO week or a profile change — instead of "shifting" forward each day.
       const weekStartStr = getWeekDatesIST()[0];
       const profileHash = `${profile.weight}-${profile.height}-${profile.goal}-${profile.dietary_preference || ''}-${profile.age}`;
       const rawInvalid = getFromStorage(StorageKeys.NUTRITION_CACHE_INVALID);
@@ -365,14 +235,12 @@ function Nutrition({ onLogout }) {
       const cachedPlan = getFromStorage(StorageKeys.NUTRITION_CACHE);
       const hasValidDays = cachedPlan && Array.isArray(cachedPlan.days) && cachedPlan.days.length > 0;
 
-      // Invalidate cache if daily totals contain zero, NaN, or undefined values for macros
       const isStale = cachedPlan && Array.isArray(cachedPlan.days) && cachedPlan.days.some(d => {
         const p = d.daily_totals?.protein_g;
         return p === undefined || p === null || isNaN(Number(p)) || Number(p) === 0;
       });
 
       if (!cacheInvalid && hasValidDays && !isStale && cachedDate === weekStartStr && cachedPlan._weekStart === weekStartStr && cachedPlan._profileHash === profileHash) {
-        // Use cached plan — no network request needed
         setWeeklyPlan({ week_start: weekStartStr, days: cachedPlan.days });
         setDailyTarget(cachedPlan.daily_target || {});
         setSelectedDayIndex(todayIdx);
@@ -380,7 +248,6 @@ function Nutrition({ onLogout }) {
         return;
       }
 
-      // Clear invalidation flag since we're fetching fresh
       setToStorage(StorageKeys.NUTRITION_CACHE_INVALID, 'false');
 
       const workoutPlan = await getWorkoutPlanForNutrition(profile);
@@ -400,23 +267,16 @@ function Nutrition({ onLogout }) {
 
       if (response.data.success && response.data.nutrition) {
         const nutrition = response.data.nutrition;
-
-        // Save daily target
         setDailyTarget(nutrition.daily_target || {});
 
-        // Build a FIXED Monday→Sunday week from the backend weekly_plan.
-        // Dates are anchored to the current ISO week (same Monday the workout page
-        // uses) so both pages show the identical week and the identical dates.
         const weekPlan = nutrition.weekly_plan;
-        const weekDates = getWeekDatesIST(); // ['YYYY-MM-DD' Monday … Sunday]
+        const weekDates = getWeekDatesIST();
 
         const days = [];
         for (let i = 0; i < 7; i++) {
           const dName = NUTRITION_WEEKDAYS[i];
-          // Get the matching day from the backend weekly plan (keyed by day name)
           const backendDay = weekPlan?.[dName] || {};
 
-          // Build meals array from the backend day object
           const meals = [];
           for (const mealType of ['breakfast', 'lunch', 'dinner', 'snack']) {
             const items = backendDay[mealType] || [];
@@ -444,7 +304,6 @@ function Nutrition({ onLogout }) {
             });
           }
 
-          // Daily totals = sum of all meal totals
           const daily_totals = {
             calories: Math.round(meals.reduce((s, m) => s + m.totals.calories, 0)),
             protein_g: Math.round(meals.reduce((s, m) => s + m.totals.protein_g, 0) * 10) / 10,
@@ -476,9 +335,6 @@ function Nutrition({ onLogout }) {
         setToStorage(StorageKeys.NUTRITION_CACHE_DATE, weekStart);
 
         showSuccess("Nutrition plan loaded from dataset!", 3000);
-        
-        // ✅ FIX: Re-run loadHistory to tick off the newly generated food items 
-        // using the backend completed meal history (in case the plan regenerated).
         loadHistory();
       } else {
         throw new Error(response.data.error || "Failed to load nutrition plan");
@@ -509,16 +365,12 @@ function Nutrition({ onLogout }) {
     }
   };
 
-  /* ──────────────────────────────────────────
-   *  CHECKING / LOCKING meals
-   * ────────────────────────────────────────── */
   const loadHistory = async () => {
     try {
       const response = await getMealHistory();
       const historyData = response.data || [];
       setMealHistory(historyData);
       
-      // ✅ Populate lockedMeals directly from backed up daily history
       const localLocked = safeJSONParse("lockedMeals", {});
       const localChecked = safeJSONParse("checkedFoods", {});
       const todayDate = getLocalDateStr();
@@ -533,14 +385,10 @@ function Nutrition({ onLogout }) {
             if (mealTypeKey) {
               localLocked[`${todayDate}-${mealTypeKey}`] = true;
 
-              // ✅ FIX: Backfill checkedFoods for this locked meal using the current
-              // nutrition plan from localStorage cache. The backend only stores meal totals
-              // (not individual food items), so we reconstruct from the local plan.
               try {
-                // StorageKeys.NUTRITION_CACHE = 'nutritionPlan'
                 const cachedNutrition = safeJSONParse("nutritionPlan", null);
                 const cachedDays = cachedNutrition?.days || [];
-                const todayPlanDay = cachedDays[0]; // index 0 = today
+                const todayPlanDay = cachedDays[0];
                 if (todayPlanDay) {
                   const planMeal = todayPlanDay.meals?.find(
                     (m) => String(m.meal_type || '').toLowerCase() === mealTypeKey
@@ -555,7 +403,7 @@ function Nutrition({ onLogout }) {
                   }
                 }
               } catch {
-                // Non-critical — checkedFoods will remain partially populated
+                // Non-critical
               }
             }
           }
@@ -567,12 +415,12 @@ function Nutrition({ onLogout }) {
       setLockedMeals(localLocked);
     } catch (err) {
       console.error("Failed to load meal history from db:", err);
-      // Fallback
       setMealHistory(safeJSONParse("mealHistoryGrouped", []));
       setLockedMeals(safeJSONParse("lockedMeals", {}));
     }
     setTickTimes(safeJSONParse("tickTimes", {}));
   };
+
   const loadCheckedFoods = () => setCheckedFoods(safeJSONParse("checkedFoods", {}));
 
   const handleCheckFood = (foodId, mealName, mealType, dayIdx) => {
@@ -606,7 +454,6 @@ function Nutrition({ onLogout }) {
     setTickTimes(newTickTimes);
     localStorage.setItem("tickTimes", JSON.stringify(newTickTimes));
 
-    // Check if ALL items in this meal are now ticked
     const selectedDay = weeklyPlan?.days?.[dayIdx];
     if (selectedDay) {
       const meal = selectedDay.meals.find(
@@ -663,7 +510,6 @@ function Nutrition({ onLogout }) {
             fat: dateEntry.total_fat || 0,
           });
           
-          // Sync with Node Database & consume todayTotals for Dashboard macro update
           saveUserMealToNode({
             dayName: today,
             mealType: meal.meal_type,
@@ -674,17 +520,15 @@ function Nutrition({ onLogout }) {
             fat: meal.totals?.fat_g || 0,
             completedAt: mealData.completed_at
           }).then(res => {
-            // ✅ BUG FIX: Consume todayTotals from backend to signal Dashboard
             const totals = res?.data?.todayTotals;
             if (totals) {
-              // Count how many of breakfast/lunch/dinner are done so far in this session
               const mealsCount = ['breakfast', 'lunch', 'dinner'].filter(t => Boolean(dateEntry.meals?.[t])).length;
               setToStorage('_macroSync', JSON.stringify({
                 calories: totals.calories,
                 protein: totals.protein,
                 carbs: totals.carbs,
                 fat: totals.fat,
-                mealsCount,   // ✅ Dashboard uses this for per-meal circle progress
+                mealsCount,
                 ts: Date.now()
               }));
               syncBridge.emit(SyncTypes.MEAL_COMPLETED, {
@@ -695,9 +539,7 @@ function Nutrition({ onLogout }) {
                 carbs: totals.carbs,
                 fat: totals.fat,
               });
-              console.log('✅ Macro sync signal stored for Dashboard:', totals, '| mealsCount:', mealsCount);
 
-              // Direct activity logging backup
               const mealCal = meal.totals?.calories || 0;
               const actDetails = mealCal ? `${Math.round(mealCal)} cal consumed` : 'Meal logged';
               logActivityToBackend({
@@ -710,17 +552,14 @@ function Nutrition({ onLogout }) {
             }
           }).catch(err => console.error("Failed to sync meal to node db", err));
 
-          // ✅ FIX 6: Snacks are OPTIONAL for day completion
-          // Only Breakfast + Lunch + Dinner are required — Snack is bonus calories
           const requiredMeals = ["breakfast", "lunch", "dinner"];
-          const allMealsDone = requiredMeals.every((mealType) => Boolean(dateEntry.meals?.[mealType]));
+          const allMealsDone = requiredMeals.every((mType) => Boolean(dateEntry.meals?.[mType]));
 
           const water = parseFloat(String(getFromStorage(StorageKeys.WATER_INTAKE, 0) || 0)) || 0;
           const sleep = parseFloat(String(getFromStorage(StorageKeys.SLEEP_HOURS, 0) || 0)) || 0;
           const restDay = isTodayRestDay();
           const workoutDone = getFromStorage(StorageKeys.TODAY_WORKOUT_DONE) === "true";
 
-          // Keep trend/graph state in sync after every completed meal.
           saveTrends({
             date: today,
             workout_completed: restDay ? true : workoutDone,
@@ -751,9 +590,6 @@ function Nutrition({ onLogout }) {
     }
   };
 
-  /* ──────────────────────────────────────────
-   *  SWAP — fetches alternatives from backend
-   * ────────────────────────────────────────── */
   const openSwapModal = async (food, mealType, dayIdx) => {
     if (dayIdx !== todayIdx) { showInfo("You can only swap today's meals!", 2000); return; }
     setSwapModal({ show: true, food, mealType, dayIndex: dayIdx });
@@ -828,10 +664,6 @@ function Nutrition({ onLogout }) {
     showSuccess(`Swapped to ${selectedSwap.name}!`, 2000);
   };
 
-  /* ──────────────────────────────────────────
-   *  RENDER
-   * ────────────────────────────────────────── */
-  // ✅ BUG FIX 4: Logout confirmation handler for Navbar
   const handleLogout = () => {
     setConfirmDialog({ 
       show: true, 
@@ -852,8 +684,6 @@ function Nutrition({ onLogout }) {
   const selectedDayConsumedTotals = (() => {
     if (!selectedDay?.date) return { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 };
 
-    // Build a local fallback from current tick/lock state so refresh/relogin does not
-    // temporarily show 0 before backend history sync completes.
     let localCalories = 0;
     let localProtein = 0;
     let localCarbs = 0;
@@ -883,8 +713,6 @@ function Nutrition({ onLogout }) {
       });
     });
 
-    // Removed unused history variables to pass lint
-
     return {
       calories: Math.round(localCalories),
       protein_g: Math.round(localProtein * 10) / 10,
@@ -892,6 +720,27 @@ function Nutrition({ onLogout }) {
       fat_g: Math.round(localFat * 10) / 10,
     };
   })();
+
+  const renderNavbarRight = () => (
+    <>
+      <div 
+        style={styles.iconButton} 
+        className="icon-hover" 
+        onClick={() => setShowHistory(true)}
+        title="Meal History"
+      >
+        📊
+      </div>
+      <button
+        className="theme-toggle-btn"
+        onClick={toggleTheme}
+        title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+        aria-label="Toggle theme"
+      >
+        {theme === 'dark' ? '☀️' : '🌙'}
+      </button>
+    </>
+  );
 
   if (loading) {
     return (
@@ -903,26 +752,7 @@ function Nutrition({ onLogout }) {
           navigate={navigate} 
           activePage="nutrition" 
           onLogout={handleLogout}
-          rightContent={
-            <>
-              <div 
-                style={styles.iconButton} 
-                className="icon-hover" 
-                onClick={() => setShowHistory(true)}
-                title="Meal History"
-              >
-                📊
-              </div>
-              <button
-                className="theme-toggle-btn"
-                onClick={toggleTheme}
-                title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-                aria-label="Toggle theme"
-              >
-                {theme === 'dark' ? '☀️' : '🌙'}
-              </button>
-            </>
-          }
+          rightContent={renderNavbarRight()}
         />
         <div style={styles.container}>
           <div style={{ textAlign: "center", padding: "100px 20px" }}>
@@ -954,26 +784,7 @@ function Nutrition({ onLogout }) {
           navigate={navigate} 
           activePage="nutrition" 
           onLogout={handleLogout}
-          rightContent={
-            <>
-              <div 
-                style={styles.iconButton} 
-                className="icon-hover" 
-                onClick={() => setShowHistory(true)}
-                title="Meal History"
-              >
-                📊
-              </div>
-              <button
-                className="theme-toggle-btn"
-                onClick={toggleTheme}
-                title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-                aria-label="Toggle theme"
-              >
-                {theme === 'dark' ? '☀️' : '🌙'}
-              </button>
-            </>
-          }
+          rightContent={renderNavbarRight()}
         />
         <div style={styles.container}>
           <div style={{ textAlign: "center", padding: "100px 20px" }}>
@@ -1022,26 +833,7 @@ function Nutrition({ onLogout }) {
         navigate={navigate} 
         activePage="nutrition" 
         onLogout={handleLogout}
-        rightContent={
-          <>
-            <div 
-              style={styles.iconButton} 
-              className="icon-hover" 
-              onClick={() => setShowHistory(true)}
-              title="Meal History"
-            >
-              📊
-            </div>
-            <button
-              className="theme-toggle-btn"
-              onClick={toggleTheme}
-              title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-              aria-label="Toggle theme"
-            >
-              {theme === 'dark' ? '☀️' : '🌙'}
-            </button>
-          </>
-        }
+        rightContent={renderNavbarRight()}
       />
 
       <div style={styles.container}>
@@ -1051,16 +843,31 @@ function Nutrition({ onLogout }) {
         <div style={styles.daySelectorBar} className="nutrition-day-selector">
           {weeklyPlan.days.map((day, index) => {
             const isToday = index === todayIdx;
-            const isOtherDay = index !== todayIdx; // past OR future → read-only
+            const isOtherDay = index !== todayIdx;
             return (
-            <div key={day.date} onClick={() => setSelectedDayIndex(index)} className="day-card-hover nutrition-day-card" data-selected={selectedDayIndex === index ? 'true' : 'false'} style={{ ...styles.dayCard, ...(selectedDayIndex === index ? styles.dayCardSelected : {}), ...(isToday ? styles.dayCardToday : {}), opacity: isOtherDay && selectedDayIndex !== index ? 0.6 : 1 }}>
-              {selectedDayIndex === index && <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "3px", background: "linear-gradient(90deg, #6366f1, #a78bfa)", borderRadius: "20px 20px 0 0" }} />}
-              <div style={styles.dayName}>{day.day_name?.slice(0, 3)}</div>
-              <div style={{ fontSize: "22px", fontWeight: "800", color: selectedDayIndex === index ? "var(--app-text)" : "#71717a", marginBottom: "8px", fontFamily: "monospace" }}>{Number(String(day.date).split('-')[2])}</div>
-              {isToday && <div style={{ fontSize: "9px", color: "#10b981", fontWeight: "800", marginTop: "6px", textTransform: "uppercase", letterSpacing: "1px" }}>Today</div>}
-              {index < todayIdx && <div style={{ fontSize: "9px", color: "#71717a", fontWeight: "800", marginTop: "6px", textTransform: "uppercase", letterSpacing: "1px" }}>🔒 Past</div>}
-              {index > todayIdx && <div style={{ fontSize: "9px", color: "#818cf8", fontWeight: "800", marginTop: "6px", textTransform: "uppercase", letterSpacing: "1px" }}>Upcoming</div>}
-            </div>
+              <div
+                key={day.date}
+                onClick={() => setSelectedDayIndex(index)}
+                className="day-card-hover nutrition-day-card"
+                data-selected={selectedDayIndex === index ? 'true' : 'false'}
+                style={{
+                  ...styles.dayCard,
+                  ...(selectedDayIndex === index ? styles.dayCardSelected : {}),
+                  ...(isToday ? styles.dayCardToday : {}),
+                  opacity: isOtherDay && selectedDayIndex !== index ? 0.6 : 1
+                }}
+              >
+                {selectedDayIndex === index && (
+                  <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "3px", background: "linear-gradient(90deg, #6366f1, #a78bfa)", borderRadius: "20px 20px 0 0" }} />
+                )}
+                <div style={styles.dayName}>{day.day_name?.slice(0, 3)}</div>
+                <div style={{ fontSize: "22px", fontWeight: "800", color: selectedDayIndex === index ? "var(--app-text)" : "#71717a", marginBottom: "8px", fontFamily: "monospace" }}>
+                  {Number(String(day.date).split('-')[2])}
+                </div>
+                {isToday && <div style={{ fontSize: "9px", color: "#10b981", fontWeight: "800", marginTop: "6px", textTransform: "uppercase", letterSpacing: "1px" }}>Today</div>}
+                {index < todayIdx && <div style={{ fontSize: "9px", color: "#71717a", fontWeight: "800", marginTop: "6px", textTransform: "uppercase", letterSpacing: "1px" }}>🔒 Past</div>}
+                {index > todayIdx && <div style={{ fontSize: "9px", color: "#818cf8", fontWeight: "800", marginTop: "6px", textTransform: "uppercase", letterSpacing: "1px" }}>Upcoming</div>}
+              </div>
             );
           })}
         </div>
@@ -1073,7 +880,6 @@ function Nutrition({ onLogout }) {
             <MacroStat value={`${selectedDay.daily_totals?.protein_g || 0}g`} label="Protein" color="#10b981" icon="💪" />
             <MacroStat value={`${selectedDay.daily_totals?.carbs_g || 0}g`} label="Carbs" color="#3b82f6" icon="⚡" />
             <MacroStat value={`${selectedDay.daily_totals?.fat_g || 0}g`} label="Fats" color="#f59e0b" icon="🥑" />
-
             <MacroStat
               value={`${selectedDayConsumedTotals.calories} cal`}
               label={selectedDay.date === today ? "Consumed Today" : "Consumed"}
@@ -1090,12 +896,11 @@ function Nutrition({ onLogout }) {
             const mealTypeKey = String(meal.meal_type || '').toLowerCase();
             const mealTypeLockKey = `${selectedDay.date}-${mealTypeKey}`;
             const isCompleted = !!lockedMeals[mealLockKey] || !!lockedMeals[mealTypeLockKey];
-            // Sequence-lock (e.g. "finish breakfast first") only applies to today.
             const isSequenceLocked = selectedDayIndex === todayIdx ? !isMealUnlocked(mealTypeKey, selectedDayIndex) : false;
             const unlockMessage = isSequenceLocked ? getUnlockMessage(mealTypeKey) : null;
             const checkedCount = (meal.foods || []).filter(f => checkedFoods[`${selectedDay.date}-${f.id}`] || isCompleted).length;
-            // Any day that isn't today (past OR future) is read-only — no ticking/swapping.
             const isReadOnlyDay = selectedDayIndex !== todayIdx;
+
             return (
               <MealCard
                 key={mealIndex}
@@ -1103,12 +908,15 @@ function Nutrition({ onLogout }) {
                 isLocked={isCompleted}
                 isSequenceLocked={isSequenceLocked}
                 unlockMessage={unlockMessage}
-                checkedFoods={checkedFoods} tickTimes={tickTimes}
-                today={selectedDay.date} checkedCount={checkedCount}
+                checkedFoods={checkedFoods}
+                tickTimes={tickTimes}
+                today={selectedDay.date}
+                checkedCount={checkedCount}
                 totalCount={meal.foods ? meal.foods.length : 0}
                 onCheckFood={handleCheckFood}
                 onSwapFood={openSwapModal}
-                dayIndex={selectedDayIndex} isFutureDay={isReadOnlyDay}
+                dayIndex={selectedDayIndex}
+                isFutureDay={isReadOnlyDay}
               />
             );
           })}
@@ -1118,75 +926,27 @@ function Nutrition({ onLogout }) {
       {/* History Panel */}
       {showHistory && (
         <HistoryPanel
-          mealHistory={mealHistory} expandedDates={expandedDates}
-          setExpandedDates={setExpandedDates} expandedMeals={expandedMeals}
+          mealHistory={mealHistory}
+          expandedDates={expandedDates}
+          setExpandedDates={setExpandedDates}
+          expandedMeals={expandedMeals}
           setExpandedMeals={setExpandedMeals}
-          onClose={() => setShowHistory(false)} today={today}
+          onClose={() => setShowHistory(false)}
+          today={today}
         />
       )}
 
-      {/* Swap Modal — backend driven */}
-      {swapModal.show && (
-        <div style={styles.swapModal} className="swap-modal-backdrop" onClick={() => setSwapModal({ show: false, food: null, mealType: null, dayIndex: null })}>
-          <div style={styles.swapModalCard} className="swap-modal-card" onClick={e => e.stopPropagation()}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-              <div style={{ fontSize: "28px", fontWeight: "800", color: "var(--app-text)", letterSpacing: "-0.5px" }}>Swap Food</div>
-              <button onClick={() => setSwapModal({ show: false, food: null, mealType: null, dayIndex: null })} style={{ background: "var(--app-border)", borderRadius: "50%", width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--app-text-muted)", border: "1px solid var(--app-border)", fontSize: "16px", cursor: "pointer", transition: "all 0.2s ease" }} className="icon-hover">✕</button>
-            </div>
-            <div style={{ fontSize: "15px", color: "var(--app-text-muted)", marginBottom: "24px", lineHeight: "1.5" }}>
-              Looking for alternatives to <strong style={{ color: "var(--app-text)" }}>{swapModal.food?.name}</strong>? Choose an option below.
-            </div>
-
-            {swapLoading ? (
-              <div style={{ textAlign: "center", padding: "60px 20px", color: "#71717a", flex: 1 }}>
-                <div style={{ fontSize: "32px", marginBottom: "16px", animation: "pulse 1.5s infinite" }}>🔄</div>
-                <div style={{ fontSize: "15px", fontWeight: "600" }}>Searching dataset for alternatives...</div>
-              </div>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "24px", overflowY: "auto", flex: 1, paddingRight: "8px" }} className="custom-scroll">
-                {swapOptions.length === 0 ? (
-                  <div style={{ textAlign: "center", padding: "40px", color: "#52525b", fontSize: "15px", background: 'var(--app-surface-hover, rgba(255,255,255,0.02))', borderRadius: "16px" }}>No similar swap options found.</div>
-                ) : (
-                  swapOptions.map((option, i) => {
-                    const optName = option.food_name || option.name;
-                    const selName = selectedSwap?.food_name || selectedSwap?.name;
-                    const isSelected = selName === optName;
-                    return (
-                    <div key={i} onClick={() => setSelectedSwap(option)} style={{
-                      display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 20px",
-                      background: isSelected ? "rgba(99, 102, 241, 0.15)" : "var(--quote-bg)",
-                      borderRadius: "16px",
-                      border: isSelected ? "2px solid #6366f1" : "1px solid var(--app-border)",
-                      cursor: "pointer", transition: "all 0.2s ease",
-                      boxShadow: isSelected ? "0 4px 15px rgba(99, 102, 241, 0.2)" : "none"
-                    }}>
-                      <div>
-                        <div style={{ fontSize: "16px", fontWeight: "700", color: isSelected ? "var(--app-text)" : "var(--app-text)" }}>{optName}</div>
-                        <div style={{ fontSize: "13px", color: "var(--app-text-muted)", marginTop: "4px" }}>
-                          {(!option.serving || String(option.serving).match(/^(~?\d+(?:\.\d+)?)(g|ml)$/i)) ? getFallbackServing(optName, option.calories) : option.serving}
-                        </div>
-                        <div style={{ display: "flex", gap: "12px", marginTop: "8px" }}>
-                          <span style={{ fontSize: "12px", color: "#10b981", fontWeight: "600", fontFamily: "monospace" }}>P: {option.protein}g</span>
-                          <span style={{ fontSize: "12px", color: "#3b82f6", fontWeight: "600", fontFamily: "monospace" }}>C: {option.carbs}g</span>
-                          <span style={{ fontSize: "12px", color: "#f59e0b", fontWeight: "600", fontFamily: "monospace" }}>F: {option.fat}g</span>
-                        </div>
-                      </div>
-                      <div style={{ fontSize: "16px", fontWeight: "800", color: "var(--app-text)", fontFamily: "monospace", background: "var(--app-border)", padding: "6px 12px", borderRadius: "12px" }}>
-                        {option.calories} cal
-                      </div>
-                    </div>
-                  )})
-                )}
-              </div>
-            )}
-
-            <div style={{ display: "flex", gap: "12px" }}>
-              <button onClick={() => setSwapModal({ show: false, food: null, mealType: null, dayIndex: null })} style={{ flex: 1, padding: "14px", borderRadius: "14px", background: "var(--app-surface2)", color: "var(--app-text)", border: "1px solid var(--app-border)", fontWeight: "700", cursor: "pointer", fontSize: "14px" }}>Cancel</button>
-              <button onClick={confirmSwap} disabled={!selectedSwap} style={{ flex: 1, padding: "14px", borderRadius: "14px", background: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)", color: "var(--app-text)", border: "none", fontWeight: "700", cursor: "pointer", fontSize: "14px", opacity: selectedSwap ? 1 : 0.4, boxShadow: selectedSwap ? "0 4px 20px rgba(99, 102, 241, 0.4)" : "none" }}>Swap Food</button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Swap Modal */}
+      <MealSwapModal
+        show={swapModal.show}
+        food={swapModal.food}
+        swapLoading={swapLoading}
+        swapOptions={swapOptions}
+        selectedSwap={selectedSwap}
+        setSelectedSwap={setSelectedSwap}
+        onClose={() => setSwapModal({ show: false, food: null, mealType: null, dayIndex: null })}
+        onConfirmSwap={confirmSwap}
+      />
 
       <ConfirmDialog
         show={confirmDialog.show}
@@ -1201,362 +961,6 @@ function Nutrition({ onLogout }) {
       />
     </div>
   );
-}
-
-
-
-function MacroStat({ value, label, color, icon }) {
-  return (
-    <div style={styles.macroStat} className="macro-stat-hover">
-      {icon && <div style={{ fontSize: "20px", marginBottom: "8px" }}>{icon}</div>}
-      <div style={{ ...styles.macroValue, color }}>{value}</div>
-      <div style={styles.macroLabel}>{label}</div>
-    </div>
-  );
-}
-
-function MealCard({ meal, isLocked, isSequenceLocked, unlockMessage, checkedFoods, tickTimes, today, checkedCount, totalCount, onCheckFood, onSwapFood, dayIndex, isFutureDay }) {
-  const isDisabled = isFutureDay || isLocked || isSequenceLocked;
-  return (
-    <div
-      className="meal-card meal-card-hover"
-      style={{
-        ...styles.mealCard,
-        ...(isLocked ? styles.mealCardCompleted : {}),
-        ...(isSequenceLocked
-          ? {
-              opacity: 0.55,
-              cursor: "not-allowed",
-              border: "1px dashed rgba(255,255,255,0.12)",
-            }
-          : {}),
-      }}
-    >
-      {isLocked && <div style={styles.completedBadge}>✓ Completed</div>}
-      {isSequenceLocked && (
-        <div style={{
-          position: "absolute",
-          top: "15px",
-          right: "15px",
-          background: "rgba(113, 113, 122, 0.22)",
-          color: "var(--app-text-muted)",
-          padding: "6px 14px",
-          borderRadius: "20px",
-          fontSize: "11px",
-          fontWeight: "700",
-          border: "1px solid rgba(113, 113, 122, 0.35)",
-        }}>
-          Locked
-        </div>
-      )}
-
-      <div style={styles.mealHeader} className="meal-header">
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <div>
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <div style={styles.mealName}>{meal.name}</div>
-              {meal.meal_type.toLowerCase() === "snack" && <span style={styles.optionalBadge}>Always Open</span>}
-            </div>
-            <div style={{ fontSize: "13px", color: isLocked ? "#22c55e" : "#6366f1", fontWeight: "700", textTransform: "uppercase", marginTop: "4px", letterSpacing: "1px" }}>{meal.meal_type}</div>
-            {isSequenceLocked && unlockMessage && (
-              <div style={{ fontSize: "12px", color: "var(--app-text-muted)", marginTop: "6px" }}>{unlockMessage}</div>
-            )}
-          </div>
-        </div>
-        <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
-          <div style={{ fontSize: "13px", fontWeight: "700", fontFamily: "monospace", color: isLocked ? "#22c55e" : checkedCount > 0 ? "#818cf8" : "#52525b" }}>
-            {isLocked ? "✓ All" : `${checkedCount}/${totalCount}`}
-          </div>
-          <div style={{ width: "60px", height: "4px", background: "var(--app-surface2)", borderRadius: "4px", overflow: "hidden" }}>
-            <div style={{ width: `${totalCount > 0 ? (checkedCount / totalCount) * 100 : 0}%`, height: "100%", background: isLocked ? "#22c55e" : "#6366f1", borderRadius: "4px", transition: "width 0.3s ease" }} />
-          </div>
-        </div>
-      </div>
-
-      <div className="food-table-scroll">
-      <div style={styles.foodTableHeader} className="food-table-header food-table-header">
-        <div></div><div>Food</div><div style={{ textAlign: "center", color: "#a78bfa" }}>Portion</div><div style={{ textAlign: "center" }}>Cal</div>
-        <div style={{ textAlign: "center" }}>Pro</div><div style={{ textAlign: "center" }}>Carb</div>
-        <div style={{ textAlign: "center" }}>Fat</div><div></div>
-      </div>
-
-      <div style={styles.foodList}>
-        {(meal.foods || []).map((food) => {
-          const checkKey = `${today}-${food.id}`;
-          const isChecked = !!checkedFoods[checkKey] || isLocked;
-          const itemTickTime = tickTimes[checkKey];
-          return (
-            <div key={food.id} className="food-row-hover" style={{
-              ...styles.foodItemRow,
-              opacity: isChecked ? (isLocked ? 0.5 : 0.7) : 1,
-              background: isChecked ? "rgba(34, 197, 94, 0.04)" : "rgba(255,255,255,0.02)",
-              ...(isSequenceLocked ? { pointerEvents: "none", opacity: 0.5 } : {}),
-            }}>
-              {/* Col 1: Checkbox */}
-              <div onClick={() => !isDisabled && onCheckFood(food.id, meal.name, meal.meal_type, dayIndex)} style={{
-                ...styles.checkbox, ...(isChecked ? styles.checkboxChecked : {}),
-                ...(isDisabled && !isChecked ? { opacity: 0.3, cursor: "not-allowed" } : {}),
-              }} role="checkbox" aria-checked={isChecked} aria-label={`Mark ${food.name} as eaten`}>
-                {isChecked && "✓"}
-              </div>
-              {/* Col 2: Food name */}
-              <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
-                <span style={{ fontWeight: "600", color: isChecked ? "var(--app-text-muted)" : "var(--app-text)", textDecoration: isChecked ? "line-through" : "none", overflowWrap: "break-word" }}>{food.name}</span>
-                {isChecked && itemTickTime && <span style={{ fontSize: "10px", color: "#22c55e", fontFamily: "monospace", marginTop: "2px" }}>✓ {itemTickTime}</span>}
-              </div>
-              {/* Col 3: Portion (desktop) */}
-              <div style={{ textAlign: "center" }}>
-                <span style={{
-                  fontSize: "12px", fontWeight: "700", color: "#a78bfa",
-                  background: "rgba(167,139,250,0.10)", borderRadius: "8px",
-                  padding: "3px 7px", fontFamily: "monospace",
-                  whiteSpace: "nowrap",
-                }}>
-                  {(!food.serving || String(food.serving).match(/^(~?\d+(?:\.\d+)?)(g|ml)$/i)) ? getFallbackServing(food.name, food.calories) : food.serving}
-                </span>
-              </div>
-              {/* Col 4-7: Macros (desktop) */}
-              <div style={{ textAlign: "center", color: "var(--app-text)", fontWeight: "600", fontFamily: "monospace", fontSize: "13px" }}>{food.calories}</div>
-              <div style={{ textAlign: "center", color: "#10b981", fontFamily: "monospace", fontSize: "13px" }}>{food.protein_g}g</div>
-              <div style={{ textAlign: "center", color: "#3b82f6", fontFamily: "monospace", fontSize: "13px" }}>{food.carbs_g}g</div>
-              <div style={{ textAlign: "center", color: "#f59e0b", fontFamily: "monospace", fontSize: "13px" }}>{food.fat_g}g</div>
-              {/* Col 8: Swap button */}
-              <button className="swap-btn-hover" onClick={() => !isDisabled && onSwapFood(food, meal.meal_type, dayIndex)} disabled={isDisabled} aria-label={`Swap ${food.name}`} style={{ ...styles.swapBtn, ...(isDisabled ? { opacity: 0.3, cursor: "not-allowed" } : {}) }}>🔄</button>
-              {/* Mobile macro metadata — shown via CSS on ≤600px, hidden on desktop */}
-              <div className="food-macro-meta" style={{ display: "none" }}>
-                <span style={{ fontSize: "11px", color: "#a78bfa", fontWeight: "700" }}>
-                  {(!food.serving || food.serving.match(/^(~?\d+(?:\.\d+)?)(g|ml)$/i)) ? getFallbackServing(food.name, food.calories) : food.serving}
-                </span>
-                <span style={{ fontSize: "11px", color: "var(--app-text)", fontWeight: "700", fontFamily: "monospace" }}>{food.calories} cal</span>
-                <span style={{ fontSize: "11px", color: "#10b981", fontFamily: "monospace" }}>P: {food.protein_g}g</span>
-                <span style={{ fontSize: "11px", color: "#3b82f6", fontFamily: "monospace" }}>C: {food.carbs_g}g</span>
-                <span style={{ fontSize: "11px", color: "#f59e0b", fontFamily: "monospace" }}>F: {food.fat_g}g</span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      </div>
-
-      <div style={styles.mealMacroTotal} className="meal-macro-total">
-        <div style={{ fontSize: "13px", fontWeight: "800", color: "var(--app-text)", fontFamily: "monospace" }}>{meal.totals?.calories || 0} cal</div>
-        <div style={{ fontSize: "13px", fontWeight: "700", color: "#10b981", fontFamily: "monospace" }}>{meal.totals?.protein_g || 0}g pro</div>
-        <div style={{ fontSize: "13px", fontWeight: "700", color: "#3b82f6", fontFamily: "monospace" }}>{meal.totals?.carbs_g || 0}g carb</div>
-        <div style={{ fontSize: "13px", fontWeight: "700", color: "#f59e0b", fontFamily: "monospace" }}>{meal.totals?.fat_g || 0}g fat</div>
-      </div>
-    </div>
-  );
-}
-
-function HistoryPanel({ mealHistory, expandedDates, setExpandedDates, expandedMeals, setExpandedMeals, onClose, today }) {
-  const mealTypeIcons = { breakfast: "☀️", lunch: "🌤️", dinner: "🌙", snack: "🍎" };
-  const mealTypeColors = { breakfast: "#f59e0b", lunch: "#3b82f6", dinner: "#8b5cf6", snack: "#10b981" };
-
-  return (
-    <div style={styles.historyPanel} className="nutrition-history-panel">
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
-        <div>
-          <div style={{ fontSize: "20px", fontWeight: "800", color: "var(--app-text)" }}>Meal History</div>
-          <div style={{ fontSize: "12px", color: "#71717a", marginTop: "4px" }}>{mealHistory.length} day{mealHistory.length !== 1 ? "s" : ""} tracked</div>
-        </div>
-        <button onClick={onClose} style={{ background: "var(--app-border)", border: "1px solid var(--app-border)", color: "var(--app-text)", fontSize: "16px", cursor: "pointer", width: "36px", height: "36px", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
-      </div>
-
-      {mealHistory.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "60px 20px", color: "#3f3f46" }}>
-          <div style={{ fontSize: "48px", marginBottom: "12px" }}>📋</div>
-          <div style={{ fontSize: "16px", fontWeight: "700", color: "#52525b" }}>No meals completed yet</div>
-          <div style={{ fontSize: "13px", color: "#3f3f46", marginTop: "8px" }}>Tick all items in a meal to save it here</div>
-        </div>
-      ) : (
-        mealHistory.map((dayEntry) => {
-          const dateObj = new Date(dayEntry.date + "T00:00:00");
-          const dayName = dateObj.toLocaleDateString("en-US", { weekday: "long" });
-          const dateText = dateObj.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-          const isToday = dayEntry.date === today;
-          const isExpanded = !!expandedDates[dayEntry.date];
-          const mealCount = Object.keys(dayEntry.meals).length;
-
-          return (
-            <div key={dayEntry.date} style={{ marginBottom: "12px", borderRadius: "16px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)" }}>
-              <div onClick={() => setExpandedDates(prev => ({ ...prev, [dayEntry.date]: !prev[dayEntry.date] }))} style={{
-                background: isToday ? "linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.15) 100%)" : "var(--quote-bg)",
-                padding: "16px 20px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center",
-                borderBottom: isExpanded ? "1px solid rgba(255,255,255,0.06)" : "none",
-              }}>
-                <div>
-                  <div style={{ fontSize: "11px", fontWeight: "800", color: isToday ? "#818cf8" : "#71717a", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "4px" }}>{isToday ? "⭐ Today" : dayName}</div>
-                  <div style={{ fontSize: "15px", fontWeight: "700", color: "var(--app-text)" }}>{dateText}</div>
-                  <div style={{ fontSize: "11px", color: "#52525b", marginTop: "4px" }}>{mealCount} meal{mealCount !== 1 ? "s" : ""} completed</div>
-                </div>
-                <div style={{ textAlign: "right", display: "flex", alignItems: "center", gap: "16px" }}>
-                  <div>
-                    <div style={{ fontSize: "20px", fontWeight: "800", color: "var(--app-text)", fontFamily: "monospace" }}>{dayEntry.total_calories}</div>
-                    <div style={{ fontSize: "10px", color: "#71717a", textTransform: "uppercase", letterSpacing: "1px" }}>calories</div>
-                  </div>
-                  <div style={{ fontSize: "14px", color: "#52525b", transition: "transform 0.3s", transform: isExpanded ? "rotate(0deg)" : "rotate(-90deg)" }}>▼</div>
-                </div>
-              </div>
-
-              {isExpanded && (
-                <div style={{ background: "rgba(0,0,0,0.2)" }}>
-                  {["breakfast", "lunch", "dinner", "snack"].map((mealType) => {
-                    const meal = dayEntry.meals[mealType];
-                    if (!meal) return null;
-                    const mealKey = `${dayEntry.date}-${mealType}`;
-                    const isMealExpanded = !!expandedMeals[mealKey];
-                    return (
-                      <div key={mealType} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                        <div onClick={() => setExpandedMeals(prev => ({ ...prev, [mealKey]: !prev[mealKey] }))} style={{
-                          padding: "14px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer",
-                        }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                            <div style={{ width: "36px", height: "36px", borderRadius: "10px", background: (mealTypeColors[mealType] || "#6366f1") + "15", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px" }}>
-                              {mealTypeIcons[mealType] || "🍽️"}
-                            </div>
-                            <div>
-                              <div style={{ fontSize: "13px", fontWeight: "700", color: "var(--app-text)", textTransform: "capitalize" }}>{mealType}</div>
-                            </div>
-                          </div>
-                          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                            <div style={{ background: "rgba(34, 197, 94, 0.15)", color: "#22c55e", padding: "4px 10px", borderRadius: "10px", fontSize: "12px", fontWeight: "700", fontFamily: "monospace" }}>{meal.calories} cal</div>
-                            <div style={{ fontSize: "12px", color: "#3f3f46", transition: "transform 0.3s", transform: isMealExpanded ? "rotate(0deg)" : "rotate(-90deg)" }}>▼</div>
-                          </div>
-                        </div>
-                        {isMealExpanded && (
-                          <div style={{ padding: "0 20px 14px 68px" }}>
-                            <div style={{ display: "flex", gap: "16px", marginBottom: "10px", padding: "8px 12px", background: 'var(--app-surface-hover, rgba(255,255,255,0.02))', borderRadius: "10px" }}>
-                              <span style={{ fontSize: "11px", color: "#10b981", fontWeight: "700", fontFamily: "monospace" }}>P: {meal.protein}g</span>
-                              <span style={{ fontSize: "11px", color: "#3b82f6", fontWeight: "700", fontFamily: "monospace" }}>C: {meal.carbs}g</span>
-                              <span style={{ fontSize: "11px", color: "#f59e0b", fontWeight: "700", fontFamily: "monospace" }}>F: {meal.fat}g</span>
-                            </div>
-                            {(meal.foods || []).map((food, fIdx) => (
-                              <div key={fIdx} style={{ display: "flex", alignItems: "center", padding: "8px 0", borderBottom: fIdx < (meal.foods || []).length - 1 ? "1px solid rgba(255,255,255,0.03)" : "none" }}>
-                                <div style={{ width: "20px", height: "20px", borderRadius: "6px", background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)", display: "flex", alignItems: "center", justifyContent: "center", marginRight: "10px", fontSize: "10px", color: "var(--app-text)", flexShrink: 0 }}>✓</div>
-                                <div style={{ flex: 1 }}>
-                                  <div style={{ fontSize: "13px", fontWeight: "600", color: "#d4d4d8" }}>{food.name}</div>
-                                  <div style={{ fontSize: "11px", color: "#52525b" }}>{food.calories} cal</div>
-                                </div>
-                                {food.tick_time && <div style={{ fontSize: "10px", color: "#71717a", background: "rgba(255,255,255,0.04)", padding: "3px 8px", borderRadius: "8px", fontFamily: "monospace" }}>🕐 {food.tick_time}</div>}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          );
-        })
-      )}
-    </div>
-  );
-}
-
-function getFallbackServing(nameStr, calValue) {
-  const cal = calValue || 0;
-  const name = (nameStr || '').toLowerCase();
-  
-  // 1. Eggs
-  if (name.includes('egg') || name.includes('anda')) {
-    const qty = Math.max(1, Math.round(cal / 70));
-    return `${qty} piece${qty > 1 ? 's' : ''} (egg)`;
-  }
-  
-  // 2. Roti / Chapati / Paratha / Naan / Bread
-  if (name.includes('roti') || name.includes('chapati') || name.includes('phulka')) {
-    const qty = Math.max(1, Math.round(cal / 85));
-    return `${qty} piece${qty > 1 ? 's' : ''} (roti)`;
-  }
-  if (name.includes('paratha') || name.includes('parantha')) {
-    const qty = Math.max(1, Math.round(cal / 180));
-    return `${qty} piece${qty > 1 ? 's' : ''} (paratha)`;
-  }
-  if (name.includes('naan')) {
-    const qty = Math.max(1, Math.round(cal / 250 * 2) / 2);
-    return `${qty} piece${qty > 1 ? 's' : ''} (naan)`;
-  }
-  if (name.includes('bread') || name.includes('toast')) {
-    const qty = Math.max(1, Math.round(cal / 80));
-    return `${qty} slice${qty > 1 ? 's' : ''}`;
-  }
-  
-  // 3. Idli / Dosa / Uttapam / Vada
-  if (name.includes('idli')) {
-    const qty = Math.max(1, Math.round(cal / 65));
-    return `${qty} piece${qty > 1 ? 's' : ''}`;
-  }
-  if (name.includes('dosa')) {
-    const qty = Math.max(1, Math.round(cal / 150));
-    return `${qty} piece${qty > 1 ? 's' : ''} (dosa)`;
-  }
-  if (name.includes('vada')) {
-    const qty = Math.max(1, Math.round(cal / 100));
-    return `${qty} piece${qty > 1 ? 's' : ''}`;
-  }
-  if (name.includes('uttapam')) {
-    const qty = Math.max(1, Math.round(cal / 200 * 2) / 2);
-    return `${qty} piece${qty > 1 ? 's' : ''}`;
-  }
-  
-  // 4. Whole fruits
-  if (/apple|banana|orange|fruit\s*\(/.test(name)) {
-    const qty = Math.max(1, Math.round(cal / 85));
-    return `${qty} medium fruit${qty > 1 ? 's' : ''}`;
-  }
-  
-  // 5. Beverages & Liquid Shakes (ml/glass)
-  if (/juice|milk|smoothie|drink|shake|lassi|chaas|lemonade/.test(name)) {
-    const isRich = /lassi|shake|milk|smoothie/.test(name);
-    const baseCalPerGlass = isRich ? 150 : 80;
-    const glasses = Math.round((cal / baseCalPerGlass) * 2) / 2;
-    if (glasses >= 1) {
-      return `${glasses} glass${glasses > 1 ? 'es' : ''} (~${Math.round(glasses * 250)}ml)`;
-    }
-    return `~${Math.round(cal * 2)}ml`;
-  }
-  
-  // 6. Tea & Coffee
-  if (name.includes('tea') || name.includes('coffee') || name.includes('chai')) {
-    const cups = Math.round((cal / 60) * 2) / 2;
-    return `${Math.max(0.5, cups)} cup${cups > 1 ? 's' : ''}`;
-  }
-  
-  // 7. Dal, Sambar, Kadhi, Soups, Salad, Yogurt, Raita
-  if (/dal|sambar|kadhi|soup|shorba|raita|yogurt|curd|salad/.test(name)) {
-    const isHeavy = /dal|sambar|kadhi|soup|shorba/.test(name);
-    const baseCalPerBowl = isHeavy ? 120 : 70;
-    const bowls = Math.round((cal / baseCalPerBowl) * 2) / 2;
-    return `${Math.max(0.5, bowls)} bowl${bowls > 1 ? 's' : ''}`;
-  }
-  
-  // 8. Rice, Pulao, Biryani, Noodles, Pasta
-  if (/rice|pulao|biryani|noodle|pasta|spaghetti|macaroni|chowmein/.test(name)) {
-    const plates = Math.round((cal / 200) * 2) / 2;
-    return `${Math.max(0.5, plates)} plate${plates > 1 ? 's' : ''}`;
-  }
-  
-  // 9. Protein Bars
-  if (name.includes('bar')) {
-    const qty = Math.max(1, Math.round(cal / 200));
-    return `${qty} bar${qty > 1 ? 's' : ''}`;
-  }
-  
-  // 10. Nuts & Seeds
-  if (/almonds|walnuts|cashew|nuts|seeds/.test(name)) {
-    const handfuls = Math.round((cal / 160) * 2) / 2;
-    const g = Math.round(cal / 160 * 28);
-    if (handfuls >= 1) {
-      return `${handfuls} handful${handfuls > 1 ? 's' : ''} (~${g}g)`;
-    }
-    return `~${g}g`;
-  }
-  
-  // Fallback to Grams
-  const g = Math.round((cal / 250) * 200 / 25) * 25;
-  return `~${Math.max(50, Math.min(400, g))}g`;
 }
 
 export default Nutrition;

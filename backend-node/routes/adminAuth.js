@@ -15,8 +15,8 @@ const LOCKOUT_MINUTES = parseInt(
   process.env.ADMIN_LOCKOUT_DURATION_MINUTES || '30',
   10
 );
-// Effectively infinite max age (100 years)
-const ADMIN_COOKIE_MAX_AGE_MS = 100 * 365 * 24 * 60 * 60 * 1000;
+// SEC-FIX: Admin session cookie max age: 2 hours (matches tokenExpiry)
+const ADMIN_COOKIE_MAX_AGE_MS = 2 * 60 * 60 * 1000;
 
 const _trustProxy = String(process.env.TRUST_PROXY || '0').trim() === '1';
 
@@ -207,7 +207,8 @@ router.post('/login', checkAdminIP, adminLoginLimiter, async (req, res) => {
           email: user.email
         }
       },
-      adminJwtSecret
+      adminJwtSecret,
+      { expiresIn: tokenExpiry }
     );
     setAdminAuthCookie(res, token);
 

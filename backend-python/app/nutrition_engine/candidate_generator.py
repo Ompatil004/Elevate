@@ -659,6 +659,8 @@ class CandidateGenerator:
             "lunch_blueprint_fail":     0,
             "dinner_blueprint_fail":    0,
             "snack_blueprint_fail":     0,
+            "too_many_sides":           0,
+            "meal_too_large":           0,
             "incompatible_rice_sandwich": 0,
             "incompatible_rice_pasta":    0,
             "incompatible_chapati_pasta": 0,
@@ -1095,25 +1097,28 @@ class CandidateGenerator:
             )
             return False, "meal_too_large"
 
-        # Enforce at most one optional side dish on all plates
+        # Enforce at most two optional side dishes on all plates, and no duplicates of the same side type
         side_count = 0
         side_items = []
+        side_types = []
         for item in plate:
             role = self._map_food_to_blueprint_role(item, item.get("template_role"))
             is_side = False
             if role in ("salad", "soup", "raita", "chutney"):
                 is_side = True
+                side_types.append(role)
             elif "papad" in item.get("food_name", "").lower():
                 is_side = True
+                side_types.append("papad")
                 
             if is_side:
                 side_count += 1
                 side_items.append(item.get("food_name", ""))
                 
-        if side_count > 1:
+        if side_count > 2 or len(side_types) != len(set(side_types)):
             self._log_composition_reject(
                 "too_many_sides", meal_type, template, plate,
-                roles_in_plate, detail=f"Found {side_count} sides: {side_items}"
+                roles_in_plate, detail=f"Found {side_count} sides ({side_types}): {side_items}"
             )
             return False, "too_many_sides"
 
@@ -1154,19 +1159,58 @@ class CandidateGenerator:
                 if not (has_protein_or_dairy and has_carb):
                     return False, "breakfast_blueprint_fail"
             elif mt_lower == "lunch":
-                # Hard requirement: Protein AND Carb
-                # Soft preference: Vegetable + Side (relaxed — prevents all-empty slots)
+                # Hard requirement: Protein AND Carb (unless template explicitly forbids carb_base e.g. salad/keto lunch)
                 has_protein = "protein" in blueprint_roles
                 has_carb = "carb" in blueprint_roles
-                if not (has_protein and has_carb):
-                    return False, "lunch_blueprint_fail"
+                template_forbids_carb = any(
+                    f.get("role") == "carb_base" for f in (template or {}).get("forbidden", [])
+                )
+                template_requires_carb = any(
+                    r.get("role") == "carb_base" for r in (template or {}).get("required", [])
+                )
+                has_composite = any(
+                    item.get("semantics", {}).get("dish_family") in (
+                        "biryani", "pulao", "fried_rice", "khichdi", "sandwich",
+                        "wrap", "roll", "bowl", "pasta", "noodles", "chilla"
+                    ) or any(
+                        p in item.get("food_name", "").lower() for p in (
+                            "biryani", "pulao", "khichdi", "sandwich", "wrap", "roll", "bowl"
+                        )
+                    )
+                    for item in plate
+                )
+                if template_forbids_carb:
+                    if not has_protein:
+                        return False, "lunch_blueprint_fail"
+                else:
+                    if not (has_protein and (has_carb or has_composite or not template_requires_carb)):
+                        return False, "lunch_blueprint_fail"
             elif mt_lower == "dinner":
-                # Hard requirement: Protein AND Carb
-                # Soft preference: Vegetable + Side (relaxed — prevents all-empty slots)
                 has_protein = "protein" in blueprint_roles
                 has_carb = "carb" in blueprint_roles
-                if not (has_protein and has_carb):
-                    return False, "dinner_blueprint_fail"
+                template_forbids_carb = any(
+                    f.get("role") == "carb_base" for f in (template or {}).get("forbidden", [])
+                )
+                template_requires_carb = any(
+                    r.get("role") == "carb_base" for r in (template or {}).get("required", [])
+                )
+                has_composite = any(
+                    item.get("semantics", {}).get("dish_family") in (
+                        "biryani", "pulao", "fried_rice", "khichdi", "sandwich",
+                        "wrap", "roll", "bowl", "pasta", "noodles", "chilla"
+                    ) or any(
+                        p in item.get("food_name", "").lower() for p in (
+                            "biryani", "pulao", "khichdi", "sandwich", "wrap", "roll", "bowl"
+                        )
+                    )
+                    for item in plate
+                )
+                if template_forbids_carb:
+                    if not has_protein:
+                        return False, "dinner_blueprint_fail"
+                else:
+                    if not (has_protein and (has_carb or has_composite or not template_requires_carb)):
+                        return False, "dinner_blueprint_fail"
             elif mt_lower == "snack":
                 # Required: At least one of: protein, dairy, fruit
                 has_snack_item = any(r in blueprint_roles for r in ("protein", "dairy", "fruit"))

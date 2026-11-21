@@ -640,11 +640,11 @@ class FoodGraph:
                 if not breakfast_cat:
                     br_cfg = NUTRITION_RULES.get("breakfast_rotation", {})
                     br_patterns = br_cfg.get("patterns", {})
-                    breakfast_cat = "Traditional"
+                    breakfast_cat = None
                     matched = False
                     
-                    # We check patterns against: food_name, dish_family, cuisine, food_group, meal_role
-                    check_str = f"{food_name} {sem.get('dish_family', '')} {sem.get('cuisine', '')} {sem.get('food_group', '')} {sem.get('meal_role', '')}".lower()
+                    # We check patterns against: food_name, dish_family, food_group, meal_role (excluding cuisine so region does not override food identity)
+                    check_str = f"{food_name} {sem.get('dish_family', '')} {sem.get('food_group', '')} {sem.get('meal_role', '')}".lower()
                     for cat_name, patterns in br_patterns.items():
                         for p in patterns:
                             if p.lower() in check_str:

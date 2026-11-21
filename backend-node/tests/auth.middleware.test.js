@@ -15,8 +15,25 @@ const cookieParser = require('cookie-parser');
 // ── minimal env for tests (no real .env needed) ─────────────────────────────
 process.env.JWT_SECRET = 'test_secret_min_32_chars_for_testing_only';
 
-// Require AFTER env is set
+// Mock User model for authoritative suspension check
+const mockUsers = {
+  user_abc: { _id: 'user_abc', isSuspended: false, role: 'user' },
+  user_xyz: { _id: 'user_xyz', isSuspended: false, role: 'user' },
+  user_suspended: { _id: 'user_suspended', isSuspended: true, role: 'user' },
+  user_suspension_bypass_attempt: { _id: 'user_suspension_bypass_attempt', isSuspended: true, role: 'user' }
+};
+
+jest.mock('../models/User', () => ({
+  findById: jest.fn().mockImplementation((id) => ({
+    select: jest.fn().mockReturnValue({
+      lean: jest.fn().mockImplementation(async () => mockUsers[id] || null)
+    })
+  }))
+}));
+
+// Require AFTER env and mocks are set
 const authMiddleware = require('../middleware/auth');
+const User = require('../models/User');
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 function buildApp() {
@@ -90,6 +107,27 @@ describe('auth middleware', () => {
       .get('/protected')
       .set('Cookie', `elevate_token=${token}`);
     expect(res.status).toBe(403);
+    expect(res.body.message).toMatch(/Account is suspended/i);
+  });
+
+  it('blocks suspended users even if JWT payload contains isSuspended: false (403)', async () => {
+    // Attack scenario: token has isSuspended: false, but DB has user suspended
+    const token = makeToken({ id: 'user_suspension_bypass_attempt', isSuspended: false });
+    const res = await request(app)
+      .get('/protected')
+      .set('Cookie', `elevate_token=${token}`);
+    expect(res.status).toBe(403);
+    expect(res.body.message).toMatch(/Account is suspended/i);
+  });
+
+  it('rejects tokens when user does not exist in database (401)', async () => {
+    // Attack scenario: valid JWT signature for deleted or non-existent user
+    const token = makeToken({ id: 'deleted_user_999', isSuspended: false });
+    const res = await request(app)
+      .get('/protected')
+      .set('Cookie', `elevate_token=${token}`);
+    expect(res.status).toBe(401);
+    expect(res.body.message).toMatch(/User not found/i);
   });
 
   it('allows a valid token sent via x-auth-token header (200)', async () => {

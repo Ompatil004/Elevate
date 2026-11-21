@@ -112,28 +112,43 @@ const getNamespacedKey = (key) => {
 };
 
 /**
- * Returns a formatted date string (YYYY-MM-DD) strictly in Indian Standard Time (Asia/Kolkata)
+ * Resolves the active user's IANA timezone.
+ * Priority: user profile timezone > browser detected IANA timezone > Asia/Kolkata fallback.
  */
-export const getLocalDateStr = (d = new Date()) => {
-  const formatter = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'Asia/Kolkata',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  });
-  
-  const parts = formatter.formatToParts(d);
-  const year = parts.find(p => p.type === 'year').value;
-  const month = parts.find(p => p.type === 'month').value;
-  const day = parts.find(p => p.type === 'day').value;
-  
-  return `${year}-${month}-${day}`;
+export const getUserTimeZone = () => {
+  try {
+    const user = safeJSONParse('user', null);
+    if (user?.timezone) return user.timezone;
+    const profile = safeJSONParse('profile', null);
+    if (profile?.timezone) return profile.timezone;
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Kolkata';
+  } catch {
+    return 'Asia/Kolkata';
+  }
 };
 
 /**
- * Returns today's date in YYYY-MM-DD format strictly in Indian Standard Time (Asia/Kolkata)
+ * Returns a formatted date string (YYYY-MM-DD) normalized to the user's IANA timezone.
  */
-export const getTodayStr = () => getLocalDateStr();
+export const getLocalDateStr = (d = new Date(), timeZone = getUserTimeZone()) => {
+  try {
+    const dateObj = d instanceof Date ? d : new Date(d);
+    const formatter = new Intl.DateTimeFormat('en-CA', {
+      timeZone: timeZone || 'Asia/Kolkata',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
+    return formatter.format(dateObj);
+  } catch {
+    return (d instanceof Date ? d : new Date(d)).toISOString().slice(0, 10);
+  }
+};
+
+/**
+ * Returns today's date in YYYY-MM-DD format strictly in the user's IANA timezone.
+ */
+export const getTodayStr = (timeZone) => getLocalDateStr(new Date(), timeZone);
 
 /**
  * Safe retrieval from localStorage with error handling

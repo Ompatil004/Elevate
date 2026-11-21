@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Header, Query, BackgroundTasks, Request
+from fastapi import FastAPI, HTTPException, Header, Query, BackgroundTasks, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, EmailStr
@@ -15,6 +15,9 @@ import threading
 import time
 from contextvars import ContextVar
 from collections import OrderedDict
+from contextlib import asynccontextmanager
+import asyncio
+import httpx as _httpx
 import jwt
 from bson import ObjectId
 
@@ -721,8 +724,48 @@ def _extract_client_ip_for_limits(request: Request) -> str:
 
 _validate_required_env()
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("\n" + "=" * 60)
+    print("FastAPI Server Starting...")
+    print("=" * 60)
+
+    from app.db import connect_to_mongo, close_mongo_connection
+
+    try:
+        await connect_to_mongo()
+        print("MongoDB connected successfully")
+    except Exception as e:
+        print(f"MongoDB connection error: {e}")
+        traceback.print_exc()
+
+    try:
+        warmup_info = _trigger_model_warmup(background=True)
+        print(f"Model warmup started (background={warmup_info.get('background', True)})")
+    except Exception as exc:
+        print(f"Model warmup error: {exc}")
+
+    print("=" * 60)
+    print(f"Server ready at http://localhost:{os.getenv('PORT', '8000')}")
+    print("FastAPI startup successful")
+    print("=" * 60 + "\n")
+
+    # Phase 4 clarification: Internal self-ping keep-alive loops are intentionally omitted
+    # to avoid aggressive polling, container resource contention, and artificial wakeups.
+    # Production deployments should utilize standard external uptime monitoring or paid instances.
+
+    yield
+
+    # Graceful shutdown
+    try:
+        await close_mongo_connection()
+    except Exception as exc:
+        logger.warning(f"Error during close_mongo_connection: {exc}")
+
+
 # FastAPI app
-app = FastAPI(title="Elevate Fitness API", version="1.0.0")
+app = FastAPI(title="Elevate Fitness API", version="1.0.0", lifespan=lifespan)
 
 # Global Exception Handlers to return structured JSON
 from fastapi.exceptions import RequestValidationError
@@ -1283,37 +1326,7 @@ async def _check_database_health() -> Dict[str, Any]:
         return {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
 
 
-@app.on_event("startup")
-async def startup_event():
-    print("\n" + "=" * 60)
-    print("FastAPI Server Starting...")
-    print("=" * 60)
 
-    # Connect to MongoDB
-    from app.db import connect_to_mongo
-
-    try:
-        await connect_to_mongo()
-        print("MongoDB connected successfully")
-    except Exception as e:
-        print(f"MongoDB connection error: {e}")
-        import traceback
-
-        traceback.print_exc()
-
-    warmup_info = _trigger_model_warmup(background=True)
-    print(f"Model warmup started (background={warmup_info['background']})")
-
-    print("=" * 60)
-    print(f"Server ready at http://localhost:{os.getenv('PORT', '8000')}")
-    print("FastAPI startup successful")
-    print("=" * 60 + "\n")
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    from app.db import close_mongo_connection
-    await close_mongo_connection()
 
 # Include routers
 from app.routes.profile import router as profile_router
@@ -1340,56 +1353,54 @@ async def root():
 
 
 @app.get("/health")
+@app.get("/healthz")
+@app.get("/api/health")
 async def health_check():
-    status_payload = _get_model_status_payload()
-    database = await _check_database_health()
-    overall_status = "healthy" if database.get("ok") else "degraded"
+    """Liveness probe: ultra-lightweight check returning 200 without DB/ML round-trips."""
     return {
-        "status": overall_status,
-        "service": "elevate_fitness",
+        "status": "ok",
+        "service": "elevate-python",
         "timestamp": _utcnow().isoformat(),
-        "engines": {
-            "workout": status_payload["models"]["workout"]["ready"],
-            "meal": status_payload["models"]["meal"]["ready"],
-        },
-        "dependencies": {
-            "mongo": database,
-        },
-        "model_warmup": status_payload["warmup"],
     }
 
 
-# ==========================================
-# KEEP-ALIVE PINGER (Render free-tier)
-# ==========================================
-# Render free-tier spins down services after 15 min of inactivity.
-# This background task pings /health every 10 min to keep the service alive.
+@app.get("/ready")
+@app.get("/readyz")
+@app.get("/api/ready")
+async def readiness_check(response: Response):
+    """Readiness probe: validates MongoDB connectivity and ML engine readiness."""
+    database = await _check_database_health()
+    status_payload = _get_model_status_payload()
+    workout_ready = bool(status_payload.get("models", {}).get("workout", {}).get("ready", False))
+    meal_ready = bool(status_payload.get("models", {}).get("meal", {}).get("ready", False))
 
-import asyncio
-import httpx as _httpx
+    is_ready = bool(database.get("ok"))
+    if not is_ready:
+        response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+        return {
+            "status": "not_ready",
+            "service": "elevate-python",
+            "timestamp": _utcnow().isoformat(),
+            "checks": {
+                "database": "disconnected",
+                "workout_engine": "ready" if workout_ready else "initializing",
+                "meal_engine": "ready" if meal_ready else "initializing",
+            },
+        }
+
+    return {
+        "status": "ready",
+        "service": "elevate-python",
+        "timestamp": _utcnow().isoformat(),
+        "checks": {
+            "database": "connected",
+            "workout_engine": "ready" if workout_ready else "initializing",
+            "meal_engine": "ready" if meal_ready else "initializing",
+        },
+    }
 
 
-@app.on_event("startup")
-async def _start_keep_alive_pinger():
-    """Start a background task that pings /health every 10 minutes."""
-    service_url = os.getenv("RENDER_EXTERNAL_URL")
-    if not service_url:
-        logger.info("RENDER_EXTERNAL_URL not set — keep-alive pinger disabled (local dev)")
-        return
 
-    async def _keep_alive_loop():
-        ping_url = f"{service_url.rstrip('/')}/health"
-        logger.info(f"Keep-alive pinger started → {ping_url} every 10 min")
-        async with _httpx.AsyncClient(timeout=30) as client:
-            while True:
-                await asyncio.sleep(10 * 60)  # 10 minutes
-                try:
-                    resp = await client.get(ping_url)
-                    logger.info(f"Keep-alive ping OK (status={resp.status_code})")
-                except Exception as exc:
-                    logger.warning(f"Keep-alive ping failed: {exc}")
-
-    asyncio.create_task(_keep_alive_loop())
 
 
 @app.get("/debug/status")
@@ -2250,6 +2261,7 @@ async def invalidate_workout_cache(profile: Dict[str, Any]):
 
 
 @app.get("/api/weekly-plan")
+@app.get("/weekly-plan")
 async def get_weekly_plan(
     request: Request,
     x_auth_token: Optional[str] = Header(None, alias="x-auth-token"),
@@ -2259,7 +2271,9 @@ async def get_weekly_plan(
         _ensure_workout_engine_ready()
 
         user_id = _require_user_id_from_request(request, x_auth_token)
+        logger.info(f"[weekly-plan] Extracted user_id={user_id}")
         user_doc = await _find_user_by_id(user_id)
+        logger.info(f"[weekly-plan] user_doc found={user_doc is not None}")
         if not user_doc:
             raise HTTPException(status_code=404, detail="User not found")
 
@@ -2296,7 +2310,9 @@ async def get_workout_swap_options(
         _ensure_workout_engine_ready()
 
         user_id = _require_user_id_from_request(request, x_auth_token)
+        logger.info(f"[weekly-plan] Extracted user_id={user_id}")
         user_doc = await _find_user_by_id(user_id)
+        logger.info(f"[weekly-plan] user_doc found={user_doc is not None}")
         if not user_doc:
             raise HTTPException(status_code=404, detail="User not found")
 
@@ -3368,6 +3384,7 @@ async def update_profile(
 
 
 @app.put("/profile/update-safe")
+@app.put("/profile/update")
 async def update_profile_safe(
     profile_update: PlanProfileUpdateRequest,
     http_request: Request,
@@ -4073,5 +4090,6 @@ async def get_weekly_logs(
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("server:app", host="0.0.0.0", port=8000, reload=True, log_level="info")
+    server_port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("server:app", host="0.0.0.0", port=server_port, reload=True, log_level="info")
 

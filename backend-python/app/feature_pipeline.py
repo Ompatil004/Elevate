@@ -64,8 +64,50 @@ class FeaturePipeline:
         # Gender
         self.gender_encoder.fit(['Male', 'Female', 'Other'])
         
-        # Equipment (will be fitted when first data comes in)
-        # Injury flags (will be fitted when first data comes in)
+        # Equipment
+        canonical_equipment = [
+            'None',
+            'None (Bodyweight Only)',
+            'Bodyweight',
+            'Body Weight',
+            'Dumbbell',
+            'Dumbbells',
+            'Barbell',
+            'Resistance Bands',
+            'Resistance Bands (Light)',
+            'Kettlebell',
+            'Weighted Vest',
+            'Medicine Ball',
+            'Stability / Yoga Ball',
+            'Pull-up Bar',
+            'Foam Roller',
+            'Ab Wheel',
+            'Jump Rope',
+            'Bosu Ball',
+            'Cable',
+            'Machine',
+            'Bench',
+        ]
+        self.equipment_encoder.fit([canonical_equipment])
+
+        # Injury flags
+        canonical_injuries = [
+            'None',
+            'knee',
+            'shoulder',
+            'back',
+            'wrist',
+            'ankle',
+            'neck',
+            'hip',
+            'elbow',
+            'Knee Pain',
+            'Back Pain',
+            'Shoulder Pain',
+            'Diabetes',
+            'High BP',
+        ]
+        self.injury_encoder.fit([canonical_injuries])
     
     def validate_input(self, user_profile: Dict) -> Dict:
         """
@@ -226,21 +268,27 @@ class FeaturePipeline:
             # If new value, default to Male = 0
             encoded_profile['gender_encoded'] = 0
         
-        # Equipment multi-hot encoding
-        try:
-            equipment_encoded = self.equipment_encoder.transform([encoded_profile['equipment']])
-        except ValueError:
-            # If new equipment list, fit and transform
-            self.equipment_encoder.fit(encoded_profile['equipment'])
-            equipment_encoded = self.equipment_encoder.transform([encoded_profile['equipment']])
+        # Equipment multi-hot encoding (safe vocabulary mapping)
+        raw_equipment = encoded_profile.get('equipment') or []
+        if isinstance(raw_equipment, str):
+            raw_equipment = [raw_equipment]
+        elif not isinstance(raw_equipment, (list, tuple, set)):
+            raw_equipment = []
+
+        known_equipment = set(getattr(self.equipment_encoder, 'classes_', []))
+        safe_equipment = [e for e in raw_equipment if e in known_equipment]
+        equipment_encoded = self.equipment_encoder.transform([safe_equipment])
         
-        # Injury multi-hot encoding
-        try:
-            injury_encoded = self.injury_encoder.transform([encoded_profile['injuries']])
-        except ValueError:
-            # If new injury list, fit and transform
-            self.injury_encoder.fit(encoded_profile['injuries'])
-            injury_encoded = self.injury_encoder.transform([encoded_profile['injuries']])
+        # Injury multi-hot encoding (safe vocabulary mapping)
+        raw_injuries = encoded_profile.get('injuries') or []
+        if isinstance(raw_injuries, str):
+            raw_injuries = [raw_injuries]
+        elif not isinstance(raw_injuries, (list, tuple, set)):
+            raw_injuries = []
+
+        known_injuries = set(getattr(self.injury_encoder, 'classes_', []))
+        safe_injuries = [i for i in raw_injuries if i in known_injuries]
+        injury_encoded = self.injury_encoder.transform([safe_injuries])
         
         # Create feature vector
         feature_vector = np.array([

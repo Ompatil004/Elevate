@@ -21,12 +21,18 @@ const getChatTimeoutMs = () => {
 };
 
 // Route mapping helper
-function normalizePythonPath(path) {
-  const cleanPath = path.replace(/^\/api\/python/, '');
+function normalizePythonPath(path, baseUrl = '') {
+  let combined = (baseUrl ? `${baseUrl}${path}` : path).replace(/\/+$/, '');
+  const cleanPath = combined
+    .replace(/^\/api\/v1\/python/, '')
+    .replace(/^\/api\/python/, '')
+    .replace(/^\/api\/v1/, '/api');
 
   const routeMap = {
     '/health': '/health',
     '/api/health': '/health',
+    '/ready': '/ready',
+    '/api/ready': '/ready',
     '/nutrition': '/nutrition',
     '/weekly-plan': '/api/weekly-plan',
     '/api/weekly-plan': '/api/weekly-plan',
@@ -40,7 +46,7 @@ function normalizePythonPath(path) {
     '/api/chat': '/api/chat',
   };
 
-  return routeMap[cleanPath] || cleanPath;
+  return routeMap[cleanPath] || routeMap[path] || cleanPath || path;
 }
 
 // Credential derivation helper
@@ -94,7 +100,7 @@ router.use(auth, async (req, res) => {
   let resolvedPath = '';
   const startTime = Date.now();
   try {
-    resolvedPath = normalizePythonPath(req.path);
+    resolvedPath = normalizePythonPath(req.path, req.baseUrl);
     // 1. Safe base URL normalization & validation
     const configured = process.env.ML_API_URL
       || process.env.PYTHON_API_URL
@@ -116,7 +122,7 @@ router.use(auth, async (req, res) => {
     }
 
     // 2. Build target URL
-    resolvedPath = normalizePythonPath(req.path);
+    resolvedPath = normalizePythonPath(req.path, req.baseUrl);
     const targetUrl = `${base}/${resolvedPath.replace(/^\/+/, '')}`;
 
     // 3. Build headers (throws 401 if token missing)

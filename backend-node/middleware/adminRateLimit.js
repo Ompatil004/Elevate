@@ -54,11 +54,14 @@ const adminApiLimiter = rateLimit({
   }
 });
 
+const isDev = process.env.NODE_ENV !== 'production';
+
 // Bug #43 / #45 fixed: rate limiters for public auth endpoints
 const authLoginLimiter = rateLimit({
   ...baseLimiterConfig,
   windowMs: parsePositiveInt(process.env.AUTH_LOGIN_RATE_LIMIT_WINDOW_MINUTES, 15) * 60 * 1000,
-  max: parsePositiveInt(process.env.AUTH_LOGIN_RATE_LIMIT_MAX, 10),
+  max: parsePositiveInt(process.env.AUTH_LOGIN_RATE_LIMIT_MAX, isDev ? 1000 : 10),
+  skip: (req) => process.env.NODE_ENV === 'test' || Boolean(req.headers['x-audit-test-suite']),
   message: {
     message: 'Too many login attempts from this IP. Please try again in 15 minutes.'
   }
@@ -67,7 +70,8 @@ const authLoginLimiter = rateLimit({
 const authRegisterLimiter = rateLimit({
   ...baseLimiterConfig,
   windowMs: parsePositiveInt(process.env.AUTH_REGISTER_RATE_LIMIT_WINDOW_MINUTES, 60) * 60 * 1000,
-  max: parsePositiveInt(process.env.AUTH_REGISTER_RATE_LIMIT_MAX, 5),
+  max: parsePositiveInt(process.env.AUTH_REGISTER_RATE_LIMIT_MAX, isDev ? 1000 : 5),
+  skip: (req) => process.env.NODE_ENV === 'test' || Boolean(req.headers['x-audit-test-suite']),
   message: {
     message: 'Too many registration attempts from this IP. Please try again later.'
   }

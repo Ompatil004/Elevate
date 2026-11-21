@@ -12,8 +12,10 @@ const User = require('../models/User');
  * client), re-add: `|| req.header('x-auth-token')` to line 19.
  */
 module.exports = async function(req, res, next) {
-    // SEC-1 (modified): accept HttpOnly cookie, fall back to x-auth-token header for cross-site deployments (e.g. Render)
-    const token = req.cookies?.elevate_token || req.header('x-auth-token');
+    // SEC-1 (modified): accept HttpOnly cookie, fall back to x-auth-token or Bearer header
+    const authHeader = req.header('authorization');
+    const bearerToken = authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    const token = req.cookies?.elevate_token || req.header('x-auth-token') || bearerToken;
 
     if (!token) {
         return res.status(401).json({ message: 'No token, authorization denied' });
@@ -43,31 +45,26 @@ module.exports = async function(req, res, next) {
         }
         */
 
-        // PERF-4: isSuspended is now embedded in the JWT payload, so we can
-        // avoid a DB round-trip on every request.
-        //
-        // - If the field is present in the token: enforce it immediately.
-        // - If the field is missing (legacy tokens issued before this change):
-        //   fall back to a DB lookup. Old tokens expire within 7 days.
-        if (typeof req.user.isSuspended === 'boolean') {
-            // Fast path — no DB hit needed.
-            if (req.user.isSuspended) {
-                return res.status(403).json({
-                    message: 'Account is suspended. Please contact support.'
-                });
-            }
-        } else {
-            // Legacy token — do the DB lookup as a safe fallback.
-            const user = await User.findById(req.user.id).select('isSuspended').lean();
-            if (!user) {
-                return res.status(401).json({ message: 'User not found' });
-            }
-            if (user.isSuspended) {
-                return res.status(403).json({
-                    message: 'Account is suspended. Please contact support.'
-                });
-            }
+        const userId = req.user.id || req.user._id;
+        if (!userId) {
+            return res.status(401).json({ message: 'Token is not valid' });
         }
+
+        // P0-02: Authoritative database check for account existence and suspension status.
+        // Prevents privilege/suspension bypass from static claims in issued tokens.
+        const user = await User.findById(userId).select('isSuspended role').lean();
+        if (!user) {
+            return res.status(401).json({ message: 'User not found' });
+        }
+        if (user.isSuspended) {
+            return res.status(403).json({
+                message: 'Account is suspended. Please contact support.'
+            });
+        }
+
+        req.user.id = userId.toString();
+        req.user.isSuspended = false;
+        req.user.role = user.role || 'user';
 
         next();
     } catch (err) {

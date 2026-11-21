@@ -257,7 +257,15 @@ const { checkAdminIP } = require('./middleware/adminAuth');
 let _maintenanceCache = { enabled: false, message: '', expiresAt: 0 };
 
 app.use(async (req, res, next) => {
-    if (req.path.startsWith('/api/admin') || req.path === '/health') {
+    if (
+        req.path.startsWith('/api/admin') ||
+        req.path === '/health' ||
+        req.path === '/healthz' ||
+        req.path === '/ready' ||
+        req.path === '/readyz' ||
+        req.path === '/api/health' ||
+        req.path === '/api/ready'
+    ) {
         return next();
     }
 
@@ -299,6 +307,7 @@ app.use(async (req, res, next) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/python', pythonProxyRoutes);
+app.use('/api/weekly-plan', pythonProxyRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/admin', checkAdminIP);
 // BUG-N4 fix: skip the blanket adminApiLimiter for /login — that route applies
@@ -319,6 +328,7 @@ app.use('/api/admin/content', adminContentRoutes);
 app.use('/api/v1/auth',           authRoutes);
 app.use('/api/v1/profile',        profileRoutes);
 app.use('/api/v1/python',         pythonProxyRoutes);
+app.use('/api/v1/weekly-plan',    pythonProxyRoutes);
 app.use('/api/v1/users',          usersRoutes);
 app.use('/api/v1/admin',          checkAdminIP);
 app.use('/api/v1/admin', (req, res, next) => {
@@ -332,9 +342,53 @@ app.use('/api/v1/admin/content',  adminContentRoutes);
 
 console.log('✅ All routes registered');
 
-// Health check
-app.get('/health', (req, res) => {
-    res.json({ status: 'OK', message: 'Server is running' });
+// Liveness probe (Lightweight, unauthenticated, zero DB round-trips)
+app.get(['/health', '/healthz', '/api/health'], (req, res) => {
+    res.status(200).json({
+        status: 'ok',
+        service: 'elevate-node',
+        timestamp: new Date().toISOString()
+    });
+});
+
+// Readiness probe (Verifies MongoDB readiness and connectivity)
+app.get(['/ready', '/readyz', '/api/ready'], async (req, res) => {
+    const isConnected = mongoose.connection && mongoose.connection.readyState === 1;
+    if (!isConnected) {
+        return res.status(503).json({
+            status: 'not_ready',
+            service: 'elevate-node',
+            timestamp: new Date().toISOString(),
+            checks: {
+                database: 'disconnected'
+            }
+        });
+    }
+
+    try {
+        await Promise.race([
+            mongoose.connection.db.admin().ping(),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Database ping timeout')), 2500))
+        ]);
+
+        return res.status(200).json({
+            status: 'ready',
+            service: 'elevate-node',
+            timestamp: new Date().toISOString(),
+            checks: {
+                database: 'connected'
+            }
+        });
+    } catch (err) {
+        return res.status(503).json({
+            status: 'not_ready',
+            service: 'elevate-node',
+            timestamp: new Date().toISOString(),
+            checks: {
+                database: 'unresponsive'
+            }
+        });
+    }
 });
 
 // Test database connection
@@ -367,16 +421,26 @@ const PORT = process.env.PORT || 5000;
 // BUG-N3 fix: listen only after MongoDB is connected to avoid accepting
 // requests against an unready database.
 let server;
-mongoose.connection.once('connected', () => {
-    server = app.listen(PORT, () => {
-        console.log(`🚀 Server running on http://localhost:${PORT}`);
-        console.log('📍 Available routes:');
-        console.log('   - POST http://localhost:5000/api/auth/register');
-        console.log('   - POST http://localhost:5000/api/auth/login');
-        console.log('   - GET  http://localhost:5000/api/profile');
-        console.log('   - POST http://localhost:5000/api/profile/update');
-    });
-});
+const startHttpServer = () => {
+    if (!server) {
+        server = app.listen(PORT, '0.0.0.0', () => {
+            console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
+            console.log('📍 Available routes:');
+            console.log(`   - GET  http://localhost:${PORT}/health`);
+            console.log(`   - GET  http://localhost:${PORT}/ready`);
+            console.log(`   - POST http://localhost:${PORT}/api/auth/register`);
+            console.log(`   - POST http://localhost:${PORT}/api/auth/login`);
+            console.log(`   - GET  http://localhost:${PORT}/api/profile`);
+            console.log(`   - POST http://localhost:${PORT}/api/profile/update`);
+        });
+    }
+};
+
+if (mongoose.connection && mongoose.connection.readyState === 1) {
+    startHttpServer();
+} else {
+    mongoose.connection.once('connected', startHttpServer);
+}
 
 // BUG-N9 fix: Graceful shutdown to close MongoDB and HTTP server cleanly
 const gracefulShutdown = async (signal) => {
@@ -405,3 +469,5 @@ const gracefulShutdown = async (signal) => {
 
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT',  () => gracefulShutdown('SIGINT'));
+
+module.exports = app;

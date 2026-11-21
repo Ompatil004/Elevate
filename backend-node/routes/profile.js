@@ -437,10 +437,12 @@ router.post('/trends', auth, async (req, res) => {
 
 
 
+const MAX_ACTIVITY_HISTORY = 100;
+
 // POST /api/profile/activities/sync
 router.post('/activities/sync', auth, async (req, res) => {
     try {
-        const user = await User.findById(req.user.id);
+        const user = await User.findById(req.user.id).select('activities');
         if (!user) return res.status(404).json({ message: 'User not found' });
         const { activities } = req.body;
         if (Array.isArray(activities) && activities.length > 0) {
@@ -455,8 +457,17 @@ router.post('/activities/sync', auth, async (req, res) => {
                 return !existingMap.has(`${a.type}|${a.name}|${a.details}|${ts || a.date}`);
             });
             if (newActs.length > 0) {
-                user.activities.push(...newActs);
-                await user.save();
+                await User.findByIdAndUpdate(
+                    req.user.id,
+                    {
+                        $push: {
+                            activities: {
+                                $each: newActs,
+                                $slice: -MAX_ACTIVITY_HISTORY
+                            }
+                        }
+                    }
+                );
             }
         }
         res.json({ success: true });
@@ -465,12 +476,12 @@ router.post('/activities/sync', auth, async (req, res) => {
     }
 });
 
-// POST /api/profile/activities/log — append a SINGLE activity (with dedup).
+// POST /api/profile/activities/log — append a SINGLE activity (with dedup and bounded retention).
 // The frontend (Workout/Nutrition/Dashboard) logs one activity at a time via
 // logActivityToBackend(); this complements the bulk /activities/sync route.
 router.post('/activities/log', auth, async (req, res) => {
     try {
-        const user = await User.findById(req.user.id);
+        const user = await User.findById(req.user.id).select('activities');
         if (!user) return res.status(404).json({ message: 'User not found' });
 
         const activity = req.body || {};
@@ -479,19 +490,28 @@ router.post('/activities/log', auth, async (req, res) => {
             return res.status(400).json({ message: 'Invalid activity payload' });
         }
 
-        if (!Array.isArray(user.activities)) user.activities = [];
+        const currentActs = Array.isArray(user.activities) ? user.activities : [];
 
         // Dedup using the same key shape as /activities/sync.
         const ts = activity.timestamp ? new Date(activity.timestamp).getTime() : 0;
         const key = `${activity.type}|${activity.name}|${activity.details}|${ts || activity.date}`;
-        const exists = user.activities.some(a => {
+        const exists = currentActs.some(a => {
             const ats = a.timestamp ? new Date(a.timestamp).getTime() : 0;
             return `${a.type}|${a.name}|${a.details}|${ats || a.date}` === key;
         });
 
         if (!exists) {
-            user.activities.push(activity);
-            await user.save();
+            await User.findByIdAndUpdate(
+                req.user.id,
+                {
+                    $push: {
+                        activities: {
+                            $each: [activity],
+                            $slice: -MAX_ACTIVITY_HISTORY
+                        }
+                    }
+                }
+            );
         }
         res.json({ success: true });
     } catch (err) {
